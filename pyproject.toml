@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "polykin"
+version = "0.1.0"
+description = ""
+authors = ["HugoMVale <57530119+HugoMVale@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "polykin", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^1.24.1"
+scipy = "^1.9.3"
+matplotlib = "^3.6.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+flake8 = "^6.0.0"
+autopep8 = "^2.0.1"
+black = "^22.12.0"
+ipykernel = "^6.20.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
