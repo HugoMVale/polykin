@@ -65,13 +65,7 @@ class Flory(Distribution):
 
 
 class Poisson(Distribution):
-    pass
-
-
-def donothing():
-    """Does nothing!
-
-    Returns:
-        None: Nada
-    """
-    return None
+    def _pmf(self, i):
+        a = 2.0 / (self.DPn + 1)
+        w = a**2 * i * (1 - a) ** (i - 1)
+        return w
