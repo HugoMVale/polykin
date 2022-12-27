@@ -3,7 +3,7 @@
 Polymerization kinetics package
 
 [![CI](https://github.com/HugoMVale/polykin/actions/workflows/CI.yml/badge.svg)](https://github.com/HugoMVale/polykin/actions)
-[![codecov](https://codecov.io/gh/HugoMVale/polykin/branch/main/graph/badge.svg?token=1XL5LQSO9P)](https://codecov.io/gh/polykin/HR-WENO)
+[![codecov](https://codecov.io/gh/HugoMVale/polykin/branch/main/graph/badge.svg?token=QfqQLX2rHx)](https://codecov.io/gh/HugoMVale/polykin)
 
 ## Status
 
