@@ -33,7 +33,7 @@ jobs:
       - name: Install Sphynx
         run: |
           pip install sphinx sphinx_rtd_theme myst-parser      
-      - name: Build docs Sphynx
+      - name: Build docs with Sphynx
         run: |
           sphinx-build -b html ./docs/source _site
       - name: Upload artifact
