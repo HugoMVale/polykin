@@ -24,20 +24,30 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install Sphynx
-        run: |
-          pip install sphinx sphinx_rtd_theme myst-parser      
-      - name: Build docs with Sphynx
-        run: |
-          sphinx-build -b html ./docs/source _site
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Install Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install and configure Poetry
+      run: |
+        pip install poetry
+        poetry --version
+        poetry config virtualenvs.in-project true
+    - name: Cache the virtualenv
+      uses: actions/cache@v3
+      with:
+        path: ./.venv
+        key: ${{ runner.os }}-venv-${{ hashFiles('**/poetry.lock') }}
+    - name: Install project dependencies
+      run: |
+        poetry install    
+    - name: Build docs with Sphynx
+      run: |
+        poetry run sphinx-build -b html ./docs/source _site
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
         
   # Deployment job
   deploy:
