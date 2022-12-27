@@ -23,6 +23,8 @@ sphinx = "^5.3.0"
 sphinx-rtd-theme = "^1.1.1"
 myst-parser = "^0.18.1"
 coverage = "^7.0.1"
+pytest-cov = "^4.0.0"
+pytest-xdist = "^3.1.0"
 
 [build-system]
 requires = ["poetry-core"]
