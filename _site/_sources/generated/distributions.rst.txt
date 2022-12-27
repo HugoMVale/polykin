@@ -1,0 +1,37 @@
+﻿distributions
+=============
+
+.. automodule:: distributions
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      donothing
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Distribution
+      Flory
+      Poisson
+   
+   
+
+   
+   
+   
+
+
+
