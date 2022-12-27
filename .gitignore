@@ -74,6 +74,7 @@ docs/_build/
 docs/Makefile
 docs/make.bat
 docs/source/generated
+_site
 
 # PyBuilder
 .pybuilder/
