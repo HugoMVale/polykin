@@ -66,3 +66,12 @@ class Flory(Distribution):
 
 class Poisson(Distribution):
     pass
+
+
+def donothing():
+    """Does nothing!
+
+    Returns:
+        None: Nada
+    """
+    return None
