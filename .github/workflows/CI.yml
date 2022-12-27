@@ -23,11 +23,10 @@ jobs:
     - name: Install project dependencies
       run: |
         poetry install
-        poetry shell
 
     - name: Run tests and collect coverage
       run: |
-        coverage run -m pytest -v -s
+        poetry run coverage run -m pytest -v -s
         
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
