@@ -33,7 +33,7 @@ jobs:
 
     - name: Run tests and collect coverage
       run: |
-        poetry run pytest --cov -v -s
+        poetry run pytest --cov -v -s --cov-report=xml
 #        poetry run pytest --cov -v -s -n auto
 #        poetry run coverage run -m pytest -v -s
 #        poetry run coverage report
@@ -41,5 +41,4 @@ jobs:
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
-        files: ./.coverage
         verbose: true
