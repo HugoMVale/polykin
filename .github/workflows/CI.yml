@@ -22,7 +22,7 @@ jobs:
         poetry config virtualenvs.in-project true
     
     - name: Cache the virtualenv
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ./.venv
         key: ${{ runner.os }}-venv-${{ hashFiles('**/poetry.lock') }}
@@ -33,8 +33,10 @@ jobs:
 
     - name: Run tests and collect coverage
       run: |
-        poetry run coverage run -m pytest -v -s
-        poetry run coverage report
+        poetry run pytest --cov -v -s
+#        poetry run pytest --cov -v -s -n auto
+#        poetry run coverage run -m pytest -v -s
+#        poetry run coverage report
         
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
