@@ -38,8 +38,8 @@ jobs:
 #        run: |
 #          sphinx-build -b html ./docs/source _site
 #          ls -l
-      - name: Setup Pages
-        uses: actions/configure-pages@v2
+#      - name: Setup Pages
+#        uses: actions/configure-pages@v2
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         
