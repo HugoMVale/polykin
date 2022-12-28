@@ -43,9 +43,9 @@ jobs:
     - name: Install project dependencies
       run: |
         poetry install    
-    - name: Build docs with Sphynx
+    - name: Build docs with MkDocs
       run: |
-        poetry run sphinx-build -b html ./docs/source _site
+        poetry run mkdocs build -d _site
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
         
