@@ -1,0 +1,23 @@
+site_name: polykin
+site_url: https://hugomvale.github.io/polykin/
+
+nav:
+    - Home: index.md
+    - Reference: reference.md
+
+theme: material
+
+plugins:
+- mkdocstrings:
+    handlers:
+        python:
+            paths: [src]
+
+markdown_extensions:
+  - pymdownx.arithmatex:
+      generic: true
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
