@@ -33,7 +33,7 @@ def test_pmf():
 def test_cdf():
     DPn = 51
     x = [i for i in range(1, DPn+1)]
-    distributions = {"poisson": Poisson(DPn)}
+    distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
     for d in distributions.values():
         for dist in ["number", "mass", "gpc"]:
             pmf = d.pmf(x, dist=dist)

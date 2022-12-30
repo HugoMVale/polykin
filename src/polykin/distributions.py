@@ -257,8 +257,18 @@ class Flory(Distribution):
         a = 1 - 1 / self.DPn
         return (1 - a) * a ** (k - 1)
 
-    def _cdf(self, k):
-        return 0.0
+    def _cdf(self, s, order):
+        a = 1 - 1 / self.DPn
+        if order == 0:
+            result = 1 - a**s
+        elif order == 1:
+            result = (a**s*(-a*s + s + 1) - 1)/(a - 1)
+        elif order == 2:
+            result = (-((a - 1)**2*s**2 - 2*(a - 1)*s + a + 1)
+                      * a**s + a + 1)/(a - 1)**2
+        else:
+            raise ValueError("Not defined for order>2.")
+        return result
 
     def _xrange_auto(self):
         return (1, 10*self.DPn)
