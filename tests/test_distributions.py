@@ -36,8 +36,6 @@ def test_cdf():
             pmf = d(x, dist=dist[0], unit_x='chain_length')
             cdf = d._cdf(DPn, dist[1])
             assert (np.isclose(sum(pmf), cdf, atol=1e-10))
-            print(sum(pmf))
-            print(cdf)
 
 
 def test_Flory():
