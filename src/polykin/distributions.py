@@ -1,9 +1,10 @@
 # %%
 
 from abc import ABC, abstractmethod
-from utils import check_bounds, check_type, check_in_set
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.special as sc
+from utils import check_bounds, check_type, check_in_set
 
 
 class Distribution(ABC):
@@ -35,30 +36,22 @@ class Distribution(ABC):
 
         # Select unit_x
         check_in_set(unit_x, {'chain_length', 'molar_mass'}, 'unit_x')
+        x = self._list_to_array(x)
         if unit_x == "molar_mass":
-            x = self._list_to_array(x) / self.DPn
+            x /= self.DPn
 
         # Select distribution
         check_in_set(dist, {'number', 'mass', 'gpc'}, 'dist')
         if dist == "number":
-            result = self._dist_number(x)
+            factor = 1
         elif dist == "mass":
-            result = self._dist_mass(x)
+            factor = x / self.DPn
         elif dist == "gpc":
-            result = self._dist_gpc(x)
+            factor = x**2 / self._moment(2)
         else:
             raise ValueError
 
-        return result
-
-    def _dist_number(self, length):
-        return self._pmf(self._list_to_array(length))
-
-    def _dist_mass(self, length):
-        return self._dist_number(length) * length / self.DPn
-
-    def _dist_gpc(self, length):
-        return self._dist_number(length) * length**2 / self._moment(2)
+        return factor*self._pmf(x)
 
     @property
     def M0(self) -> float:
@@ -93,7 +86,7 @@ class Distribution(ABC):
     @DPn.setter
     def DPn(self, DPn: int = 100):
         """Set average degree of polymerization."""
-        self.__DPn = check_bounds(DPn, 1, np.Inf, "M0")
+        self.__DPn = check_bounds(DPn, 2, np.Inf, "DPn")
 
     @property
     def DPw(self) -> float:
@@ -126,16 +119,20 @@ class Distribution(ABC):
         return self.M0 * self.DPz
 
     @abstractmethod
-    def _pmf(self, length) -> float:
+    def _pmf(self, length) -> float | np.ndarray:
         return 0.0
 
     @abstractmethod
-    def _cdf(self, length) -> float:
+    def _cdf(self, length) -> float | np.ndarray:
         return 0.0
 
     @abstractmethod
     def _moment(self, order: int) -> float:
         return 0.0
+
+    @abstractmethod
+    def _xrange_auto(self) -> tuple:
+        return ()
 
     @staticmethod
     def _list_to_array(length) -> np.ndarray:
@@ -143,20 +140,31 @@ class Distribution(ABC):
             length = np.asarray(length)
         return length
 
-    @property
-    def show(self):
-        """Show key properties of the chain-length distribution."""
-        print(f"DPn: {self.DPn:.1f}")
-        print(f"DPw: {self.DPw:.1f}")
-        print(f"DPz: {self.DPw:.1f}")
-        print(f"PDI: {self.PDI:.2f}")
-        print(f"Mn:  {self.Mn:,.0f}")
-        print(f"Mw:  {self.Mw:,.0f}")
-        print(f"Mz:  {self.Mz:,.0f}")
+    def __str__(self) -> str:
+        """Display key properties of the chain-length distribution."""
+        return f"name: {self.name}\n" + \
+            f"DPn:  {self.DPn:.1f}\n" + \
+            f"DPw:  {self.DPw:.1f}\n" + \
+            f"DPz:  {self.DPw:.1f}\n" + \
+            f"PDI:  {self.PDI:.2f}\n" + \
+            f"Mn:   {self.Mn:,.0f}\n" + \
+            f"Mw:   {self.Mw:,.0f}\n" + \
+            f"Mz:   {self.Mz:,.0f}"
 
-    def plot(self, dist: str = "mass", unit_x: str = "chain_length",
-             xscale: str = 'linear', ax=None):
-        """Plot the chain-length distribution."""
+    def plot(self, dist: str = 'mass', unit_x: str = 'chain_length',
+             xscale: str = 'auto', xrange: tuple = (), ax=None):
+        """Plot the chain-length distribution.
+
+        Args:
+            dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
+            unit_x (str, optional): Unit of variable `x`. Options: 'chain_length' or 'molar_mass'.
+            xscale (str, optional): x-axis scale. Options: 'linear', 'log', 'auto'.
+            xrange (tuple, optional): x-axis range.
+            ax (matplotlib.axes, optional): Matplotlib axes object.
+
+        Returns:
+            (matplotlib.axes):  Matplotlib axes object.
+        """
 
         # Check inputs
         check_in_set(unit_x, {'chain_length', 'molar_mass'}, 'unit_x')
@@ -172,11 +180,14 @@ class Distribution(ABC):
             self.fig = fig
 
         # x-axis
+        if len(xrange) != 2:
+            xrange = self._xrange_auto()
+
         if xscale == 'log' or (xscale == 'auto' and set(dist) == {'gpc'}):
-            x = np.geomspace(1, 10 * self.DPn, 100)
+            x = np.geomspace(xrange[0], xrange[1], 100)
             xscale = 'log'
         else:
-            x = np.linspace(1, 10 * self.DPn, 100)
+            x = np.linspace(xrange[0], xrange[1], 100)
             xscale = 'linear'
         if unit_x == "chain_length":
             xp = x
@@ -188,7 +199,6 @@ class Distribution(ABC):
             raise ValueError
 
         # y-axis
-
         for item in dist:
             y = self(x, dist=item, unit_x="chain_length")
             ax.plot(xp, y, label=item)
@@ -204,15 +214,23 @@ class Distribution(ABC):
 
 
 class Flory(Distribution):
-    """Flory-Schulz (aka most-probable) chain-length distribution."""
+    """Flory-Schulz (aka most-probable) chain-length distribution, where the
+    *number* probability mass function is given by:
+
+    $$ x(i) = (1-a)a^{i-1} $$
+
+    with $a=1-1/DP_n$.
+    """
 
     def _pmf(self, i):
         a = 1 - 1 / self.DPn
-        result = (1 - a) * a ** (i - 1)
-        return result
+        return (1 - a) * a ** (i - 1)
 
     def _cdf(self, i):
         return 0.0
+
+    def _xrange_auto(self):
+        return (1, 10*self.DPn)
 
     def _moment(self, order: int):
         if order == 0:
@@ -229,17 +247,36 @@ class Flory(Distribution):
 
 
 class Poisson(Distribution):
+    """Poisson chain-length distribution, where the *number* probability mass
+    function is given by:
+
+    $$ x(i) = {a^{i-1} e^{-a}} / {\Gamma(i)} $$
+
+    with $a=DP_n-1$.
+    """
+
     def _pmf(self, i):
-        a = 2.0 / (self.DPn + 1)
-        w = a**2 * i * (1 - a) ** (i - 1)
-        return w
+        a = self.DPn - 1
+        result = np.exp((i-1)*np.log(a) - a - sc.gammaln(i))
+        return result
 
+    def _cdf(self, i):
+        a = self.DPn - 1
+        return sc.gammainc(i, a)/sc.gamma(i)  # !check Wolfram again
 
-# %%
+    def _xrange_auto(self):
+        return (max(1, self.DPn/2-10), 1.5*self.DPn+10)
 
-d = Flory(142)
-d.show
-d.plot(dist="mass", xscale='linear')
-d.plot(dist="mass", xscale='log')
-d.plot(dist="mass", xscale='auto')
-d.plot(dist="gpc", xscale='auto')
+    def _moment(self, order: int):
+        a = self.DPn - 1
+        if order == 0:
+            result = 1
+        elif order == 1:
+            result = self.DPn
+        elif order == 2:
+            result = a**2 + 3*a + 1
+        elif order == 3:
+            result = a**3 + 6*a**2 + 7*a + 1
+        else:
+            raise ValueError("Not defined for order>3.")
+        return result
