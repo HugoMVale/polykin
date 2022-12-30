@@ -18,13 +18,26 @@ def test_properties():
 
 
 def test_pmf():
-    DPn = 100
+    DPn = 69
     x = [i for i in range(1, 20*DPn)]
     distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
     for d in distributions.values():
         for dist in ["number", "mass", "gpc"]:
-            y = d(x, dist=dist, unit_x='chain_length')
-            assert (np.isclose(sum(y), 1.0, rtol=1e-3))
+            pmf = d(x, dist=dist, unit_x='chain_length')
+            assert (np.isclose(sum(pmf), 1.0, rtol=1e-3))
+
+
+def test_cdf():
+    DPn = 51
+    x = [i for i in range(1, DPn+1)]
+    distributions = {"poisson": Poisson(DPn)}
+    for d in distributions.values():
+        for dist in [("number", 0), ("mass", 1)]:
+            pmf = d(x, dist=dist[0], unit_x='chain_length')
+            cdf = d._cdf(DPn, dist[1])
+            assert (np.isclose(sum(pmf), cdf, atol=1e-10))
+            print(sum(pmf))
+            print(cdf)
 
 
 def test_Flory():

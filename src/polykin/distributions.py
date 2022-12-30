@@ -182,7 +182,6 @@ class Distribution(ABC):
         # x-axis
         if len(xrange) != 2:
             xrange = self._xrange_auto()
-
         if xscale == 'log' or (xscale == 'auto' and set(dist) == {'gpc'}):
             x = np.geomspace(xrange[0], xrange[1], 100)
             xscale = 'log'
@@ -217,16 +216,16 @@ class Flory(Distribution):
     """Flory-Schulz (aka most-probable) chain-length distribution, where the
     *number* probability mass function is given by:
 
-    $$ x(i) = (1-a)a^{i-1} $$
+    $$ x(k) = (1-a)a^{k-1} $$
 
     with $a=1-1/DP_n$.
     """
 
-    def _pmf(self, i):
+    def _pmf(self, k):
         a = 1 - 1 / self.DPn
-        return (1 - a) * a ** (i - 1)
+        return (1 - a) * a ** (k - 1)
 
-    def _cdf(self, i):
+    def _cdf(self, k):
         return 0.0
 
     def _xrange_auto(self):
@@ -250,19 +249,25 @@ class Poisson(Distribution):
     """Poisson chain-length distribution, where the *number* probability mass
     function is given by:
 
-    $$ x(i) = {a^{i-1} e^{-a}} / {\Gamma(i)} $$
+    $$ x(k) = {a^{k-1} e^{-a}} / {\Gamma(k)} $$
 
     with $a=DP_n-1$.
     """
 
-    def _pmf(self, i):
+    def _pmf(self, k):
         a = self.DPn - 1
-        result = np.exp((i-1)*np.log(a) - a - sc.gammaln(i))
-        return result
+        return np.exp((k - 1)*np.log(a) - a - sc.gammaln(k))
 
-    def _cdf(self, i):
+    def _cdf(self, s, dist):
         a = self.DPn - 1
-        return sc.gammainc(i, a)/sc.gamma(i)  # !check Wolfram again
+        if dist == 0:
+            result = sc.gammaincc(s, a)
+        elif dist == 1:
+            result = ((a + 1)*sc.gammaincc(s, a) -
+                      np.exp(s*np.log(a) - a - sc.gammaln(s)))/self.DPn
+        else:
+            raise ValueError("Not defined for order>2.")
+        return result
 
     def _xrange_auto(self):
         return (max(1, self.DPn/2-10), 1.5*self.DPn+10)
@@ -280,3 +285,13 @@ class Poisson(Distribution):
         else:
             raise ValueError("Not defined for order>3.")
         return result
+
+
+# %%
+p = Poisson(10)
+x = np.linspace(1, 20, 100)
+cdf0 = p._cdf(x, 0)
+cdf1 = p._cdf(x, 1)
+
+plt.plot(x, cdf0, label='number')
+plt.plot(x, cdf1, label='mass')
