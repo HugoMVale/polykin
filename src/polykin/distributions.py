@@ -5,9 +5,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.special as sc
 from utils import check_bounds, check_type, check_in_set
+from base import Base
 
 
-class Distribution(ABC):
+class Distribution(Base, ABC):
     """Abstract class for all chain-length distributions."""
 
     def __init__(self, DPn: int = 100, M0: float = 100.0, name: str = ""):
@@ -21,38 +22,6 @@ class Distribution(ABC):
         self.M0 = M0
         self.name = name
 
-    def __call__(self, x: int | float | list | np.ndarray,
-                 dist: str = "mass", unit_x: str = "chain_length"):
-        """Evaluate chain-length distribution.
-
-        Args:
-            x (int | float | list | np.ndarray): Chain length or molar mass.
-            dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
-            unit_x (str, optional): Unit of variable `x`. Options: 'chain_length' or 'molar_mass'.
-
-        Returns:
-            (float | np.ndarray): chain-length probability.
-        """
-
-        # Select unit_x
-        check_in_set(unit_x, {'chain_length', 'molar_mass'}, 'unit_x')
-        x = self._list_to_array(x)
-        if unit_x == "molar_mass":
-            x /= self.DPn
-
-        # Select distribution
-        check_in_set(dist, {'number', 'mass', 'gpc'}, 'dist')
-        if dist == "number":
-            factor = 1
-        elif dist == "mass":
-            factor = x / self.DPn
-        elif dist == "gpc":
-            factor = x**2 / self._moment(2)
-        else:
-            raise ValueError
-
-        return factor*self._pmf(x)
-
     @property
     def M0(self) -> float:
         """Molar mass of the repeating unit, $M_0$."""
@@ -62,21 +31,6 @@ class Distribution(ABC):
     def M0(self, M0: float):
         """Molar mass of the repeating unit, $M_0$."""
         self.__M0 = check_bounds(M0, 0.0, np.Inf, "M0")
-
-    @property
-    def name(self) -> str:
-        """Name of the distribution."""
-        return self.__name
-
-    @name.setter
-    def name(self, name: str):
-        """Name of the distribution."""
-        check_type(name, str, "name")
-        if name != "":
-            full_name = f"{name} ({self.__class__.__name__})"
-        else:
-            full_name = self.__class__.__name__
-        self.__name = full_name
 
     @property
     def DPn(self) -> float:
@@ -119,11 +73,11 @@ class Distribution(ABC):
         return self.M0 * self.DPz
 
     @abstractmethod
-    def _pmf(self, length) -> float | np.ndarray:
+    def _pmf(self, k: int | float | np.ndarray) -> float | np.ndarray:
         return 0.0
 
     @abstractmethod
-    def _cdf(self, length) -> float | np.ndarray:
+    def _cdf(self, k: int | float | np.ndarray, order: int) -> float | np.ndarray:
         return 0.0
 
     @abstractmethod
@@ -134,14 +88,7 @@ class Distribution(ABC):
     def _xrange_auto(self) -> tuple:
         return ()
 
-    @staticmethod
-    def _list_to_array(length) -> np.ndarray:
-        if isinstance(length, list):
-            length = np.asarray(length)
-        return length
-
     def __str__(self) -> str:
-        """Display key properties of the chain-length distribution."""
         return f"name: {self.name}\n" + \
             f"DPn:  {self.DPn:.1f}\n" + \
             f"DPw:  {self.DPw:.1f}\n" + \
@@ -150,6 +97,91 @@ class Distribution(ABC):
             f"Mn:   {self.Mn:,.0f}\n" + \
             f"Mw:   {self.Mw:,.0f}\n" + \
             f"Mz:   {self.Mz:,.0f}"
+
+    def moment(self, order: int) -> float:
+        """$m$-th moment of the chain-length distribution:
+
+        $$ \lambda_m=\sum_{k=1}^{\infty }k^m\,x(k) $$
+
+        Args:
+            order (int): order of the moment, $0 \le m \le 3$.
+
+        Returns:
+            (float): moment, $\lambda_m$
+        """
+        check_bounds(order, 0, 3, 'order')
+        return self._moment(order)
+
+    def _process_size(self, size, unit_size) -> np.ndarray:
+        if isinstance(size, list):
+            size = np.asarray(size)
+        check_in_set(unit_size, {'chain_length', 'molar_mass'}, 'unit_size')
+        if unit_size == "molar_mass":
+            size /= self.DPn
+        return size
+
+    def pmf(self, size: int | float | list | np.ndarray,
+            dist: str = "mass", unit_size: str = "chain_length"):
+        """Evaluate probability mass function, $x(k)$.
+
+        Args:
+            size (int | float | list | np.ndarray): Chain length or molar mass.
+            dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
+            unit_size (str, optional): Unit of variable `size`. Options: 'chain_length' or 'molar_mass'.
+
+        Returns:
+            (float | np.ndarray): chain-length probability.
+        """
+
+        # Convert size, if required
+        size = self._process_size(size, unit_size)
+
+        # Select distribution
+        check_in_set(dist, {'number', 'mass', 'gpc'}, 'dist')
+        if dist == "number":
+            factor = 1
+        elif dist == "mass":
+            factor = size / self.DPn
+        elif dist == "gpc":
+            factor = size**2 / self._moment(2)
+        else:
+            raise ValueError
+
+        return factor*self._pmf(size)
+
+    def cdf(self, size: int | float | list | np.ndarray,
+            dist: str = "mass", unit_size: str = "chain_length"):
+        """Evaluate cumulative density function:
+
+        $$ F(s) = \sum_{k=1}^{s}k^m\,x(k) / \lambda_m $$
+
+        Args:
+            size (int | float | list | np.ndarray): Chain length or molar mass.
+            dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
+            unit_size (str, optional): Unit of variable `size`. Options: 'chain_length' or 'molar_mass'.
+
+        Returns:
+            (float | np.ndarray): cumulative probability.
+        """
+
+        # Convert size, if required
+        size = self._process_size(size, unit_size)
+
+        # Select distribution
+        check_in_set(dist, {'number', 'mass', 'gpc'}, 'dist')
+        if dist == "number":
+            order = 0
+            factor = 1
+        elif dist == "mass":
+            order = 1
+            factor = self.DPn
+        elif dist == "gpc":
+            order = 2
+            factor = self._moment(2)
+        else:
+            raise ValueError
+
+        return self._cdf(size, order)/factor
 
     def plot(self, dist: str = 'mass', unit_x: str = 'chain_length',
              xscale: str = 'auto', xrange: tuple = (), ax=None):
@@ -199,7 +231,7 @@ class Distribution(ABC):
 
         # y-axis
         for item in dist:
-            y = self(x, dist=item, unit_x="chain_length")
+            y = self.pmf(x, dist=item, unit_size="chain_length")
             ax.plot(xp, y, label=item)
 
         # Other properties
@@ -258,13 +290,16 @@ class Poisson(Distribution):
         a = self.DPn - 1
         return np.exp((k - 1)*np.log(a) - a - sc.gammaln(k))
 
-    def _cdf(self, s, dist):
+    def _cdf(self, s, order):
         a = self.DPn - 1
-        if dist == 0:
+        if order == 0:
             result = sc.gammaincc(s, a)
-        elif dist == 1:
-            result = ((a + 1)*sc.gammaincc(s, a) -
-                      np.exp(s*np.log(a) - a - sc.gammaln(s)))/self.DPn
+        elif order == 1:
+            result = (a + 1)*sc.gammaincc(s, a) - \
+                np.exp(s*np.log(a) - a - sc.gammaln(s))
+        elif order == 2:
+            result = (a*(a + 3) + 1)*sc.gammaincc(s, a) - \
+                np.exp(s*np.log(a) + np.log(a + s + 2) - a - sc.gammaln(s))
         else:
             raise ValueError("Not defined for order>2.")
         return result
@@ -292,6 +327,8 @@ p = Poisson(10)
 x = np.linspace(1, 20, 100)
 cdf0 = p._cdf(x, 0)
 cdf1 = p._cdf(x, 1)
+cdf2 = p._cdf(x, 2)
 
 plt.plot(x, cdf0, label='number')
 plt.plot(x, cdf1, label='mass')
+plt.plot(x, cdf2, label='gpc')
