@@ -1,11 +1,14 @@
 # %%
 
-from abc import ABC, abstractmethod
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.special as sc
-from utils import check_bounds, check_type, check_in_set
 from base import Base
+from utils import check_bounds, check_type, check_in_set
+
+import numpy as np
+from numpy.typing import ArrayLike
+import scipy.special as sp
+import scipy.stats as st
+import matplotlib.pyplot as plt
+from abc import ABC, abstractmethod
 
 
 class Distribution(Base, ABC):
@@ -30,7 +33,6 @@ class Distribution(Base, ABC):
 
     @M0.setter
     def M0(self, M0: float):
-        """Molar mass of the repeating unit, $M_0$."""
         self.__M0 = check_bounds(M0, 0.0, np.Inf, "M0")
 
     @property
@@ -40,7 +42,6 @@ class Distribution(Base, ABC):
 
     @DPn.setter
     def DPn(self, DPn: int = 100):
-        """Set average degree of polymerization."""
         self.__DPn = check_bounds(DPn, 2, np.Inf, "DPn")
 
     @property
@@ -74,7 +75,7 @@ class Distribution(Base, ABC):
         return self.M0 * self.DPz
 
     @abstractmethod
-    def _pmf(self, k: int | float | np.ndarray) -> float | np.ndarray:
+    def _pdf(self, k: int | float | np.ndarray) -> float | np.ndarray:
         return 0.0
 
     @abstractmethod
@@ -86,12 +87,12 @@ class Distribution(Base, ABC):
         return 0.0
 
     @abstractmethod
-    def _rng(self, size):
+    def _rng(self, size: int | tuple | None) -> int:
         return 0
 
     @abstractmethod
-    def _xrange_auto(self) -> tuple:
-        return ()
+    def _xrange_auto(self) -> tuple[int]:
+        return (0, 1)
 
     def __str__(self) -> str:
         return f"name: {self.name}\n" + \
@@ -125,14 +126,14 @@ class Distribution(Base, ABC):
             size /= self.DPn
         return size
 
-    def pmf(self, size: int | float | list | np.ndarray,
+    def pdf(self, size: int | float | ArrayLike,
             dist: str = "mass", unit_size: str = "chain_length"):
-        """Evaluate probability mass function, $p(k)$.
+        """Evaluate probability density function, $p(k)$.
 
         Args:
-            size (int | float | list | np.ndarray): Chain length or molar mass.
-            dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
-            unit_size (str, optional): Unit of variable `size`. Options: 'chain_length' or 'molar_mass'.
+            size (int | float | ArrayLike): Chain length or molar mass.
+            dist (str, optional): Type of distribution. Options: `'number'`, `'mass'`, `'gpc'`.
+            unit_size (str, optional): Unit of variable `size`. Options: `'chain_length'` or `'molar_mass'`.
 
         Returns:
             (float | np.ndarray): chain-length probability.
@@ -152,18 +153,18 @@ class Distribution(Base, ABC):
         else:
             raise ValueError
 
-        return factor*self._pmf(size)
+        return factor*self._pdf(size)
 
-    def cdf(self, size: int | float | list | np.ndarray,
+    def cdf(self, size: int | float | ArrayLike,
             dist: str = "mass", unit_size: str = "chain_length"):
         """Evaluate cumulative density function:
 
         $$ F(s) = \sum_{k=1}^{s}k^m\,p(k) / \lambda_m $$
 
         Args:
-            size (int | float | list | np.ndarray): Chain length or molar mass.
-            dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
-            unit_size (str, optional): Unit of variable `size`. Options: 'chain_length' or 'molar_mass'.
+            size (int | float | ArrayLike): Chain length or molar mass.
+            dist (str, optional): Type of distribution. Options: `'number'`, `'mass', 'gpc'`.
+            unit_size (str, optional): Unit of variable `size`. Options: `'chain_length'` or `'molar_mass'`.
 
         Returns:
             (float | np.ndarray): Cumulative probability.
@@ -202,13 +203,13 @@ class Distribution(Base, ABC):
             self._rnginit = np.random.default_rng()
         return self._rng(size=size)
 
-    def plot(self, dist: str = 'mass', unit_x: str = 'chain_length',
+    def plot(self, dist: str = 'mass', unit_size: str = 'chain_length',
              xscale: str = 'auto', xrange: tuple = (), ax=None):
         """Plot the chain-length distribution.
 
         Args:
             dist (str, optional): Type of distribution. Options: 'number', 'mass', 'gpc'.
-            unit_x (str, optional): Unit of variable `x`. Options: 'chain_length' or 'molar_mass'.
+            unit_size (str, optional): Unit of variable `x`. Options: 'chain_length' or 'molar_mass'.
             xscale (str, optional): x-axis scale. Options: 'linear', 'log', 'auto'.
             xrange (tuple, optional): x-axis range.
             ax (matplotlib.axes, optional): Matplotlib axes object.
@@ -218,7 +219,7 @@ class Distribution(Base, ABC):
         """
 
         # Check inputs
-        check_in_set(unit_x, {'chain_length', 'molar_mass'}, 'unit_x')
+        check_in_set(unit_size, {'chain_length', 'molar_mass'}, 'unit_size')
         check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
         check_type(dist, (str, list, tuple), 'dist')
         if isinstance(dist, str):
@@ -239,10 +240,10 @@ class Distribution(Base, ABC):
         else:
             x = np.linspace(xrange[0], xrange[1], 100)
             xscale = 'linear'
-        if unit_x == "chain_length":
+        if unit_size == "chain_length":
             xp = x
             label_x = "Chain length"
-        elif unit_x == "molar_mass":
+        elif unit_size == "molar_mass":
             xp = x * self.M0
             label_x = "Molar mass"
         else:
@@ -250,7 +251,7 @@ class Distribution(Base, ABC):
 
         # y-axis
         for item in dist:
-            y = self.pmf(x, dist=item, unit_size="chain_length")
+            y = self.pdf(x, dist=item, unit_size="chain_length")
             ax.plot(xp, y, label=item)
 
         # Other properties
@@ -282,7 +283,7 @@ class Flory(Distribution):
     where $a=1-1/DP_n$.
     """
 
-    def _pmf(self, k):
+    def _pdf(self, k):
         a = 1 - 1 / self.DPn
         return (1 - a) * a ** (k - 1)
 
@@ -338,20 +339,20 @@ class Poisson(Distribution):
     where $a=DP_n-1$.
     """
 
-    def _pmf(self, k):
+    def _pdf(self, k):
         a = self.DPn - 1
-        return np.exp((k - 1)*np.log(a) - a - sc.gammaln(k))
+        return np.exp((k - 1)*np.log(a) - a - sp.gammaln(k))
 
     def _cdf(self, s, order):
         a = self.DPn - 1
         if order == 0:
-            result = sc.gammaincc(s, a)
+            result = sp.gammaincc(s, a)
         elif order == 1:
-            result = (a + 1)*sc.gammaincc(s, a) - \
-                np.exp(s*np.log(a) - a - sc.gammaln(s))
+            result = (a + 1)*sp.gammaincc(s, a) - \
+                np.exp(s*np.log(a) - a - sp.gammaln(s))
         elif order == 2:
-            result = (a*(a + 3) + 1)*sc.gammaincc(s, a) - \
-                np.exp(s*np.log(a) + np.log(a + s + 2) - a - sc.gammaln(s))
+            result = (a*(a + 3) + 1)*sp.gammaincc(s, a) - \
+                np.exp(s*np.log(a) + np.log(a + s + 2) - a - sp.gammaln(s))
         else:
             raise ValueError("Not defined for order>2.")
         return result
@@ -378,16 +379,51 @@ class Poisson(Distribution):
 
 
 class LogNormal(Distribution):
-    """Log-normal chain-length distribution, where the *mass* probability
-    density function is given by:
+    """Log-normal chain-length distribution, with *number* probability density
+    function given by:
 
-    $$ x(k) = {a^{k-1} e^{-a}} / {\Gamma(k)} $$
+    $$ p(k) = {a^{k-1} e^{-a}} / {\Gamma(k)} $$
 
-    with $a=DP_n-1$.
+    and first leading moments given by:
+
+    $$ \lambda_0 = 1 $$
+
+    $$ \lambda_1 = $$
+
+    $$ \lambda_2 = $$
+
+    $$ \lambda_3 = $$
+
+    where $a=DP_n-1$.
     """
 
-    def _pmf(self, k):
-        a = 0
+    def __init__(self, DPn: int = 100, PDI: float = 2.0,  M0: float = 100.0,
+                 name: str = ""):
+        """Initialize chain-length distribution.
+        Args:
+            DPn (int, optional): Number-average degree of polymerization, $DP_n$.
+            PDI (float, optional): Polydispersity index, $PDI$.
+            M0 (float, optional): Molar mass of the repeating unit, $M_0$.
+            name (str, optional): Name.
+        """
+        super().__init__(DPn=DPn, M0=M0, name=name)
+        self.PDI = PDI
+
+    @property
+    def PDI(self) -> float:
+        """Polydispersity index, $DP_w/DP_n$."""
+        return self.__PDI
+
+    @PDI.setter
+    def PDI(self, PDI: float):
+        """Polydispersity index, $DP_w/DP_n$."""
+        self.__PDI = check_bounds(PDI, 1, np.Inf, 'PDI')
+
+    def _pdf(self, x):
+        mu = np.log(self.DPn)
+        sigma = 1
+        scale = np.exp(mu)
+        return st.lognorm.pdf(x, s=sigma, loc=0, scale=scale)
 
     def _cdf(self, s, order):
         a = 0
@@ -402,28 +438,23 @@ class LogNormal(Distribution):
         return result
 
     def _xrange_auto(self):
-        return (max(1, self.DPn/2-10), 1.5*self.DPn+10)
+        return (1, 10*self.DPn)
 
     def _moment(self, order: int):
         a = self.DPn - 1
         if order == 0:
             result = 1
         elif order == 1:
-            result = 0
+            result = 1
         elif order == 2:
-            result = 0
+            result = 1
         elif order == 3:
-            result = 0
+            result = 1
         else:
             raise ValueError("Not defined for order>3.")
         return result
 
-    def _rng(self, size=None):
-        rng = np.random.default_rng()
-        return rng.poisson(lam=(self.DPn - 1), size=size) + 1
+    def _rng(self, size):
+        return self._rnginit.lognormal(mean=(self.DPn - 1), size=size)
 
 # %%
-
-
-d = Flory()
-rand = d.rng()
