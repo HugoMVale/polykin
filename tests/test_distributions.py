@@ -20,14 +20,14 @@ def test_properties():
         assert (np.isclose(d.DPz, d.moment(3)/d.moment(2), rtol=1e-8))
 
 
-def test_pmf():
+def test_pdf():
     DPn = 69
     x = [i for i in range(1, 20*DPn)]
     distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
     for d in distributions.values():
         for dist in ["number", "mass", "gpc"]:
-            pmf = d.pmf(x, dist=dist, unit_size='chain_length')
-            assert (np.isclose(sum(pmf), 1.0, rtol=1e-3))
+            pdf = d.pdf(x, dist=dist, unit_size='chain_length')
+            assert (np.isclose(sum(pdf), 1.0, rtol=1e-3))
 
 
 def test_cdf():
@@ -36,10 +36,10 @@ def test_cdf():
     distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
     for d in distributions.values():
         for dist in ["number", "mass", "gpc"]:
-            pmf = d.pmf(x, dist=dist)
+            pdf = d.pdf(x, dist=dist)
             cdf = d.cdf(DPn, dist=dist)
-            sum_pmf = sum(pmf)
-            assert (np.isclose(sum_pmf, cdf, rtol=1e-8))
+            sum_pdf = sum(pdf)
+            assert (np.isclose(sum_pdf, cdf, rtol=1e-8))
 
 
 def test_rng():
