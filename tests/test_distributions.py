@@ -42,6 +42,18 @@ def test_cdf():
             assert (np.isclose(sum_pmf, cdf, rtol=1e-8))
 
 
+def test_rng():
+    DPn = 49
+    num_samples = 10**6
+    distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
+    for d in distributions.values():
+        x = d.rng(num_samples)
+        for i in range(1, 4):
+            mom = np.sum(x**i)/num_samples
+            # print(mom, d.moment(i))
+            assert (np.isclose(mom, d.moment(i), rtol=1e-2))
+
+
 def test_Flory():
     N = 123
     d = Flory(N)

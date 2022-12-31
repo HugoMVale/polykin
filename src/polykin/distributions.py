@@ -21,6 +21,7 @@ class Distribution(Base, ABC):
         self.DPn = DPn
         self.M0 = M0
         self.name = name
+        self._rnginit = None
 
     @property
     def M0(self) -> float:
@@ -85,6 +86,10 @@ class Distribution(Base, ABC):
         return 0.0
 
     @abstractmethod
+    def _rng(self, size):
+        return 0
+
+    @abstractmethod
     def _xrange_auto(self) -> tuple:
         return ()
 
@@ -101,7 +106,7 @@ class Distribution(Base, ABC):
     def moment(self, order: int) -> float:
         """$m$-th moment of the chain-length distribution:
 
-        $$ \lambda_m=\sum_{k=1}^{\infty }k^m\,x(k) $$
+        $$ \lambda_m=\sum_{k=1}^{\infty }k^m\,p(k) $$
 
         Args:
             order (int): order of the moment, $0 \le m \le 3$.
@@ -122,7 +127,7 @@ class Distribution(Base, ABC):
 
     def pmf(self, size: int | float | list | np.ndarray,
             dist: str = "mass", unit_size: str = "chain_length"):
-        """Evaluate probability mass function, $x(k)$.
+        """Evaluate probability mass function, $p(k)$.
 
         Args:
             size (int | float | list | np.ndarray): Chain length or molar mass.
@@ -153,7 +158,7 @@ class Distribution(Base, ABC):
             dist: str = "mass", unit_size: str = "chain_length"):
         """Evaluate cumulative density function:
 
-        $$ F(s) = \sum_{k=1}^{s}k^m\,x(k) / \lambda_m $$
+        $$ F(s) = \sum_{k=1}^{s}k^m\,p(k) / \lambda_m $$
 
         Args:
             size (int | float | list | np.ndarray): Chain length or molar mass.
@@ -161,7 +166,7 @@ class Distribution(Base, ABC):
             unit_size (str, optional): Unit of variable `size`. Options: 'chain_length' or 'molar_mass'.
 
         Returns:
-            (float | np.ndarray): cumulative probability.
+            (float | np.ndarray): Cumulative probability.
         """
 
         # Convert size, if required
@@ -182,6 +187,20 @@ class Distribution(Base, ABC):
             raise ValueError
 
         return self._cdf(size, order)/factor
+
+    def rng(self, size: int | tuple | None = None) -> int | np.ndarray:
+        """Generate random sample of chain lengths according to the
+        corresponding number probability mass function.
+
+        Args:
+            size (int | tuple | None, optional): Sample size.
+
+        Returns:
+            (int | np.ndarray): Random sample of chain lengths.
+        """
+        if self._rnginit is None:
+            self._rnginit = np.random.default_rng()
+        return self._rng(size=size)
 
     def plot(self, dist: str = 'mass', unit_x: str = 'chain_length',
              xscale: str = 'auto', xrange: tuple = (), ax=None):
@@ -245,12 +264,22 @@ class Distribution(Base, ABC):
 
 
 class Flory(Distribution):
-    """Flory-Schulz (aka most-probable) chain-length distribution, where the
-    *number* probability mass function is given by:
+    """Flory-Schulz (aka most-probable) chain-length distribution, with
+    *number* probability mass function given by:
 
-    $$ x(k) = (1-a)a^{k-1} $$
+    $$ p(k) = (1-a)a^{k-1} $$
 
-    with $a=1-1/DP_n$.
+    and first leading moments given by:
+
+    $$ \lambda_0 = 1 $$
+
+    $$ \lambda_1 = DP_n $$
+
+    $$ \lambda_2 = DP_n (2 DP_n - 1) $$
+
+    $$ \lambda_3 = DP_n (1 + 6 DP_n (DP_n - 1)) $$
+
+    where $a=1-1/DP_n$.
     """
 
     def _pmf(self, k):
@@ -273,7 +302,7 @@ class Flory(Distribution):
     def _xrange_auto(self):
         return (1, 10*self.DPn)
 
-    def _moment(self, order: int):
+    def _moment(self, order):
         if order == 0:
             result = 1
         elif order == 1:
@@ -286,14 +315,27 @@ class Flory(Distribution):
             raise ValueError("Not defined for order>3.")
         return result
 
+    def _rng(self, size):
+        return self._rnginit.geometric(p=1/self.DPn, size=size)
+
 
 class Poisson(Distribution):
-    """Poisson chain-length distribution, where the *number* probability mass
-    function is given by:
+    """Poisson chain-length distribution, with *number* probability mass
+    function given by:
 
-    $$ x(k) = {a^{k-1} e^{-a}} / {\Gamma(k)} $$
+    $$ p(k) = {a^{k-1} e^{-a}} / {\Gamma(k)} $$
 
-    with $a=DP_n-1$.
+    and first leading moments given by:
+
+    $$ \lambda_0 = 1 $$
+
+    $$ \lambda_1 = DP_n $$
+
+    $$ \lambda_2 = a^2 + 3a + 1 $$
+
+    $$ \lambda_3 = a^3 + 6a^2 + 7a + 1 $$
+
+    where $a=DP_n-1$.
     """
 
     def _pmf(self, k):
@@ -315,9 +357,9 @@ class Poisson(Distribution):
         return result
 
     def _xrange_auto(self):
-        return (max(1, self.DPn/2-10), 1.5*self.DPn+10)
+        return (max(1, self.DPn/2 - 10), 1.5*self.DPn + 10)
 
-    def _moment(self, order: int):
+    def _moment(self, order):
         a = self.DPn - 1
         if order == 0:
             result = 1
@@ -331,14 +373,57 @@ class Poisson(Distribution):
             raise ValueError("Not defined for order>3.")
         return result
 
+    def _rng(self, size):
+        return self._rnginit.poisson(lam=(self.DPn - 1), size=size) + 1
+
+
+class LogNormal(Distribution):
+    """Log-normal chain-length distribution, where the *mass* probability
+    density function is given by:
+
+    $$ x(k) = {a^{k-1} e^{-a}} / {\Gamma(k)} $$
+
+    with $a=DP_n-1$.
+    """
+
+    def _pmf(self, k):
+        a = 0
+
+    def _cdf(self, s, order):
+        a = 0
+        if order == 0:
+            result = 0
+        elif order == 1:
+            result = 0
+        elif order == 2:
+            result = 0
+        else:
+            raise ValueError("Not defined for order>2.")
+        return result
+
+    def _xrange_auto(self):
+        return (max(1, self.DPn/2-10), 1.5*self.DPn+10)
+
+    def _moment(self, order: int):
+        a = self.DPn - 1
+        if order == 0:
+            result = 1
+        elif order == 1:
+            result = 0
+        elif order == 2:
+            result = 0
+        elif order == 3:
+            result = 0
+        else:
+            raise ValueError("Not defined for order>3.")
+        return result
+
+    def _rng(self, size=None):
+        rng = np.random.default_rng()
+        return rng.poisson(lam=(self.DPn - 1), size=size) + 1
 
 # %%
-p = Poisson(10)
-x = np.linspace(1, 20, 100)
-cdf0 = p._cdf(x, 0)
-cdf1 = p._cdf(x, 1)
-cdf2 = p._cdf(x, 2)
 
-plt.plot(x, cdf0, label='number')
-plt.plot(x, cdf1, label='mass')
-plt.plot(x, cdf2, label='gpc')
+
+d = Flory()
+rand = d.rng()
