@@ -1,19 +1,73 @@
+# Project information
 site_name: polykin
 site_url: https://hugomvale.github.io/polykin/
+site_author: Hugo Vale
+site_description: >-
+  An open-source Python package for polymerization kinetics.
 
-nav:
-    - Home: index.md
-    - Reference: reference.md
+# Repository
+repo_name: HugoMVale/polykin
+repo_url: https://github.com/HugoMVale/polykin
 
-theme: material
+# Copyright
+copyright: Copyright &copy; 2022 - 2023 Hugo Vale
+
+# Configuration
+theme:
+  name: material
+  features:
+    - search.highlight
+    #  - search.share
+    - search.suggest
+    # - navigation.instant
+    - navigation.tabs
+    - navigation.expand
+    - navigation.top
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+watch:
+  - src/polykin
 
 plugins:
-- mkdocstrings:
-    handlers:
+  - search
+  - mkdocstrings:
+      handlers:
         python:
-            paths: [src]
+          paths: [src]
+          options:
+            show_source: false
+
+# Customization
+extra:
+  analytics:
+    provider: google
+    property: !ENV GOOGLE_ANALYTICS_KEY
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/HugoMVale
+  #  - icon: fontawesome/brands/python
+  #    link: https://pypi.org/project/mkdocs-material/
 
 markdown_extensions:
+  - admonition
+  - footnotes
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.betterem:
+      smart_enable: all
   - pymdownx.arithmatex:
       generic: true
 
@@ -21,3 +75,7 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+nav:
+  - Home: index.md
+  - Reference: reference.md

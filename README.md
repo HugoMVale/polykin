@@ -7,4 +7,4 @@ Polymerization kinetics package
 
 ## Status
 
-pbepack is currently being developed and not yet ready for use.
+`polykin` is currently being developed and not yet ready for use.
