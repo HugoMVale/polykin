@@ -42,16 +42,47 @@ def test_cdf():
             assert (np.isclose(sum_pdf, cdf, rtol=1e-8))
 
 
-def test_rng():
+def test_random():
     DPn = 49
     num_samples = 10**6
     distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
     for d in distributions.values():
-        x = d.rng(num_samples)
+        x = d.random(num_samples)
         for i in range(1, 4):
             mom = np.sum(x**i)/num_samples
             # print(mom, d.moment(i))
             assert (np.isclose(mom, d.moment(i), rtol=1e-2))
+
+
+def test_composite_1():
+    distributions = [Flory(64, 50), Poisson(34, 67)]
+    for d in distributions:
+        cases = [1*d, d*1, 2.0*d, d*3.0, d + d + d, d + 2*d + 3.0*d]
+        for s in cases:
+            assert (np.isclose(s.DPn, d.DPn, rtol=1e-15))
+            assert (np.isclose(s.DPw, d.DPw, rtol=1e-15))
+            assert (np.isclose(s.DPz, d.DPz, rtol=1e-15))
+            # assert (np.isclose(s.Mn, d.Mn, rtol=1e-15))
+            # assert (np.isclose(s.Mw, d.Mw, rtol=1e-15))
+            # assert (np.isclose(s.Mz, d.Mz, rtol=1e-15))
+
+
+def test_composite_2():
+    DPn = 34
+    f = Flory(DPn, 50)
+    p = Poisson(DPn, 67)
+    cases = [f + p + f, 1*f + p*2, f*2.0 + 3.0*p + 0.5*f]
+    for s in cases:
+        assert (np.isclose(s.DPn, DPn, rtol=1e-15))
+
+
+def test_composite_3():
+    DPw = 98
+    f = Flory((DPw + 1)/2, 50)
+    p = Poisson(DPw - 1, 67)
+    cases = [f + p, 1*f + p*2 + f, f*2.0 + 3.0*p + 2*p]
+    for s in cases:
+        assert (np.isclose(s.DPw, DPw, rtol=1e-4))
 
 
 def test_Flory():
