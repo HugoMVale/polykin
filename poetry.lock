@@ -1342,6 +1342,21 @@ i18n = ["babel (>=2.9.0)"]
 min-versions = ["babel (==2.9.0)", "click (==7.0)", "colorama (==0.4)", "ghp-import (==1.0)", "importlib-metadata (==4.3)", "jinja2 (==2.11.1)", "markdown (==3.2.1)", "markupsafe (==2.0.1)", "mergedeep (==1.3.4)", "packaging (==20.5)", "pyyaml (==5.1)", "pyyaml-env-tag (==0.1)", "typing-extensions (==3.10)", "watchdog (==2.0)"]
 
 [[package]]
+name = "mkdocs-autolinks-plugin"
+version = "0.6.0"
+description = "An MkDocs plugin"
+category = "dev"
+optional = false
+python-versions = ">=2.7"
+files = [
+    {file = "mkdocs-autolinks-plugin-0.6.0.tar.gz", hash = "sha256:7bddb5bfb06f003fa7f139a4373ffc433e9ad761a297c7fe6ee205a4d7d913b6"},
+    {file = "mkdocs_autolinks_plugin-0.6.0-py3-none-any.whl", hash = "sha256:db967582a5d3bd282d197730cd9035a74b559b0febb44645e95df27d5c67cad9"},
+]
+
+[package.dependencies]
+mkdocs = ">=1.2.3"
+
+[[package]]
 name = "mkdocs-autorefs"
 version = "0.4.1"
 description = "Automatically link across pages in MkDocs."
@@ -2552,4 +2567,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "07251f5d4a8670517dc7e7b5f052fe0034d95045ad0df215af5465de51130d6c"
+content-hash = "13ab790a177139374b608a7b6d571bc569199a791ddb3954342658e90e605bf2"

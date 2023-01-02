@@ -25,6 +25,7 @@ mkdocs = "^1.4.2"
 mkdocstrings = {extras = ["python"], version = "^0.19.1"}
 mkdocs-material = "^8.5.11"
 mkdocs-jupyter = "^0.22.0"
+mkdocs-autolinks-plugin = "^0.6.0"
 
 [build-system]
 requires = ["poetry-core"]
