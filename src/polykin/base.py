@@ -13,7 +13,8 @@ class Base():
     def name(self, name: str):
         check_type(name, str, "name")
         if name != "":
-            full_name = f"{name} ({self.__class__.__name__})"
+            # full_name = f"{name} ({self.__class__.__name__})"
+            full_name = name
         else:
             full_name = self.__class__.__name__
         self.__name = full_name
