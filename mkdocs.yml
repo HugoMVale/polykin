@@ -8,6 +8,7 @@ site_description: >-
 # Repository
 repo_name: HugoMVale/polykin
 repo_url: https://github.com/HugoMVale/polykin
+edit_uri: "" #disables edit button
 
 # Copyright
 copyright: Copyright &copy; 2022 - 2023 Hugo Vale
@@ -15,14 +16,17 @@ copyright: Copyright &copy; 2022 - 2023 Hugo Vale
 # Configuration
 theme:
   name: material
+  language: en
   features:
     - search.highlight
     #  - search.share
     - search.suggest
     # - navigation.instant
     - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.expand
     - navigation.top
+    - toc.follow
   palette:
     - scheme: default
       primary: indigo
@@ -36,18 +40,33 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
 
 watch:
   - src/polykin
+  - docs/tutorials
+  - docs/reference
 
+# Plugins
 plugins:
   - search
+  - autolinks
   - mkdocstrings:
       handlers:
         python:
           paths: [src]
           options:
-            show_source: false
+            show_category_heading: true
+            show_source: true
+            docstring_style: "numpy"
+            merge_init_into_class: yes
+            # inherited_members: true
+  - mkdocs-jupyter:
+      include: ["*.ipynb"]
+      include_source: False
+      ignore_h1_titles: True
 
 # Customization
 extra:
@@ -57,8 +76,10 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/HugoMVale
-  #  - icon: fontawesome/brands/python
-  #    link: https://pypi.org/project/mkdocs-material/
+    #  - icon: fontawesome/brands/python
+    #    link: https://pypi.org/project/mkdocs-material/
+    - icon: fontawesome/brands/linkedin
+      link: https://de.linkedin.com/in/hugo-vale-8b65948a
 
 markdown_extensions:
   - admonition
@@ -78,4 +99,9 @@ extra_javascript:
 
 nav:
   - Home: index.md
-  - Reference: reference.md
+  - Getting Started:
+      - Installation: installation.md
+  - Tutorials:
+      - Distributions: "tutorials/distributions.ipynb"
+  - Code Reference:
+      - Distributions: "reference/distributions.md"
