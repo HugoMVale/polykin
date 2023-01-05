@@ -1,10 +1,23 @@
 [tool.poetry]
 name = "polykin"
-version = "0.1.0"
-description = ""
+version = "0.0.1"
+description = "Polymerization kinetics library"
 authors = ["HugoMVale <57530119+HugoMVale@users.noreply.github.com>"]
+license = "MIT"
 readme = "README.md"
-packages = [{include = "polykin", from = "src"}]
+homepage = "https://hugomvale.github.io/polykin/"
+repository = "https://github.com/HugoMVale/polykin"
+documentation = "https://hugomvale.github.io/polykin/"
+packages = [{ include = "polykin", from = "src" }]
+keywords = ["polymerization", "kinetics", "reaction"]
+include = ["LICENSE"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -22,7 +35,7 @@ ipykernel = "^6.20.0"
 pytest-cov = "^4.0.0"
 pytest-xdist = "^3.1.0"
 mkdocs = "^1.4.2"
-mkdocstrings = {extras = ["python"], version = "^0.19.1"}
+mkdocstrings = { extras = ["python"], version = "^0.19.1" }
 mkdocs-material = "^8.5.11"
 mkdocs-jupyter = "^0.22.0"
 mkdocs-autolinks-plugin = "^0.6.0"
