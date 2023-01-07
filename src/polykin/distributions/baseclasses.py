@@ -1,7 +1,7 @@
 # %%
 
-from base import Base
-from utils import check_bounds, check_type, check_in_set
+from polykin.base import Base
+from polykin.utils import check_bounds, check_type, check_in_set, add_dicts
 
 import numpy as np
 from numpy import int64, float64, dtype, ndarray
@@ -17,55 +17,57 @@ class Distribution(Base, ABC):
     distnames = {'number': 0, 'mass': 1, 'gpc': 2}
 
     @property
-    @abstractmethod
-    def M0(self) -> float:
-        r"""Molar mass of the repeating unit, $M_0$."""
-        return 0.0
-
-    @property
-    @abstractmethod
     def DPn(self) -> float:
         r"""Number-average degree of polymerization, $DP_n$."""
-        return 0.0
-
-    @abstractmethod
-    def moment(self, order: int) -> float:
-        r"""$m$-th moment of the number chain-length distribution,
-        $\lambda_m$."""
-        return 0.0
+        return self._moment_ratio(1)
 
     @property
     def DPw(self) -> float:
         r"""Mass-average degree of polymerization, $DP_w$."""
-        return self.moment(2) / self.moment(1)
+        return self._moment_ratio(2)
 
     @property
     def DPz(self) -> float:
         r"""z-average degree of polymerization, $DP_z$."""
-        return self.moment(3) / self.moment(2)
+        return self._moment_ratio(3)
+
+    @property
+    def Mn(self) -> float:
+        r"""Number-average molar mass, $M_n$."""
+        return self._moment_ratio(1, False)
+
+    @property
+    def Mw(self) -> float:
+        r"""Weight-average molar mass, $M_w$."""
+        return self._moment_ratio(2, False)
+
+    @property
+    def Mz(self) -> float:
+        r"""z-average molar mass, $M_z$."""
+        return self._moment_ratio(3, False)
 
     @property
     def PDI(self) -> float:
         r"""Polydispersity index, $M_w/M_n$."""
         return self.Mw / self.Mn
 
-    @property
-    def Mn(self) -> float:
-        r"""Number-average molar mass, $M_n$."""
-        return self.M0 * self.DPn
+    def _moment_ratio(self, order: int, length: bool = True) -> float:
+        return self.moment(order, length)/self.moment(order-1, length)
 
-    @property
-    def Mw(self) -> float:
-        r"""Weight-average molar mass, $M_w$."""
-        return self.M0 * self.DPw
+    # @property
+    # @abstractmethod
+    # def M0(self) -> float:
+    #     r"""Molar mass of the repeating unit, $M_0$."""
+    #     return 0.0
 
-    @property
-    def Mz(self) -> float:
-        r"""z-average molar mass, $M_z$."""
-        return self.M0 * self.DPz
+    @abstractmethod
+    def moment(self, order: int, length: bool) -> float:
+        """$m$-th moment of the number chain-length / molar mass distribution.
+        """
+        return 0.0
 
 
-class SingleDistribution(Distribution):
+class Single(Distribution):
     """Abstract class for all single chain-length distributions."""
 
     def __init__(self, DPn: int, M0: float = 100.0, name: str = ""):
@@ -83,10 +85,11 @@ class SingleDistribution(Distribution):
         self.DPn = DPn
         self.M0 = M0
         self.name = name
-        self._rng = None
+        self._rng = None  # type: ignore
 
     def __str__(self) -> str:
-        return f"name: {self.name}\n" + \
+        return f"type: {self.__class__.__name__}\n" + \
+            f"name: {self.name}\n" + \
             f"DPn:  {self.DPn:.1f}\n" + \
             f"DPw:  {self.DPw:.1f}\n" + \
             f"DPz:  {self.DPz:.1f}\n" + \
@@ -98,7 +101,7 @@ class SingleDistribution(Distribution):
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
-            return CombinedDistribution([self], [other], name=self.name)
+            return Combined({self: other}, name=self.name)
         else:
             return NotImplemented
 
@@ -106,16 +109,16 @@ class SingleDistribution(Distribution):
         return self.__mul__(other)
 
     def __add__(self, other):
-        if isinstance(other, SingleDistribution):
-            return CombinedDistribution([self, other], [1, 1],
-                                        name=self.name+'+'+other.name)
+        if isinstance(other, Single):
+            return Combined(add_dicts({self: 1}, {other: 1}),
+                            name=self.name+'+'+other.name)
         else:
             return NotImplemented
 
     @property
     def M0(self) -> float:
         r"""Molar mass of the repeating unit, $M_0$."""
-        return self.__M0
+        return self.__M0  # type: ignore
 
     @M0.setter
     def M0(self, M0: float):
@@ -124,7 +127,7 @@ class SingleDistribution(Distribution):
     @property
     def DPn(self) -> float:
         r"""Number-average degree of polymerization, $DP_n$."""
-        return self.__DPn
+        return self.__DPn  # type: ignore
 
     @DPn.setter
     def DPn(self, DPn: int = 100):
@@ -134,8 +137,9 @@ class SingleDistribution(Distribution):
     def _compute_parameters(self):
         pass
 
-    def moment(self, order: int) -> float:
-        r"""$m$-th moment of the number chain-length distribution:
+    def moment(self, order: int, length: bool = True) -> float:
+        r"""$m$-th moment of the number chain-length (or molar mass)
+        distribution:
 
         $$ \lambda_m=\sum_{k=1}^{\infty }k^m\,p(k) $$
 
@@ -147,26 +151,32 @@ class SingleDistribution(Distribution):
         ----------
         order : int
             Order of the moment, $0 \le m \le 3$.
+        length : bool
+            If `True`, the result will be the moment of the chain-length
+            distribution; if `False`, the result will be the moment of the
+            molar mass distribution.
 
         Returns
         -------
         float
             Moment, $\lambda_m$
         """
-
         check_bounds(order, 0, 3, 'order')
-        return self._moment(order)
+        result = self._moment(order)
+        if not length:
+            result *= self.M0**order
+        return result
 
-    def _process_size(self, size, unit_size) -> ndarray:
+    def _process_size(self, size, length) -> ndarray:
         if isinstance(size, list):
             size = np.asarray(size)
-        check_in_set(unit_size, {'chain_length', 'molar_mass'}, 'unit_size')
-        if unit_size == "molar_mass":
+        check_type(length, bool, 'length')
+        if not length:
             size = size/self.M0
         return size
 
     def pdf(self, size: int | float | ArrayLike, dist: str = "mass",
-            unit_size: str = "chain_length") -> float | ndarray:
+            length: bool = True) -> float | ndarray[Any, dtype[float64]]:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
@@ -175,18 +185,18 @@ class SingleDistribution(Distribution):
             Chain length or molar mass.
         dist : str
             Type of distribution. Options: `'number'`, `'mass'`, `'gpc'`.
-        unit_size : str
-            Unit of variable `size`. Options: `'chain_length'` or
-            `'molar_mass'`.
+        length : bool
+            Set `True` if `size` refers to chain-length or `False` if `size`
+            refers to molar mass.
 
         Returns
         -------
         float | ndarray
-            Chain-length probability.
+            Probability density.
         """
 
         # Convert size, if required
-        size = self._process_size(size, unit_size)
+        size = self._process_size(size, length)
 
         # Compute distribution
         check_in_set(dist, set(self.distnames.keys()), 'dist')
@@ -194,7 +204,7 @@ class SingleDistribution(Distribution):
         return self._pdf(size) * size**order / self._moment(order)
 
     def cdf(self, size: int | float | ArrayLike, dist: str = "mass",
-            unit_size: str = "chain_length") -> float | ndarray:
+            length: bool = True) -> float | ndarray[Any, dtype[float64]]:
         r"""Evaluate the cumulative density function:
 
         $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
@@ -209,9 +219,9 @@ class SingleDistribution(Distribution):
             Chain length or molar mass.
         dist : str
             Type of distribution. Options: `'number'`, `'mass'`, `'gpc'`.
-        unit_size : str
-            Unit of variable `size`. Options: `'chain_length'` or
-            `'molar_mass'`.
+        length : bool
+            Set `True` if `size` refers to chain-length or `False` if `size`
+            refers to molar mass.
 
         Returns
         -------
@@ -219,7 +229,7 @@ class SingleDistribution(Distribution):
             Cumulative probability.
         """
         # Convert size, if required
-        size = self._process_size(size, unit_size)
+        size = self._process_size(size, length)
 
         # Compute distribution
         check_in_set(dist, set(self.distnames.keys()), 'dist')
@@ -227,7 +237,7 @@ class SingleDistribution(Distribution):
         return self._cdf(size, order)
 
     def random(self, size: int | tuple[int, ...] | None = None) \
-            -> int | ndarray:
+            -> int | ndarray[Any, dtype[int64]]:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -247,7 +257,7 @@ class SingleDistribution(Distribution):
 
     def plot(self, dist: str | list[str] = 'mass',
              unit_size: str = 'chain_length',
-             xscale: str = 'auto', xrange: tuple = (), ax=None):
+             xscale: str = 'auto', xrange: tuple = (), ax=None) -> None:
         """Plot the chain-length distribution.
 
         Parameters
@@ -303,7 +313,7 @@ class SingleDistribution(Distribution):
 
         # y-axis
         for item in dist:
-            y = self.pdf(x, dist=item, unit_size="chain_length")
+            y = self.pdf(x, dist=item, length=True)
             ax.plot(xp, y, label=item)
 
         # Other properties
@@ -335,7 +345,9 @@ class SingleDistribution(Distribution):
         return 0.0
 
     @abstractmethod
-    def _pdf(self, k: int | float | ndarray) -> float | ndarray:
+    def _pdf(self,
+             k: int | float | ndarray
+             ) -> float | ndarray[Any, dtype[float64]]:
         """Probability density/mass function.
 
         Each child class must implement a method to delivering the probability
@@ -354,8 +366,10 @@ class SingleDistribution(Distribution):
         return 0.0
 
     @abstractmethod
-    def _cdf(self, k: int | float | ndarray, order: int) \
-            -> float | ndarray:
+    def _cdf(self,
+             k: int | float | ndarray,
+             order: int) \
+            -> float | ndarray[Any, dtype[float64]]:
         """Cumulative density function.
 
         Each child class must implement a method to delivering the cumulative
@@ -378,8 +392,9 @@ class SingleDistribution(Distribution):
         return 0.0
 
     @abstractmethod
-    def _random(self, size: int | tuple | None) \
-            -> int | ndarray[Any, dtype[int64]]:
+    def _random(self,
+                size: int | tuple | None,
+                ) -> int | ndarray[Any, dtype[int64]]:
         """Random chain-length generator.
 
         Each child class must implement a method to generate random chain
@@ -410,16 +425,19 @@ class SingleDistribution(Distribution):
         return (0, 1)
 
 
-class SingleDistribution1P(SingleDistribution):
+class Single1P(Single):
     """Abstract class for 1-parameter single chain-length distributions."""
     pass
 
 
-class SingleDistribution2P(SingleDistribution):
+class Single2P(Single):
     """Abstract class for 2-parameter single chain-length distributions."""
 
-    def __init__(self, DPn: int, PDI: float,  M0: float = 100.0,
-                 name: str = ""):
+    def __init__(self,
+                 DPn: int,
+                 PDI: float,
+                 M0: float = 100.0,
+                 name: str = "") -> None:
         """Initialize 2-parameter single chain-length distribution.
 
         Parameters
@@ -439,7 +457,7 @@ class SingleDistribution2P(SingleDistribution):
     @property
     def PDI(self) -> float:
         """Polydispersity index, $M_w/M_n$."""
-        return self.__PDI
+        return self.__PDI  # type: ignore
 
     @PDI.setter
     def PDI(self, PDI: float):
@@ -447,56 +465,62 @@ class SingleDistribution2P(SingleDistribution):
         self._compute_parameters()
 
 
-class CombinedDistribution(Distribution):
+class Combined(Distribution):
     """Combined chain-length distribution."""
 
-    def __init__(self, dists: list[SingleDistribution], weights=list[float],
-                 name: str = ""):
-        # Validate input !!!
-        self._dists = dists
-        self._mass_weights = weights
-        self.name = name
+    def __init__(self,
+                 components: dict[Single, int | float],
+                 name: str = "") -> None:
 
-        # Convert mass to mole fractions
-        self._calc_mole_weights()
+        self._components = components
+        self.name = name
+        self._molefracs = None
 
     def __add__(self, other):
-        if isinstance(other, CombinedDistribution):
-            return CombinedDistribution(self._dists + other._dists,
-                                        self._mass_weights + other._mass_weights,
-                                        name=self.name+'+'+other.name)
-        elif isinstance(other, SingleDistribution):
-            return CombinedDistribution(self._dists + [other],
-                                        self._mass_weights + [1],
-                                        name=self.name+'+'+other.name)
+        if isinstance(other, Combined):
+            return Combined(add_dicts(self._components, other._components),
+                            name=self.name+'+'+other.name)
+        elif isinstance(other, Single):
+            return Combined(add_dicts(self._components, {other: 1}),
+                            name=self.name+'+'+other.name)
         else:
             return NotImplemented
 
     def __radd__(self, other):
         return self.__add__(other)
 
-    def _calc_mole_weights(self) -> None:
+    def __str__(self) -> str:
+        return f"type: {self.__class__.__name__}\n" + \
+            f"name: {self.name}\n" + \
+            f"DPn:  {self.DPn:.1f}\n" + \
+            f"PDI:  {self.PDI:.2f}\n" + \
+            f"Mn:   {self.Mn:,.0f}\n" + \
+            f"Mw:   {self.Mw:,.0f}\n" + \
+            f"Mz:   {self.Mz:,.0f}"
+
+    def _calc_molefracs(self) -> None:
         """Calculate mole fraction of each base distribution."""
-        w = np.asarray(self._mass_weights)
-        Mn = np.asarray([d.Mn for d in self._dists])
+        components = self._components
+        w = np.asarray(list(components.values()))
+        Mn = np.asarray([d.Mn for d in components.keys()])
         x = w/Mn
         x[:] /= x.sum()
-        self._mole_weights = x
+        self._molefracs = x
 
-    def moment(self, order: int) -> float:
-        r"""$m$-th moment of the number chain-length distribution"""
-        mom = [d.moment(order) for d in self._dists]
-        return np.sum(self._mole_weights*np.asarray(mom))
+    def moment(self, order: int, length: bool = True) -> float:
+        """$m$-th moment of the number chain-length / molar mass distribution.
+         """
+        if self._molefracs is None:
+            self._calc_molefracs()
+        mom = np.asarray([d.moment(order) for d in self._components.keys()])
+        M0 = np.asarray([d.M0 for d in self._components.keys()])
+        result = self._molefracs*mom
+        if not length:
+            result *= M0**order
+        return result.sum()
 
-    @ property
-    def M0(self) -> float:
-        """Molar mass of the repeating unit, $M_0$."""
-        m0 = [d.M0 for d in self._dists]
-        return np.sum(self._mole_weights*np.asarray(m0))
-
-    @ property
-    def DPn(self) -> float:
-        """Number-average degree of polymerization, $DP_n$."""
-        return self.moment(1)/self.moment(0)
-
-# %%
+    # @ property
+    # def M0(self) -> float:
+    #     """Molar mass of the repeating unit, $M_0$."""
+    #     m0 = [d.M0 for d in self._dists]
+    #     return np.sum(self._mole_weights*np.asarray(m0))

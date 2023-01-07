@@ -1,9 +1,15 @@
-from typing import Any, Union
+from typing import Any
 from collections.abc import Iterable
 import numbers
 
+# %% Check tools
 
-def custom_error(var_name: str, var_value: Any, kind: type, message: str = ""):
+
+def custom_error(var_name: str,
+                 var_value: Any,
+                 kind: type,
+                 message: str = ""
+                 ) -> None:
     """
     Custom error message function.
 
@@ -28,8 +34,11 @@ def custom_error(var_name: str, var_value: Any, kind: type, message: str = ""):
     # sys.exit(0)
 
 
-def check_type(var_value, valid_types, var_name: str, check_inside: bool = False
-               ):
+def check_type(var_value: Any,
+               valid_types: Any,
+               var_name: str,
+               check_inside: bool = False
+               ) -> Any:
     """
     Check if a variable is of a given type.
 
@@ -39,11 +48,10 @@ def check_type(var_value, valid_types, var_name: str, check_inside: bool = False
         Value of variable `var_name`.
     valid_types : Any
         Valid types of variable `var_name`
-    var_name : string
+    var_name : str
         Variable name.
-    check_inside : bool, optional
+    check_inside : bool
         To check the elements of the object, rather than the object itself.
-        The default is False.
 
     Returns
     -------
@@ -81,9 +89,11 @@ def check_type(var_value, valid_types, var_name: str, check_inside: bool = False
         )
 
 
-def check_subclass(
-    myobject: Any, valid_class: type, myobject_name: str, check_inside: bool = False
-):
+def check_subclass(myobject: Any,
+                   valid_class: type,
+                   myobject_name: str,
+                   check_inside: bool = False
+                   ) -> Any:
     """Check if an object is a subclass of given class."""
 
     check = False
@@ -106,9 +116,11 @@ def check_subclass(
         )
 
 
-def check_bounds(
-    x: Union[int, float], xmin: Union[int, float], xmax: Union[int, float], xname: str
-) -> Union[int, float]:
+def check_bounds(x: int | float,
+                 xmin: int | float,
+                 xmax: int | float,
+                 xname: str
+                 ) -> int | float | None:
     """Check if a numerical value is between given bounds.
 
     Example:
@@ -144,7 +156,10 @@ def check_bounds(
         )
 
 
-def check_in_set(var_value: Any, valid_set: set, var_name: str = "#"):
+def check_in_set(var_value: Any,
+                 valid_set: set,
+                 var_name: str = "#"
+                 ) -> Any:
     """Check if a variable or its elements belong to a set.
 
     Example:
@@ -173,3 +188,36 @@ def check_in_set(var_value: Any, valid_set: set, var_name: str = "#"):
             f"""The following items do not belong to the valid set: {diff_set}.
             The valid set is: {valid_set}.""",
         )
+
+# %% Special functions
+
+
+def add_dicts(d1: dict[Any, int | float],
+              d2: dict[Any, int | float],
+              new: bool = False
+              ) -> dict[Any, int | float]:
+    """Adds two dictionaries by summing the values for the same key.
+
+    Parameters
+    ----------
+    d1 : dict[Any, int  |  float]
+        first dictionary
+    d2 : dict[Any, int  |  float]
+        second dictionary
+    new : bool
+        if True, a new dictionary will be created (`d = d1 + d2`), otherwise,
+        d1 will be modified (`d1 <- d1 + d2`).
+
+    Returns
+    -------
+    dict[Any, int | float]
+        Sum of both dictionaries.
+    """
+    if new:
+        dout = d1.copy()
+    else:
+        dout = d1
+
+    for key, value in d2.items():
+        dout[key] = dout.get(key, 0) + value
+    return dout

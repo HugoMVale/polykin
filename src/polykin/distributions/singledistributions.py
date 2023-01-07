@@ -1,7 +1,7 @@
-# %%
+# %% Single distributions
 
-from baseclasses import SingleDistribution1P
-from baseclasses import SingleDistribution2P
+from polykin.distributions.baseclasses import Single1P
+from polykin.distributions.baseclasses import Single2P
 
 from math import exp, log, sqrt
 import numpy as np
@@ -9,7 +9,7 @@ import scipy.special as sp
 import scipy.stats as st
 
 
-class Flory(SingleDistribution1P):
+class Flory(Single1P):
     r"""Flory-Schulz (aka most-probable) chain-length distribution, with
     _number_ probability mass function given by:
 
@@ -58,10 +58,10 @@ class Flory(SingleDistribution1P):
 
     def _random(self, size):
         a = self._a
-        return self._rng.geometric((1-a), size)
+        return self._rng.geometric((1-a), size)  # type: ignore
 
 
-class Poisson(SingleDistribution1P):
+class Poisson(Single1P):
     r"""Poisson chain-length distribution, with _number_ probability mass
     function given by:
 
@@ -110,10 +110,10 @@ class Poisson(SingleDistribution1P):
 
     def _random(self, size):
         a = self._a
-        return self._rng.poisson(a, size) + 1
+        return self._rng.poisson(a, size) + 1  # type: ignore
 
 
-class LogNormal(SingleDistribution2P):
+class LogNormal(Single2P):
     r"""Log-normal chain-length distribution, with _number_ probability density
     function given by:
 
@@ -163,17 +163,18 @@ class LogNormal(SingleDistribution2P):
     def _random(self, size):
         mu = self._mu
         sigma = self._sigma
-        return np.rint(self._rng.lognormal(mu, sigma, size))
+        return np.rint(self._rng.lognormal(mu, sigma, size))  # type: ignore
 
 
-class SchulzZimm(SingleDistribution2P):
+class SchulzZimm(Single2P):
     r"""Schulz-Zimm chain-length distribution, with _number_ probability
     density function given by:
 
     $$ p(x) = \frac{x^{k-1} \exp{-x/\theta}}{\Gamma(k) \theta^k} $$
 
     where $k = 1/(DP_n-1)$ and $\theta = DP_n(PDI-1)$. Mathematically speaking,
-    this is a [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution).
+    this is a [Gamma distribution]
+    (https://en.wikipedia.org/wiki/Gamma_distribution).
     """
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
     # https://goldbook.iupac.org/terms/view/S05502
@@ -216,4 +217,4 @@ class SchulzZimm(SingleDistribution2P):
     def _random(self, size):
         k = self._k
         theta = self._theta
-        return np.rint(self._rng.gamma(k, theta, size))
+        return np.rint(self._rng.gamma(k, theta, size))  # type: ignore
