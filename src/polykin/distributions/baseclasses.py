@@ -3,12 +3,11 @@
 from base import Base
 from utils import check_bounds, check_type, check_in_set
 
-from math import exp, log, sqrt
 import numpy as np
+from numpy import int64, float64, dtype, ndarray
 from numpy.typing import ArrayLike
-import scipy.special as sp
-import scipy.stats as st
 import matplotlib.pyplot as plt
+from typing import Any
 from abc import ABC, abstractmethod
 
 
@@ -66,8 +65,8 @@ class Distribution(Base, ABC):
         return self.M0 * self.DPz
 
 
-class BaseDistribution(Distribution):
-    """Abstract class for all base chain-length distributions."""
+class SingleDistribution(Distribution):
+    """Abstract class for all single chain-length distributions."""
 
     def __init__(self, DPn: int, M0: float = 100.0, name: str = ""):
         """Initialize chain-length distribution.
@@ -107,7 +106,7 @@ class BaseDistribution(Distribution):
         return self.__mul__(other)
 
     def __add__(self, other):
-        if isinstance(other, BaseDistribution):
+        if isinstance(other, SingleDistribution):
             return CombinedDistribution([self, other], [1, 1],
                                         name=self.name+'+'+other.name)
         else:
@@ -140,7 +139,7 @@ class BaseDistribution(Distribution):
 
         $$ \lambda_m=\sum_{k=1}^{\infty }k^m\,p(k) $$
 
-        or 
+        or
 
         $$ \lambda_m=\int_{0}^{\infty }x^m\,p(x)\mathrm{d}x $$
 
@@ -158,7 +157,7 @@ class BaseDistribution(Distribution):
         check_bounds(order, 0, 3, 'order')
         return self._moment(order)
 
-    def _process_size(self, size, unit_size) -> np.ndarray:
+    def _process_size(self, size, unit_size) -> ndarray:
         if isinstance(size, list):
             size = np.asarray(size)
         check_in_set(unit_size, {'chain_length', 'molar_mass'}, 'unit_size')
@@ -167,7 +166,7 @@ class BaseDistribution(Distribution):
         return size
 
     def pdf(self, size: int | float | ArrayLike, dist: str = "mass",
-            unit_size: str = "chain_length") -> float | np.ndarray:
+            unit_size: str = "chain_length") -> float | ndarray:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
@@ -182,7 +181,7 @@ class BaseDistribution(Distribution):
 
         Returns
         -------
-        float | np.ndarray
+        float | ndarray
             Chain-length probability.
         """
 
@@ -195,7 +194,7 @@ class BaseDistribution(Distribution):
         return self._pdf(size) * size**order / self._moment(order)
 
     def cdf(self, size: int | float | ArrayLike, dist: str = "mass",
-            unit_size: str = "chain_length") -> float | np.ndarray:
+            unit_size: str = "chain_length") -> float | ndarray:
         r"""Evaluate the cumulative density function:
 
         $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
@@ -216,7 +215,7 @@ class BaseDistribution(Distribution):
 
         Returns
         -------
-        float | np.ndarray
+        float | ndarray
             Cumulative probability.
         """
         # Convert size, if required
@@ -225,9 +224,10 @@ class BaseDistribution(Distribution):
         # Compute distribution
         check_in_set(dist, set(self.distnames.keys()), 'dist')
         order = self.distnames[dist]
-        return self._cdf(size, order)/self._moment(order)
+        return self._cdf(size, order)
 
-    def random(self, size: int | tuple[int, ...] | None = None) -> int | np.ndarray:
+    def random(self, size: int | tuple[int, ...] | None = None) \
+            -> int | ndarray:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -238,14 +238,14 @@ class BaseDistribution(Distribution):
 
         Returns
         -------
-        int | np.ndarray
+        int | ndarray
             Random sample of chain lengths.
         """
         if self._rng is None:
             self._rng = np.random.default_rng()
         return self._random(size)
 
-    def plot(self, dist: str | list[str, ...] = 'mass',
+    def plot(self, dist: str | list[str] = 'mass',
              unit_size: str = 'chain_length',
              xscale: str = 'auto', xrange: tuple = (), ax=None):
         """Plot the chain-length distribution.
@@ -335,7 +335,7 @@ class BaseDistribution(Distribution):
         return 0.0
 
     @abstractmethod
-    def _pdf(self, k: int | float | np.ndarray) -> float | np.ndarray:
+    def _pdf(self, k: int | float | ndarray) -> float | ndarray:
         """Probability density/mass function.
 
         Each child class must implement a method to delivering the probability
@@ -343,18 +343,19 @@ class BaseDistribution(Distribution):
 
         Parameters
         ----------
-        k : int | float | np.ndarray
+        k : int | float | ndarray
             Chain length.
 
         Returns
         -------
-        float | np.ndarray
+        float | ndarray
             Probability density/mass value.
         """
         return 0.0
 
     @abstractmethod
-    def _cdf(self, k: int | float | np.ndarray, order: int) -> float | np.ndarray:
+    def _cdf(self, k: int | float | ndarray, order: int) \
+            -> float | ndarray:
         """Cumulative density function.
 
         Each child class must implement a method to delivering the cumulative
@@ -364,24 +365,25 @@ class BaseDistribution(Distribution):
 
         Parameters
         ----------
-        k : int | float | np.ndarray
+        k : int | float | ndarray
             Chain length.
         order : int
             Order of the distribution (0: number, 1: mass, 2: GPC).
 
         Returns
         -------
-        float | np.ndarray
+        float | ndarray
             Cumulative density value.
         """
         return 0.0
 
     @abstractmethod
-    def _random(self, size: int | tuple | None) -> int | np.ndarray:
+    def _random(self, size: int | tuple | None) \
+            -> int | ndarray[Any, dtype[int64]]:
         """Random chain-length generator.
 
         Each child class must implement a method to generate random chain
-        lengths according to the statistics of corresponding number 
+        lengths according to the statistics of corresponding number
         density/mass function.
 
         Parameters
@@ -391,7 +393,7 @@ class BaseDistribution(Distribution):
 
         Returns
         -------
-        int | np.ndarray
+        int | ndarray
             Random sample of chain lengths.
         """
         return 0
@@ -408,122 +410,17 @@ class BaseDistribution(Distribution):
         return (0, 1)
 
 
-class Flory(BaseDistribution):
-    r"""Flory-Schulz (aka most-probable) chain-length distribution, with
-    *number* probability mass function given by:
-
-    $$ p(k) = (1-a)a^{k-1} $$
-
-    where $a=1-1/DP_n$.
-    """
-
-    def _compute_parameters(self):
-        self._a = 1 - 1 / self.DPn
-
-    def _moment(self, order):
-        a = self._a
-        if order == 0:
-            result = 1
-        elif order == 1:
-            result = 1/(1 - a)
-        elif order == 2:
-            result = 2/(1 - a)**2 - 1/(1 - a)
-        elif order == 3:
-            result = 6/(1 - a)**3 - 6/(1 - a)**2 + 1/(1 - a)
-        else:
-            raise ValueError("Not defined for order>3.")
-        return result
-
-    def _pdf(self, k):
-        a = self._a
-        return (1 - a) * a ** (k - 1)
-
-    def _cdf(self, s, order):
-        a = self._a
-        if order == 0:
-            result = 1 - a**s
-        elif order == 1:
-            result = (a**s*(-a*s + s + 1) - 1)/(a - 1)
-        elif order == 2:
-            result = (-((a - 1)**2*s**2 - 2*(a - 1)*s + a + 1)
-                      * a**s + a + 1)/(a - 1)**2
-        else:
-            raise ValueError("Not defined for order>2.")
-        return result
-
-    def _xrange_auto(self):
-        return (1, 10*self.DPn)
-
-    def _random(self, size):
-        return self._rng.geometric((1-self._a), size=size)
+class SingleDistribution1P(SingleDistribution):
+    """Abstract class for 1-parameter single chain-length distributions."""
+    pass
 
 
-class Poisson(BaseDistribution):
-    r"""Poisson chain-length distribution, with *number* probability mass
-    function given by:
-
-    $$ p(k) = \frac{a^{k-1} e^{-a}}{\Gamma(k)} $$
-
-    where $a=DP_n-1$.
-    """
-
-    def _compute_parameters(self):
-        self._a = self.DPn - 1
-
-    def _moment(self, order):
-        a = self._a
-        if order == 0:
-            result = 1
-        elif order == 1:
-            result = a + 1
-        elif order == 2:
-            result = a**2 + 3*a + 1
-        elif order == 3:
-            result = a**3 + 6*a**2 + 7*a + 1
-        else:
-            raise ValueError("Not defined for order>3.")
-        return result
-
-    def _pdf(self, k):
-        a = self._a
-        return np.exp((k - 1)*np.log(a) - a - sp.gammaln(k))
-
-    def _cdf(self, s, order):
-        a = self._a
-        if order == 0:
-            result = sp.gammaincc(s, a)
-        elif order == 1:
-            result = (a + 1)*sp.gammaincc(s, a) - \
-                np.exp(s*np.log(a) - a - sp.gammaln(s))
-        elif order == 2:
-            result = (a*(a + 3) + 1)*sp.gammaincc(s, a) - \
-                np.exp(s*np.log(a) + np.log(a + s + 2) - a - sp.gammaln(s))
-        else:
-            raise ValueError("Not defined for order>2.")
-        return result
-
-    def _xrange_auto(self):
-        return (max(1, self.DPn/2 - 10), 1.5*self.DPn + 10)
-
-    def _random(self, size):
-        return self._rng.poisson(self._a, size=size) + 1
-
-
-class LogNormal(BaseDistribution):
-    r"""Log-normal chain-length distribution, with _number_ probability density
-    function given by:
-
-    $$ p(x) = \frac{1}{x \sigma \sqrt{2 \pi}}
-    \exp\left (- \frac{(\ln{x}-\mu)^2}{2\sigma^2} \right ) $$
-
-    where $\u = \log(DP_n/\sqrt(PDI))$ and $\sigma=\sqrt(\log(PDI))$.
-    """
-    # https://reference.wolfram.com/language/ref/LogNormalDistribution.html
-    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html
+class SingleDistribution2P(SingleDistribution):
+    """Abstract class for 2-parameter single chain-length distributions."""
 
     def __init__(self, DPn: int = 100, PDI: float = 2.0,  M0: float = 100.0,
                  name: str = ""):
-        """Initialize chain-length distribution.
+        """Initialize 2-parameter single chain-length distribution.
 
         Parameters
         ----------
@@ -549,53 +446,11 @@ class LogNormal(BaseDistribution):
         self.__PDI = check_bounds(PDI, 1.001, np.Inf, 'PDI')
         self._compute_parameters()
 
-    def _compute_parameters(self):
-        try:
-            PDI = self.PDI
-            DPn = self.DPn
-            self._sigma = sqrt(log(PDI))
-            self._mu = log(DPn/sqrt(PDI))
-        except AttributeError:
-            pass
-
-    def _moment(self, order: int):
-        mu = self._mu
-        sigma = self._sigma
-        return exp(order*mu + (1/2)*order**2*sigma**2)
-
-    def _pdf(self, x):
-        mu = self._mu
-        sigma = self._sigma
-        scale = np.exp(mu)
-        return st.lognorm.pdf(x, s=sigma, loc=0, scale=scale)
-
-    def _cdf(self, s, order):
-        mu = self._mu
-        sigma = self._sigma
-        if order == 0:
-            scale = np.exp(mu)
-            result = st.lognorm.cdf(s, s=sigma, loc=0, scale=scale)
-        elif order == 1:
-            result = sp.erfc((mu + sigma**2 - np.log(s)) /
-                             (sigma*sqrt(2)))*exp(mu + (1/2)*sigma**2)/2
-        elif order == 2:
-            result = sp.erfc((mu + 2*sigma**2 - np.log(s)) /
-                             (sigma*sqrt(2)))*exp(2*mu + 2*sigma**2)/2
-        else:
-            raise ValueError("Not defined for order>2.")
-        return result
-
-    def _xrange_auto(self):
-        return (1, 100*self.DPn)
-
-    def _random(self, size):
-        return np.rint(self._rng.lognormal(self._mu, self._sigma, size=size))
-
 
 class CombinedDistribution(Distribution):
     """Combined chain-length distribution."""
 
-    def __init__(self, dists: list[BaseDistribution], weights=list[float],
+    def __init__(self, dists: list[SingleDistribution], weights=list[float],
                  name: str = ""):
         # Validate input !!!
         self._dists = dists
@@ -610,7 +465,7 @@ class CombinedDistribution(Distribution):
             return CombinedDistribution(self._dists + other._dists,
                                         self._mass_weights + other._mass_weights,
                                         name=self.name+'+'+other.name)
-        elif isinstance(other, BaseDistribution):
+        elif isinstance(other, SingleDistribution):
             return CombinedDistribution(self._dists + [other],
                                         self._mass_weights + [1],
                                         name=self.name+'+'+other.name)
@@ -645,10 +500,3 @@ class CombinedDistribution(Distribution):
         return self.moment(1)/self.moment(0)
 
 # %%
-
-
-DPn = 100
-d = LogNormal(DPn, 2)
-x = np.asarray([i for i in range(0, 10*DPn)])
-cdf = d.cdf(x, 'number')
-print(cdf[-1])

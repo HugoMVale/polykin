@@ -1,16 +1,19 @@
-from polykin.distributions import Flory, Poisson, LogNormal
+from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 
 import numpy as np
 import scipy.integrate as integrate
 
-rtol = 10*np.finfo(np.float64).eps
+# Default tolerance for "exact" comparisons
+rtol = float(10*np.finfo(np.float64).eps)
+
+# Default distributions for tests
+dist1 = [Flory(90), Poisson(25)]
+dist2 = [LogNormal(80, 3.0), SchulzZimm(90, 2.5)]
 
 
 def test_properties():
-    distributions = {"flory": Flory(100),
-                     "poisson": Poisson(100),
-                     'log-normal': LogNormal(100)}
-    for d in distributions.values():
+    distributions = dist1 + dist2
+    for d in distributions:
         name = 'newname'
         DPn = 142
         M0 = 242
@@ -31,8 +34,9 @@ def test_pdf_discrete_sum():
     """
     DPn = 69
     x = [i for i in range(1, 100*DPn)]
-    distributions = [Flory(DPn), Poisson(DPn)]
+    distributions = dist1
     for d in distributions:
+        d.DPn = DPn
         for dist in ["number", "mass", "gpc"]:
             pdf = d.pdf(x, dist=dist, unit_size='chain_length')
             assert (np.isclose(sum(pdf), 1.0, rtol=rtol))
@@ -41,7 +45,7 @@ def test_pdf_discrete_sum():
 def test_pdf_continuous_integral():
     """For all continuous distributions, we should get integral(pdf)=1
     """
-    distributions = [LogNormal(121, 3)]
+    distributions = dist2
     for d in distributions:
         for dist in ["number", "mass", "gpc"]:
             pdf_integral, atol = integrate.quad(
@@ -57,8 +61,9 @@ def test_pdf_discrete_moment():
     """
     DPn = 69
     x = np.asarray([i for i in range(1, 100*DPn)])
-    distributions = [Flory(DPn), Poisson(DPn)]
+    distributions = dist1
     for d in distributions:
+        d.DPn = DPn
         pdf = d.pdf(x, dist='number', unit_size='chain_length')
         for order in range(0, 4):
             mom_analytical = d.moment(order)
@@ -70,7 +75,7 @@ def test_pdf_continuous_moment():
     """For all continuous distributions, the moment obtined by integrating the
     pdf should match the analytical value.
     """
-    distributions = [LogNormal(121, 3)]
+    distributions = dist2
     for d in distributions:
         for order in range(0, 4):
             mom_analytical = d.moment(order)
@@ -87,8 +92,9 @@ def test_pfd_cdf_discrete():
     """
     DPn = 51
     x = [i for i in range(1, DPn+1)]
-    distributions = {"flory": Flory(DPn), "poisson": Poisson(DPn)}
-    for d in distributions.values():
+    distributions = dist1
+    for d in distributions:
+        d.DPn = DPn
         for dist in ["number", "mass", "gpc"]:
             cdf = d.cdf(DPn, dist=dist)
             pdf = d.pdf(x, dist=dist)
@@ -97,13 +103,15 @@ def test_pfd_cdf_discrete():
 
 
 def test_pfd_cdf_continuous():
-    """For all continuous distributions, we should get integral(pdf(0:x)=cdf(x)
+    """For all continuous distributions, we should get integral(pdf(0:s)=cdf(s)
     """
     DPn = 51
-    PDI = 3
+    PDI = 2.9
     s = 1*DPn
-    distributions = [LogNormal(DPn, PDI)]
+    distributions = dist2
     for d in distributions:
+        d.DPn = DPn
+        d.PDI = PDI
         for dist in ["number", "mass", "gpc"]:
             cdf = d.cdf(s, dist=dist)
             integral_pdf, atol = integrate.quad(
@@ -114,20 +122,25 @@ def test_pfd_cdf_continuous():
 
 
 def test_random():
-    """The moments of the random samples should match the moments of the parent
-    distributions.
+    """The moments of the random samples should match the analytical moments of
+    the corresponding distributions.
     """
     DPn = 49
+    PDI = 1.8
     num_samples = 10**6
-    distributions = {"flory": Flory(DPn),
-                     "poisson": Poisson(DPn),
-                     'log-normal': LogNormal(DPn, PDI=1.9)}
-    for d in distributions.values():
+    rtol = [None, 5e-3, 2e-2, 5e-2]
+    distributions = dist1 + dist2
+    for d in distributions:
+        d.DPn = DPn
+        try:
+            d.PDI = PDI
+        except AttributeError:
+            pass
         x = d.random(num_samples)
-        for i in range(1, 4):
-            mom = np.sum(x**i)/num_samples
-            # print(d.name, i, mom, d.moment(i))
-            assert (np.isclose(mom, d.moment(i), rtol=5e-2))
+        for order in range(1, 4):
+            mom = np.sum(x**order)/num_samples
+            print(type(d), order, mom, d.moment(order))
+            assert (np.isclose(mom, d.moment(order), rtol=rtol[order]))
 
 
 def test_composite_1():
