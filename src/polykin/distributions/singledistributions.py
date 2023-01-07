@@ -16,7 +16,7 @@ class Flory(SingleDistribution1P):
     $$ p(k) = (1-a)a^{k-1} $$
 
     where $a=1-1/DP_n$. Mathematically speaking, this is a [geometric
-    distribution](https://en.wikipedia.org/wiki/Gamma_distribution).
+    distribution](https://en.wikipedia.org/wiki/Geometric_distribution).
     """
 
     def _compute_parameters(self):
@@ -120,7 +120,7 @@ class LogNormal(SingleDistribution2P):
     $$ p(x) = \frac{1}{x \sigma \sqrt{2 \pi}}
     \exp\left (- \frac{(\ln{x}-\mu)^2}{2\sigma^2} \right ) $$
 
-    where $\u = \log(DP_n/\sqrt(PDI))$ and $\sigma=\sqrt(\log(PDI))$.
+    where $\mu = \ln{(DP_n/\sqrt{PDI})}$ and $\sigma=\sqrt{\ln(PDI)}$.
     """
     # https://reference.wolfram.com/language/ref/LogNormalDistribution.html
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html

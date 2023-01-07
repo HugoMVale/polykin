@@ -20,3 +20,10 @@
     options:
         show_root_toc_entry: false
         inherited_members: true
+
+## Schulz-Zimm
+
+::: polykin.distributions.SchulzZimm
+    options:
+        show_root_toc_entry: false
+        inherited_members: true
