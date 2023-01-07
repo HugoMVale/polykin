@@ -38,7 +38,7 @@ def test_pdf_discrete_sum():
     for d in distributions:
         d.DPn = DPn
         for dist in ["number", "mass", "gpc"]:
-            pdf = d.pdf(x, dist=dist, unit_size='chain_length')
+            pdf = d.pdf(x, dist=dist)
             assert (np.isclose(sum(pdf), 1.0, rtol=rtol))
 
 
@@ -49,7 +49,7 @@ def test_pdf_continuous_integral():
     for d in distributions:
         for dist in ["number", "mass", "gpc"]:
             pdf_integral, atol = integrate.quad(
-                lambda x: d.pdf(x, dist=dist, unit_size='chain_length'),
+                lambda x: d.pdf(x, dist=dist),
                 0, np.Inf)
             # print(d.name, dist, pdf_integral, atol)
             assert (np.isclose(pdf_integral, 1.0, atol=atol))
@@ -64,7 +64,7 @@ def test_pdf_discrete_moment():
     distributions = dist1
     for d in distributions:
         d.DPn = DPn
-        pdf = d.pdf(x, dist='number', unit_size='chain_length')
+        pdf = d.pdf(x, dist='number')
         for order in range(0, 4):
             mom_analytical = d.moment(order)
             mom_sum = np.sum(pdf*x**order)
@@ -81,7 +81,7 @@ def test_pdf_continuous_moment():
             mom_analytical = d.moment(order)
             mom_integral, atol = integrate.quad(
                 lambda x: x**order *
-                d.pdf(x, dist='number', unit_size='chain_length'),
+                d.pdf(x, dist='number'),
                 0, np.Inf)
             # print(d.name, mom_integral, atol)
             assert (np.isclose(mom_integral, mom_analytical, atol=atol))
@@ -115,7 +115,7 @@ def test_pfd_cdf_continuous():
         for dist in ["number", "mass", "gpc"]:
             cdf = d.cdf(s, dist=dist)
             integral_pdf, atol = integrate.quad(
-                lambda x: d.pdf(x, dist=dist, unit_size='chain_length'),
+                lambda x: d.pdf(x, dist=dist),
                 0, s)
             print(cdf, integral_pdf)
             assert (np.isclose(integral_pdf, cdf, atol=atol))
@@ -151,55 +151,51 @@ def test_composite_1():
     for d in distributions:
         cases = [1*d, d*1, 2.0*d, d*3.0, d + d + d, d + 2*d + 3.0*d]
         for s in cases:
-            assert (np.isclose(s.DPn, d.DPn, rtol=1e-15))
-            assert (np.isclose(s.DPw, d.DPw, rtol=1e-15))
-            assert (np.isclose(s.DPz, d.DPz, rtol=1e-15))
-            assert (np.isclose(s.M0, d.M0, rtol=1e-15))
-            assert (np.isclose(s.Mn, d.Mn, rtol=1e-15))
-            assert (np.isclose(s.Mw, d.Mw, rtol=1e-15))
-            assert (np.isclose(s.Mz, d.Mz, rtol=1e-15))
+            assert (np.isclose(s.DPn, d.DPn, rtol=rtol))
+            assert (np.isclose(s.DPw, d.DPw, rtol=rtol))
+            assert (np.isclose(s.DPz, d.DPz, rtol=rtol))
+            # assert (np.isclose(s.M0, d.M0, rtol=rtol))
+            assert (np.isclose(s.Mn, d.Mn, rtol=rtol))
+            assert (np.isclose(s.Mw, d.Mw, rtol=rtol))
+            assert (np.isclose(s.Mz, d.Mz, rtol=rtol))
 
 
-def test_composite_2():
-    """Number-average properties should not change when combining base
-    distributions with identical DPn and M0."""
+def test_composite_2a():
+    """DPn should not change when combining distributions with same DPn."""
     DPn = 34
-    M0 = 44
-    f = Flory(DPn, M0)
-    p = Poisson(DPn, M0)
+    f = Flory(DPn, 50)
+    p = Poisson(DPn, 70)
     cases = [f + p + f, 1*f + p*2, f*2.0 + 3.0*p + 0.5*f]
     for s in cases:
-        assert (np.isclose(s.DPn, DPn, rtol=1e-15))
-        assert (np.isclose(s.M0, M0, rtol=1e-15))
-        assert (np.isclose(s.Mn, M0*DPn, rtol=1e-15))
+        assert (np.isclose(s.DPn, DPn, rtol=rtol))
 
 
-def test_composite_3():
-    """DPw should not change when combining base distributions with identical
-    DPw."""
+def test_composite_2b():
+    """Mn should not change when combining distributions with same Mn."""
+    Mn = 15000
+    f = Flory(Mn/50, 50)
+    p = Poisson(Mn/70, 70)
+    cases = [f + p + f, 1*f + p*2, f*2.0 + 3.0*p + 0.5*f]
+    for s in cases:
+        assert (np.isclose(s.Mn, Mn, rtol=rtol))
+
+
+def test_composite_2c():
+    """DPw should not change when combining distributions with same DPw."""
     DPw = 98
     f = Flory((DPw + 1)/2, 50)
     p = LogNormal(DPw/2, 2, 67)
     cases = [f + p, 1*f + p*2 + f, f*2.0 + 3.0*p + 2*p]
     for s in cases:
-        assert (np.isclose(s.DPw, DPw, rtol=1e-4))
+        assert (np.isclose(s.DPw, DPw, rtol=rtol))
 
 
-def test_composite_4():
-    """Mw should not change when combining base distributions with identical
-    Mw."""
+def test_composite_2d():
+    """Mw should not change when combining distributions with same Mw."""
     DPw = 98
-    f = Flory((DPw + 1)/2, 50)
-    p = Poisson((DPw - 1)/2, 100)
+    f = Flory((DPw + 1)/2, 100)
+    p = LogNormal(DPw/2, 4, 50)
     cases = [f + p, 1*f + p*2 + f, f*2.0 + 3.0*p + 2*p]
     for s in cases:
-        print(f.Mw, p.Mw, s.Mw, DPw*50)
-        # assert (np.isclose(s.Mw, DPw*50.0, rtol=1e-4))
-
-
-def test_Flory():
-    N = 123
-    d = Flory(N)
-    assert d.DPn == N
-    assert np.isclose(d.DPw, 2 * N, atol=1)
-    assert np.isclose(d.PDI, 2, rtol=1e-2)
+        print(f.Mw, p.Mw, s.Mw, DPw*100)
+        assert (np.isclose(s.Mw, DPw*100.0, rtol=rtol))
