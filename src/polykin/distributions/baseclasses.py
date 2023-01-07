@@ -418,7 +418,7 @@ class SingleDistribution1P(SingleDistribution):
 class SingleDistribution2P(SingleDistribution):
     """Abstract class for 2-parameter single chain-length distributions."""
 
-    def __init__(self, DPn: int = 100, PDI: float = 2.0,  M0: float = 100.0,
+    def __init__(self, DPn: int, PDI: float,  M0: float = 100.0,
                  name: str = ""):
         """Initialize 2-parameter single chain-length distribution.
 
