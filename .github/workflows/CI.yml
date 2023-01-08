@@ -47,7 +47,7 @@ jobs:
 
       - name: Install project dependencies
         run: |
-          poetry install
+          poetry install --with dev
 
       - name: Run tests and collect coverage
         run: |
