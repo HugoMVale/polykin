@@ -117,7 +117,7 @@ def test_pfd_cdf_continuous():
             integral_pdf, atol = integrate.quad(
                 lambda x: d.pdf(x, dist=dist),
                 0, s)
-            print(cdf, integral_pdf)
+            # print(cdf, integral_pdf)
             assert (np.isclose(integral_pdf, cdf, atol=atol))
 
 
@@ -139,7 +139,7 @@ def test_random():
         x = d.random(num_samples)
         for order in range(1, 4):
             mom = np.sum(x**order)/num_samples
-            print(type(d), order, mom, d.moment(order))
+            # print(type(d), order, mom, d.moment(order))
             assert (np.isclose(mom, d.moment(order), rtol=rtol[order]))
 
 
@@ -197,5 +197,5 @@ def test_composite_2d():
     p = LogNormal(DPw/2, 4, 50)
     cases = [f + p, 1*f + p*2 + f, f*2.0 + 3.0*p + 2*p]
     for s in cases:
-        print(f.Mw, p.Mw, s.Mw, DPw*100)
+        # print(f.Mw, p.Mw, s.Mw, DPw*100)
         assert (np.isclose(s.Mw, DPw*100.0, rtol=rtol))
