@@ -48,11 +48,11 @@ def test_inputs():
     with pytest.raises(ValueError):
         d.moment(4, 'notvalid')
     with pytest.raises(ValueError):
-        d.pdf(1, dist='notvalid')
+        d.pdf(1, type='notvalid')
     with pytest.raises(ValueError):
         d.pdf(1, sizeas='notvalid')
     with pytest.raises(ValueError):
-        d.cdf(1, dist='notvalid')
+        d.cdf(1, type='notvalid')
     with pytest.raises(ValueError):
         d.cdf(1, sizeas='notvalid')
 
@@ -65,8 +65,8 @@ def test_pdf_discrete_sum():
     distributions = dist1
     for d in distributions:
         d.DPn = DPn
-        for dist in ["number", "mass", "gpc"]:
-            pdf = d.pdf(x, dist=dist)
+        for type in ["number", "mass", "gpc"]:
+            pdf = d.pdf(x, type=type)
             assert (np.isclose(sum(pdf), 1.0, rtol=rtol))
 
 
@@ -75,9 +75,9 @@ def test_pdf_continuous_integral():
     """
     distributions = dist2
     for d in distributions:
-        for dist in ["number", "mass", "gpc"]:
+        for type in ["number", "mass", "gpc"]:
             pdf_integral, atol = integrate.quad(
-                lambda x: d.pdf(x, dist=dist),
+                lambda x: d.pdf(x, type=type),
                 0, np.Inf)
             # print(d.name, dist, pdf_integral, atol)
             assert (np.isclose(pdf_integral, 1.0, atol=atol))
@@ -92,7 +92,7 @@ def test_pdf_discrete_moment():
     distributions = dist1
     for d in distributions:
         d.DPn = DPn
-        pdf = d.pdf(x, dist='number')
+        pdf = d.pdf(x, type='number')
         for order in range(0, 4):
             mom_analytical = d.moment(order)
             mom_sum = np.sum(pdf*x**order)
@@ -109,7 +109,7 @@ def test_pdf_continuous_moment():
             mom_analytical = d.moment(order)
             mom_integral, atol = integrate.quad(
                 lambda x: x**order *
-                d.pdf(x, dist='number'),
+                d.pdf(x, type='number'),
                 0, np.Inf)
             # print(d.name, mom_integral, atol)
             assert (np.isclose(mom_integral, mom_analytical, atol=atol))
@@ -123,9 +123,9 @@ def test_pfd_cdf_discrete():
     distributions = dist1
     for d in distributions:
         d.DPn = DPn
-        for dist in ["number", "mass", "gpc"]:
-            cdf = d.cdf(DPn, dist=dist)
-            pdf = d.pdf(x, dist=dist)
+        for type in ["number", "mass", "gpc"]:
+            cdf = d.cdf(DPn, type=type)
+            pdf = d.pdf(x, type=type)
             sum_pdf = sum(pdf)
             assert (np.isclose(sum_pdf, cdf, rtol=1e-8))
 
@@ -140,10 +140,10 @@ def test_pfd_cdf_continuous():
     for d in distributions:
         d.DPn = DPn
         d.PDI = PDI
-        for dist in ["number", "mass", "gpc"]:
-            cdf = d.cdf(s, dist=dist)
+        for type in ["number", "mass", "gpc"]:
+            cdf = d.cdf(s, type=type)
             integral_pdf, atol = integrate.quad(
-                lambda x: d.pdf(x, dist=dist),
+                lambda x: d.pdf(x, type=type),
                 0, s)
             # print(cdf, integral_pdf)
             assert (np.isclose(integral_pdf, cdf, atol=atol))

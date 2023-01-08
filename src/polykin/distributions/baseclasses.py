@@ -14,7 +14,7 @@ from abc import ABC, abstractmethod
 class Distribution(Base, ABC):
     """Abstract class for all chain-length distributions."""
 
-    distnames = {'number': 0, 'mass': 1, 'gpc': 2}
+    typenames = {'number': 0, 'mass': 1, 'gpc': 2}
     sizenames = {'length', 'mass'}
 
     @property
@@ -208,7 +208,7 @@ class Single(Distribution):
 
     def pdf(self,
             size: int | float | ArrayLike,
-            dist: Literal['number', 'mass', 'gpc'] = 'mass',
+            type: Literal['number', 'mass', 'gpc'] = 'mass',
             sizeas: Literal['length', 'mass'] = 'length',
             ) -> float | ndarray[Any, dtype[float64]]:
         r"""Evaluate the probability density function, $p(k)$.
@@ -217,7 +217,7 @@ class Single(Distribution):
         ----------
         size : int | float | ArrayLike
             Chain length or molar mass.
-        dist : Literal['number', 'mass', 'gpc']
+        type : Literal['number', 'mass', 'gpc']
             Type of distribution.
         sizeas : Literal['length', 'mass']
             Set `length` if `size` refers to chain-*length* or `mass` if `size`
@@ -233,13 +233,13 @@ class Single(Distribution):
         size = self._preprocess_size(size, sizeas)
 
         # Compute distribution
-        check_in_set(dist, set(self.distnames.keys()), 'dist')
-        order = self.distnames[dist]
+        check_in_set(type, set(self.typenames.keys()), 'type')
+        order = self.typenames[type]
         return self._pdf(size) * size**order / self._moment(order)
 
     def cdf(self,
             size: int | float | ArrayLike,
-            dist: Literal['number', 'mass', 'gpc'] = 'mass',
+            type: Literal['number', 'mass', 'gpc'] = 'mass',
             sizeas: Literal['length', 'mass'] = 'length',
             ) -> float | ndarray[Any, dtype[float64]]:
         r"""Evaluate the cumulative density function:
@@ -254,7 +254,7 @@ class Single(Distribution):
         ----------
         size : int | float | ArrayLike
             Chain length or molar mass.
-        dist : Literal['number', 'mass', 'gpc']
+        type : Literal['number', 'mass', 'gpc']
             Type of distribution.
         sizeas : Literal['length', 'mass']
             Set `length` if `size` refers to chain-*length* or `mass` if `size`
@@ -269,8 +269,8 @@ class Single(Distribution):
         size = self._preprocess_size(size, sizeas)
 
         # Compute distribution
-        check_in_set(dist, set(self.distnames.keys()), 'dist')
-        order = self.distnames[dist]
+        check_in_set(type, set(self.typenames.keys()), 'type')
+        order = self.typenames[type]
         return self._cdf(size, order)
 
     def random(self,
@@ -294,7 +294,7 @@ class Single(Distribution):
         return self._random(size)
 
     def plot(self,
-             dist: Literal['number', 'mass', 'gpc'] = 'mass',
+             type: Literal['number', 'mass', 'gpc'] = 'mass',
              sizeas: Literal['length', 'mass'] = 'length',
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: tuple = (),
@@ -304,7 +304,7 @@ class Single(Distribution):
 
         Parameters
         ----------
-        dist : Literal['number', 'mass', 'gpc']
+        type : Literal['number', 'mass', 'gpc']
             Type of distribution.
         sizeas : Literal['length', 'mass']
             Set `length` if `size` refers to chain-*length* or `mass` if `size`
@@ -323,12 +323,12 @@ class Single(Distribution):
 
         """
         # Check inputs
-        check_in_set(dist, set(self.distnames.keys()), 'dist')
+        check_in_set(type, set(self.typenames.keys()), 'type')
         check_in_set(sizeas, self.sizenames, 'sizeas')
         check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
-        check_type(dist, (str, list, tuple), 'dist')
-        if isinstance(dist, str):
-            dist = [dist]
+        check_type(type, (str, list, tuple), 'type')
+        if isinstance(type, str):
+            type = [type]
 
         # Create axis if none is provided
         if ax is None:
@@ -339,7 +339,7 @@ class Single(Distribution):
         # x-axis
         if len(xrange) != 2:
             xrange = self._xrange_auto()
-        if xscale == 'log' or (xscale == 'auto' and set(dist) == {'gpc'}):
+        if xscale == 'log' or (xscale == 'auto' and set(type) == {'gpc'}):
             x = np.geomspace(xrange[0], xrange[1], 200)
             xscale = 'log'
         else:
@@ -355,8 +355,8 @@ class Single(Distribution):
             raise ValueError
 
         # y-axis
-        for item in dist:
-            y = self.pdf(x, dist=item, sizeas='length')
+        for item in type:
+            y = self.pdf(x, type=item, sizeas='length')
             ax.plot(xp, y, label=item)
 
         # Other properties
