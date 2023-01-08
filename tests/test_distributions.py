@@ -147,14 +147,14 @@ def test_composite_1():
     """Properties should remain unchanged when a distribution is combined with
     itself.
     """
-    distributions = [Flory(64, 50), Poisson(34, 67), LogNormal(34, 1.4, 35)]
+    distributions = dist1 + dist2
     for d in distributions:
         cases = [1*d, d*1, 2.0*d, d*3.0, d + d + d, d + 2*d + 3.0*d]
         for s in cases:
             assert (np.isclose(s.DPn, d.DPn, rtol=rtol))
             assert (np.isclose(s.DPw, d.DPw, rtol=rtol))
             assert (np.isclose(s.DPz, d.DPz, rtol=rtol))
-            # assert (np.isclose(s.M0, d.M0, rtol=rtol))
+            assert (np.isclose(s.M0, d.M0, rtol=rtol))
             assert (np.isclose(s.Mn, d.Mn, rtol=rtol))
             assert (np.isclose(s.Mw, d.Mw, rtol=rtol))
             assert (np.isclose(s.Mz, d.Mz, rtol=rtol))
