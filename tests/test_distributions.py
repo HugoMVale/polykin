@@ -2,6 +2,7 @@ from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 
 import numpy as np
 import scipy.integrate as integrate
+import pytest
 
 # Default tolerance for "exact" comparisons
 rtol = float(10*np.finfo(np.float64).eps)
@@ -27,6 +28,33 @@ def test_properties():
         assert (np.isclose(d.DPn, d.moment(1), rtol=rtol))
         assert (np.isclose(d.DPw, d.moment(2)/d.moment(1), rtol=rtol))
         assert (np.isclose(d.DPz, d.moment(3)/d.moment(2), rtol=rtol))
+
+
+def test_inputs():
+    with pytest.raises(ValueError):
+        d = Poisson(1)
+    with pytest.raises(ValueError):
+        d = LogNormal(10, 1)
+    with pytest.raises(ValueError):
+        d = LogNormal(10, 2, M0=-10)
+    with pytest.raises(TypeError):
+        d = LogNormal(10, 2, name=123)
+
+    d = Flory(100)
+    with pytest.raises(ValueError):
+        d.moment(-1)
+    with pytest.raises(ValueError):
+        d.moment(4)
+    with pytest.raises(ValueError):
+        d.moment(4, 'notvalid')
+    with pytest.raises(ValueError):
+        d.pdf(1, dist='notvalid')
+    with pytest.raises(ValueError):
+        d.pdf(1, sizeas='notvalid')
+    with pytest.raises(ValueError):
+        d.cdf(1, dist='notvalid')
+    with pytest.raises(ValueError):
+        d.cdf(1, sizeas='notvalid')
 
 
 def test_pdf_discrete_sum():
