@@ -170,11 +170,10 @@ class SchulzZimm(Single2P):
     r"""Schulz-Zimm chain-length distribution, with _number_ probability
     density function given by:
 
-    $$ p(x) = \frac{x^{k-1} \exp{-x/\theta}}{\Gamma(k) \theta^k} $$
+    $$ p(x) = \frac{x^{k-1} e^{-x/\theta}}{\Gamma(k) \theta^k} $$
 
     where $k = 1/(DP_n-1)$ and $\theta = DP_n(PDI-1)$. Mathematically speaking,
-    this is a [Gamma distribution]
-    (https://en.wikipedia.org/wiki/Gamma_distribution).
+    this is a [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution).
     """
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
     # https://goldbook.iupac.org/terms/view/S05502
