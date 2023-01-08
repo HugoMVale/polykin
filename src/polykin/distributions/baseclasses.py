@@ -7,7 +7,7 @@ import numpy as np
 from numpy import int64, float64, dtype, ndarray
 from numpy.typing import ArrayLike
 import matplotlib.pyplot as plt
-from typing import Any
+from typing import Any, Literal
 from abc import ABC, abstractmethod
 
 
@@ -15,53 +15,77 @@ class Distribution(Base, ABC):
     """Abstract class for all chain-length distributions."""
 
     distnames = {'number': 0, 'mass': 1, 'gpc': 2}
+    sizenames = {'length', 'mass'}
 
     @property
     def DPn(self) -> float:
         r"""Number-average degree of polymerization, $DP_n$."""
-        return self._moment_ratio(1)
+        return self._moment_ratio(1, 'length')
 
     @property
     def DPw(self) -> float:
         r"""Mass-average degree of polymerization, $DP_w$."""
-        return self._moment_ratio(2)
+        return self._moment_ratio(2, 'length')
 
     @property
     def DPz(self) -> float:
         r"""z-average degree of polymerization, $DP_z$."""
-        return self._moment_ratio(3)
+        return self._moment_ratio(3, 'length')
 
     @property
     def Mn(self) -> float:
         r"""Number-average molar mass, $M_n$."""
-        return self._moment_ratio(1, False)
+        return self._moment_ratio(1, 'mass')
 
     @property
     def Mw(self) -> float:
         r"""Weight-average molar mass, $M_w$."""
-        return self._moment_ratio(2, False)
+        return self._moment_ratio(2, 'mass')
 
     @property
     def Mz(self) -> float:
         r"""z-average molar mass, $M_z$."""
-        return self._moment_ratio(3, False)
+        return self._moment_ratio(3, 'mass')
 
     @property
     def PDI(self) -> float:
         r"""Polydispersity index, $M_w/M_n$."""
         return self.Mw / self.Mn
 
-    def _moment_ratio(self, order: int, length: bool = True) -> float:
-        return self.moment(order, length)/self.moment(order-1, length)
+    def _moment_ratio(self,
+                      order: int,
+                      sizeas: Literal['length', 'mass']
+                      ) -> float:
+        r"""Ratio of consecutive moments of the number chain-length / molar
+        mass distribution
 
-    # @property
-    # @abstractmethod
-    # def M0(self) -> float:
-    #     r"""Molar mass of the repeating unit, $M_0$."""
-    #     return 0.0
+        $$ \rho_m = frac{\lambda_{m}}{\lambda_{m-1}} $$
+
+        Parameters
+        ----------
+        order : int
+            order of moment on the numerator
+        sizeas : Literal['length', 'mass']
+            Switch between chain-*length* or molar *mass* moments.
+
+        Returns
+        -------
+        float
+            Ratio of moments, $\rho_m$.
+        """
+        return self.moment(order, sizeas)/self.moment(order-1, sizeas)
+
+    @property
+    @abstractmethod
+    def M0(self) -> float:
+        r"""Number-average molar mass of the repeating units, $M_0=M_n/DP_n$."""
+        return 0.0
 
     @abstractmethod
-    def moment(self, order: int, length: bool) -> float:
+    def moment(self,
+               order: int,
+               sizeas: Literal['length', 'mass'] = 'length'
+               ) -> float:
         """$m$-th moment of the number chain-length / molar mass distribution.
         """
         return 0.0
@@ -70,7 +94,7 @@ class Distribution(Base, ABC):
 class Single(Distribution):
     """Abstract class for all single chain-length distributions."""
 
-    def __init__(self, DPn: int, M0: float = 100.0, name: str = ""):
+    def __init__(self, DPn: int, M0: float = 100.0, name: str = ''):
         """Initialize chain-length distribution.
 
         Parameters
@@ -117,12 +141,12 @@ class Single(Distribution):
 
     @property
     def M0(self) -> float:
-        r"""Molar mass of the repeating unit, $M_0$."""
+        r"""Number-average molar mass of the repeating units, $M_0=M_n/DP_n$."""
         return self.__M0  # type: ignore
 
     @M0.setter
     def M0(self, M0: float):
-        self.__M0 = check_bounds(M0, 0.0, np.Inf, "M0")
+        self.__M0 = check_bounds(M0, 0.0, np.Inf, 'M0')
 
     @property
     def DPn(self) -> float:
@@ -131,13 +155,16 @@ class Single(Distribution):
 
     @DPn.setter
     def DPn(self, DPn: int = 100):
-        self.__DPn = check_bounds(DPn, 2, np.Inf, "DPn")
+        self.__DPn = check_bounds(DPn, 2, np.Inf, 'DPn')
         self._compute_parameters()
 
     def _compute_parameters(self):
         pass
 
-    def moment(self, order: int, length: bool = True) -> float:
+    def moment(self,
+               order: int,
+               sizeas: Literal['length', 'mass'] = 'length'
+               ) -> float:
         r"""$m$-th moment of the number chain-length (or molar mass)
         distribution:
 
@@ -151,9 +178,9 @@ class Single(Distribution):
         ----------
         order : int
             Order of the moment, $0 \le m \le 3$.
-        length : bool
-            If `True`, the result will be the moment of the chain-length
-            distribution; if `False`, the result will be the moment of the
+        length : Literal['length', 'mass']
+            If `length`, the result will be the moment of the chain-length
+            distribution; if `mass`, the result will be the moment of the
             molar mass distribution.
 
         Returns
@@ -162,32 +189,39 @@ class Single(Distribution):
             Moment, $\lambda_m$
         """
         check_bounds(order, 0, 3, 'order')
+        check_in_set(sizeas, self.sizenames, 'sizeas')
         result = self._moment(order)
-        if not length:
+        if sizeas == 'mass':
             result *= self.M0**order
         return result
 
-    def _process_size(self, size, length) -> ndarray:
+    def _preprocess_size(self,
+                         size: int | float | ArrayLike,
+                         sizeas: Literal['length', 'mass']
+                         ) -> int | float | ndarray:
         if isinstance(size, list):
             size = np.asarray(size)
-        check_type(length, bool, 'length')
-        if not length:
+        check_in_set(sizeas, self.sizenames, 'sizeas')
+        if sizeas == 'mass':
             size = size/self.M0
-        return size
+        return size  # type: ignore
 
-    def pdf(self, size: int | float | ArrayLike, dist: str = "mass",
-            length: bool = True) -> float | ndarray[Any, dtype[float64]]:
+    def pdf(self,
+            size: int | float | ArrayLike,
+            dist: Literal['number', 'mass', 'gpc'] = 'mass',
+            sizeas: Literal['length', 'mass'] = 'length',
+            ) -> float | ndarray[Any, dtype[float64]]:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
         ----------
         size : int | float | ArrayLike
             Chain length or molar mass.
-        dist : str
-            Type of distribution. Options: `'number'`, `'mass'`, `'gpc'`.
-        length : bool
-            Set `True` if `size` refers to chain-length or `False` if `size`
-            refers to molar mass.
+        dist : Literal['number', 'mass', 'gpc']
+            Type of distribution.
+        sizeas : Literal['length', 'mass']
+            Set `length` if `size` refers to chain-*length* or `mass` if `size`
+            refers to molar *mass*.
 
         Returns
         -------
@@ -196,15 +230,18 @@ class Single(Distribution):
         """
 
         # Convert size, if required
-        size = self._process_size(size, length)
+        size = self._preprocess_size(size, sizeas)
 
         # Compute distribution
         check_in_set(dist, set(self.distnames.keys()), 'dist')
         order = self.distnames[dist]
         return self._pdf(size) * size**order / self._moment(order)
 
-    def cdf(self, size: int | float | ArrayLike, dist: str = "mass",
-            length: bool = True) -> float | ndarray[Any, dtype[float64]]:
+    def cdf(self,
+            size: int | float | ArrayLike,
+            dist: Literal['number', 'mass', 'gpc'] = 'mass',
+            sizeas: Literal['length', 'mass'] = 'length',
+            ) -> float | ndarray[Any, dtype[float64]]:
         r"""Evaluate the cumulative density function:
 
         $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
@@ -217,11 +254,11 @@ class Single(Distribution):
         ----------
         size : int | float | ArrayLike
             Chain length or molar mass.
-        dist : str
-            Type of distribution. Options: `'number'`, `'mass'`, `'gpc'`.
-        length : bool
-            Set `True` if `size` refers to chain-length or `False` if `size`
-            refers to molar mass.
+        dist : Literal['number', 'mass', 'gpc']
+            Type of distribution.
+        sizeas : Literal['length', 'mass']
+            Set `length` if `size` refers to chain-*length* or `mass` if `size`
+            refers to molar *mass*.
 
         Returns
         -------
@@ -229,15 +266,16 @@ class Single(Distribution):
             Cumulative probability.
         """
         # Convert size, if required
-        size = self._process_size(size, length)
+        size = self._preprocess_size(size, sizeas)
 
         # Compute distribution
         check_in_set(dist, set(self.distnames.keys()), 'dist')
         order = self.distnames[dist]
         return self._cdf(size, order)
 
-    def random(self, size: int | tuple[int, ...] | None = None) \
-            -> int | ndarray[Any, dtype[int64]]:
+    def random(self,
+               size: int | tuple[int, ...] | None = None
+               ) -> int | ndarray[Any, dtype[int64]]:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -255,20 +293,24 @@ class Single(Distribution):
             self._rng = np.random.default_rng()
         return self._random(size)
 
-    def plot(self, dist: str | list[str] = 'mass',
-             unit_size: str = 'chain_length',
-             xscale: str = 'auto', xrange: tuple = (), ax=None) -> None:
+    def plot(self,
+             dist: Literal['number', 'mass', 'gpc'] = 'mass',
+             sizeas: Literal['length', 'mass'] = 'length',
+             xscale: Literal['auto', 'linear', 'log'] = 'auto',
+             xrange: tuple = (),
+             ax=None
+             ) -> None:
         """Plot the chain-length distribution.
 
         Parameters
         ----------
-        dist : str | list[str, ...]
-            Type of distribution. Options: `'number'`, `'mass'`, `'gpc'`.
-        unit_size : str
-            Unit of variable `size`. Options: `'chain_length'` or
-            `'molar_mass'`.
-        xscale : str
-            x-axis scale. Options: `'linear'`, `'log'`, `'auto'`.
+        dist : Literal['number', 'mass', 'gpc']
+            Type of distribution.
+        sizeas : Literal['length', 'mass']
+            Set `length` if `size` refers to chain-*length* or `mass` if `size`
+            refers to molar *mass*.
+        xscale : Literal['auto', 'linear', 'log']
+            x-axis scale.
         xrange : tuple
             x-axis range.
         ax : matplotlib.axes
@@ -281,7 +323,8 @@ class Single(Distribution):
 
         """
         # Check inputs
-        check_in_set(unit_size, {'chain_length', 'molar_mass'}, 'unit_size')
+        check_in_set(dist, set(self.distnames.keys()), 'dist')
+        check_in_set(sizeas, self.sizenames, 'sizeas')
         check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
         check_type(dist, (str, list, tuple), 'dist')
         if isinstance(dist, str):
@@ -302,10 +345,10 @@ class Single(Distribution):
         else:
             x = np.linspace(xrange[0], xrange[1], 200)
             xscale = 'linear'
-        if unit_size == "chain_length":
+        if sizeas == 'length':
             xp = x
             label_x = "Chain length"
-        elif unit_size == "molar_mass":
+        elif sizeas == 'mass':
             xp = x * self.M0
             label_x = "Molar mass"
         else:
@@ -313,7 +356,7 @@ class Single(Distribution):
 
         # y-axis
         for item in dist:
-            y = self.pdf(x, dist=item, length=True)
+            y = self.pdf(x, dist=item, sizeas='length')
             ax.plot(xp, y, label=item)
 
         # Other properties
@@ -437,7 +480,7 @@ class Single2P(Single):
                  DPn: int,
                  PDI: float,
                  M0: float = 100.0,
-                 name: str = "") -> None:
+                 name: str = '') -> None:
         """Initialize 2-parameter single chain-length distribution.
 
         Parameters
@@ -493,6 +536,7 @@ class Combined(Distribution):
         return f"type: {self.__class__.__name__}\n" + \
             f"name: {self.name}\n" + \
             f"DPn:  {self.DPn:.1f}\n" + \
+            f"M0:   {self.M0:.1f}\n" + \
             f"PDI:  {self.PDI:.2f}\n" + \
             f"Mn:   {self.Mn:,.0f}\n" + \
             f"Mw:   {self.Mw:,.0f}\n" + \
@@ -507,20 +551,42 @@ class Combined(Distribution):
         x[:] /= x.sum()
         self._molefracs = x
 
-    def moment(self, order: int, length: bool = True) -> float:
-        """$m$-th moment of the number chain-length / molar mass distribution.
-         """
+    def moment(self,
+               order: int,
+               sizeas: Literal['length', 'mass'] = 'length'
+               ) -> float:
+        r"""$m$-th moment of the number chain-length (or molar mass)
+        distribution.
+
+        Parameters
+        ----------
+        order : int
+            Order of the moment, $0 \le m \le 3$.
+        length : Literal['length', 'mass']
+            If `length`, the result will be the moment of the chain-length
+            distribution; if `mass`, the result will be the moment of the
+            molar mass distribution.
+
+        Returns
+        -------
+        float
+            Moment, $\lambda_m$
+        """
+        check_bounds(order, 0, 3, 'order')
+        check_in_set(sizeas, self.sizenames, 'sizeas')
+
         if self._molefracs is None:
             self._calc_molefracs()
-        mom = np.asarray([d.moment(order) for d in self._components.keys()])
+        mom = np.asarray([d.moment(order, 'length')
+                         for d in self._components.keys()])
         M0 = np.asarray([d.M0 for d in self._components.keys()])
         result = self._molefracs*mom
-        if not length:
+        if sizeas == 'mass':
             result *= M0**order
+
         return result.sum()
 
-    # @ property
-    # def M0(self) -> float:
-    #     """Molar mass of the repeating unit, $M_0$."""
-    #     m0 = [d.M0 for d in self._dists]
-    #     return np.sum(self._mole_weights*np.asarray(m0))
+    @ property
+    def M0(self) -> float:
+        """Number-average molar mass of the repeating units, $M_0=M_n/DP_n$."""
+        return self.Mn/self.DPn
