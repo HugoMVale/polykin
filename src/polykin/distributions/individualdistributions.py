@@ -1,7 +1,7 @@
 # %% Single distributions
 
-from polykin.distributions.baseclasses import Single1P
-from polykin.distributions.baseclasses import Single2P
+from polykin.distributions.baseclasses import IndividualDistributionP1
+from polykin.distributions.baseclasses import IndividualDistributionP2
 
 from math import exp, log, sqrt
 import numpy as np
@@ -9,7 +9,7 @@ import scipy.special as sp
 import scipy.stats as st
 
 
-class Flory(Single1P):
+class Flory(IndividualDistributionP1):
     r"""Flory-Schulz (aka most-probable) chain-length distribution, with
     _number_ probability mass function given by:
 
@@ -61,7 +61,7 @@ class Flory(Single1P):
         return self._rng.geometric((1-a), size)  # type: ignore
 
 
-class Poisson(Single1P):
+class Poisson(IndividualDistributionP1):
     r"""Poisson chain-length distribution, with _number_ probability mass
     function given by:
 
@@ -113,7 +113,7 @@ class Poisson(Single1P):
         return self._rng.poisson(a, size) + 1  # type: ignore
 
 
-class LogNormal(Single2P):
+class LogNormal(IndividualDistributionP2):
     r"""Log-normal chain-length distribution, with _number_ probability density
     function given by:
 
@@ -166,7 +166,7 @@ class LogNormal(Single2P):
         return np.rint(self._rng.lognormal(mu, sigma, size))  # type: ignore
 
 
-class SchulzZimm(Single2P):
+class SchulzZimm(IndividualDistributionP2):
     r"""Schulz-Zimm chain-length distribution, with _number_ probability
     density function given by:
 

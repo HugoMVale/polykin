@@ -7,11 +7,11 @@ import numpy as np
 from numpy import int64, float64, dtype, ndarray
 from numpy.typing import ArrayLike
 import matplotlib.pyplot as plt
-from typing import Any, Literal
+from typing import Any, Literal, Union
 from abc import ABC, abstractmethod
 
 
-class Distribution(Base, ABC):
+class GeneralDistribution(Base, ABC):
     """Abstract class for all chain-length distributions."""
 
     typenames = {'number': 0, 'mass': 1, 'gpc': 2}
@@ -91,10 +91,14 @@ class Distribution(Base, ABC):
         return 0.0
 
 
-class Single(Distribution):
-    """Abstract class for all single chain-length distributions."""
+class IndividualDistribution(GeneralDistribution):
+    """Abstract class for all individual chain-length distributions."""
 
-    def __init__(self, DPn: int, M0: float = 100.0, name: str = ''):
+    def __init__(self,
+                 DPn: int,
+                 M0: float = 100.0,
+                 name: str = ''
+                 ) -> None:
         """Initialize chain-length distribution.
 
         Parameters
@@ -125,7 +129,7 @@ class Single(Distribution):
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
-            return Combined({self: other}, name=self.name)
+            return MixtureDistribution({self: other}, name=self.name)
         else:
             return NotImplemented
 
@@ -133,9 +137,9 @@ class Single(Distribution):
         return self.__mul__(other)
 
     def __add__(self, other):
-        if isinstance(other, Single):
-            return Combined(add_dicts({self: 1}, {other: 1}),
-                            name=self.name+'+'+other.name)
+        if isinstance(other, IndividualDistribution):
+            return MixtureDistribution(add_dicts({self: 1}, {other: 1}),
+                                       name=self.name+'+'+other.name)
         else:
             return NotImplemented
 
@@ -196,9 +200,9 @@ class Single(Distribution):
         return result
 
     def _preprocess_size(self,
-                         size: int | float | ArrayLike,
+                         size: Union[int, float, ArrayLike],
                          sizeas: Literal['length', 'mass']
-                         ) -> int | float | ndarray:
+                         ) -> Union[int, float, ndarray]:
         if isinstance(size, list):
             size = np.asarray(size)
         check_in_set(sizeas, self.sizenames, 'sizeas')
@@ -207,10 +211,10 @@ class Single(Distribution):
         return size  # type: ignore
 
     def pdf(self,
-            size: int | float | ArrayLike,
+            size: Union[int, float, ArrayLike],
             type: Literal['number', 'mass', 'gpc'] = 'mass',
             sizeas: Literal['length', 'mass'] = 'length',
-            ) -> float | ndarray[Any, dtype[float64]]:
+            ) -> Union[float, ndarray[Any, dtype[float64]]]:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
@@ -238,10 +242,10 @@ class Single(Distribution):
         return self._pdf(size) * size**order / self._moment(order)
 
     def cdf(self,
-            size: int | float | ArrayLike,
+            size: Union[int, float, ArrayLike],
             type: Literal['number', 'mass', 'gpc'] = 'mass',
             sizeas: Literal['length', 'mass'] = 'length',
-            ) -> float | ndarray[Any, dtype[float64]]:
+            ) -> Union[float, ndarray[Any, dtype[float64]]]:
         r"""Evaluate the cumulative density function:
 
         $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
@@ -274,8 +278,8 @@ class Single(Distribution):
         return self._cdf(size, order)
 
     def random(self,
-               size: int | tuple[int, ...] | None = None
-               ) -> int | ndarray[Any, dtype[int64]]:
+               size: Union[int, tuple[int, ...], None] = None
+               ) -> Union[int, ndarray[Any, dtype[int64]]]:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -389,8 +393,8 @@ class Single(Distribution):
 
     @abstractmethod
     def _pdf(self,
-             k: int | float | ndarray
-             ) -> float | ndarray[Any, dtype[float64]]:
+             k: Union[int, float, ndarray]
+             ) -> Union[float, ndarray[Any, dtype[float64]]]:
         """Probability density/mass function.
 
         Each child class must implement a method to delivering the probability
@@ -410,9 +414,9 @@ class Single(Distribution):
 
     @abstractmethod
     def _cdf(self,
-             k: int | float | ndarray,
+             k: Union[int, float, ndarray],
              order: int) \
-            -> float | ndarray[Any, dtype[float64]]:
+            -> Union[float, ndarray[Any, dtype[float64]]]:
         """Cumulative density function.
 
         Each child class must implement a method to delivering the cumulative
@@ -436,8 +440,8 @@ class Single(Distribution):
 
     @abstractmethod
     def _random(self,
-                size: int | tuple | None,
-                ) -> int | ndarray[Any, dtype[int64]]:
+                size: Union[int, tuple, None],
+                ) -> Union[int, ndarray[Any, dtype[int64]]]:
         """Random chain-length generator.
 
         Each child class must implement a method to generate random chain
@@ -468,12 +472,12 @@ class Single(Distribution):
         return (0, 1)
 
 
-class Single1P(Single):
+class IndividualDistributionP1(IndividualDistribution):
     """Abstract class for 1-parameter single chain-length distributions."""
     pass
 
 
-class Single2P(Single):
+class IndividualDistributionP2(IndividualDistribution):
     """Abstract class for 2-parameter single chain-length distributions."""
 
     def __init__(self,
@@ -508,11 +512,11 @@ class Single2P(Single):
         self._compute_parameters()
 
 
-class Combined(Distribution):
-    """Combined chain-length distribution."""
+class MixtureDistribution(GeneralDistribution):
+    """Mixture chain-length distribution."""
 
     def __init__(self,
-                 components: dict[Single, int | float],
+                 components: dict[IndividualDistribution, Union[int, float]],
                  name: str = "") -> None:
 
         self._components = components
@@ -520,12 +524,12 @@ class Combined(Distribution):
         self._molefracs = None
 
     def __add__(self, other):
-        if isinstance(other, Combined):
-            return Combined(add_dicts(self._components, other._components),
-                            name=self.name+'+'+other.name)
-        elif isinstance(other, Single):
-            return Combined(add_dicts(self._components, {other: 1}),
-                            name=self.name+'+'+other.name)
+        if isinstance(other, MixtureDistribution):
+            return MixtureDistribution(add_dicts(self._components, other._components),
+                                       name=self.name+'+'+other.name)
+        elif isinstance(other, IndividualDistribution):
+            return MixtureDistribution(add_dicts(self._components, {other: 1}),
+                                       name=self.name+'+'+other.name)
         else:
             return NotImplemented
 

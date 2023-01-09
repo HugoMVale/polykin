@@ -1,3 +1,3 @@
 """A polymerization kinetics framework"""
 
-from polykin.distributions.singledistributions import Flory, Poisson, LogNormal, SchulzZimm
+from polykin.distributions.individualdistributions import Flory, Poisson, LogNormal, SchulzZimm
