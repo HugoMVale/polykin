@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Union
 from collections.abc import Iterable
 import numbers
 
@@ -116,11 +116,11 @@ def check_subclass(myobject: Any,
         )
 
 
-def check_bounds(x: int | float,
-                 xmin: int | float,
-                 xmax: int | float,
+def check_bounds(x: Union[int, float],
+                 xmin: Union[int, float],
+                 xmax: Union[int, float],
                  xname: str
-                 ) -> int | float | None:
+                 ) -> Union[int, float, None]:
     """Check if a numerical value is between given bounds.
 
     Example:
@@ -192,10 +192,10 @@ def check_in_set(var_value: Any,
 # %% Special functions
 
 
-def add_dicts(d1: dict[Any, int | float],
-              d2: dict[Any, int | float],
+def add_dicts(d1: dict[Any, Union[int, float]],
+              d2: dict[Any, Union[int, float]],
               new: bool = False
-              ) -> dict[Any, int | float]:
+              ) -> dict[Any, Union[int, float]]:
     """Adds two dictionaries by summing the values for the same key.
 
     Parameters
