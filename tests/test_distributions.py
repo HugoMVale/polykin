@@ -3,6 +3,7 @@ from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 import numpy as np
 import scipy.integrate as integrate
 import pytest
+from copy import copy
 
 # Default tolerance for "exact" comparisons
 rtol = float(10*np.finfo(np.float64).eps)
@@ -227,3 +228,26 @@ def test_composite_2d():
     for s in cases:
         # print(f.Mw, p.Mw, s.Mw, DPw*100)
         assert (np.isclose(s.Mw, DPw*100.0, rtol=rtol))
+
+
+def test_fit_itself():
+    """The fit function should provide an exact fit of itself."""
+    distributions = dist1 + dist2
+    rng = np.random.default_rng()
+    rnoise = 5e-2
+    for d in distributions:
+        x = np.linspace(1, 2*d.DPw, 100)
+        for type in ["number", "mass", "gpc"]:
+            y = d.pdf(x, type=type)
+            dy = rng.uniform(1-rnoise, 1+rnoise, y.size)
+            y *= dy
+            d2 = copy(d)
+            d2.DPn = 10
+            try:
+                d.PDI = 10
+            except AttributeError:
+                pass
+            d2.fit(x, y, type=type, sizeas='length')
+            print(d2.DPn, d.DPn)
+        assert (np.isclose(d2.DPn, d.DPn, rtol=1e-1))
+        assert (np.isclose(d2.PDI, d.PDI, rtol=1e-1))

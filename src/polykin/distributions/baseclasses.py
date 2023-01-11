@@ -6,6 +6,7 @@ from polykin.utils import check_bounds, check_type, check_in_set, add_dicts
 import numpy as np
 from numpy import int64, float64, dtype, ndarray
 from numpy.typing import ArrayLike
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from typing import Any, Literal, Union
 from abc import ABC, abstractmethod
@@ -94,6 +95,8 @@ class GeneralDistribution(Base, ABC):
 class IndividualDistribution(GeneralDistribution):
     """Abstract class for all individual chain-length distributions."""
 
+    _pbounds = ((2,), (np.Inf,))
+
     def __init__(self,
                  DPn: int,
                  M0: float = 100.0,
@@ -159,8 +162,15 @@ class IndividualDistribution(GeneralDistribution):
 
     @DPn.setter
     def DPn(self, DPn: int = 100):
-        self.__DPn = check_bounds(DPn, 2, np.Inf, 'DPn')
+        self.__DPn = check_bounds(DPn,
+                                  self._pbounds[0][0], self._pbounds[1][0],
+                                  'DPn')
         self._compute_parameters()
+
+    @property
+    def _pvalues(self) -> tuple:
+        """Value(s) defining the chain-length pdf"""
+        return (self.DPn,)
 
     def _compute_parameters(self):
         pass
@@ -372,6 +382,52 @@ class IndividualDistribution(GeneralDistribution):
 
         return ax
 
+    def fit(self,
+            size_data: ArrayLike,
+            pdf_data: ArrayLike,
+            sizeas: Literal['length', 'mass'] = 'mass',
+            type: Literal['number', 'mass', 'gpc'] = 'mass',
+            ) -> None:
+
+        # Preprocess data values
+        if not (isinstance(size_data, ndarray)):
+            size_data = np.asarray(size_data)
+        if not (isinstance(pdf_data, ndarray)):
+            pdf_data = np.asarray(pdf_data)
+        idx_valid = pdf_data > 0.0
+        size_data = size_data[idx_valid]
+        pdf_data = pdf_data[idx_valid]
+
+        isP2 = isinstance(self, IndividualDistributionP2)
+
+        # Define parametric function
+        def f(x, *p):
+            self.DPn = p[1]
+            if isP2:
+                self.PDI = p[2]
+            return np.log(p[0]*self.pdf(x, type=type, sizeas=sizeas))
+
+        # Call fit method
+        p0 = (1,) + self._pvalues
+        bounds = ((-np.Inf,)+self._pbounds[0], (np.Inf,)+self._pbounds[1])
+        solution = curve_fit(f,
+                             xdata=size_data,
+                             ydata=np.log(pdf_data),
+                             p0=p0,
+                             bounds=bounds,
+                             method='trf',
+                             full_output=True)
+
+        if solution[4] > 0:
+            # print(self)
+            popt = solution[0]
+            print(f"scale:  {popt[0]:.2e}")
+            print(f"DPn:    {self.DPn:.1f}")
+            print(f"PDI:    {self.PDI:.2f}")
+        else:
+            print("Failed to fit distribution: ", solution[3])
+        pass
+
     @abstractmethod
     def _moment(self, order: int) -> float:
         """Moments of the _number_ probability density/mass function.
@@ -480,6 +536,8 @@ class IndividualDistributionP1(IndividualDistribution):
 class IndividualDistributionP2(IndividualDistribution):
     """Abstract class for 2-parameter single chain-length distributions."""
 
+    _pbounds = ((2, 1.001), (np.Inf, np.Inf))
+
     def __init__(self,
                  DPn: int,
                  PDI: float,
@@ -508,8 +566,15 @@ class IndividualDistributionP2(IndividualDistribution):
 
     @PDI.setter
     def PDI(self, PDI: float):
-        self.__PDI = check_bounds(PDI, 1.001, np.Inf, 'PDI')
+        self.__PDI = check_bounds(PDI,
+                                  self._pbounds[0][1], self._pbounds[1][1],
+                                  'PDI')
         self._compute_parameters()
+
+    @property
+    def _pvalues(self) -> tuple:
+        """Value(s) defining the chain-length pdf"""
+        return (self.DPn, self.PDI)
 
 
 class MixtureDistribution(GeneralDistribution):
@@ -594,3 +659,5 @@ class MixtureDistribution(GeneralDistribution):
     def M0(self) -> float:
         """Number-average molar mass of the repeating units, $M_0=M_n/DP_n$."""
         return self.Mn/self.DPn
+
+# %%
