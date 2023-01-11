@@ -248,6 +248,6 @@ def test_fit_itself():
             except AttributeError:
                 pass
             d2.fit(x, y, type=type, sizeas='length')
-            print(d2.DPn, d.DPn)
+            # print(d2.DPn, d.DPn)
         assert (np.isclose(d2.DPn, d.DPn, rtol=1e-1))
         assert (np.isclose(d2.PDI, d.PDI, rtol=1e-1))
