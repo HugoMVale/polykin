@@ -1,4 +1,4 @@
-# %%
+# %% Base distribution clases
 
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, add_dicts
@@ -142,7 +142,7 @@ class GeneralDistribution(Base, ABC):
              type: Literal['number', 'mass', 'gpc'] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
-             xrange: tuple = (),
+             xrange: Union[list, ndarray] = [],
              ax=None
              ) -> None:
         """Plot the chain-length distribution.
@@ -180,27 +180,27 @@ class GeneralDistribution(Base, ABC):
             fig.suptitle(f"Distribution: {self.name}")
             self.fig = fig
 
-        # x-axis
-        if len(xrange) != 2:
-            xrange = self._xrange_auto
+        # x-axis range
+        if not (len(xrange) == 2 and xrange[1] > xrange[0]):
+            xrange = self._xrange_plot(sizeasmass)
+        npoints = 200
+        # x-axis vector and scale
         if xscale == 'log' or (xscale == 'auto' and set(type) == {'gpc'}):
-            x = np.geomspace(xrange[0], xrange[1], 200)
+            x = np.geomspace(*xrange, npoints)  # type: ignore
             xscale = 'log'
         else:
-            x = np.linspace(xrange[0], xrange[1], 200)
+            x = np.linspace(*xrange, npoints)  # type: ignore
             xscale = 'linear'
-
+        # x-axis label
         if sizeasmass:
-            xp = x * self.M0
             label_x = "Molar mass"
         else:
-            xp = x
             label_x = "Chain length"
 
         # y-axis
-        for item in type:
-            y = self.pdf(x, type=item, sizeasmass=False)
-            ax.plot(xp, y, label=item)
+        for the_type in type:
+            y = self.pdf(x, type=the_type, sizeasmass=sizeasmass)
+            ax.plot(x, y, label=the_type)
 
         # Other properties
         ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
@@ -218,13 +218,6 @@ class GeneralDistribution(Base, ABC):
     def _verify_sizeasmass(self, sizeasmass):
         """Verify `sizeasmass` input."""
         return check_type(sizeasmass, bool, 'sizeasmass')
-
-    @property
-    @abstractmethod
-    def _xrange_auto(self) -> tuple[int, int]:
-        """Default chain-length range for distribution plots.
-        """
-        return (0, 1)
 
     @abstractmethod
     def _pdf(self,
@@ -255,6 +248,14 @@ class GeneralDistribution(Base, ABC):
         function.
         """
         return 0.0
+
+    @abstractmethod
+    def _xrange_plot(self,
+                     sizeasmass: bool
+                     ) -> ndarray:
+        """Default chain-length or molar mass range for distribution plots.
+        """
+        return [0, 1]
 
 
 class IndividualDistribution(GeneralDistribution):
@@ -319,9 +320,9 @@ class IndividualDistribution(GeneralDistribution):
         self.__DPn = check_bounds(DPn,
                                   self._pbounds[0][0], self._pbounds[1][0],
                                   'DPn')
-        self._compute_parameters()
+        self._update_internal_parameters()
 
-    def _compute_parameters(self):
+    def _update_internal_parameters(self):
         pass
 
     @property
@@ -377,6 +378,14 @@ class IndividualDistribution(GeneralDistribution):
             self._rng = np.random.default_rng()
         return self._random_length(size)
 
+    def _xrange_plot(self, sizeasmass):
+        """Default chain-length or molar mass range for distribution plots.
+        """
+        xrange = np.asarray(self._xrange_length, dtype=np.float64)
+        if sizeasmass:
+            xrange *= self.M0
+        return xrange
+
     def fit(self,
             size_data: Union[list, ndarray],
             pdf_data: Union[list, ndarray],
@@ -421,7 +430,6 @@ class IndividualDistribution(GeneralDistribution):
             print(f"PDI:    {self.PDI:.2f}")
         else:
             print("Failed to fit distribution: ", solution[3])
-        pass
 
     @abstractmethod
     def _moment_length(self,
@@ -499,7 +507,7 @@ class IndividualDistribution(GeneralDistribution):
         """Random chain-length generator.
 
         Each child class must implement a method to generate random chain
-        lengths according to the statistics of corresponding number
+        lengths according to the statistics of the corresponding number
         density/mass function.
 
         Parameters
@@ -513,6 +521,12 @@ class IndividualDistribution(GeneralDistribution):
             Random sample of chain lengths.
         """
         return 0
+
+    @abstractmethod
+    def _xrange_length(self) -> tuple[int, int]:
+        """Default chain-length range for distribution plots.
+        """
+        return (0, 1)
 
 
 class IndividualDistributionP1(IndividualDistribution):
@@ -558,7 +572,7 @@ class IndividualDistributionP2(IndividualDistribution):
         self.__PDI = check_bounds(PDI,
                                   self._pbounds[0][1], self._pbounds[1][1],
                                   'PDI')
-        self._compute_parameters()
+        self._update_internal_parameters()
 
     @property
     def _pvalues(self) -> tuple:
@@ -623,11 +637,15 @@ class MixtureDistribution(GeneralDistribution):
     def _cdf(self):
         pass
 
-    @property
-    def _xrange_auto(self):
-        xmin = min([d._xrange_auto[0] for d in self._components.keys()])
-        xmax = max([d._xrange_auto[1] for d in self._components.keys()])
-        return (xmin, xmax)
+    def _xrange_plot(self, sizeasmass):
+        """Default chain-length or molar mass range for distribution plots.
+        """
+        xrange = np.empty(2)
+        xrange[0] = min([d._xrange_plot(sizeasmass)[0]
+                        for d in self._components.keys()])
+        xrange[1] = max([d._xrange_plot(sizeasmass)[1]
+                         for d in self._components.keys()])
+        return xrange
 
 
 # %%
