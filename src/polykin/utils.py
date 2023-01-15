@@ -116,11 +116,11 @@ def check_subclass(myobject: Any,
         )
 
 
-def check_bounds(x: Union[int, float],
-                 xmin: Union[int, float],
-                 xmax: Union[int, float],
+def check_bounds(x: float,
+                 xmin: float,
+                 xmax: float,
                  xname: str
-                 ) -> Union[int, float, None]:
+                 ) -> Union[float, None]:
     """Check if a numerical value is between given bounds.
 
     Example:

@@ -22,7 +22,7 @@ class Flory(IndividualDistributionP1):
     def _compute_parameters(self):
         self._a = 1 - 1 / self.DPn
 
-    def _moment(self, order):
+    def _moment_length(self, order):
         a = self._a
         if order == 0:
             result = 1
@@ -36,11 +36,11 @@ class Flory(IndividualDistributionP1):
             raise ValueError("Not defined for order>3.")
         return result
 
-    def _pdf(self, k):
+    def _pdf_length(self, k):
         a = self._a
         return (1 - a) * a ** (k - 1)
 
-    def _cdf(self, k, order):
+    def _cdf_length(self, k, order):
         a = self._a
         if order == 0:
             result = 1 - a**k
@@ -51,14 +51,15 @@ class Flory(IndividualDistributionP1):
                       * a**k + a + 1)/(a - 1)**2
         else:
             raise ValueError("Not defined for order>2.")
-        return result/self._moment(order)
+        return result / self._moment_length(order)
 
-    def _xrange_auto(self):
-        return (1, 10*self.DPn)
-
-    def _random(self, size):
+    def _random_length(self, size):
         a = self._a
         return self._rng.geometric((1-a), size)  # type: ignore
+
+    @property
+    def _xrange_auto(self):
+        return (1, 10*self.DPn)
 
 
 class Poisson(IndividualDistributionP1):
@@ -73,7 +74,7 @@ class Poisson(IndividualDistributionP1):
     def _compute_parameters(self):
         self._a = self.DPn - 1
 
-    def _moment(self, order):
+    def _moment_length(self, order):
         a = self._a
         if order == 0:
             result = 1
@@ -87,11 +88,11 @@ class Poisson(IndividualDistributionP1):
             raise ValueError("Not defined for order>3.")
         return result
 
-    def _pdf(self, k):
+    def _pdf_length(self, k):
         a = self._a
         return np.exp((k - 1)*np.log(a) - a - sp.gammaln(k))
 
-    def _cdf(self, k, order):
+    def _cdf_length(self, k, order):
         a = self._a
         if order == 0:
             result = sp.gammaincc(k, a)
@@ -103,14 +104,15 @@ class Poisson(IndividualDistributionP1):
                 np.exp(k*log(a) + np.log(a + k + 2) - a - sp.gammaln(k))
         else:
             raise ValueError("Not defined for order>2.")
-        return result/self._moment(order)
+        return result/self._moment_length(order)
 
-    def _xrange_auto(self):
-        return (max(1, self.DPn/2 - 10), 1.5*self.DPn + 10)
-
-    def _random(self, size):
+    def _random_length(self, size):
         a = self._a
         return self._rng.poisson(a, size) + 1  # type: ignore
+
+    @property
+    def _xrange_auto(self):
+        return (max(1, self.DPn/2 - 10), 1.5*self.DPn + 10)
 
 
 class LogNormal(IndividualDistributionP2):
@@ -134,17 +136,17 @@ class LogNormal(IndividualDistributionP2):
         except AttributeError:
             pass
 
-    def _moment(self, order: int):
+    def _moment_length(self, order):
         mu = self._mu
         sigma = self._sigma
         return exp(order*mu + 0.5*order**2*sigma**2)
 
-    def _pdf(self, x):
+    def _pdf_length(self, x):
         mu = self._mu
         sigma = self._sigma
         return st.lognorm.pdf(x, s=sigma, scale=exp(mu))
 
-    def _cdf(self, x, order):
+    def _cdf_length(self, x, order):
         mu = self._mu
         sigma = self._sigma
         if order == 0:
@@ -157,13 +159,14 @@ class LogNormal(IndividualDistributionP2):
             raise ValueError("Not defined for order>2.")
         return result
 
-    def _xrange_auto(self):
-        return (1, 100*self.DPn)
-
-    def _random(self, size):
+    def _random_length(self, size):
         mu = self._mu
         sigma = self._sigma
         return np.rint(self._rng.lognormal(mu, sigma, size))  # type: ignore
+
+    @property
+    def _xrange_auto(self):
+        return (1, 100*self.DPn)
 
 
 class SchulzZimm(IndividualDistributionP2):
@@ -187,17 +190,17 @@ class SchulzZimm(IndividualDistributionP2):
         except AttributeError:
             pass
 
-    def _moment(self, order: int):
+    def _moment_length(self, order):
         k = self._k
         theta = self._theta
         return sp.poch(k, order)*theta**order
 
-    def _pdf(self, x):
+    def _pdf_length(self, x):
         k = self._k
         theta = self._theta
         return st.gamma.pdf(x, a=k, scale=theta)
 
-    def _cdf(self, x, order):
+    def _cdf_length(self, x, order):
         k = self._k
         theta = self._theta
         if order == 0:
@@ -210,10 +213,11 @@ class SchulzZimm(IndividualDistributionP2):
             raise ValueError("Not defined for order>2.")
         return result
 
-    def _xrange_auto(self):
-        return (1, 10*self.DPn)
-
-    def _random(self, size):
+    def _random_length(self, size):
         k = self._k
         theta = self._theta
         return np.rint(self._rng.gamma(k, theta, size))  # type: ignore
+
+    @property
+    def _xrange_auto(self):
+        return (1, 10*self.DPn)

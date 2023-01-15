@@ -2,18 +2,27 @@ from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 
 import numpy as np
 import scipy.integrate as integrate
-import pytest
 from copy import copy
+import pytest
 
 # Default tolerance for "exact" comparisons
 rtol = float(10*np.finfo(np.float64).eps)
 
 # Default distributions for tests
-dist1 = [Flory(90), Poisson(25)]
-dist2 = [LogNormal(80, 3.0), SchulzZimm(90, 2.5)]
 
 
-def test_properties():
+@pytest.fixture
+def dist1():
+    return [Flory(90, 120, name='Flory'), Poisson(25, 42, name='Poisson')]
+
+
+@pytest.fixture
+def dist2():
+    return [LogNormal(80, 3.0, 50, name='LogNormal'),
+            SchulzZimm(90, 2.5, 69, name='Schulz-Zimm')]
+
+
+def test_properties(dist1, dist2):
     distributions = dist1 + dist2
     for d in distributions:
         name = 'newname'
@@ -26,9 +35,6 @@ def test_properties():
         assert (d.DPn == DPn)
         assert (np.isclose(d.M0, M0, rtol=rtol))
         assert (np.isclose(d.Mn*d.Mw*d.Mz, M0**3*d.DPn*d.DPw*d.DPz, rtol=rtol))
-        assert (np.isclose(d.DPn, d.moment(1), rtol=rtol))
-        assert (np.isclose(d.DPw, d.moment(2)/d.moment(1), rtol=rtol))
-        assert (np.isclose(d.DPz, d.moment(3)/d.moment(2), rtol=rtol))
 
 
 def test_inputs():
@@ -43,27 +49,21 @@ def test_inputs():
 
     d = Flory(100)
     with pytest.raises(ValueError):
-        d.moment(-1)
-    with pytest.raises(ValueError):
-        d.moment(4)
-    with pytest.raises(ValueError):
-        d.moment(4, 'notvalid')
-    with pytest.raises(ValueError):
         d.pdf(1, type='notvalid')
-    with pytest.raises(ValueError):
-        d.pdf(1, sizeas='notvalid')
+    with pytest.raises(TypeError):
+        d.pdf(1, sizeasmass='notvalid')
     with pytest.raises(ValueError):
         d.cdf(1, type='notvalid')
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         d.cdf(1, sizeas='notvalid')
 
 
-def test_pdf_discrete_sum():
+def test_pdf_discrete_sum(dist1):
     """For all discrete distributions, we should get sum(pdf)=1
     """
+    distributions = dist1
     DPn = 69
     x = [i for i in range(1, 100*DPn)]
-    distributions = dist1
     for d in distributions:
         d.DPn = DPn
         for type in ["number", "mass", "gpc"]:
@@ -71,7 +71,7 @@ def test_pdf_discrete_sum():
             assert (np.isclose(sum(pdf), 1.0, rtol=rtol))
 
 
-def test_pdf_continuous_integral():
+def test_pdf_continuous_integral(dist2):
     """For all continuous distributions, we should get integral(pdf)=1
     """
     distributions = dist2
@@ -84,30 +84,30 @@ def test_pdf_continuous_integral():
             assert (np.isclose(pdf_integral, 1.0, atol=atol))
 
 
-def test_pdf_discrete_moment():
+def test_pdf_discrete_moment(dist1):
     """For all discrete distributions, the moment obtined by summing the pdf
     should match the analytical value.
     """
+    distributions = dist1
     DPn = 69
     x = np.asarray([i for i in range(1, 100*DPn)])
-    distributions = dist1
     for d in distributions:
         d.DPn = DPn
         pdf = d.pdf(x, type='number')
         for order in range(0, 4):
-            mom_analytical = d.moment(order)
+            mom_analytical = d._moment_length(order)
             mom_sum = np.sum(pdf*x**order)
             assert (np.isclose(mom_sum, mom_analytical, rtol=1e-4))
 
 
-def test_pdf_continuous_moment():
+def test_pdf_continuous_moment(dist2):
     """For all continuous distributions, the moment obtined by integrating the
     pdf should match the analytical value.
     """
     distributions = dist2
     for d in distributions:
         for order in range(0, 4):
-            mom_analytical = d.moment(order)
+            mom_analytical = d._moment_length(order)
             mom_integral, atol = integrate.quad(
                 lambda x: x**order *
                 d.pdf(x, type='number'),
@@ -116,12 +116,33 @@ def test_pdf_continuous_moment():
             assert (np.isclose(mom_integral, mom_analytical, atol=atol))
 
 
-def test_pfd_cdf_discrete():
+def test_pdf_length_mass(dist2):
+    """For all distributions, integrating between two chain lengths or between
+    the corresponding molar masses should be identical.
+    """
+    print("")
+    distributions = dist2
+    for d in distributions:
+        length_range = np.asarray([int(d.DPn/2), int(d.DPw*2)])
+        for type in ['number', 'mass']:
+            integral = {}
+            xlimits = length_range
+            for sizeasmass in [False, True]:
+                if sizeasmass:
+                    xlimits = xlimits*d.M0
+                integral[sizeasmass], atol = integrate.quad(
+                    lambda x: d.pdf(x, type=type, sizeasmass=sizeasmass),
+                    xlimits[0], xlimits[1])
+            # print(d.name, integral)
+            assert (np.isclose(integral[False], integral[True], atol=atol))
+
+
+def test_pfd_cdf_discrete(dist1):
     """For all discrete distributions, we should get sum(pdf(1:k))=cdf(k)
     """
+    distributions = dist1
     DPn = 51
     x = [i for i in range(1, DPn+1)]
-    distributions = dist1
     for d in distributions:
         d.DPn = DPn
         for type in ["number", "mass", "gpc"]:
@@ -131,13 +152,13 @@ def test_pfd_cdf_discrete():
             assert (np.isclose(sum_pdf, cdf, rtol=1e-8))
 
 
-def test_pfd_cdf_continuous():
+def test_pfd_cdf_continuous(dist2):
     """For all continuous distributions, we should get integral(pdf(0:s)=cdf(s)
     """
+    distributions = dist2
     DPn = 51
     PDI = 2.9
     s = 1*DPn
-    distributions = dist2
     for d in distributions:
         d.DPn = DPn
         d.PDI = PDI
@@ -150,15 +171,15 @@ def test_pfd_cdf_continuous():
             assert (np.isclose(integral_pdf, cdf, atol=atol))
 
 
-def test_random():
+def test_random(dist1, dist2):
     """The moments of the random samples should match the analytical moments of
     the corresponding distributions.
     """
+    distributions = dist1 + dist2
     DPn = 49
     PDI = 1.8
     num_samples = 10**6
     rtol = [None, 5e-3, 2e-2, 5e-2]
-    distributions = dist1 + dist2
     for d in distributions:
         d.DPn = DPn
         try:
@@ -169,10 +190,10 @@ def test_random():
         for order in range(1, 4):
             mom = np.sum(x**order)/num_samples
             # print(type(d), order, mom, d.moment(order))
-            assert (np.isclose(mom, d.moment(order), rtol=rtol[order]))
+            assert (np.isclose(mom, d._moment_length(order), rtol=rtol[order]))
 
 
-def test_composite_1():
+def test_composite_1(dist1, dist2):
     """Properties should remain unchanged when a distribution is combined with
     itself.
     """
@@ -210,16 +231,6 @@ def test_composite_2b():
 
 
 def test_composite_2c():
-    """DPw should not change when combining distributions with same DPw."""
-    DPw = 98
-    f = Flory((DPw + 1)/2, 50)
-    p = LogNormal(DPw/2, 2, 67)
-    cases = [f + p, 1*f + p*2 + f, f*2.0 + 3.0*p + 2*p]
-    for s in cases:
-        assert (np.isclose(s.DPw, DPw, rtol=rtol))
-
-
-def test_composite_2d():
     """Mw should not change when combining distributions with same Mw."""
     DPw = 98
     f = Flory((DPw + 1)/2, 100)
@@ -230,7 +241,26 @@ def test_composite_2d():
         assert (np.isclose(s.Mw, DPw*100.0, rtol=rtol))
 
 
-def test_fit_itself():
+def test_composite_pdf_integral():
+    """The mnumber/mass weights of the components should match the integrals of
+    the corresponding peaks."""
+    DPn = 100
+    f = 3
+    w1 = 0.4
+    d1 = Poisson(DPn, M0=1.5, name='1')
+    d2 = Poisson(DPn*f, M0=1, name='2')
+    d = w1*d1 + (1-w1)*d2
+    integral = {}
+    xn = d._calc_molefracs()
+    for type in ['number', 'mass']:
+        integral[type], atol = integrate.quad(
+            lambda x: d.pdf(x, type=type), 0, DPn*(1+f)/2)
+    # print(xn, integral)
+    assert (np.isclose(integral['number'], xn[0], rtol=1e-2))
+    assert (np.isclose(integral['mass'], w1, rtol=1e-5))
+
+
+def test_fit_itself(dist1, dist2):
     """The fit function should provide an exact fit of itself."""
     distributions = dist1 + dist2
     rng = np.random.default_rng()
@@ -247,7 +277,7 @@ def test_fit_itself():
                 d.PDI = 10
             except AttributeError:
                 pass
-            d2.fit(x, y, type=type, sizeas='length')
+            d2.fit(x, y, type=type, sizeasmass=False)
             # print(d2.DPn, d.DPn)
         assert (np.isclose(d2.DPn, d.DPn, rtol=1e-1))
         assert (np.isclose(d2.PDI, d.PDI, rtol=1e-1))
