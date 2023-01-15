@@ -19,8 +19,8 @@ class Flory(IndividualDistributionP1):
     distribution](https://en.wikipedia.org/wiki/Geometric_distribution).
     """
 
-    def _compute_parameters(self):
-        self._a = 1 - 1 / self.DPn
+    def _update_internal_parameters(self):
+        self._a = 1 - 1/self.DPn
 
     def _moment_length(self, order):
         a = self._a
@@ -58,7 +58,7 @@ class Flory(IndividualDistributionP1):
         return self._rng.geometric((1-a), size)  # type: ignore
 
     @property
-    def _xrange_auto(self):
+    def _xrange_length(self):
         return (1, 10*self.DPn)
 
 
@@ -71,7 +71,7 @@ class Poisson(IndividualDistributionP1):
     where $a=DP_n-1$.
     """
 
-    def _compute_parameters(self):
+    def _update_internal_parameters(self):
         self._a = self.DPn - 1
 
     def _moment_length(self, order):
@@ -111,7 +111,7 @@ class Poisson(IndividualDistributionP1):
         return self._rng.poisson(a, size) + 1  # type: ignore
 
     @property
-    def _xrange_auto(self):
+    def _xrange_length(self):
         return (max(1, self.DPn/2 - 10), 1.5*self.DPn + 10)
 
 
@@ -127,7 +127,7 @@ class LogNormal(IndividualDistributionP2):
     # https://reference.wolfram.com/language/ref/LogNormalDistribution.html
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html
 
-    def _compute_parameters(self):
+    def _update_internal_parameters(self):
         try:
             PDI = self.PDI
             DPn = self.DPn
@@ -165,7 +165,7 @@ class LogNormal(IndividualDistributionP2):
         return np.rint(self._rng.lognormal(mu, sigma, size))  # type: ignore
 
     @property
-    def _xrange_auto(self):
+    def _xrange_length(self):
         return (1, 100*self.DPn)
 
 
@@ -181,7 +181,7 @@ class SchulzZimm(IndividualDistributionP2):
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
     # https://goldbook.iupac.org/terms/view/S05502
 
-    def _compute_parameters(self):
+    def _update_internal_parameters(self):
         try:
             PDI = self.PDI
             DPn = self.DPn
@@ -219,5 +219,5 @@ class SchulzZimm(IndividualDistributionP2):
         return np.rint(self._rng.gamma(k, theta, size))  # type: ignore
 
     @property
-    def _xrange_auto(self):
+    def _xrange_length(self):
         return (1, 10*self.DPn)
