@@ -1,4 +1,4 @@
-# %% Single distributions
+# %% Individual distributions
 
 from polykin.distributions.baseclasses import IndividualDistributionP1
 from polykin.distributions.baseclasses import IndividualDistributionP2
