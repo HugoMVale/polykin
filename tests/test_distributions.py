@@ -145,7 +145,7 @@ def test_pfd_cdf_discrete(dist1):
     x = [i for i in range(1, DPn+1)]
     for d in distributions:
         d.DPn = DPn
-        for type in ["number", "mass", "gpc"]:
+        for type in ["number", "mass"]:
             cdf = d.cdf(DPn, type=type)
             pdf = d.pdf(x, type=type)
             sum_pdf = sum(pdf)
@@ -162,7 +162,7 @@ def test_pfd_cdf_continuous(dist2):
     for d in distributions:
         d.DPn = DPn
         d.PDI = PDI
-        for type in ["number", "mass", "gpc"]:
+        for type in ["number", "mass"]:
             cdf = d.cdf(s, type=type)
             integral_pdf, atol = integrate.quad(
                 lambda x: d.pdf(x, type=type),

@@ -46,11 +46,8 @@ class Flory(IndividualDistributionP1):
             result = 1 - a**k
         elif order == 1:
             result = (a**k*(-a*k + k + 1) - 1)/(a - 1)
-        elif order == 2:
-            result = (-((a - 1)**2*k**2 - 2*(a - 1)*k + a + 1)
-                      * a**k + a + 1)/(a - 1)**2
         else:
-            raise ValueError("Not defined for order>2.")
+            raise ValueError("Not defined for order>1.")
         return result / self._moment_length(order)
 
     def _random_length(self, size):
@@ -99,11 +96,8 @@ class Poisson(IndividualDistributionP1):
         elif order == 1:
             result = (a + 1)*sp.gammaincc(k, a) - \
                 np.exp(k*log(a) - a - sp.gammaln(k))
-        elif order == 2:
-            result = (a*(a + 3) + 1)*sp.gammaincc(k, a) - \
-                np.exp(k*log(a) + np.log(a + k + 2) - a - sp.gammaln(k))
         else:
-            raise ValueError("Not defined for order>2.")
+            raise ValueError("Not defined for order>1.")
         return result/self._moment_length(order)
 
     def _random_length(self, size):
@@ -153,10 +147,8 @@ class LogNormal(IndividualDistributionP2):
             result = st.lognorm.cdf(x, s=sigma, scale=exp(mu))
         elif order == 1:
             result = sp.erfc((mu + sigma**2 - np.log(x))/(sigma*sqrt(2)))/2
-        elif order == 2:
-            result = sp.erfc((mu + 2*sigma**2 - np.log(x))/(sigma*sqrt(2)))/2
         else:
-            raise ValueError("Not defined for order>2.")
+            raise ValueError("Not defined for order>1.")
         return result
 
     def _random_length(self, size):
@@ -207,10 +199,8 @@ class SchulzZimm(IndividualDistributionP2):
             result = st.gamma.cdf(x, a=k, scale=theta)
         elif order == 1:
             result = 1 - sp.gammaincc(1+k, x/theta)
-        elif order == 2:
-            result = 1 - sp.gammaincc(2+k, x/theta)
         else:
-            raise ValueError("Not defined for order>2.")
+            raise ValueError("Not defined for order>1.")
         return result
 
     def _random_length(self, size):

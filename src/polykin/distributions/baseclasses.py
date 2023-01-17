@@ -102,7 +102,7 @@ class GeneralDistribution(Base, ABC):
 
     def cdf(self,
             size: Union[float, list, ndarray],
-            type: Literal['number', 'mass', 'gpc'] = 'mass',
+            type: Literal['number', 'mass'] = 'mass',
             sizeasmass: bool = False,
             ) -> Union[float, ndarray[Any, dtype[float64]]]:
         r"""Evaluate the cumulative density function:
@@ -117,7 +117,7 @@ class GeneralDistribution(Base, ABC):
         ----------
         size : int | float | ArrayLike
             Chain length or molar mass.
-        type : Literal['number', 'mass', 'gpc']
+        type : Literal['number', 'mass']
             Type of distribution.
         sizeasmass : bool
             Switch between chain-*length* (if `False`) or molar *mass*
@@ -129,7 +129,7 @@ class GeneralDistribution(Base, ABC):
             Cumulative probability.
         """
         # Check inputs
-        self._verify_type(type)
+        check_in_set(type, {'number', 'mass'}, 'type')
         self._verify_sizeasmass(sizeasmass)
         order = self.typenames[type]
         # Convert list to ndarray
@@ -143,6 +143,7 @@ class GeneralDistribution(Base, ABC):
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: Union[list, ndarray] = [],
+             cdf: bool = False,
              ax=None
              ) -> None:
         """Plot the chain-length distribution.
@@ -151,13 +152,16 @@ class GeneralDistribution(Base, ABC):
         ----------
         type : Literal['number', 'mass', 'gpc']
             Type of distribution.
-        sizeas : Literal['length', 'mass']
-            Set `length` if `size` refers to chain-*length* or `mass` if `size`
-            refers to molar *mass*.
+        sizeasmass : bool
+            Switch between chain-*length* (if `False`) or molar *mass*
+            (if `True`) size.
         xscale : Literal['auto', 'linear', 'log']
             x-axis scale.
-        xrange : tuple
+        xrange : Union[list, ndarray]
             x-axis range.
+        cdf : bool
+            Switch between differential (if `False`) or cumulative (if `True`)
+            density function.
         ax : matplotlib.axes
             Matplotlib axes object.
 
@@ -184,6 +188,8 @@ class GeneralDistribution(Base, ABC):
         if not (len(xrange) == 2 and xrange[1] > xrange[0]):
             xrange = self._xrange_plot(sizeasmass)
         npoints = 200
+        if isinstance(self, MixtureDistribution):
+            npoints += 100*(len(self._components)-1)
         # x-axis vector and scale
         if xscale == 'log' or (xscale == 'auto' and set(type) == {'gpc'}):
             x = np.geomspace(*xrange, npoints)  # type: ignore
@@ -198,15 +204,23 @@ class GeneralDistribution(Base, ABC):
             label_x = "Chain length"
 
         # y-axis
-        for the_type in type:
-            y = self.pdf(x, type=the_type, sizeasmass=sizeasmass)
-            ax.plot(x, y, label=the_type)
+        if cdf:
+            fdist = self.cdf
+            label_y = 'Cumulative probability'
+        else:
+            fdist = self.pdf
+            label_y = 'Relative abundance'
+        for item in type:
+            if cdf and item == 'gpc':
+                item = 'mass'
+            y = fdist(x, type=item, sizeasmass=sizeasmass)
+            ax.plot(x, y, label=item)
 
         # Other properties
         ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
         ax.grid(True)
         ax.set_xlabel(label_x)
-        ax.set_ylabel("Relative abundance")
+        ax.set_ylabel(label_y)
         ax.set_xscale(xscale)
 
         return None
@@ -343,20 +357,19 @@ class IndividualDistribution(GeneralDistribution):
     def _pdf(self, size, order, sizeasmass):
         """$m$-th order chain-length / molar mass probability density
         function."""
-        x = size
         factor = 1
         if sizeasmass:
-            x = x/self.M0
-            factor = 1/self.M0
-        return factor*self._pdf_length(x)*x**order/self._moment_length(order)
+            size = size/self.M0
+            factor = self.M0
+        return self._pdf_length(size) * size**order \
+            / (self._moment_length(order)*factor)
 
     def _cdf(self, size, order, sizeasmass):
         """$m$-th order chain-length / molar mass probability cumulative
         function."""
-        x = size
         if sizeasmass:
-            x /= self.M0
-        return self._cdf_length(x, order)
+            size = size/self.M0
+        return self._cdf_length(size, order)
 
     def random(self,
                size: Union[int, tuple[int, ...], None] = None
@@ -482,16 +495,16 @@ class IndividualDistribution(GeneralDistribution):
         """Cumulative density function.
 
         Each child class must implement a method to delivering the cumulative
-        density function for the number, mass _and_ GPC distribution. All three
-        cases must be covered, because it is not straightforward to convert
-        from one kind of distribution to another.
+        density function for the number _and_ mass distribution. Both cases
+        must be covered, because it is not straightforward to convert from one
+        kind of distribution to another.
 
         Parameters
         ----------
         k : float | ndarray
             Chain length.
         order : int
-            Order of the distribution (0: number, 1: mass, 2: GPC).
+            Order of the distribution (0: number, 1: mass).
 
         Returns
         -------
@@ -634,8 +647,16 @@ class MixtureDistribution(GeneralDistribution):
             numerator += term2
         return numerator/denominator
 
-    def _cdf(self):
-        pass
+    def _cdf(self, size, order, sizeasmass):
+        xn = self._calc_molefracs()
+        numerator = 0
+        denominator = 0
+        for i, d in enumerate(self._components.keys()):
+            term1 = xn[i]*d._moment_mass(order)
+            term2 = term1*d._cdf(size, order, sizeasmass)
+            denominator += term1
+            numerator += term2
+        return numerator/denominator
 
     def _xrange_plot(self, sizeasmass):
         """Default chain-length or molar mass range for distribution plots.
@@ -646,6 +667,3 @@ class MixtureDistribution(GeneralDistribution):
         xrange[1] = max([d._xrange_plot(sizeasmass)[1]
                          for d in self._components.keys()])
         return xrange
-
-
-# %%
