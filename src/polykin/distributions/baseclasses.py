@@ -3,6 +3,7 @@
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, add_dicts
 
+import math
 import numpy as np
 from numpy import int64, float64, dtype, ndarray
 from scipy.optimize import curve_fit
@@ -142,7 +143,7 @@ class GeneralDistribution(Base, ABC):
              type: Literal['number', 'mass', 'gpc'] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
-             xrange: Union[list, ndarray] = [],
+             xrange: Union[list, tuple, ndarray] = [],
              cdf: bool = False,
              ax=None
              ) -> None:
@@ -192,6 +193,8 @@ class GeneralDistribution(Base, ABC):
             npoints += 100*(len(self._components)-1)
         # x-axis vector and scale
         if xscale == 'log' or (xscale == 'auto' and set(type) == {'gpc'}):
+            if math.log10(xrange[1]/xrange[0]) > 3:
+                xrange = 10*xrange
             x = np.geomspace(*xrange, npoints)  # type: ignore
             xscale = 'log'
         else:
@@ -272,11 +275,16 @@ class GeneralDistribution(Base, ABC):
         return [0, 1]
 
 
-class IndividualDistribution(GeneralDistribution):
+class TheoreticalDistribution(GeneralDistribution):
+    pass
+
+
+class IndividualDistribution(TheoreticalDistribution):
     """Abstract class for all individual chain-length distributions."""
 
     # (min-DPn, max-DPn)
     _pbounds = ((2,), (np.Inf,))
+    _ppf_bounds = (1e-4, 0.9999)
 
     def __init__(self,
                  DPn: int,
@@ -394,7 +402,7 @@ class IndividualDistribution(GeneralDistribution):
     def _xrange_plot(self, sizeasmass):
         """Default chain-length or molar mass range for distribution plots.
         """
-        xrange = np.asarray(self._xrange_length, dtype=np.float64)
+        xrange = np.asarray(self._range_length_default, dtype=np.float64)
         if sizeasmass:
             xrange *= self.M0
         return xrange
@@ -536,7 +544,7 @@ class IndividualDistribution(GeneralDistribution):
         return 0
 
     @abstractmethod
-    def _xrange_length(self) -> tuple[int, int]:
+    def _range_length_default(self) -> tuple[int, int]:
         """Default chain-length range for distribution plots.
         """
         return (0, 1)
@@ -551,7 +559,7 @@ class IndividualDistributionP2(IndividualDistribution):
     """Abstract class for 2-parameter single chain-length distributions."""
 
     # ((min-DPn, min-PDI), (max-DPn, max-PDI))
-    _pbounds = ((2, 1.001), (np.Inf, np.Inf))
+    _pbounds = ((2, 1.000001), (np.Inf, np.Inf))
 
     def __init__(self,
                  DPn: int,

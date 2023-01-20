@@ -51,12 +51,11 @@ class Flory(IndividualDistributionP1):
         return result / self._moment_length(order)
 
     def _random_length(self, size):
-        a = self._a
-        return self._rng.geometric((1-a), size)  # type: ignore
+        return self._rng.geometric((1-self._a), size)  # type: ignore
 
     @property
-    def _xrange_length(self):
-        return (1, 10*self.DPn)
+    def _range_length_default(self):
+        return st.geom.ppf(self._ppf_bounds, p=(1-self._a))
 
 
 class Poisson(IndividualDistributionP1):
@@ -101,12 +100,11 @@ class Poisson(IndividualDistributionP1):
         return result/self._moment_length(order)
 
     def _random_length(self, size):
-        a = self._a
-        return self._rng.poisson(a, size) + 1  # type: ignore
+        return self._rng.poisson(self._a, size) + 1  # type: ignore
 
     @property
-    def _xrange_length(self):
-        return (max(1, self.DPn/2 - 10), 1.5*self.DPn + 10)
+    def _range_length_default(self):
+        return st.poisson.ppf(self._ppf_bounds, mu=self._a, loc=1)
 
 
 class LogNormal(IndividualDistributionP2):
@@ -157,8 +155,10 @@ class LogNormal(IndividualDistributionP2):
         return np.rint(self._rng.lognormal(mu, sigma, size))  # type: ignore
 
     @property
-    def _xrange_length(self):
-        return (1, 100*self.DPn)
+    def _range_length_default(self):
+        mu = self._mu
+        sigma = self._sigma
+        return st.lognorm.ppf(self._ppf_bounds, s=sigma, scale=exp(mu), loc=1)
 
 
 class SchulzZimm(IndividualDistributionP2):
@@ -209,5 +209,7 @@ class SchulzZimm(IndividualDistributionP2):
         return np.rint(self._rng.gamma(k, theta, size))  # type: ignore
 
     @property
-    def _xrange_length(self):
-        return (1, 10*self.DPn)
+    def _range_length_default(self):
+        k = self._k
+        theta = self._theta
+        return st.gamma.ppf(self._ppf_bounds, a=k, scale=theta, loc=1)
