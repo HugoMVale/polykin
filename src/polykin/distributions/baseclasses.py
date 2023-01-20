@@ -188,13 +188,16 @@ class GeneralDistribution(Base, ABC):
         # x-axis range
         if not (len(xrange) == 2 and xrange[1] > xrange[0]):
             xrange = self._xrange_plot(sizeasmass)
+        else:
+            xrange = np.asarray(xrange)
+
         npoints = 200
         if isinstance(self, MixtureDistribution):
             npoints += 100*(len(self._components)-1)
         # x-axis vector and scale
         if xscale == 'log' or (xscale == 'auto' and set(type) == {'gpc'}):
             if math.log10(xrange[1]/xrange[0]) > 3:
-                xrange = 10*xrange
+                xrange[1] *= 10
             x = np.geomspace(*xrange, npoints)  # type: ignore
             xscale = 'log'
         else:
