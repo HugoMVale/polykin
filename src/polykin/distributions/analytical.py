@@ -1,4 +1,4 @@
-# %% Individual distributions
+# %% Analytical distributions
 
 from polykin.distributions.baseclasses import AnalyticalDistributionP1
 from polykin.distributions.baseclasses import AnalyticalDistributionP2
