@@ -211,7 +211,7 @@ def test_composite_pdf_integral():
     d2 = Poisson(DPn*f, M0=1, name='2')
     d = w1*d1 + (1-w1)*d2
     integral = {}
-    xn = d._calc_molefracs()
+    xn = d._molefrac
     for kind in ['number', 'mass']:
         integral[kind], atol = integrate.quad(
             lambda x: d.pdf(x, kind=kind), 0, DPn*(1+f)/2)
