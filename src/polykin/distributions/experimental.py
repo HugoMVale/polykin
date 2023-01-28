@@ -43,7 +43,7 @@ class ExperimentalDistribution(IndividualDistribution):
         self._pdf_order = self.kindnames[self._verify_kind(kind)]
 
         # Compute spline
-        self.pdf_spline = \
+        self._pdf_spline = \
             interpolate.UnivariateSpline(self._length_data,
                                          self._pdf_data,
                                          k=3,
@@ -56,17 +56,17 @@ class ExperimentalDistribution(IndividualDistribution):
                            xb: float,
                            order: int
                            ) -> float:
-        xrange = (self._length_data[0], xb)
+        xrange = (max(xa, self._length_data[0]), xb)
         if order == self._pdf_order:
-            result = self.pdf_spline.integral(*xrange)
+            result = self._pdf_spline.integral(*xrange)
         else:
             result, _ = integrate.quad(
-                lambda x: x**(order-self._pdf_order)*self.pdf_spline(x),
+                lambda x: x**(order-self._pdf_order)*self._pdf_spline(x),
                 *xrange)
         return result
 
     def _pdf0_length(self, x):
-        return x**(-self._pdf_order)*self.pdf_spline(x)
+        return x**(-self._pdf_order)*self._pdf_spline(x)
 
     @functools.cached_property
     def _range_length_default(self):
