@@ -4,11 +4,11 @@ from polykin.base import Base
 from polykin.utils import \
     check_bounds, check_type, check_in_set, add_dicts, vectorize
 
-import math
+from math import log10
 import numpy as np
+import mpmath
 from numpy import int64, float64, dtype, ndarray
 from scipy import integrate
-import mpmath
 import matplotlib.pyplot as plt
 from typing import Any, Literal, Union
 from abc import ABC, abstractmethod
@@ -88,8 +88,8 @@ class GeneralDistribution(Base, ABC):
         kind : Literal['number', 'mass', 'gpc']
             Kind of distribution.
         sizeasmass : bool
-            Switch between chain-*length* (if `False`) or molar *mass*
-            (if `True`) size.
+            Switch size input between chain-*length* (if `False`) or molar
+            *mass* (if `True`).
 
         Returns
         -------
@@ -128,8 +128,8 @@ class GeneralDistribution(Base, ABC):
         kind : Literal['number', 'mass']
             Kind of distribution.
         sizeasmass : bool
-            Switch between chain-*length* (if `False`) or molar *mass*
-            (if `True`) size.
+            Switch size input between chain-*length* (if `False`) or molar
+            *mass* (if `True`).
 
         Returns
         -------
@@ -163,15 +163,15 @@ class GeneralDistribution(Base, ABC):
         kind : Literal['number', 'mass', 'gpc']
             Kind of distribution.
         sizeasmass : bool
-            Switch between chain-*length* (if `False`) or molar *mass*
-            (if `True`) size.
+            Switch size input between chain-*length* (if `False`) or molar
+            *mass* (if `True`).
         xscale : Literal['auto', 'linear', 'log']
             x-axis scale.
         xrange : Union[list, tuple, ndarray]
             x-axis range.
         cdf : Literal[0, 1, 2]
-            y-axis where cdf is displayed. If `0` the cdf if not displayed; if 
-            `1` the cdf is displayed on the primary y-axis, if `2` the cdf is
+            y-axis where cdf is displayed. If `0` the cdf if not displayed; if
+            `1` the cdf is displayed on the primary y-axis; if `2` the cdf is
             displayed on the secondary axis.
         ax : matplotlib.axes
             Matplotlib axes object.
@@ -207,7 +207,7 @@ class GeneralDistribution(Base, ABC):
             npoints += 100*(len(self._components)-1)
         # x-axis vector and scale
         if xscale == 'log' or (xscale == 'auto' and set(kind) == {'gpc'}):
-            if math.log10(xrange[1]/xrange[0]) > 3:
+            if log10(xrange[1]/xrange[0]) > 3:
                 xrange[1] *= 10
             x = np.geomspace(*xrange, npoints)  # type: ignore
             xscale = 'log'
@@ -652,7 +652,6 @@ class MixtureDistribution(GeneralDistribution):
 
         self._components = components
         self.name = name
-        self._molefracs = None
 
     def __add__(self, other):
         if isinstance(other, MixtureDistribution):
@@ -668,25 +667,24 @@ class MixtureDistribution(GeneralDistribution):
     def __radd__(self, other):
         return self.__add__(other)
 
-    def _calc_molefracs(self) -> ndarray:
-        """Calculate mole fraction of each individual distribution."""
-        if self._molefracs is None:
-            x = np.empty(len(self._components))
-            for i, (d, w) in enumerate(self._components.items()):
-                x[i] = w/d.Mn
-            x[:] /= x.sum()
-            self._molefracs = x
-        return self._molefracs
+    @property
+    def _molefrac(self) -> ndarray:
+        """Mole fraction of each individual distribution."""
+        xn = np.empty(len(self._components))
+        for i, (d, w) in enumerate(self._components.items()):
+            xn[i] = w/d.Mn
+        xn[:] /= xn.sum()
+        return xn
 
     def _moment_mass(self, order, shift=0):
-        xn = self._calc_molefracs()
+        xn = self._molefrac
         result = 0
         for i, d in enumerate(self._components.keys()):
             result += xn[i]*d._moment_mass(order, shift)
         return result
 
     def _pdf(self, size, order, sizeasmass):
-        xn = self._calc_molefracs()
+        xn = self._molefrac
         numerator = 0
         denominator = 0
         for i, d in enumerate(self._components.keys()):
@@ -697,7 +695,7 @@ class MixtureDistribution(GeneralDistribution):
         return numerator/denominator
 
     def _cdf(self, size, order, sizeasmass):
-        xn = self._calc_molefracs()
+        xn = self._molefrac
         numerator = 0
         denominator = 0
         for i, d in enumerate(self._components.keys()):
