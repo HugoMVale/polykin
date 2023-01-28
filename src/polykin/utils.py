@@ -1,6 +1,8 @@
 from typing import Any, Union
 from collections.abc import Iterable
 import numbers
+import functools
+import numpy as np
 
 # %% Check tools
 
@@ -221,3 +223,10 @@ def add_dicts(d1: dict[Any, Union[int, float]],
     for key, value in d2.items():
         dout[key] = dout.get(key, 0) + value
     return dout
+
+
+class vectorize(np.vectorize):
+    "Vectorize decorator for class methods."
+
+    def __get__(self, obj, objtype):
+        return functools.partial(self.__call__, obj)
