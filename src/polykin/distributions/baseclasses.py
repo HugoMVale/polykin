@@ -154,7 +154,7 @@ class GeneralDistribution(Base, ABC):
              xrange: Union[list[float], tuple[float, float],
                            ndarray[Any, dtype[float64]]] = [],
              cdf: Literal[0, 1, 2] = 0,
-             ax1=None
+             ax=None
              ) -> None:
         """Plot the chain-length distribution.
 
@@ -175,12 +175,6 @@ class GeneralDistribution(Base, ABC):
             displayed on the secondary axis.
         ax : matplotlib.axes
             Matplotlib axes object.
-
-        Returns
-        -------
-        matplotlib.axes
-            Matplotlib axes object.
-
         """
         # Check inputs
         self._verify_kind(kind)
@@ -191,23 +185,25 @@ class GeneralDistribution(Base, ABC):
             kind = [kind]
 
         # Create axis if none is provided
-        if ax1 is None:
-            fig, ax1 = plt.subplots(1, 1)
+        if ax is None:
+            fig, ax = plt.subplots(1, 1)
             fig.suptitle(f"Distribution: {self.name}")
             self.fig = fig
 
         # x-axis range
         if not (len(xrange) == 2 and xrange[1] > xrange[0]):
             xrange = self._xrange_plot(sizeasmass)
+            xrange_user = False
         else:
             xrange = np.asarray(xrange)
+            xrange_user = True
 
         npoints = 200
         if isinstance(self, MixtureDistribution):
             npoints += 100*(len(self._components)-1)
         # x-axis vector and scale
         if xscale == 'log' or (xscale == 'auto' and set(kind) == {'gpc'}):
-            if log10(xrange[1]/xrange[0]) > 3:
+            if not (xrange_user) and log10(xrange[1]/xrange[0]) > 3:
                 xrange[1] *= 10
             x = np.geomspace(*xrange, npoints)  # type: ignore
             xscale = 'log'
@@ -228,24 +224,24 @@ class GeneralDistribution(Base, ABC):
             label_y1 = label_y_pdf
             for item in kind:
                 y1 = self.pdf(x, kind=item, sizeasmass=sizeasmass)
-                ax1.plot(x, y1, label=item)
+                ax.plot(x, y1, label=item)
         elif cdf == 1:
             label_y1 = label_y_cdf
             for item in kind:
                 if item == 'gpc':
                     item = 'mass'
                 y1 = self.cdf(x, kind=item, sizeasmass=sizeasmass)
-                ax1.plot(x, y1, label=item)
+                ax.plot(x, y1, label=item)
         elif cdf == 2:
             label_y1 = label_y_pdf
             label_y2 = label_y_cdf
-            ax1.set_ylabel(label_y1)
-            ax2 = ax1.twinx()
+            ax.set_ylabel(label_y1)
+            ax2 = ax.twinx()
             ax2.set_ylabel(label_y2)
             bbox_to_anchor = (1.1, 1.0)
             for item in kind:
                 y1 = self.pdf(x, kind=item, sizeasmass=sizeasmass)
-                ax1.plot(x, y1, label=item)
+                ax.plot(x, y1, label=item)
                 if item == 'gpc':
                     item = 'mass'
                 y2 = self.cdf(x, kind=item, sizeasmass=sizeasmass)
@@ -254,11 +250,11 @@ class GeneralDistribution(Base, ABC):
             raise ValueError
 
         # Other properties
-        ax1.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
-        ax1.grid(True)
-        ax1.set_xlabel(label_x)
-        ax1.set_ylabel(label_y1)
-        ax1.set_xscale(xscale)
+        ax.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
+        ax.grid(True)
+        ax.set_xlabel(label_x)
+        ax.set_ylabel(label_y1)
+        ax.set_xscale(xscale)
 
         return None
 
@@ -714,3 +710,21 @@ class MixtureDistribution(GeneralDistribution):
         xrange[1] = max([d._xrange_plot(sizeasmass)[1]
                          for d in self._components.keys()])
         return xrange
+
+# %%
+
+
+def plotdists(dists: list[GeneralDistribution],
+              **kwargs):
+
+    # Create matplot objects
+    fig, ax = plt.subplots(1, 1)
+    # fig.suptitle(f"Distribution: {self.name}")
+
+    # Build plots sequentially
+    for d in dists:
+        d.plot(ax=ax, **kwargs)
+
+    return (fig, ax)
+
+# %%
