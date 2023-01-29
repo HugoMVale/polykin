@@ -1,9 +1,9 @@
 # Project information
-site_name: polykin
+site_name: PolyKin
 site_url: https://hugomvale.github.io/polykin/
 site_author: Hugo Vale
 site_description: >-
-  An open-source Python package for polymerization kinetics.
+  An open-source polymerization kinetics library for Python.
 
 # Repository
 repo_name: HugoMVale/polykin
