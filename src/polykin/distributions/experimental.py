@@ -13,9 +13,9 @@ from typing import Any, Literal, Union
 import functools
 
 
-class ExperimentalDistribution(IndividualDistribution):
-    """Arbitrary experimental chain-length distribution, defined by chain size
-    and corresponding pdf values.
+class DatalDistribution(IndividualDistribution):
+    """Arbitrary numerical chain-length distribution, defined by chain size
+    and pdf data.
     """
     _continuous = True
 
