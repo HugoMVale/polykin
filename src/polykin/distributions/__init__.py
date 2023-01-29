@@ -4,7 +4,7 @@ integrate, etc. theoretical and experimental chain-length distributions.
 
 """
 
-from polykin.distributions.analytical import \
+from polykin.distributions.analyticaldistributions import \
     Flory, Poisson, LogNormal, SchulzZimm
-from polykin.distributions.experimental import DatalDistribution
+from polykin.distributions.datadistribution import DataDistribution
 from polykin.distributions.baseclasses import plotdists
