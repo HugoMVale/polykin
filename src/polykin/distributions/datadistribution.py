@@ -1,4 +1,4 @@
-# %% Experimental distribution
+# %% Data distribution
 
 from polykin.utils import vectorize
 from polykin.distributions.baseclasses import \
@@ -13,7 +13,7 @@ from typing import Any, Literal, Union
 import functools
 
 
-class DatalDistribution(IndividualDistribution):
+class DataDistribution(IndividualDistribution):
     """Arbitrary numerical chain-length distribution, defined by chain size
     and pdf data.
     """

@@ -1,7 +1,7 @@
 # %% Analytical distributions
 
-from polykin.distributions.baseclasses import AnalyticalDistributionP1
-from polykin.distributions.baseclasses import AnalyticalDistributionP2
+from polykin.distributions.baseclasses import \
+    AnalyticalDistributionP1, AnalyticalDistributionP2
 
 from math import exp, log, sqrt
 import numpy as np
