@@ -3,7 +3,7 @@
 from polykin.distributions.baseclasses import \
     AnalyticalDistributionP1, AnalyticalDistributionP2
 
-from math import exp, log, sqrt
+from math import exp, log, sqrt, pi
 import numpy as np
 import scipy.special as sp
 import scipy.stats as st
@@ -142,7 +142,7 @@ class LogNormal(AnalyticalDistributionP2):
     def _pdf0_length(self, x):
         mu = self._mu
         sigma = self._sigma
-        return st.lognorm.pdf(x, s=sigma, scale=exp(mu))
+        return np.exp(-(np.log(x) - mu)**2/(2*sigma**2))/(x*sigma*sqrt(2*pi))
 
     @functools.cache
     def _moment_length(self, order):
@@ -154,7 +154,7 @@ class LogNormal(AnalyticalDistributionP2):
         mu = self._mu
         sigma = self._sigma
         if order == 0:
-            result = st.lognorm.cdf(x, s=sigma, scale=exp(mu))
+            result = (1 + sp.erf((np.log(x) - mu)/(sigma*sqrt(2))))/2
         elif order == 1:
             result = sp.erfc((mu + sigma**2 - np.log(x))/(sigma*sqrt(2)))/2
         else:
@@ -201,7 +201,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     def _pdf0_length(self, x):
         k = self._k
         theta = self._theta
-        return st.gamma.pdf(x, a=k, scale=theta)
+        return x**(k-1)*np.exp(-x/theta)/(theta**k*sp.gamma(k))
 
     @functools.cache
     def _moment_length(self, order):
@@ -213,7 +213,7 @@ class SchulzZimm(AnalyticalDistributionP2):
         k = self._k
         theta = self._theta
         if order == 0:
-            result = st.gamma.cdf(x, a=k, scale=theta)
+            result = sp.gammainc(k, x/theta)
         elif order == 1:
             result = 1 - sp.gammaincc(1+k, x/theta)
         else:
