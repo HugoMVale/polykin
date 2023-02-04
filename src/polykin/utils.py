@@ -28,12 +28,14 @@ def custom_error(var_name: str,
 
     """
     # Print error message
-    error_message = f"`{var_value}` is not a valid value for `{var_name}`."
+    error_message = \
+        f"`{var_name} = {var_value}` is not a valid input."
     # sys.tracebacklimit = 1
     if message != "":
         error_message += " " + message
+    # print(f"{kind}: {error_message}")
+    # sys.exit(1)
     raise kind(error_message)
-    # sys.exit(0)
 
 
 def check_type(var_value: Any,
@@ -187,8 +189,8 @@ def check_in_set(var_value: Any,
             var_name,
             var_value,
             ValueError,
-            f"""The following items do not belong to the valid set: {diff_set}.
-            The valid set is: {valid_set}.""",
+            f"The valid set is: {valid_set}. "
+            f"The following items do not belong to the valid set: {diff_set}.",
         )
 
 # %% Special functions
@@ -226,7 +228,7 @@ def add_dicts(d1: dict[Any, Union[int, float]],
 
 
 class vectorize(np.vectorize):
-    "Vectorize decorator for class methods."
+    "Vectorize decorator for instance methods."
 
     def __get__(self, obj, objtype):
         return functools.partial(self.__call__, obj)
