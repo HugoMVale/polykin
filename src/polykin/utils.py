@@ -94,7 +94,7 @@ def check_type(var_value: Any,
 
 
 def check_subclass(myobject: Any,
-                   valid_class: type,
+                   valid_class: Union[type, tuple[type, ...]],
                    myobject_name: str,
                    check_inside: bool = False
                    ) -> Any:

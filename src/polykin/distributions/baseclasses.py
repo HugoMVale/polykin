@@ -157,7 +157,7 @@ class GeneralDistribution(Base, ABC):
                            ndarray[Any, dtype[float64]]] = [],
              cdf: Literal[0, 1, 2] = 0,
              title: Union[str, None] = None,
-             ax: Union[plt.Axes, None] = None,
+             axes: Union[list[plt.Axes], None] = None,
              ) -> None:
         """Plot the chain-length distribution.
 
@@ -178,7 +178,7 @@ class GeneralDistribution(Base, ABC):
             displayed on the secondary axis.
         title: Union[str, None]
             Title
-        ax : Union[plt.Axes, None]
+        axes : Union[plt.Axes, None]
             Matplotlib Axes object.
         """
         # Check inputs
@@ -223,7 +223,7 @@ class GeneralDistribution(Base, ABC):
             label_x = "Chain length"
 
         # Create axis if none is provided
-        if ax is None:
+        if axes is None:
             ext_mode = False
             fig, ax = plt.subplots(1, 1)
             self.fig = fig
@@ -234,6 +234,9 @@ class GeneralDistribution(Base, ABC):
                 ax2 = ax.twinx()
         else:
             ext_mode = True
+            ax = axes[0]
+            if cdf == 2:
+                ax2 = axes[1]
 
         # y-values
         for kind in kinds:
@@ -754,19 +757,22 @@ def plotdists(dists: list[GeneralDistribution],
               title: Union[str, None] = None,
               **kwargs):
 
-    titles = {'number': 'Number', 'mass': 'Mass', 'gpc': 'GPC'}
-
     # Check input
     kind = GeneralDistribution._verify_kind(kind)
 
-    # Create matplot objects
+    # Create matplot and axes objects
     fig, ax = plt.subplots(1, 1)
+    if kwargs.get('cdf', 1) == 2:
+        ax.twinx()
+
+    # Title
+    titles = {'number': 'Number', 'mass': 'Mass', 'gpc': 'GPC'}
     if title is None:
         title = f"{titles.get(kind,'')} distributions"
     fig.suptitle(title)
 
     # Build plots sequentially
     for d in dists:
-        d.plot(kinds=kind, ax=ax, **kwargs)
+        d.plot(kinds=kind, axes=fig.axes, **kwargs)
 
-    return (fig, ax)
+    return fig
