@@ -1,6 +1,7 @@
 # %% Data distribution
 
-from polykin.utils import vectorize
+from polykin.utils import vectorize, check_subclass
+from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 from polykin.distributions.baseclasses import \
     IndividualDistribution, AnalyticalDistribution, \
     AnalyticalDistributionP1, AnalyticalDistributionP2
@@ -40,7 +41,13 @@ class DataDistribution(IndividualDistribution):
         self._length_data = size_data[idx_valid]
         if self._verify_sizeasmass(sizeasmass):
             self._length_data /= self.M0
-        self._pdf_order = self.kindnames[self._verify_kind(kind)]
+        self._pdf_order = self.kind_order[self._verify_kind(kind)]
+
+        # Base-line correction
+        # y = self._pdf_data
+        # x = self._length_data
+        # baseline = y[0] + (y[-1] - y[0])/(np.log(x[-1]/x[0]))*np.log(x/x[0])
+        # self._pdf_data -= baseline
 
         # Compute spline
         self._pdf_spline = \
@@ -73,42 +80,43 @@ class DataDistribution(IndividualDistribution):
         return self._length_data[(0, -1),]
 
     def fit(self,
-            dist: type[AnalyticalDistribution]
+            dist_class: Union[type[Flory], type[Poisson], type[LogNormal],
+                              type[SchulzZimm]]
             ) -> AnalyticalDistribution:
 
-        if isinstance(dist, AnalyticalDistributionP1):
-            isP2 = False
-        elif isinstance(dist, AnalyticalDistributionP2):
-            isP2 = True
+        check_subclass(dist_class, AnalyticalDistribution, 'dist_class')
+        isP1 = issubclass(dist_class, AnalyticalDistributionP1)
+
+        # Init fit distribution
+        if isP1:
+            args = (self.DPn,)
         else:
-            raise TypeError("Invalid `dist` type.")
+            args = (self.DPn, self.PDI)
+        dfit = dist_class(*args, M0=self.M0, name=self.name+"-fit")
 
         # Define parametric function
         def f(x, *p):
-            dist.DPn = p[1]
-            if isP2:
-                dist.PDI = p[2]
-            return np.log(p[0]*dist.pdf(x, kind=self.pdf_type,
-                                        sizeasmass=self.sizeasmass))
+            dfit.DPn = p[0]
+            if not isP1:
+                dfit.PDI = p[1]
+            return dfit._cdf(x, 1, False)
 
         # Call fit method
-        p0 = (1,) + dist._pvalues
-        bounds = ((-np.Inf,)+dist._pbounds[0], (np.Inf,)+dist._pbounds[1])
+        xdata = self._length_data
+        ydata = self._cdf_length(xdata, 1)
         solution = curve_fit(f,
-                             xdata=self.size_data,
-                             ydata=np.log(self._pdf_data),
-                             p0=p0,
-                             bounds=bounds,
+                             xdata=xdata,
+                             ydata=ydata,
+                             p0=dfit._pvalues,
+                             bounds=dfit._pbounds,
                              method='trf',
                              full_output=True)
 
         if solution[4] > 0:
-            # print(dist)
-            popt = solution[0]
-            print(f"scale:  {popt[0]:.2e}")
-            print(f"DPn:    {dist.DPn:.1f}")
-            print(f"PDI:    {dist.PDI:.2f}")
+            # print(dfit)
+            print(f"DPn:    {dfit.DPn:.1f}")
+            print(f"PDI:    {dfit.PDI:.2f}")
         else:
             print("Failed to fit distribution: ", solution[3])
 
-        return dist
+        return dfit
