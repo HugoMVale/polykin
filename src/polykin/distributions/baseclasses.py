@@ -2,7 +2,7 @@
 
 from polykin.base import Base
 from polykin.utils import \
-    check_bounds, check_type, check_in_set, add_dicts, vectorize
+    check_bounds, check_type, check_in_set, custom_error, add_dicts, vectorize
 
 from math import log10
 import numpy as np
@@ -18,7 +18,7 @@ import functools
 class GeneralDistribution(Base, ABC):
     """Abstract class for all chain-length distributions."""
 
-    kindnames = {'number': 0, 'mass': 1, 'gpc': 2}
+    kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
     units = {'molar_mass': 'g/mol'}
 
     def __str__(self) -> str:
@@ -97,9 +97,8 @@ class GeneralDistribution(Base, ABC):
             Probability density.
         """
         # Check inputs
-        self._verify_kind(kind)
         self._verify_sizeasmass(sizeasmass)
-        order = self.kindnames[kind]
+        order = self.kind_order[self._verify_kind(kind)]
         # Convert list to ndarray
         if isinstance(size, list):
             size = np.asarray(size)
@@ -137,9 +136,12 @@ class GeneralDistribution(Base, ABC):
             Cumulative probability.
         """
         # Check inputs
-        check_in_set(kind, {'number', 'mass'}, 'kind')
+        kind = self._verify_kind(kind)
+        if kind == 'gpc':
+            custom_error('kind', kind, ValueError,
+                         "Please use `mass` instead.")
+        order = self.kind_order[kind]
         self._verify_sizeasmass(sizeasmass)
-        order = self.kindnames[kind]
         # Convert list to ndarray
         if isinstance(size, list):
             size = np.asarray(size)
@@ -148,13 +150,14 @@ class GeneralDistribution(Base, ABC):
         return result
 
     def plot(self,
-             kind: Literal['number', 'mass', 'gpc'] = 'mass',
+             kinds: Literal['number', 'mass', 'gpc'] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: Union[list[float], tuple[float, float],
                            ndarray[Any, dtype[float64]]] = [],
              cdf: Literal[0, 1, 2] = 0,
-             ax=None
+             title: Union[str, None] = None,
+             ax: Union[plt.Axes, None] = None,
              ) -> None:
         """Plot the chain-length distribution.
 
@@ -173,94 +176,126 @@ class GeneralDistribution(Base, ABC):
             y-axis where cdf is displayed. If `0` the cdf if not displayed; if
             `1` the cdf is displayed on the primary y-axis; if `2` the cdf is
             displayed on the secondary axis.
-        ax : matplotlib.axes
-            Matplotlib axes object.
+        title: Union[str, None]
+            Title
+        ax : Union[plt.Axes, None]
+            Matplotlib Axes object.
         """
         # Check inputs
-        self._verify_kind(kind)
+        kinds = self._verify_kind(kinds, accept_list=True)
         self._verify_sizeasmass(sizeasmass)
         check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
-        check_in_set(cdf, {0, 1, 2}, cdf)
-        if isinstance(kind, str):
-            kind = [kind]
+        check_in_set(cdf, {0, 1, 2}, 'cdf')
+        if isinstance(kinds, str):
+            kinds = [kinds]  # type: ignore
 
-        # Create axis if none is provided
-        if ax is None:
-            fig, ax = plt.subplots(1, 1)
-            fig.suptitle(f"Distribution: {self.name}")
-            self.fig = fig
+        # x-axis scale
+        if xscale == 'auto' and set(kinds) == {'gpc'}:
+            xscale = 'log'
+        elif xscale == 'log':
+            pass
+        else:
+            xscale = 'linear'
 
         # x-axis range
         if not (len(xrange) == 2 and xrange[1] > xrange[0]):
             xrange = self._xrange_plot(sizeasmass)
-            xrange_user = False
+            if xscale == 'log' and log10(xrange[1]/xrange[0]) > 3 and \
+                    isinstance(self, (AnalyticalDistribution,
+                                      MixtureDistribution)):
+                xrange[1] *= 10
         else:
             xrange = np.asarray(xrange)
-            xrange_user = True
 
+        # x-axis vector
         npoints = 200
         if isinstance(self, MixtureDistribution):
             npoints += 100*(len(self._components)-1)
-        # x-axis vector and scale
-        if xscale == 'log' or (xscale == 'auto' and set(kind) == {'gpc'}):
-            if not (xrange_user) and log10(xrange[1]/xrange[0]) > 3:
-                xrange[1] *= 10
+        if xscale == 'log':
             x = np.geomspace(*xrange, npoints)  # type: ignore
-            xscale = 'log'
         else:
             x = np.linspace(*xrange, npoints)  # type: ignore
-            xscale = 'linear'
+
         # x-axis label
         if sizeasmass:
             label_x = f"Molar mass [{self.units['molar_mass']}]"
         else:
             label_x = "Chain length"
 
-        # y-axis
+        # Create axis if none is provided
+        if ax is None:
+            ext_mode = False
+            fig, ax = plt.subplots(1, 1)
+            self.fig = fig
+            if title is None:
+                title = f"Distribution: {self.name}"
+            fig.suptitle(title)
+            if cdf == 2:
+                ax2 = ax.twinx()
+        else:
+            ext_mode = True
+
+        # y-values
+        for kind in kinds:
+            if cdf != 1:
+                y1 = self.pdf(x, kind=kind, sizeasmass=sizeasmass)
+            if cdf > 0:
+                if kind == 'gpc':
+                    _kind = 'mass'
+                else:
+                    _kind = kind
+                y2 = self.cdf(x, kind=_kind, sizeasmass=sizeasmass)
+            if cdf == 1:
+                y1 = y2
+            if ext_mode:
+                label = self.name
+                if label == '':
+                    label = '?'
+            else:
+                label = kind
+            ax.plot(x, y1, label=label)
+            if cdf == 2:
+                ax2.plot(x, y2, linestyle='--')
+
+        # y-axis and labels
         label_y_pdf = 'Relative abundance'
         label_y_cdf = 'Cumulative probability'
         bbox_to_anchor = (1.05, 1.0)
         if cdf == 0:
             label_y1 = label_y_pdf
-            for item in kind:
-                y1 = self.pdf(x, kind=item, sizeasmass=sizeasmass)
-                ax.plot(x, y1, label=item)
         elif cdf == 1:
             label_y1 = label_y_cdf
-            for item in kind:
-                if item == 'gpc':
-                    item = 'mass'
-                y1 = self.cdf(x, kind=item, sizeasmass=sizeasmass)
-                ax.plot(x, y1, label=item)
         elif cdf == 2:
             label_y1 = label_y_pdf
             label_y2 = label_y_cdf
             ax.set_ylabel(label_y1)
-            ax2 = ax.twinx()
             ax2.set_ylabel(label_y2)
             bbox_to_anchor = (1.1, 1.0)
-            for item in kind:
-                y1 = self.pdf(x, kind=item, sizeasmass=sizeasmass)
-                ax.plot(x, y1, label=item)
-                if item == 'gpc':
-                    item = 'mass'
-                y2 = self.cdf(x, kind=item, sizeasmass=sizeasmass)
-                ax2.plot(x, y2, label=item, linestyle='--')
         else:
             raise ValueError
-
-        # Other properties
-        ax.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
-        ax.grid(True)
         ax.set_xlabel(label_x)
         ax.set_ylabel(label_y1)
         ax.set_xscale(xscale)
+        ax.grid(True)
+        ax.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
 
         return None
 
-    def _verify_kind(self, kind):
-        """Verify `type` input."""
-        return check_in_set(kind, set(self.kindnames.keys()), 'kind')
+    @classmethod
+    def _verify_kind(cls, kind, accept_list=False):
+        """Verify `kind` input."""
+        if isinstance(kind, str):
+            kind = kind.lower()
+        elif isinstance(kind, list) and accept_list:
+            check_type(kind, str, 'kind', check_inside=True)
+            kind = [item.lower() for item in kind]
+        else:
+            if accept_list:
+                valid_types = (str, list)
+            else:
+                valid_types = (str,)
+            check_type(kind, valid_types, 'kind')
+        return check_in_set(kind, set(cls.kind_order.keys()), 'kind')
 
     def _verify_sizeasmass(self, sizeasmass):
         """Verify `sizeasmass` input."""
@@ -711,20 +746,27 @@ class MixtureDistribution(GeneralDistribution):
                          for d in self._components.keys()])
         return xrange
 
-# %%
+# %% Aux functions
 
 
 def plotdists(dists: list[GeneralDistribution],
+              kind: Literal['number', 'mass', 'gpc'],
+              title: Union[str, None] = None,
               **kwargs):
+
+    titles = {'number': 'Number', 'mass': 'Mass', 'gpc': 'GPC'}
+
+    # Check input
+    kind = GeneralDistribution._verify_kind(kind)
 
     # Create matplot objects
     fig, ax = plt.subplots(1, 1)
-    # fig.suptitle(f"Distribution: {self.name}")
+    if title is None:
+        title = f"{titles.get(kind,'')} distributions"
+    fig.suptitle(title)
 
     # Build plots sequentially
     for d in dists:
-        d.plot(ax=ax, **kwargs)
+        d.plot(kinds=kind, ax=ax, **kwargs)
 
     return (fig, ax)
-
-# %%
