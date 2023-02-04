@@ -126,7 +126,7 @@ def test_pfd_cdf(dist1, dist2):
     for d in distributions:
         DPn = d.DPn
         for kind in ["number", "mass"]:
-            order = d.kindnames[kind]
+            order = d.kind_order[kind]
             cdf_analytical = d.cdf(DPn, kind=kind)
             cdf_generic = super(type(d), d)._cdf_length(DPn, order)
             print(type(d), kind, cdf_analytical, cdf_generic)
