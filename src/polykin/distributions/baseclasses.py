@@ -199,7 +199,7 @@ class GeneralDistribution(Base, ABC):
 
         # x-axis range
         if not (len(xrange) == 2 and xrange[1] > xrange[0]):
-            xrange = self._xrange_plot(sizeasmass)
+            xrange = np.array(self._xrange_plot(sizeasmass))
             if xscale == 'log' and log10(xrange[1]/xrange[0]) > 3 and \
                     isinstance(self, (AnalyticalDistribution,
                                       MixtureDistribution)):
@@ -695,6 +695,8 @@ class MixtureDistribution(GeneralDistribution):
         elif isinstance(other, IndividualDistribution):
             return MixtureDistribution(add_dicts(self._components, {other: 1}),
                                        name=self.name+'+'+other.name)
+        elif isinstance(other, (int, float)):
+            return self
         else:
             return NotImplemented
 
