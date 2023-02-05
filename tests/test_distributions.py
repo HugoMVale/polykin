@@ -1,15 +1,10 @@
-from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
-
+from polykin.distributions import \
+    Flory, Poisson, LogNormal, SchulzZimm, DataDistribution
 
 import numpy as np
 import scipy.integrate as integrate
 from copy import copy
 import pytest
-
-# Default tolerance for "exact" comparisons
-rtol = float(10*np.finfo(np.float64).eps)
-
-# Default distributions for tests
 
 
 @pytest.fixture
@@ -21,6 +16,10 @@ def dist1():
 def dist2():
     return [LogNormal(80, 3.0, 50, name='LogNormal'),
             SchulzZimm(90, 2.5, 69, name='Schulz-Zimm')]
+
+
+# Default tolerance for "exact" comparisons
+rtol = float(10*np.finfo(np.float64).eps)
 
 
 def test_properties(dist1, dist2):
@@ -52,9 +51,13 @@ def test_inputs():
     with pytest.raises(ValueError):
         d.pdf(1, kind='notvalid')
     with pytest.raises(TypeError):
+        d.pdf(1, kind=['mass'])
+    with pytest.raises(TypeError):
         d.pdf(1, sizeasmass='notvalid')
     with pytest.raises(ValueError):
         d.cdf(1, kind='notvalid')
+    with pytest.raises(TypeError):
+        d.cdf(1, kind=['number'])
     with pytest.raises(TypeError):
         d.cdf(1, sizeas='notvalid')
 
@@ -64,7 +67,7 @@ def test_pdf_discrete_sum(dist1):
     """
     distributions = dist1
     DPn = 69
-    x = [i for i in range(1, 100*DPn)]
+    x = np.arange(1, 100*DPn)
     for d in distributions:
         d.DPn = DPn
         for kind in ["number", "mass", "gpc"]:
@@ -129,7 +132,7 @@ def test_pfd_cdf(dist1, dist2):
             order = d.kind_order[kind]
             cdf_analytical = d.cdf(DPn, kind=kind)
             cdf_generic = super(type(d), d)._cdf_length(DPn, order)
-            print(type(d), kind, cdf_analytical, cdf_generic)
+            # print(type(d), kind, cdf_analytical, cdf_generic)
             assert (np.isclose(cdf_analytical, cdf_generic, rtol=1e-6))
 
 
@@ -218,6 +221,25 @@ def test_composite_pdf_integral():
     # print(xn, integral)
     assert (np.isclose(integral['number'], xn[0], rtol=1e-2))
     assert (np.isclose(integral['mass'], w1, rtol=1e-5))
+
+
+def test_data_distribution():
+    """The properties of a data distribution generated from a given analytical
+    distribution should match those of the original distribution."""
+    d1 = SchulzZimm(200, 1.5, M0=145, name='original')
+    length_data = np.linspace(1, 10*d1.DPz, 1000)
+    kind = 'mass'
+    pdf_data = d1.pdf(length_data, kind=kind)
+    d2 = DataDistribution(length_data, pdf_data,
+                          kind=kind, M0=d1.M0, name='data')
+    rtol = 1e-4
+    for attr in ['DPn', 'DPw', 'DPz', 'Mn', 'Mw', 'Mz', 'PDI', 'M0']:
+        y1 = getattr(d1, attr)
+        y2 = getattr(d2, attr)
+        # print(attr, y1, y2)
+        assert (np.isclose(y2, y1, rtol=rtol))
+    assert (np.isclose(d2.pdf(d2.DPw), d1.pdf(d1.DPw), rtol=rtol))
+    assert (np.isclose(d2.cdf(d2.DPw), d1.cdf(d1.DPw), rtol=rtol))
 
 
 # def test_fit_itself(dist1, dist2):
