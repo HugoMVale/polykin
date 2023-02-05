@@ -63,13 +63,14 @@ class DataDistribution(IndividualDistribution):
                            xb: float,
                            order: int
                            ) -> float:
-        xrange = (max(xa, self._length_data[0]), xb)
+        xrange = (max(xa, self._length_data[0]),
+                  min(xb, self._length_data[-1]))
         if order == self._pdf_order:
             result = self._pdf_spline.integral(*xrange)
         else:
             result, _ = integrate.quad(
                 lambda x: x**(order-self._pdf_order)*self._pdf_spline(x),
-                *xrange)
+                *xrange, limit=50)
         return result
 
     def _pdf0_length(self, x):

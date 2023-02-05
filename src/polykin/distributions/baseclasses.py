@@ -1,4 +1,4 @@
-# %% Base distribution clases
+# %% Base distribution classes
 
 from polykin.base import Base
 from polykin.utils import \
@@ -459,7 +459,7 @@ class IndividualDistribution(GeneralDistribution):
         def f(z): return (z**order)*self._pdf0_length(float(z))
 
         if self._continuous:
-            result, _ = integrate.quad(f, xa, xb, epsrel=1e-4)
+            result, _ = integrate.quad(f, xa, xb, limit=50, epsrel=1e-4)
         else:
             result = float(mpmath.nsum(f, [max(1, int(xa)), xb]))
         return result
