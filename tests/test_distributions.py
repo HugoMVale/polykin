@@ -227,7 +227,7 @@ def test_data_distribution():
     """The properties of a data distribution generated from a given analytical
     distribution should match those of the original distribution."""
     d1 = SchulzZimm(200, 1.5, M0=145, name='original')
-    length_data = np.linspace(1, 10*d1.DPz, 1000)
+    length_data = np.linspace(1, 5*d1.DPz, 1000)
     kind = 'mass'
     pdf_data = d1.pdf(length_data, kind=kind)
     d2 = DataDistribution(length_data, pdf_data,
@@ -242,24 +242,20 @@ def test_data_distribution():
     assert (np.isclose(d2.cdf(d2.DPw), d1.cdf(d1.DPw), rtol=rtol))
 
 
-# def test_fit_itself(dist1, dist2):
-#     """The fit function should provide an exact fit of itself."""
-#     distributions = dist1 + dist2
-#     rng = np.random.default_rng()
-#     rnoise = 5e-2
-#     for d in distributions:
-#         x = np.linspace(1, 2*d.DPw, 100)
-#         for type in ["number", "mass", "gpc"]:
-#             y = d.pdf(x, type=type)
-#             dy = rng.uniform(1-rnoise, 1+rnoise, y.size)
-#             y *= dy
-#             d2 = copy(d)
-#             d2.DPn = 10
-#             try:
-#                 d.PDI = 10
-#             except AttributeError:
-#                 pass
-#             d2.fit(x, y, type=type, sizeasmass=False)
-#             # print(d2.DPn, d.DPn)
-#         assert (np.isclose(d2.DPn, d.DPn, rtol=1e-1))
-#         assert (np.isclose(d2.PDI, d.PDI, rtol=1e-1))
+def test_fit_itself(dist1, dist2):
+    """The fit function should provide an (almost) exact fit of itself."""
+    distributions = dist1 + dist2
+    kind = 'mass'
+    rng = np.random.default_rng()
+    rnoise = 5e-2
+    rtol = 1e-1
+    for d in distributions:
+        length_data = np.linspace(1, 5*d.DPz, 1000)
+        pdf_data = d.pdf(length_data, kind=kind)
+        pdf_data *= rng.uniform(1-rnoise, 1+rnoise, pdf_data.size)
+        d2 = DataDistribution(length_data, pdf_data,
+                              kind=kind, M0=d.M0, name='data'+d.name)
+        dfit = d2.fit(type(d))
+        for attr in ['DPn', 'DPw', 'DPz', 'Mn', 'Mw', 'Mz', 'PDI', 'M0']:
+            assert (np.isclose(getattr(dfit, attr), getattr(d, attr),
+                               rtol=rtol))
