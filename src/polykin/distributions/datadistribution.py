@@ -4,12 +4,12 @@ from polykin.utils import vectorize, check_subclass
 from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 from polykin.distributions.baseclasses import \
     IndividualDistribution, AnalyticalDistribution, \
-    AnalyticalDistributionP1, AnalyticalDistributionP2
+    AnalyticalDistributionP1, AnalyticalDistributionP2, \
+    MixtureDistribution
 
 import numpy as np
 from numpy import ndarray, dtype, float64
-from scipy.optimize import curve_fit
-from scipy import interpolate, integrate
+from scipy import interpolate, integrate, optimize
 from typing import Any, Literal, Union
 import functools
 
@@ -34,13 +34,13 @@ class DataDistribution(IndividualDistribution):
         self.name = name
         size_data = np.asarray(size_data)
         pdf_data = np.asarray(pdf_data)
-        idx_valid = pdf_data > 0
+        if self._verify_sizeasmass(sizeasmass):
+            size_data /= self.M0
+        idx_valid = np.logical_and(pdf_data > 0, size_data >= 1)
         if not idx_valid.all():
-            print("Warning: Found and removed `pdf_data` values <=0.")
+            print("Warning: Found and removed some inconsistent values.")
         self._pdf_data = pdf_data[idx_valid]
         self._length_data = size_data[idx_valid]
-        if self._verify_sizeasmass(sizeasmass):
-            self._length_data /= self.M0
         self._pdf_order = self.kind_order[self._verify_kind(kind)]
 
         # Base-line correction
@@ -82,42 +82,82 @@ class DataDistribution(IndividualDistribution):
 
     def fit(self,
             dist_class: Union[type[Flory], type[Poisson], type[LogNormal],
-                              type[SchulzZimm]]
-            ) -> AnalyticalDistribution:
+                              type[SchulzZimm]],
+            dim: int = 1
+            ) -> Union[AnalyticalDistribution, MixtureDistribution, None]:
 
         check_subclass(dist_class, AnalyticalDistribution, 'dist_class')
-        isP1 = issubclass(dist_class, AnalyticalDistributionP1)
+        isP2 = issubclass(dist_class, AnalyticalDistributionP2)
 
         # Init fit distribution
-        if isP1:
-            args = (self.DPn,)
-        else:
-            args = (self.DPn, self.PDI)
-        dfit = dist_class(*args, M0=self.M0, name=self.name+"-fit")
+        dfit = MixtureDistribution({})
+        weight = np.full(dim, 1/dim)
+        DPn = np.empty_like(weight)
+        if isP2:
+            PDI = np.full(dim, 2.0)
+        for i in range(dim):
+            DPn[i] = self._length_data[0] * \
+                (self._length_data[-1]/self._length_data[0])**((i+1)/(dim+1))
+            if isP2:
+                args = (DPn[i], PDI[i])
+            else:
+                args = (DPn[i],)
+            d = dist_class(*args, M0=self.M0)
+            dfit = dfit + weight[i]*d
 
-        # Define parametric function
-        def f(x, *p):
-            dfit.DPn = p[0]
-            if not isP1:
-                dfit.PDI = p[1]
-            return dfit._cdf(x, 1, False)
-
-        # Call fit method
+        # Define objective function
         xdata = self._length_data
         ydata = self._cdf_length(xdata, 1)
-        solution = curve_fit(f,
-                             xdata=xdata,
-                             ydata=ydata,
-                             p0=dfit._pvalues,
-                             bounds=dfit._pbounds,
-                             method='trf',
-                             full_output=True)
 
-        if solution[4] > 0:
-            # print(dfit)
-            print(f"DPn:    {dfit.DPn:.1f}")
-            print(f"PDI:    {dfit.PDI:.2f}")
+        def objective_fun(x):
+            # Assign values
+            for i, d in enumerate(dfit._components.keys()):
+                dfit._components[d] = x[i]
+                d.DPn = 10**x[dim+i]
+                if isP2:
+                    d.PDI = x[2*dim+i]
+            yfit = dfit._cdf(xdata, 1, False)
+            return np.sum((yfit - ydata)**2)/ydata.size
+
+        # Initial guess and bounds
+        # We do a log transform on DPn to normalize the changes
+        x0 = np.concatenate([weight, np.log10(DPn)])
+        bounds = [(0, 1) for _ in range(dim)] + \
+            [(np.log10(3), np.log10(xdata[-1])) for _ in range(dim)]
+        if isP2:
+            x0 = np.concatenate([x0, PDI])
+            bounds += [(1.1, 5.) for _ in range(dim)]
+
+        # Equality constraint: w(1) + .. + w(N) = 1
+        A = np.zeros(x0.size)
+        A[:dim] = 1
+        constraint = optimize.LinearConstraint(A, 1, 1)
+        constraints = []
+        constraints.append(constraint)
+
+        # Inequality constraints: DPn(i) - DPn(i+1) <= 0
+        for i in range(dim-1):
+            A = np.zeros(x0.size)
+            A[dim+i] = 1
+            A[dim+i+1] = -1
+            constraint = optimize.LinearConstraint(A, -np.inf, 0)
+            constraints.append(constraint)
+
+        # Call fit method
+        # Tried all methods and 'trust-constr' is the most robust
+        solution = optimize.minimize(objective_fun,
+                                     x0=x0,
+                                     method='trust-constr',
+                                     bounds=bounds,
+                                     constraints=constraints,
+                                     options={'verbose': 0})
+        if solution.success:
+            if dim == 1:
+                dfit = next(iter(dfit._components))
+            dfit.name = self.name + "-fit"
+            result = dfit
         else:
-            print("Failed to fit distribution: ", solution[3])
+            print("Failed to fit distribution: ", solution.message)
+            result = None
 
-        return dfit
+        return result

@@ -255,7 +255,7 @@ def test_fit_itself(dist1, dist2):
         pdf_data *= rng.uniform(1-rnoise, 1+rnoise, pdf_data.size)
         d2 = DataDistribution(length_data, pdf_data,
                               kind=kind, M0=d.M0, name='data'+d.name)
-        dfit = d2.fit(type(d))
+        dfit = d2.fit(type(d), 1)
         for attr in ['DPn', 'DPw', 'DPz', 'Mn', 'Mw', 'Mz', 'PDI', 'M0']:
             assert (np.isclose(getattr(dfit, attr), getattr(d, attr),
                                rtol=rtol))
