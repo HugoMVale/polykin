@@ -210,7 +210,7 @@ class GeneralDistribution(Base, ABC):
         # x-axis vector
         npoints = 200
         if isinstance(self, MixtureDistribution):
-            npoints += 100*(len(self._components)-1)
+            npoints += 100*(len(self.components)-1)
         if xscale == 'log':
             x = np.geomspace(*xrange, npoints)  # type: ignore
         else:
@@ -684,16 +684,16 @@ class MixtureDistribution(GeneralDistribution):
                  name: str = ''
                  ) -> None:
 
-        self._components = components
+        self.__components = components
         self.name = name
 
     def __add__(self, other):
         if isinstance(other, MixtureDistribution):
-            return MixtureDistribution(add_dicts(self._components,
-                                                 other._components),
+            return MixtureDistribution(add_dicts(self.components,
+                                                 other.components),
                                        name=self.name+'+'+other.name)
         elif isinstance(other, IndividualDistribution):
-            return MixtureDistribution(add_dicts(self._components, {other: 1}),
+            return MixtureDistribution(add_dicts(self.components, {other: 1}),
                                        name=self.name+'+'+other.name)
         elif isinstance(other, (int, float)):
             return self
@@ -703,11 +703,48 @@ class MixtureDistribution(GeneralDistribution):
     def __radd__(self, other):
         return self.__add__(other)
 
+    def __iter__(self):
+        return self.components
+
+    @property
+    def components(self) -> dict:
+        """Individual components of the mixture distribution.
+
+        Returns
+        -------
+        dict[IndividualDistribution: float]
+            Dictionary of individual distributions and corresponding mass
+            weight.
+        """
+        return self.__components
+
+    @property
+    def components_table(self) -> str:
+        """Table of individual components of the mixture distribution.
+
+        Returns
+        -------
+        str
+            Table with key properties of each component.
+        """
+        spacer = f"{' '*3}"
+        header = [f"{'#':>2}", f"{'Weight':>6}", f"{'Distribution':>12}",
+                  f"{'DPn':>8}", f"{'DPw':>8}", f"{'PDI':>4}"]
+        header = (spacer).join(header)
+        ruler = f"{'-'*len(header)}"
+        table = [header, ruler]
+        for i, (d, w) in enumerate(self.components.items()):
+            row = [f"{i+1:2}", f"{w:>6.3f}",
+                   f"{d.__class__.__name__:>12}",
+                   f"{d.DPn:>4.2e}", f"{d.DPw:>4.2e}", f"{d.PDI:>4.2f}"]
+            table.append((spacer).join(row))
+        return ("\n").join(table)
+
     @property
     def _molefrac(self) -> ndarray:
         """Mole fraction of each individual distribution."""
-        xn = np.empty(len(self._components))
-        for i, (d, w) in enumerate(self._components.items()):
+        xn = np.empty(len(self.components))
+        for i, (d, w) in enumerate(self.__iter__().items()):
             xn[i] = w/d.Mn
         xn[:] /= xn.sum()
         return xn
@@ -715,7 +752,7 @@ class MixtureDistribution(GeneralDistribution):
     def _moment_mass(self, order, shift=0):
         xn = self._molefrac
         result = 0
-        for i, d in enumerate(self._components.keys()):
+        for i, d in enumerate(self.__iter__()):
             result += xn[i]*d._moment_mass(order, shift)
         return result
 
@@ -723,7 +760,7 @@ class MixtureDistribution(GeneralDistribution):
         xn = self._molefrac
         numerator = 0
         denominator = 0
-        for i, d in enumerate(self._components.keys()):
+        for i, d in enumerate(self.__iter__()):
             term1 = xn[i]*d._moment_mass(order)
             term2 = term1*d._pdf(size, order, sizeasmass)
             denominator += term1
@@ -734,7 +771,7 @@ class MixtureDistribution(GeneralDistribution):
         xn = self._molefrac
         numerator = 0
         denominator = 0
-        for i, d in enumerate(self._components.keys()):
+        for i, d in enumerate(self.__iter__()):
             term1 = xn[i]*d._moment_mass(order)
             term2 = term1*d._cdf(size, order, sizeasmass)
             denominator += term1
@@ -746,9 +783,9 @@ class MixtureDistribution(GeneralDistribution):
         """
         xrange = np.empty(2)
         xrange[0] = min([d._xrange_plot(sizeasmass)[0]
-                        for d in self._components.keys()])
+                        for d in self.__iter__()])
         xrange[1] = max([d._xrange_plot(sizeasmass)[1]
-                         for d in self._components.keys()])
+                         for d in self.__iter__()])
         return xrange
 
 # %% Aux functions

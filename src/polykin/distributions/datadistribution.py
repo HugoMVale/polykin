@@ -3,9 +3,8 @@
 from polykin.utils import vectorize, check_subclass
 from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 from polykin.distributions.baseclasses import \
-    IndividualDistribution, AnalyticalDistribution, \
-    AnalyticalDistributionP1, AnalyticalDistributionP2, \
-    MixtureDistribution
+    IndividualDistribution, MixtureDistribution,\
+    AnalyticalDistribution, AnalyticalDistributionP2
 
 import numpy as np
 from numpy import ndarray, dtype, float64
@@ -83,8 +82,26 @@ class DataDistribution(IndividualDistribution):
     def fit(self,
             dist_class: Union[type[Flory], type[Poisson], type[LogNormal],
                               type[SchulzZimm]],
-            dim: int = 1
+            dim: int = 1,
+            display_table: bool = True
             ) -> Union[AnalyticalDistribution, MixtureDistribution, None]:
+        """_summary_
+
+        Parameters
+        ----------
+        dist_class : Union[type[Flory], type[Poisson], type[LogNormal], type[SchulzZimm]]
+            Type of distribution to be used in the fit.
+        dim : int
+            Number of individual components to use in the fit.
+        display_table : bool
+            Option to display results table with information about individual
+            components.
+
+        Returns
+        -------
+        Union[AnalyticalDistribution, MixtureDistribution, None]
+            If fit successful, it returns the fitted distribution.
+        """
 
         check_subclass(dist_class, AnalyticalDistribution, 'dist_class')
         isP2 = issubclass(dist_class, AnalyticalDistributionP2)
@@ -111,8 +128,8 @@ class DataDistribution(IndividualDistribution):
 
         def objective_fun(x):
             # Assign values
-            for i, d in enumerate(dfit._components.keys()):
-                dfit._components[d] = x[i]
+            for i, d in enumerate(dfit.components.keys()):
+                dfit.components[d] = x[i]
                 d.DPn = 10**x[dim+i]
                 if isP2:
                     d.PDI = x[2*dim+i]
@@ -126,7 +143,7 @@ class DataDistribution(IndividualDistribution):
             [(np.log10(3), np.log10(xdata[-1])) for _ in range(dim)]
         if isP2:
             x0 = np.concatenate([x0, PDI])
-            bounds += [(1.1, 5.) for _ in range(dim)]
+            bounds += [(1.01, 5.) for _ in range(dim)]
 
         # Equality constraint: w(1) + .. + w(N) = 1
         A = np.zeros(x0.size)
@@ -152,8 +169,10 @@ class DataDistribution(IndividualDistribution):
                                      constraints=constraints,
                                      options={'verbose': 0})
         if solution.success:
+            if display_table:
+                print(dfit.components_table)
             if dim == 1:
-                dfit = next(iter(dfit._components))
+                dfit = next(iter(dfit.components))
             dfit.name = self.name + "-fit"
             result = dfit
         else:
