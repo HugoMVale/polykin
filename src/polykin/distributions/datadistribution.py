@@ -1,15 +1,14 @@
 # %% Data distribution
 
-from polykin.utils import vectorize, check_subclass
+from polykin.utils import vectorize, check_subclass, Vector
 from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
-from polykin.distributions.baseclasses import \
+from polykin.distributions.baseclasses import Kind, \
     IndividualDistribution, MixtureDistribution,\
     AnalyticalDistribution, AnalyticalDistributionP2
 
 import numpy as np
-from numpy import ndarray, dtype, float64
 from scipy import interpolate, integrate, optimize
-from typing import Any, Literal, Union
+from typing import Union
 import functools
 
 
@@ -20,9 +19,9 @@ class DataDistribution(IndividualDistribution):
     _continuous = True
 
     def __init__(self,
-                 size_data: Union[list[float], ndarray[Any, dtype[float64]]],
-                 pdf_data: Union[list[float], ndarray[Any, dtype[float64]]],
-                 kind: Literal['number', 'mass', 'gpc'] = 'mass',
+                 size_data: Vector,
+                 pdf_data: Vector,
+                 kind: Kind = 'mass',
                  sizeasmass: bool = False,
                  M0: float = 100,
                  name: str = ''
@@ -86,7 +85,7 @@ class DataDistribution(IndividualDistribution):
             display_table: bool = True
             ) -> Union[AnalyticalDistribution, MixtureDistribution, None]:
         """Fit (deconvolute) a `DataDistribution` into a linear combination of
-        `AnalyticalDistribution`s.
+        `AnalyticalDistribution`(s).
 
         Parameters
         ----------

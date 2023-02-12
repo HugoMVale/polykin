@@ -1,8 +1,8 @@
 # %% Base distribution classes
 
 from polykin.base import Base
-from polykin.utils import \
-    check_bounds, check_type, check_in_set, custom_error, add_dicts, vectorize
+from polykin.utils import check_bounds, check_type, check_in_set, \
+    custom_error, add_dicts, vectorize, Vector
 
 from math import log10
 import numpy as np
@@ -13,6 +13,12 @@ import matplotlib.pyplot as plt
 from typing import Any, Literal, Union
 from abc import ABC, abstractmethod
 import functools
+
+# %% Types
+
+Kind = Literal['number', 'mass', 'gpc']
+
+# %% Classes
 
 
 class GeneralDistribution(Base, ABC):
@@ -75,8 +81,8 @@ class GeneralDistribution(Base, ABC):
         return self.Mn / self.DPn
 
     def pdf(self,
-            size: Union[float, list[float], ndarray[Any, dtype[float64]]],
-            kind: Literal['number', 'mass', 'gpc'] = 'mass',
+            size: Union[float, Vector],
+            kind: Kind = 'mass',
             sizeasmass: bool = False,
             ) -> Union[float, ndarray[Any, dtype[float64]]]:
         r"""Evaluate the probability density function, $p(k)$.
@@ -106,7 +112,7 @@ class GeneralDistribution(Base, ABC):
         return self._pdf(size, order, sizeasmass)
 
     def cdf(self,
-            size: Union[float, list[float], ndarray[Any, dtype[float64]]],
+            size: Union[float, Vector],
             kind: Literal['number', 'mass'] = 'mass',
             sizeasmass: bool = False,
             ) -> Union[float, ndarray[Any, dtype[float64]]]:
@@ -150,7 +156,7 @@ class GeneralDistribution(Base, ABC):
         return result
 
     def plot(self,
-             kinds: Literal['number', 'mass', 'gpc'] = 'mass',
+             kinds: Union[Kind, list[Kind]] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: Union[list[float], tuple[float, float],
@@ -187,7 +193,7 @@ class GeneralDistribution(Base, ABC):
         check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
         check_in_set(cdf, {0, 1, 2}, 'cdf')
         if isinstance(kinds, str):
-            kinds = [kinds]  # type: ignore
+            kinds = [kinds]
 
         # x-axis scale
         if xscale == 'auto' and set(kinds) == {'gpc'}:

@@ -1,11 +1,15 @@
-from typing import Any, Union
 from collections.abc import Iterable
 import numbers
 import functools
 import numpy as np
+from numpy import ndarray, dtype, float64
+from typing import Union, Any
+
+# %% Own types
+Vector = Union[list[float], ndarray[Any, dtype[float64]]]
+
 
 # %% Check tools
-
 
 def custom_error(var_name: str,
                  var_value: Any,
