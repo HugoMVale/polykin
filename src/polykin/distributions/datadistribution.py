@@ -85,7 +85,8 @@ class DataDistribution(IndividualDistribution):
             dim: int = 1,
             display_table: bool = True
             ) -> Union[AnalyticalDistribution, MixtureDistribution, None]:
-        """_summary_
+        """Fit (deconvolute) a `DataDistribution` into a linear combination of
+        `AnalyticalDistribution`s.
 
         Parameters
         ----------
