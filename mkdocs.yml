@@ -76,8 +76,8 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/HugoMVale
-    #  - icon: fontawesome/brands/python
-    #    link: https://pypi.org/project/mkdocs-material/
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/polykin/
     - icon: fontawesome/brands/linkedin
       link: https://de.linkedin.com/in/hugo-vale-8b65948a
 
