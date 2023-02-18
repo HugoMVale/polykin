@@ -8,7 +8,10 @@ PolyKin is an open-source polymerization kinetics library for Python. It is stil
 development stage, but the following modules can already be used:
 
 - [x] distributions
-- [ ] copolymerization  
+- [ ] copolymerization
+- [ ] kinetics
+- [ ] database
+- [ ] models
 
 ## Documentation
 
