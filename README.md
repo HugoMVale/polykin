@@ -19,24 +19,26 @@ Please refer to the package [homepage](https://hugomvale.github.io/polykin/).
 The main features of PolyKin are explained and illustrated through a series of [tutorials](https://hugomvale.github.io/polykin/tutorials/distributions/) based on Jupyter [notebooks](https://github.com/HugoMVale/polykin/tree/main/docs/tutorials),
 which can be launched online via Binder.
 
+<p align="center">
+  <a href="https://github.com/HugoMVale/polykin">
+  <img src="https://raw.githubusercontent.com/HugoMVale/polykin/8e54e0b492b4dd782c2fe92b52f617dda71a29b3/docs/deconvolution.svg" width=600 alt="MWD of a polymer blend">
+  </a>
+</p>
+
 ## Installation
 
-PolyKin currently runs on Python>=3.9. You can install it from PyPI via `pip` (or `poetry`):
+PolyKin currently runs on Python 3.9+. You can install it from PyPI via `pip` (or `poetry`):
 
-```sh
+```console
 pip install polykin
 # poetry add polykin
 ```
 
 Alternatively, you may install it directly from the source code repository:
 
-```sh
+```console
 git clone https://github.com/HugoMVale/polykin.git
 cd polykin
 pip install . 
 # poetry install
 ```
-
-<p align="center">
-  <img src="https://github.com/HugoMVale/polykin/blob/main/docs/dist.png" width=600 alt="MWD of a polymer blend">
-</p>
