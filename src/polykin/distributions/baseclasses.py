@@ -116,7 +116,7 @@ class GeneralDistribution(Base, ABC):
             kind: Literal['number', 'mass'] = 'mass',
             sizeasmass: bool = False,
             ) -> Union[float, ndarray[Any, dtype[float64]]]:
-        r"""Evaluate the cumulative density function:
+        r"""Evaluate the cumulative distribution function:
 
         $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
 
@@ -326,7 +326,7 @@ class GeneralDistribution(Base, ABC):
              order: int,
              sizeasmass: bool = False
              ) -> Union[float, ndarray[Any, dtype[float64]]]:
-        """$m$-th order chain-length / molar mass cumulative density
+        """$m$-th order chain-length / molar mass cumulative distribution
         function."""
         pass
 
@@ -356,7 +356,10 @@ class IndividualDistribution(GeneralDistribution):
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
-            return MixtureDistribution({self: other}, name=self.name)
+            if other > 0:
+                return MixtureDistribution({self: other}, name=self.name)
+            else:
+                return MixtureDistribution({})
         else:
             return NotImplemented
 
@@ -474,12 +477,12 @@ class IndividualDistribution(GeneralDistribution):
                     x: Union[float, ndarray],
                     order: int
                     ) -> Union[float, ndarray[Any, dtype[float64]]]:
-        """Cumulative density function.
+        """Cumulative distribution function.
 
         This implementation is a general low-performance fallback solution.
         Preferably, child classes should implement a specific (e.g., analytic)
-        method delivering the cumulative density function for the number _and_
-        mass distribution.
+        method delivering the cumulative distribution function for the number
+        _and_ mass distribution.
 
         Parameters
         ----------
@@ -491,7 +494,7 @@ class IndividualDistribution(GeneralDistribution):
         Returns
         -------
         float | ndarray
-            Cumulative density value.
+            Cumulative distribution value.
         """
         return self._moment_quadrature(np.zeros_like(x), x, order) \
             / self._moment_length(order)
@@ -712,6 +715,15 @@ class MixtureDistribution(GeneralDistribution):
     def __iter__(self):
         return self.components
 
+    def __contains__(self, component):
+        return (component in self.components)
+
+    def __str__(self):
+        if len(self.components) > 0:
+            return super().__str__()
+        else:
+            return 'empty'
+
     @property
     def components(self) -> dict:
         """Individual components of the mixture distribution.
@@ -725,7 +737,7 @@ class MixtureDistribution(GeneralDistribution):
         return self.__components
 
     @property
-    def components_table(self) -> str:
+    def components_table(self) -> Union[str, None]:
         """Table of individual components of the mixture distribution.
 
         Returns
@@ -733,18 +745,21 @@ class MixtureDistribution(GeneralDistribution):
         str
             Table with key properties of each component.
         """
-        spacer = f"{' '*3}"
-        header = [f"{'#':>2}", f"{'Weight':>6}", f"{'Distribution':>12}",
-                  f"{'DPn':>8}", f"{'DPw':>8}", f"{'PDI':>4}"]
-        header = (spacer).join(header)
-        ruler = f"{'-'*len(header)}"
-        table = [header, ruler]
-        for i, (d, w) in enumerate(self.components.items()):
-            row = [f"{i+1:2}", f"{w:>6.3f}",
-                   f"{d.__class__.__name__:>12}",
-                   f"{d.DPn:>4.2e}", f"{d.DPw:>4.2e}", f"{d.PDI:>4.2f}"]
-            table.append((spacer).join(row))
-        return ("\n").join(table)
+        result = 'empty'
+        if len(self.components) > 0:
+            spacer = f"{' '*3}"
+            header = [f"{'#':>2}", f"{'Weight':>6}", f"{'Distribution':>12}",
+                      f"{'DPn':>8}", f"{'DPw':>8}", f"{'PDI':>4}"]
+            header = (spacer).join(header)
+            ruler = f"{'-'*len(header)}"
+            table = [header, ruler]
+            for i, (d, w) in enumerate(self.components.items()):
+                row = [f"{i+1:2}", f"{w:>6.3f}",
+                       f"{d.__class__.__name__:>12}",
+                       f"{d.DPn:>4.2e}", f"{d.DPw:>4.2e}", f"{d.PDI:>4.2f}"]
+                table.append((spacer).join(row))
+            result = ("\n").join(table)
+        return result
 
     @property
     def _molefrac(self) -> ndarray:
