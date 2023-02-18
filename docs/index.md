@@ -3,9 +3,9 @@
 `PolyKin` is an open-source polymerization kinetics library for Python. It is still in its
 infancy, but some modules are already in a functional state:
 
-- distributions
-- copolymerization  
+- [x] distributions
+- [ ] copolymerization  
  
 <p align="center">
-  <img src="https://github.com/HugoMVale/polykin/blob/main/docs/blend.svg" width=600 alt="MWD of a polymer blend">
+  <img src="blend.svg" width=600 alt="MWD of a polymer blend">
 </p>

@@ -91,6 +91,8 @@ markdown_extensions:
       smart_enable: all
   - pymdownx.arithmatex:
       generic: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
 
 extra_javascript:
   - javascripts/mathjax.js
