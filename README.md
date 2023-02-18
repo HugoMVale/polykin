@@ -35,8 +35,8 @@ pip install .
 
 ## Examples, tutorials
 
-For each subpackage, there is a comprehensive [tutorial](https://hugomvale.github.io/polykin/tutorials/distributions/)
- based on a set of Jupyter [notebooks](https://github.com/HugoMVale/polykin/tree/main/docs/tutorials).
+For all modules, there are comprehensive [tutorials](https://hugomvale.github.io/polykin/tutorials/distributions/)
+ based on Jupyter [notebooks](https://github.com/HugoMVale/polykin/tree/main/docs/tutorials).
 
 <p align="center">
   <img src="https://github.com/HugoMVale/polykin/blob/main/docs/blend.svg" width=600 alt="MWD of a polymer blend">

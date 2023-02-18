@@ -105,5 +105,6 @@ nav:
       - installation.md
   - Tutorials:
       - Distributions: "tutorials/distributions.ipynb"
+      - Copolymerization: "tutorials/copolymerization.ipynb"
   - Code Reference:
       - Distributions: "reference/distributions.md"
