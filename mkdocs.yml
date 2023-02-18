@@ -100,7 +100,7 @@ extra_javascript:
 nav:
   - Home: index.md
   - Getting Started:
-      - Installation: installation.md
+      - installation.md
   - Tutorials:
       - Distributions: "tutorials/distributions.ipynb"
   - Code Reference:
