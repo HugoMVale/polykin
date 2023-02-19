@@ -62,6 +62,13 @@ def test_inputs():
         d.cdf(1, sizeas='notvalid')
 
 
+def test_sort(dist1, dist2):
+    distributions = dist1 + dist2
+    d1 = distributions[0]
+    for d2 in distributions[1:]:
+        assert (d1 > d2) == (d1.Mw > d2.Mw)
+
+
 def test_pdf_discrete_sum(dist1):
     """For all discrete distributions, we should get sum(pdf)=1
     """

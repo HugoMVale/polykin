@@ -40,6 +40,12 @@ class GeneralDistribution(Base, ABC):
             f"Mw:   {self.Mw:,.0f} {unit_M}\n" + \
             f"Mz:   {self.Mz:,.0f} {unit_M}"
 
+    def __lt__(self, other) -> bool:
+        if isinstance(other, GeneralDistribution):
+            return self.Mw < other.Mw
+        else:
+            return NotImplemented
+
     @property
     def DPn(self) -> float:
         r"""Number-average degree of polymerization, $DP_n$."""
