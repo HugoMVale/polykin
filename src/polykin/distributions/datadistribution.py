@@ -1,6 +1,6 @@
 # %% Data distribution
 
-from polykin.utils import vectorize, check_subclass, Vector
+from polykin.utils import vectorize, check_subclass, FloatArrayLike
 from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 from polykin.distributions.baseclasses import Kind, \
     IndividualDistribution, MixtureDistribution,\
@@ -19,8 +19,8 @@ class DataDistribution(IndividualDistribution):
     _continuous = True
 
     def __init__(self,
-                 size_data: Vector,
-                 pdf_data: Vector,
+                 size_data: FloatArrayLike,
+                 pdf_data: FloatArrayLike,
                  kind: Kind = 'mass',
                  sizeasmass: bool = False,
                  M0: float = 100,
