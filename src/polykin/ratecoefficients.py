@@ -39,12 +39,12 @@ class KineticCoefficient(Base, ABC):
             TK = T
         else:
             TK = T + 273.15
-        if np.any(TK < 0):
+        if np.any(TK < 0):  # adds 5 us
             raise ValueError("Invalid `T` input.")
-        return self._expression(TK)
+        return self.eval(TK)
 
     @abstractmethod
-    def _expression(self, TK: FloatOrArray) -> FloatOrArray:
+    def eval(self, TK: FloatOrArray) -> FloatOrArray:
         pass
 
 
@@ -80,7 +80,7 @@ class Arrhenius(KineticCoefficient):
         self.T0 = T0 + 273.15
         self.name = name
 
-    def _expression(self, TK):
+    def eval(self, TK):
         return self.k0*np.exp(-self.EaR*(1/TK - 1/self.T0))
 
 
@@ -110,5 +110,5 @@ class Eyring(KineticCoefficient):
         self.kappa = kappa
         self.name = name
 
-    def _expression(self, TK):
+    def eval(self, TK):
         return self.kappa*Boltzmann*TK/Planck*np.exp(-self.DGa/(gas_constant*TK))
