@@ -2,7 +2,7 @@
 
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, \
-    custom_error, add_dicts, vectorize, Vector
+    custom_error, add_dicts, vectorize, FloatOrArrayLike, FloatOrArray
 
 from math import log10
 import numpy as np
@@ -87,10 +87,10 @@ class GeneralDistribution(Base, ABC):
         return self.Mn / self.DPn
 
     def pdf(self,
-            size: Union[float, Vector],
+            size: FloatOrArrayLike,
             kind: Kind = 'mass',
             sizeasmass: bool = False,
-            ) -> Union[float, ndarray[Any, dtype[float64]]]:
+            ) -> FloatOrArray:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
@@ -118,10 +118,10 @@ class GeneralDistribution(Base, ABC):
         return self._pdf(size, order, sizeasmass)
 
     def cdf(self,
-            size: Union[float, Vector],
+            size: FloatOrArrayLike,
             kind: Literal['number', 'mass'] = 'mass',
             sizeasmass: bool = False,
-            ) -> Union[float, ndarray[Any, dtype[float64]]]:
+            ) -> FloatOrArray:
         r"""Evaluate the cumulative distribution function:
 
         $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
@@ -328,10 +328,10 @@ class GeneralDistribution(Base, ABC):
 
     @abstractmethod
     def _cdf(self,
-             size: Union[float, ndarray],
+             size: FloatOrArray,
              order: int,
              sizeasmass: bool = False
-             ) -> Union[float, ndarray[Any, dtype[float64]]]:
+             ) -> FloatOrArray:
         """$m$-th order chain-length / molar mass cumulative distribution
         function."""
         pass
@@ -480,9 +480,9 @@ class IndividualDistribution(GeneralDistribution):
         return result
 
     def _cdf_length(self,
-                    x: Union[float, ndarray],
+                    x: FloatOrArray,
                     order: int
-                    ) -> Union[float, ndarray[Any, dtype[float64]]]:
+                    ) -> FloatOrArray:
         """Cumulative distribution function.
 
         This implementation is a general low-performance fallback solution.
@@ -531,8 +531,8 @@ class IndividualDistribution(GeneralDistribution):
 
     @abstractmethod
     def _pdf0_length(self,
-                     k: Union[float, ndarray]
-                     ) -> Union[float, ndarray[Any, dtype[float64]]]:
+                     k: FloatOrArray
+                     ) -> FloatOrArray:
         """Probability density/mass function.
 
         Each child class must implement a method delivering the _number_
