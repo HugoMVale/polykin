@@ -2,7 +2,7 @@
 
 from polykin.utils import FloatOrArray, FloatOrArrayLike, check_bounds
 from polykin.base import Base
-from scipy.constants import Planck, Boltzmann, gas_constant
+from scipy.constants import h, R, Boltzmann as kB
 
 import numpy as np
 from numpy import ndarray
@@ -111,4 +111,4 @@ class Eyring(KineticCoefficient):
         self.name = name
 
     def eval(self, TK):
-        return self.kappa*Boltzmann*TK/Planck*np.exp(-self.DGa/(gas_constant*TK))
+        return self.kappa*kB*TK/h*np.exp(-self.DGa/(R*TK))
