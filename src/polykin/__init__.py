@@ -12,6 +12,7 @@ Using any of these subpackages requires an explicit import. For example,
 
 """
 
+from polykin.ratecoefficients import Arrhenius, Eyring
 from pathlib import Path
 
 __version__ = (Path(__file__).resolve().parent / "_version.txt").read_text(
