@@ -5,7 +5,6 @@ from polykin.base import Base
 from scipy.constants import h, R, Boltzmann as kB
 
 import numpy as np
-from numpy import ndarray
 from abc import ABC, abstractmethod
 
 
@@ -64,10 +63,10 @@ class Arrhenius(KineticCoefficient):
             T0 = np.asarray(T0, dtype=np.float64)
 
         # check shape consistency
-        if isinstance(k0, ndarray):
-            if not isinstance(EaR, ndarray) or not (k0.shape == EaR.shape):
+        if isinstance(k0, np.ndarray):
+            if not isinstance(EaR, np.ndarray) or not (k0.shape == EaR.shape):
                 raise ValueError("Shapes of `k0` and `EaR` are inconsistent.")
-            if isinstance(T0, ndarray) and not (k0.shape == T0.shape):
+            if isinstance(T0, np.ndarray) and not (k0.shape == T0.shape):
                 raise ValueError("Shapes of `k0` and `T0` are inconsistent.")
 
         # check bounds
@@ -97,8 +96,9 @@ class Eyring(KineticCoefficient):
         if isinstance(kappa, list):
             kappa = np.asarray(kappa, dtype=np.float64)
 
-        if isinstance(kappa, ndarray):
-            if not isinstance(DGa, ndarray) or not (kappa.shape == DGa.shape):
+        if isinstance(kappa, np.ndarray):
+            if not isinstance(DGa, np.ndarray) or \
+                    not (kappa.shape == DGa.shape):
                 raise ValueError(
                     "Shapes of `DGa` and `kappa` are inconsistent.")
 
@@ -112,3 +112,5 @@ class Eyring(KineticCoefficient):
 
     def eval(self, TK):
         return self.kappa*kB*TK/h*np.exp(-self.DGa/(R*TK))
+
+# %%
