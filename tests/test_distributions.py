@@ -3,7 +3,6 @@ from polykin.distributions import \
 
 import numpy as np
 import scipy.integrate as integrate
-from copy import copy
 import pytest
 
 
