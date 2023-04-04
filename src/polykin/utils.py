@@ -2,10 +2,15 @@ from collections.abc import Iterable
 import numbers
 import functools
 import numpy as np
-from numpy import ndarray, dtype, float64
+from numpy import ndarray, dtype, float64, int32
 from typing import Union, Any
 
 # %% Own types
+
+IntArray = ndarray[Any, dtype[int32]]
+IntArrayLike = Union[list[int], IntArray]
+IntOrArray = Union[int, IntArray]
+IntOrArrayLike = Union[int, IntArrayLike]
 
 FloatArray = ndarray[Any, dtype[float64]]
 FloatArrayLike = Union[list[int], list[float], FloatArray]
