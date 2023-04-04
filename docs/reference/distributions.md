@@ -21,7 +21,7 @@
         show_root_toc_entry: false
         inherited_members: true
 
-## Schulz-Zimm
+## SchulzZimm
 
 ::: polykin.distributions.SchulzZimm
     options:
