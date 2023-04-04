@@ -2,20 +2,23 @@ from collections.abc import Iterable
 import numbers
 import functools
 import numpy as np
-from numpy import ndarray, dtype, float64, int32
 from typing import Union, Any
+from nptyping import NDArray, Shape, Int32, Float64
 
 # %% Own types
 
-IntArray = ndarray[Any, dtype[int32]]
+IntArray = NDArray[Any, Int32]
 IntArrayLike = Union[list[int], IntArray]
 IntOrArray = Union[int, IntArray]
 IntOrArrayLike = Union[int, IntArrayLike]
 
-FloatArray = ndarray[Any, dtype[float64]]
-FloatArrayLike = Union[list[int], list[float], FloatArray]
+FloatArray = NDArray[Any, Float64]
+FloatArrayLike = Union[list[float], FloatArray]
 FloatOrArray = Union[int, float, FloatArray]
 FloatOrArrayLike = Union[int, float, FloatArrayLike]
+
+FloatVector = NDArray[Shape['*'], Float64]
+FloatVectorLike = Union[list[float], FloatVector]
 
 # %% Check tools
 
@@ -133,11 +136,11 @@ def check_subclass(myobject: Any,
         )
 
 
-def check_bounds(x: Union[float, ndarray],
+def check_bounds(x: Union[float, np.ndarray],
                  xmin: float,
                  xmax: float,
                  xname: str
-                 ) -> Union[float, ndarray, None]:
+                 ) -> Union[float, np.ndarray, None]:
     """Check if a numerical value is between given bounds.
 
     Example:
@@ -164,11 +167,11 @@ def check_bounds(x: Union[float, ndarray],
     """
     if isinstance(x, numbers.Number) and (x >= xmin) and (x <= xmax):
         return x
-    elif isinstance(x, ndarray) and \
+    elif isinstance(x, np.ndarray) and \
             np.all(np.logical_and.reduce((x >= xmin, x <= xmax))):
         return x
     else:
-        check_type(x, (numbers.Number, ndarray), xname)
+        check_type(x, (numbers.Number, np.ndarray), xname)
         custom_error(
             xname, x, ValueError, f"Valid `{xname}` range is [{xmin}, {xmax}]."
         )
