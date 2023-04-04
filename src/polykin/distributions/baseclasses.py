@@ -730,6 +730,9 @@ class MixtureDistribution(GeneralDistribution):
         else:
             return 'empty'
 
+    def __bool__(self):
+        return bool(self.components)
+
     @property
     def components(self) -> dict:
         """Individual components of the mixture distribution.
@@ -752,7 +755,7 @@ class MixtureDistribution(GeneralDistribution):
             Table with key properties of each component.
         """
         result = 'empty'
-        if len(self.components) > 0:
+        if self.components:
             spacer = f"{' '*3}"
             header = [f"{'#':>2}", f"{'Weight':>6}", f"{'Distribution':>12}",
                       f"{'DPn':>8}", f"{'DPw':>8}", f"{'PDI':>4}"]
@@ -832,8 +835,8 @@ def plotdists(dists: list[GeneralDistribution],
         ax.twinx()
 
     # Title
-    titles = {'number': 'Number', 'mass': 'Mass', 'gpc': 'GPC'}
     if title is None:
+        titles = {'number': 'Number', 'mass': 'Mass', 'gpc': 'GPC'}
         title = f"{titles.get(kind,'')} distributions"
     fig.suptitle(title)
 
