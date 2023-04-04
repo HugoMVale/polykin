@@ -1,6 +1,8 @@
 ### Python ###
 
-notes.md 
+biblio
+notes.md
+.python-version
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
