@@ -58,10 +58,10 @@ plugins:
         python:
           paths: [src]
           options:
-            show_category_heading: true
+            show_category_heading: True
             show_source: true
             docstring_style: "numpy"
-            merge_init_into_class: yes
+            merge_init_into_class: False
             # inherited_members: true
   - mkdocs-jupyter:
       include: ["*.ipynb"]
@@ -108,3 +108,4 @@ nav:
       - Copolymerization: "tutorials/copolymerization.ipynb"
   - Code Reference:
       - Distributions: "reference/distributions.md"
+      - Coefficients: "reference/coefficients.md"
