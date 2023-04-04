@@ -26,6 +26,7 @@ pydantic = "^1.10.5"
 numpy = "^1.24.2"
 scipy = "^1.10.1"
 matplotlib = "^3.7.1"
+nptyping = "^2.5.0"
 
 [tool.poetry.group.dev]
 optional = true
