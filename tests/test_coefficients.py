@@ -38,8 +38,8 @@ def test_input_validation():
 
 
 def test_evaluation_Arrhenius():
-    k0 = [1, 1]
-    EaR = [2000, 4000]
+    k0 = [1., 1.]
+    EaR = [2000., 4000.]
     T0 = 400
     k = Arrhenius(k0, EaR, T0, 'test')
     assert np.all((np.isclose(k(T0, True), k0)))
@@ -53,7 +53,7 @@ def test_evaluation_Eyring():
     DSa = [1e2, 0]
     DHa = [0, 73.5e3]
     kappa = [0.5, 1]
-    Tref = 300
+    Tref = 300.
     k = Eyring(DSa, DHa, kappa, 'test')
     assert np.all((np.isclose(k(2*Tref, True)[0]/k(Tref, True)[0], 2)))
     assert (np.isclose(k(Tref, True)[-1], 1, rtol=0.1))
