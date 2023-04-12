@@ -10,6 +10,7 @@ import mpmath
 from numpy import int64, float64, dtype, ndarray
 from scipy import integrate
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from typing import Any, Literal, Union
 from abc import ABC, abstractmethod
 import functools
@@ -824,7 +825,8 @@ class MixtureDistribution(GeneralDistribution):
 def plotdists(dists: list[GeneralDistribution],
               kind: Literal['number', 'mass', 'gpc'],
               title: Union[str, None] = None,
-              **kwargs):
+              **kwargs
+              ) -> Figure:
 
     # Check input
     kind = GeneralDistribution._verify_kind(kind)
