@@ -7,19 +7,51 @@ from scipy.constants import h, R, Boltzmann as kB
 
 import numpy as np
 from abc import ABC, abstractmethod
-from typing import Any, Union
+from typing import Union
 
 
 class Coefficient(Base, ABC):
     """Abstract coefficient."""
-    pass
+
+    def __init__(self):
+        self._shape = None
+
+    @property
+    def shape(self):
+        return self._shape
+
+    @staticmethod
+    def _check_shapes(a: list, b: list) -> Union[None, tuple[int, ...]]:
+        """Check shape homogeneity between objects in lists `a` and `b`.
+
+        Rules:
+        - All objects in `a` must have the same shape, i.e. either all floats
+        or all arrays with same shape.
+        - Objects in `b` that are arrays, must have identical shape to the
+        objects in `a`.
+        """
+        check_a = True
+        check_b = True
+        shape = None
+        shapes_a = [elem.shape for elem in a if isinstance(elem, np.ndarray)]
+        shapes_b = [elem.shape for elem in b if isinstance(elem, np.ndarray)]
+        if shapes_a:
+            if len(shapes_a) != len(a) or len(set(shapes_a)) != 1:
+                check_a = False
+            else:
+                shape = shapes_a[0]
+        if shapes_b:
+            if len(set(shapes_a + shapes_b)) != 1:
+                check_b = False
+
+        if not (check_a and check_b):
+            raise ValueError("Inputs have inconsistent shapes.")
+
+        return shape
 
 
 class CoefficientT(Coefficient):
     """Abstract temperature dependent coefficient."""
-
-    def __init__(self):
-        self._shape = None
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -52,39 +84,6 @@ class CoefficientT(Coefficient):
     @abstractmethod
     def eval(self, T: FloatOrArray) -> FloatOrArray:
         pass
-
-    @property
-    def shape(self):
-        return self._shape
-
-    @staticmethod
-    def _check_shapes(a: list, b: list) -> Union[None, Any]:
-        """Check shape homogeneity between objects in lists `a` and `b`.
-
-        Rules:
-        - All objects in `a` must have the same shape, i.e. either all floats
-        or all arrays with same shape.
-        - Objects in `b` that are arrays, must have identical shape to the
-        objects in `a`.
-        """
-        check_a = True
-        check_b = True
-        shape = None
-        shapes_a = [elem.shape for elem in a if isinstance(elem, np.ndarray)]
-        shapes_b = [elem.shape for elem in b if isinstance(elem, np.ndarray)]
-        if shapes_a:
-            if len(shapes_a) != len(a) or len(set(shapes_a)) != 1:
-                check_a = False
-            else:
-                shape = shapes_a[0]
-        if shapes_b:
-            if len(set(shapes_a + shapes_b)) != 1:
-                check_b = False
-
-        if not (check_a and check_b):
-            raise ValueError("Inputs have inconsistent shapes.")
-
-        return shape
 
 
 class Arrhenius(CoefficientT):
@@ -134,7 +133,8 @@ class Eyring(CoefficientT):
     r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) coefficient,
     with temperature dependence given by:
 
-    $$ k(T)=\dfrac{\kappa k_B T}{h} \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
+    $$ k(T)=\dfrac{\kappa k_B T}{h} \\
+        \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
         \exp\left(-\frac{\Delta H^\ddagger}{R T}\right)$$
 
     where $\kappa$ is the transmission coefficient, $\Delta S^\ddagger$ is
@@ -187,13 +187,13 @@ class TerminationCompositeModel(CoefficientCLD):
     with:
 
     $$ k_t(i,i)=\begin{cases}
-    k_t(1,1)i^{-\alpha_S}& \text{ if } i \leq i_{crit} \\
-    k_t(1,1)i_{crit}^{-(\alpha_S-\alpha_L)} i^{-\alpha_L} & \text{ if } i > i_{crit}
+    k_t(1,1)i^{-\alpha_S}& \text{if} i \leq i_{crit} \\
+    k_t(1,1)i_{crit}^{-(\alpha_S-\alpha_L)}i^{-\alpha_L} & \text{if} i>i_{crit}
     \end{cases}
     $$
 
     where $k_t(1,1)$ is the temperature-dependent termination rate coefficient
-    between two monomeric radicals, $i_{crit}$ is the critical chain length, 
+    between two monomeric radicals, $i_{crit}$ is the critical chain length,
     $\alpha_S$ is the short-chain exponent, and $\alpha_L$ is the long-chain
     exponent.
     """
