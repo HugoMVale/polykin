@@ -13,15 +13,15 @@ from typing import Union
 class Coefficient(Base, ABC):
     """Abstract coefficient."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._shape = None
 
     @property
-    def shape(self):
+    def shape(self) -> Union[tuple[int, ...], None]:
         return self._shape
 
     @staticmethod
-    def _check_shapes(a: list, b: list) -> Union[None, tuple[int, ...]]:
+    def _check_shapes(a: list, b: list) -> Union[tuple[int, ...], None]:
         """Check shape homogeneity between objects in lists `a` and `b`.
 
         Rules:
@@ -102,7 +102,8 @@ class Arrhenius(CoefficientT):
                  k0: FloatOrArrayLike,
                  EaR: FloatOrArrayLike,
                  T0: FloatOrArrayLike = np.inf,
-                 name: str = ''):
+                 name: str = ''
+                 ) -> None:
 
         # convert lists to arrays
         if isinstance(k0, list):
@@ -146,7 +147,8 @@ class Eyring(CoefficientT):
                  DSa: FloatOrArrayLike,
                  DHa: FloatOrArrayLike,
                  kappa: FloatOrArrayLike = 1,
-                 name: str = ''):
+                 name: str = ''
+                 ) -> None:
 
         # convert lists to arrays
         if isinstance(DSa, list):
@@ -203,7 +205,8 @@ class TerminationCompositeModel(CoefficientCLD):
                  icrit: int,
                  alpha_short: float,
                  alpha_long: float,
-                 name: str = ''):
+                 name: str = ''
+                 ) -> None:
 
         check_bounds(icrit, 1, 200, 'icrit')
         check_bounds(alpha_short, 0, 1, 'alpha_short')
