@@ -14,7 +14,5 @@ Using any of these subpackages requires an explicit import. For example,
 
 from polykin.coefficients import Arrhenius, Eyring, \
     TerminationCompositeModel
-from pathlib import Path
 
-__version__ = (Path(__file__).resolve().parent / "_version.txt").read_text(
-    encoding="utf-8")
+__version__ = "0.1.0"
