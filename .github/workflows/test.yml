@@ -1,9 +1,9 @@
-name: build
+name: Test
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  test:
     name: ${{ matrix.os }} / ${{ matrix.python-version }}
     runs-on: ${{ matrix.image }}
     strategy:
