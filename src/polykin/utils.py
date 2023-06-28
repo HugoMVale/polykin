@@ -20,6 +20,20 @@ FloatOrArrayLike = Union[int, float, FloatArrayLike]
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
 
+# %% Maths
+
+eps = float(np.finfo(np.float64).eps)
+
+# %% Custom exceptions
+
+
+class RangeWarning(Warning):
+    pass
+
+
+class RangeError(ValueError):
+    pass
+
 # %% Check tools
 
 
@@ -173,7 +187,7 @@ def check_bounds(x: Union[float, np.ndarray],
     else:
         check_type(x, (numbers.Number, np.ndarray), xname)
         custom_error(
-            xname, x, ValueError, f"Valid `{xname}` range is [{xmin}, {xmax}]."
+            xname, x, RangeError, f"Valid `{xname}` range is [{xmin}, {xmax}]."
         )
 
 
