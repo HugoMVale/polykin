@@ -23,7 +23,7 @@ Kind = Literal['number', 'mass', 'gpc']
 
 
 class GeneralDistribution(Base, ABC):
-    """Abstract class for all chain-length distributions."""
+    r"""_Abstract_ class for all chain-length distributions."""
 
     kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
     units = {'molar_mass': 'g/mol'}
@@ -96,7 +96,7 @@ class GeneralDistribution(Base, ABC):
 
         Parameters
         ----------
-        size : float | list | ndarray
+        size : FloatOrArrayLike
             Chain length or molar mass.
         kind : Literal['number', 'mass', 'gpc']
             Kind of distribution.
@@ -106,7 +106,7 @@ class GeneralDistribution(Base, ABC):
 
         Returns
         -------
-        float | ndarray
+        FloatOrArray
             Probability density.
         """
         # Check inputs
@@ -135,7 +135,7 @@ class GeneralDistribution(Base, ABC):
 
         Parameters
         ----------
-        size : float | list | ndarray
+        size : FloatOrArrayLike
             Chain length or molar mass.
         kind : Literal['number', 'mass']
             Kind of distribution.
@@ -145,7 +145,7 @@ class GeneralDistribution(Base, ABC):
 
         Returns
         -------
-        float | ndarray
+        FloatOrArray
             Cumulative probability.
         """
         # Check inputs
@@ -183,15 +183,15 @@ class GeneralDistribution(Base, ABC):
             *mass* (if `True`).
         xscale : Literal['auto', 'linear', 'log']
             x-axis scale.
-        xrange : Union[list, tuple, ndarray]
+        xrange : list | tuple | ndarray
             x-axis range.
         cdf : Literal[0, 1, 2]
             y-axis where cdf is displayed. If `0` the cdf if not displayed; if
             `1` the cdf is displayed on the primary y-axis; if `2` the cdf is
             displayed on the secondary axis.
-        title: Union[str, None]
+        title: str | None
             Title
-        axes : Union[plt.Axes, None]
+        axes : list[plt.Axes] | None
             Matplotlib Axes object.
         """
         # Check inputs
@@ -357,7 +357,7 @@ class GeneralDistribution(Base, ABC):
 
 
 class IndividualDistribution(GeneralDistribution):
-    """Abstract class for all individual chain-length distributions."""
+    """_Abstract_ class for all individual chain-length distributions."""
 
     _continuous = True
 
@@ -460,16 +460,16 @@ class IndividualDistribution(GeneralDistribution):
         Parameters
         ----------
         xa : float
-            lower limit of the partial sum / integral.
+            Lower limit of the partial sum / integral.
         xb : float
-            upper limit of the partial sum / integral.
+            Upper limit of the partial sum / integral.
         order : int
-            moment order.
+            Moment order.
 
         Returns
         -------
         float
-            numerical approximation to partial moment.
+            Numerical approximation to partial moment.
         """
         # cast to float is required to use mpmath with ufuncs
         def f(z): return (z**order)*self._pdf0_length(float(z))
@@ -484,7 +484,7 @@ class IndividualDistribution(GeneralDistribution):
                     x: FloatOrArray,
                     order: int
                     ) -> FloatOrArray:
-        """Cumulative distribution function.
+        r"""Cumulative distribution function.
 
         This implementation is a general low-performance fallback solution.
         Preferably, child classes should implement a specific (e.g., analytic)
@@ -493,14 +493,14 @@ class IndividualDistribution(GeneralDistribution):
 
         Parameters
         ----------
-        x : float | ndarray
+        x : FloatOrArray
             Chain length.
         order : int
             Order of the distribution (0: number, 1: mass).
 
         Returns
         -------
-        float | ndarray
+        FloatOrArray
             Cumulative distribution value.
         """
         return self._moment_quadrature(np.zeros_like(x), x, order) \
@@ -510,7 +510,7 @@ class IndividualDistribution(GeneralDistribution):
     def _moment_length(self,
                        order: int
                        ) -> float:
-        """Chain-length moments of the _number_ probability density/mass
+        r"""Chain-length moments of the _number_ probability density/mass
         function.
 
         This implementation is a general low-performance fallback solution.
@@ -534,26 +534,36 @@ class IndividualDistribution(GeneralDistribution):
     def _pdf0_length(self,
                      k: FloatOrArray
                      ) -> FloatOrArray:
-        """Probability density/mass function.
+        r"""Probability density/mass function.
 
         Each child class must implement a method delivering the _number_
         probability density/mass function.
 
         Parameters
         ----------
-        k : float | ndarray
+        k : FloatOrArray
             Chain length.
 
         Returns
         -------
-        float | ndarray
+        FloatOrArray
             Probability density/mass value.
         """
         pass
 
 
 class AnalyticalDistribution(IndividualDistribution):
-    """Abstract class for all analytical chain-length distributions."""
+    r"""_Abstract_ class for all analytical chain-length distributions.
+
+    Parameters
+    ----------
+    DPn : int
+        Number-average degree of polymerization, $DP_n$.
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name
+    """
 
     # (min-DPn, max-DPn)
     _pbounds = ((2,), (np.Inf,))
@@ -564,17 +574,7 @@ class AnalyticalDistribution(IndividualDistribution):
                  M0: float = 100.0,
                  name: str = ''
                  ) -> None:
-        """Initialize 1-parameter analytical distribution.
 
-        Parameters
-        ----------
-        DPn : int
-            Number-average degree of polymerization, $DP_n$.
-        M0 : float
-            Molar mass of the repeating unit, $M_0$.
-        name : str
-            Name
-        """
         self.DPn = DPn
         self.M0 = M0
         self.name = name
@@ -620,9 +620,9 @@ class AnalyticalDistribution(IndividualDistribution):
 
     @abstractmethod
     def _random_length(self,
-                       size: Union[int, tuple, None],
+                       size: Union[int, tuple[int, ...], None],
                        ) -> Union[int, ndarray[Any, dtype[int64]]]:
-        """Random chain-length generator.
+        r"""Random chain-length generator.
 
         Each child class must implement a method to generate random chain
         lengths according to the statistics of the corresponding number
@@ -642,12 +642,26 @@ class AnalyticalDistribution(IndividualDistribution):
 
 
 class AnalyticalDistributionP1(AnalyticalDistribution):
-    """Abstract class for 1-parameter analytical chain-length distributions."""
+    r"""_Abstract_ class for 1-parameter analytical chain-length distributions.
+    """
     pass
 
 
 class AnalyticalDistributionP2(AnalyticalDistribution):
-    """Abstract class for 2-parameter analytical chain-length distributions."""
+    r"""_Abstract_ class for 2-parameter analytical chain-length distributions.
+
+    Parameters
+    ----------
+    DPn : int
+        Number-average degree of polymerization, $DP_n$.
+    PDI : float
+        Polydispersity index, $PDI$.
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name.
+
+    """
 
     # ((min-DPn, min-PDI), (max-DPn, max-PDI))
     _pbounds = ((2, 1.000001), (np.Inf, np.Inf))
@@ -658,19 +672,7 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
                  M0: float = 100.0,
                  name: str = ''
                  ) -> None:
-        """Initialize 2-parameter analytical chain-length distribution.
 
-        Parameters
-        ----------
-        DPn : int
-            Number-average degree of polymerization, $DP_n$.
-        PDI : float
-            Polydispersity index, $PDI$.
-        M0 : float
-            Molar mass of the repeating unit, $M_0$.
-        name : str
-            Name.
-        """
         super().__init__(DPn=DPn, M0=M0, name=name)
         self.PDI = PDI
 
@@ -693,7 +695,16 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
 
 
 class MixtureDistribution(GeneralDistribution):
-    """Mixture chain-length distribution."""
+    r"""Mixture chain-length distribution.
+
+    This kind of distributions are instantiated _indirectly_ by doing linear
+    combinations of `IndividualDistribution` objects.
+
+    Example
+    -------
+    >>> blend = 2.0*Flory(100, name='A') + 1.0*Poisson(50, name='B')
+
+    """
 
     def __init__(self,
                  components: dict[IndividualDistribution, float],
@@ -736,7 +747,7 @@ class MixtureDistribution(GeneralDistribution):
 
     @property
     def components(self) -> dict:
-        """Individual components of the mixture distribution.
+        r"""Individual components of the mixture distribution.
 
         Returns
         -------
@@ -748,7 +759,7 @@ class MixtureDistribution(GeneralDistribution):
 
     @property
     def components_table(self) -> Union[str, None]:
-        """Table of individual components of the mixture distribution.
+        r"""Table of individual components of the mixture distribution.
 
         Returns
         -------
@@ -827,11 +838,27 @@ def plotdists(dists: list[GeneralDistribution],
               title: Union[str, None] = None,
               **kwargs
               ) -> Figure:
+    """Plot a list of distributions in a joint plot.
+
+    Parameters
+    ----------
+    dists : list[GeneralDistribution]
+        List of distributions to be ploted together.
+    kind : Literal['number', 'mass', 'gpc']
+        Kind of distribution.
+    title : str | None
+        Title of plot.
+
+    Returns
+    -------
+    Figure
+        Matplotlib Figure object holding the joint plot.
+    """
 
     # Check input
     kind = GeneralDistribution._verify_kind(kind)
 
-    # Create matplot and axes objects
+    # Create matplotlib objects
     fig, ax = plt.subplots(1, 1)
     if kwargs.get('cdf', 1) == 2:
         ax.twinx()
@@ -842,7 +869,7 @@ def plotdists(dists: list[GeneralDistribution],
         title = f"{titles.get(kind,'')} distributions"
     fig.suptitle(title)
 
-    # Build plots sequentially
+    # Draw plots sequentially
     for d in dists:
         d.plot(kinds=kind, axes=fig.axes, **kwargs)
 

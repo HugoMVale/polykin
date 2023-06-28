@@ -15,6 +15,22 @@ import functools
 class DataDistribution(IndividualDistribution):
     """Arbitrary numerical chain-length distribution, defined by chain size
     and pdf data.
+
+    Parameters
+    ----------
+    size_data : FloatArrayLike
+        Chain length or molar mass data.
+    pdf_data : FloatArrayLike
+        Distribution data.
+    kind : Literal['number', 'mass', 'gpc']
+        Kind of distribution.
+    sizeasmass : bool
+        Switch size input between chain-*length* (if `False`) or molar
+        *mass* (if `True`).
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name.
     """
     _continuous = True
 
@@ -89,7 +105,7 @@ class DataDistribution(IndividualDistribution):
 
         Parameters
         ----------
-        dist_class : Union[type[Flory], type[Poisson], type[LogNormal], type[SchulzZimm]]
+        dist_class : type[Flory] | type[Poisson] | type[LogNormal] | type[SchulzZimm]]
             Type of distribution to be used in the fit.
         dim : int
             Number of individual components to use in the fit.
@@ -99,7 +115,7 @@ class DataDistribution(IndividualDistribution):
 
         Returns
         -------
-        Union[AnalyticalDistribution, MixtureDistribution, None]
+        AnalyticalDistribution | MixtureDistribution | None
             If fit successful, it returns the fitted distribution.
         """
 
