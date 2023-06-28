@@ -4,7 +4,8 @@
 development stage, but the following modules can already be used:
 
 - [x] distributions
-- [ ] copolymerization  
+- [x] coefficients  
+- [ ] copolymerization
  
 <p align="center">
   <img src="blend.svg" width=600 alt="MWD of a polymer blend">

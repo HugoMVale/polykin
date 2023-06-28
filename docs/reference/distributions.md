@@ -1,29 +1,29 @@
 # Distributions
 
-## Flory
+::: polykin.distributions
 
-::: polykin.distributions.Flory
+::: polykin.distributions.analyticaldistributions
     options:
-        show_root_toc_entry: false
-        inherited_members: true
+        inherit_members: true
+        members:
+            - Flory
+            - Poisson
+            - LogNormal
+            - SchulzZimm
 
-## Poisson
-
-::: polykin.distributions.Poisson
+::: polykin.distributions.datadistribution
     options:
-        show_root_toc_entry: false
-        inherited_members: true
+        inherit_members: true
+        members:
+            - DataDistribution
 
-## LogNormal
-
-::: polykin.distributions.LogNormal
+::: polykin.distributions.baseclasses
     options:
-        show_root_toc_entry: false
-        inherited_members: true
+        inherit_members: true
+        members:
+            - MixtureDistribution
 
-## SchulzZimm
-
-::: polykin.distributions.SchulzZimm
+::: polykin.distributions.baseclasses
     options:
-        show_root_toc_entry: false
-        inherited_members: true
+        members:
+            - plotdists

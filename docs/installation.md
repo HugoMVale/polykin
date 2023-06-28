@@ -19,10 +19,8 @@ poetry add polykin
 
 ## From the source code repository
 
-The very latest code may be installed directly from the source code repository:
+The very latest code (may not work!) may be installed directly from the source code repository:
 ```
-git clone https://github.com/HugoMVale/polykin.git
-cd polykin
-pip install . 
-# poetry install
+pip install git+https://github.com/HugoMVale/polykin.git
+# poetry add git+https://github.com/HugoMVale/polykin.git
 ```

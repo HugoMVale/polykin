@@ -44,6 +44,9 @@ theme:
     text: Roboto
     code: Roboto Mono
 
+extra_css:
+- css/mkdocstrings.css
+
 watch:
   - src/polykin
   - docs/tutorials
@@ -53,16 +56,26 @@ watch:
 plugins:
   - search
   - autolinks
+  # - gen-files:
+  #     scripts:
+  #       - docs/reference/gen_reference.py
+  # - literate-nav:
+  #     nav_file: SUMMARY.txt
   - mkdocstrings:
       handlers:
         python:
           paths: [src]
           options:
-            show_category_heading: True
+            docstring_section_style: table
+            group_by_category: true
+            # show_category_heading: True
             show_source: true
+            members_order: alphabetical
             docstring_style: "numpy"
-            merge_init_into_class: False
-            # inherited_members: true
+            show_root_toc_entry: false
+            show_bases: true
+            separate_signature: true
+            # inherited_members: true 
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       include_source: False
@@ -84,6 +97,8 @@ extra:
 markdown_extensions:
   - admonition
   - footnotes
+  - pymdownx.details
+  - pymdownx.superfences
   - pymdownx.caret
   - pymdownx.mark
   - pymdownx.tilde
@@ -105,7 +120,11 @@ nav:
       - installation.md
   - Tutorials:
       - Distributions: "tutorials/distributions.ipynb"
+      - Coefficients: "tutorials/coefficients.ipynb"
       - Copolymerization: "tutorials/copolymerization.ipynb"
+  #- Code Reference: reference/polykin/
   - Code Reference:
       - Distributions: "reference/distributions.md"
       - Coefficients: "reference/coefficients.md"
+      - Copolymerization: "reference/copolymerization.md"
+
