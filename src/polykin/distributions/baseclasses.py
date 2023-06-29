@@ -700,8 +700,7 @@ class MixtureDistribution(GeneralDistribution):
     This kind of distributions are instantiated _indirectly_ by doing linear
     combinations of `IndividualDistribution` objects.
 
-    Example
-    -------
+    Example:
     >>> blend = 2.0*Flory(100, name='A') + 1.0*Poisson(50, name='B')
 
     """
