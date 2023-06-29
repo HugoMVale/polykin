@@ -61,6 +61,7 @@ plugins:
   #       - docs/reference/gen_reference.py
   # - literate-nav:
   #     nav_file: SUMMARY.txt
+  # - section-index
   - mkdocstrings:
       handlers:
         python:
@@ -73,9 +74,9 @@ plugins:
             members_order: alphabetical
             docstring_style: "numpy"
             show_root_toc_entry: false
-            show_bases: true
+            show_bases: false
             separate_signature: true
-            # inherited_members: true 
+            inherited_members: true 
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       include_source: False
@@ -123,7 +124,7 @@ nav:
       - Coefficients: "tutorials/coefficients.ipynb"
       - Copolymerization: "tutorials/copolymerization.ipynb"
   #- Code Reference: reference/polykin/
-  - Code Reference:
+  - API Reference:
       - Distributions: "reference/distributions.md"
       - Coefficients: "reference/coefficients.md"
       - Copolymerization: "reference/copolymerization.md"

@@ -4,7 +4,6 @@
 
 ::: polykin.distributions.analyticaldistributions
     options:
-        inherit_members: true
         members:
             - Flory
             - Poisson
@@ -13,13 +12,11 @@
 
 ::: polykin.distributions.datadistribution
     options:
-        inherit_members: true
         members:
             - DataDistribution
 
 ::: polykin.distributions.baseclasses
     options:
-        inherit_members: true
         members:
             - MixtureDistribution
 
