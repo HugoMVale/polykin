@@ -11,8 +11,9 @@ import functools
 
 
 class Flory(AnalyticalDistributionP1):
-    r"""Flory-Schulz (aka most-probable) chain-length distribution, with
-    _number_ probability mass function given by:
+    r"""Flory-Schulz (aka most-probable) chain-length distribution.
+    
+    The Flory-Schulz _number_ probability mass function is given by:
 
     $$ p(k) = (1-a)a^{k-1} $$
 
@@ -63,8 +64,9 @@ class Flory(AnalyticalDistributionP1):
 
 
 class Poisson(AnalyticalDistributionP1):
-    r"""Poisson chain-length distribution, with _number_ probability mass
-    function given by:
+    r"""Poisson chain-length distribution.
+    
+    The Poisson _number_ probability mass function is given by:
 
     $$ p(k) = \frac{a^{k-1} e^{-a}}{\Gamma(k)} $$
 
@@ -116,8 +118,9 @@ class Poisson(AnalyticalDistributionP1):
 
 
 class LogNormal(AnalyticalDistributionP2):
-    r"""Log-normal chain-length distribution, with _number_ probability density
-    function given by:
+    r"""Log-normal chain-length distribution.
+    
+    The Log-normal _number_ probability density function is given by:
 
     $$ p(x) = \frac{1}{x \sigma \sqrt{2 \pi}}
     \exp\left (- \frac{(\ln{x}-\mu)^2}{2\sigma^2} \right ) $$
@@ -174,8 +177,9 @@ class LogNormal(AnalyticalDistributionP2):
 
 
 class SchulzZimm(AnalyticalDistributionP2):
-    r"""Schulz-Zimm chain-length distribution, with _number_ probability
-    density function given by:
+    r"""Schulz-Zimm chain-length distribution.
+     
+    The Schulz-Zimm _number_ probability density function is given by:
 
     $$ p(x) = \frac{x^{k-1} e^{-x/\theta}}{\Gamma(k) \theta^k} $$
 
