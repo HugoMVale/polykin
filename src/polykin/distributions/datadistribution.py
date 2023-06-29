@@ -105,7 +105,7 @@ class DataDistribution(IndividualDistribution):
 
         Parameters
         ----------
-        dist_class : type[Flory] | type[Poisson] | type[LogNormal] | type[SchulzZimm]]
+        dist_class : type[Flory] | type[Poisson] | type[LogNormal] | type[SchulzZimm]
             Type of distribution to be used in the fit.
         dim : int
             Number of individual components to use in the fit.
