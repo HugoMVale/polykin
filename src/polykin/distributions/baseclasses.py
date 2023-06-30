@@ -2,16 +2,17 @@
 
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, \
-    custom_error, add_dicts, vectorize, FloatOrArrayLike, FloatOrArray
+    custom_error, add_dicts, vectorize, FloatOrArrayLike, FloatOrArray, \
+    IntOrArray, FloatRange
 
 from math import log10
 import numpy as np
+from numpy import ndarray
 import mpmath
-from numpy import int64, float64, dtype, ndarray
 from scipy import integrate
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
-from typing import Any, Literal, Union
+from typing import Literal, Union
 from abc import ABC, abstractmethod
 import functools
 
@@ -166,8 +167,7 @@ class Distribution(Base, ABC):
              kinds: Union[Kind, list[Kind]] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
-             xrange: Union[list[float], tuple[float, float],
-                           ndarray[Any, dtype[float64]]] = [],
+             xrange: FloatRange = [],
              cdf: Literal[0, 1, 2] = 0,
              title: Union[str, None] = None,
              axes: Union[list[plt.Axes], None] = None,
@@ -319,10 +319,10 @@ class Distribution(Base, ABC):
 
     @abstractmethod
     def _pdf(self,
-             size: Union[float, ndarray],
+             size: FloatOrArray,
              order: int,
              sizeasmass: bool = False
-             ) -> Union[float, ndarray[Any, dtype[float64]]]:
+             ) -> FloatOrArray:
         """$m$-th order chain-length / molar mass probability density
         function."""
         pass
@@ -600,7 +600,7 @@ class AnalyticalDistribution(IndividualDistribution):
 
     def random(self,
                size: Union[int, tuple[int, ...], None] = None
-               ) -> Union[int, ndarray[Any, dtype[int64]]]:
+               ) -> IntOrArray:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -621,7 +621,7 @@ class AnalyticalDistribution(IndividualDistribution):
     @abstractmethod
     def _random_length(self,
                        size: Union[int, tuple[int, ...], None],
-                       ) -> Union[int, ndarray[Any, dtype[int64]]]:
+                       ) -> IntOrArray:
         r"""Random chain-length generator.
 
         Each child class must implement a method to generate random chain
@@ -757,7 +757,7 @@ class MixtureDistribution(Distribution):
         return self.__components
 
     @property
-    def components_table(self) -> Union[str, None]:
+    def components_table(self) -> str:
         r"""Table of individual components of the mixture distribution.
 
         Returns
