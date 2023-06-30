@@ -20,6 +20,9 @@ FloatOrArrayLike = Union[int, float, FloatArrayLike]
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
 
+FloatRange = Union[list[float], tuple[float, float],
+                   NDArray[Shape['1, 2'], Float64]]
+
 # %% Maths
 
 eps = float(np.finfo(np.float64).eps)
