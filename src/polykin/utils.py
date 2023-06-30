@@ -34,6 +34,10 @@ class RangeWarning(Warning):
 class RangeError(ValueError):
     pass
 
+
+class ShapeError(ValueError):
+    pass
+
 # %% Check tools
 
 
