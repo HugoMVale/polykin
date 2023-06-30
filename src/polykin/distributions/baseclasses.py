@@ -22,7 +22,7 @@ Kind = Literal['number', 'mass', 'gpc']
 # %% Classes
 
 
-class GeneralDistribution(Base, ABC):
+class Distribution(Base, ABC):
     r"""_Abstract_ class for all chain-length distributions."""
 
     kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
@@ -42,7 +42,7 @@ class GeneralDistribution(Base, ABC):
             f"Mz:   {self.Mz:,.0f} {unit_M}"
 
     def __lt__(self, other) -> bool:
-        if isinstance(other, GeneralDistribution):
+        if isinstance(other, Distribution):
             return self.Mw < other.Mw
         else:
             return NotImplemented
@@ -356,7 +356,7 @@ class GeneralDistribution(Base, ABC):
         pass
 
 
-class IndividualDistribution(GeneralDistribution):
+class IndividualDistribution(Distribution):
     """_Abstract_ class for all individual chain-length distributions."""
 
     _continuous = True
@@ -694,7 +694,7 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
         return (self.DPn, self.PDI)
 
 
-class MixtureDistribution(GeneralDistribution):
+class MixtureDistribution(Distribution):
     r"""Mixture chain-length distribution.
 
     This kind of distributions are instantiated _indirectly_ by doing linear
@@ -832,8 +832,8 @@ class MixtureDistribution(GeneralDistribution):
 # %% Aux functions
 
 
-def plotdists(dists: list[GeneralDistribution],
-              kind: Literal['number', 'mass', 'gpc'],
+def plotdists(dists: list[Distribution],
+              kind: Kind,
               title: Union[str, None] = None,
               **kwargs
               ) -> Figure:
@@ -855,7 +855,7 @@ def plotdists(dists: list[GeneralDistribution],
     """
 
     # Check input
-    kind = GeneralDistribution._verify_kind(kind)
+    kind = Distribution._verify_kind(kind)
 
     # Create matplotlib objects
     fig, ax = plt.subplots(1, 1)
