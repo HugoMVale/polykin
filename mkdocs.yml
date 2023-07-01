@@ -119,7 +119,8 @@ nav:
   - Home: index.md
   - Getting Started:
       - installation.md
-  - Tutorials:
+  - Learn:
+      - PolyKin Tutorials: "tutorials/polykin_tutorials.md"
       - Distributions: "tutorials/distributions.ipynb"
       - Coefficients: "tutorials/coefficients.ipynb"
       - Copolymerization: "tutorials/copolymerization.ipynb"
