@@ -1,7 +1,8 @@
 # %% Coefficients
 
-from polykin.utils import check_bounds, FloatOrArray, FloatOrArrayLike, \
-    IntOrArrayLike, eps, RangeWarning, RangeError, ShapeError, FloatRange
+from polykin.utils import check_bounds, check_type, check_in_set, \
+    FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray, \
+    eps, RangeError, ShapeError
 from polykin.base import Base
 
 import numpy as np
@@ -9,7 +10,6 @@ import matplotlib.pyplot as plt
 from scipy.constants import h, R, Boltzmann as kB
 from abc import ABC, abstractmethod
 from typing import Union, Literal
-from warnings import warn
 
 
 class Coefficient(Base, ABC):
@@ -74,13 +74,13 @@ class Coefficient(Base, ABC):
 
 
 class CoefficientX1(Coefficient):
-    r"""_Abstract_ class for 1-variable coefficient, $c(x)$.
+    r"""_Abstract_ class for 1-argument coefficient, $c(x)$.
     """
     pass
 
 
 class CoefficientX2(Coefficient):
-    r"""_Abstract_ class for 2-variable coefficient, $c(x, y)$.
+    r"""_Abstract_ class for 2-arguments coefficient, $c(x, y)$.
     """
     pass
 
@@ -90,6 +90,8 @@ class CoefficientT(CoefficientX1):
 
     Tmin: FloatOrArray
     Tmax: FloatOrArray
+    Yunit: str
+    Ysymbol: str
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -147,36 +149,84 @@ class CoefficientT(CoefficientX1):
         if np.any(TK < 0):
             raise RangeError("`T` must be > 0 K.")
         if np.any(TK < self.Tmin) or np.any(TK > self.Tmax):
-            warn("`T` input is outside validity range [Tmin, Tmax].",
-                 RangeWarning)
+            print("Warning: `T` input is outside validity range [Tmin, Tmax].")
+            # warn("`T` input is outside validity range [Tmin, Tmax].",
+            #      RangeWarning)
         return TK
 
     def plot(self,
-             kind: Literal['default', 'Arrhenius'] = 'default',
-             Trange: FloatRange = [],
+             kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
+             Trange: Union[tuple[float, float], None] = None,
              Tunit: Literal['C', 'K'] = 'K',
              title: Union[str, None] = None,
              ) -> None:
+        """Plot the coefficient as a function of temperature.
+
+        Parameters
+        ----------
+        kind : Literal['linear', 'semilogy', 'Arrhenius']
+            Kind of plot to be generated. 
+        Trange : tuple[float, float] | None
+            Temperature range for x-axis. If `None`, the validity range
+            (Tmin, Tmax) will be used. If no validity range was defined, the
+            range will fall back to 0-100°C.
+        Tunit : Literal['C', 'K']
+            Temperature unit.
+        title : str | None
+            Title of plot. If `None`, the object name will be used.
+        """
+
+        # check inputs
+        check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
+        check_in_set(Tunit, {'K', 'C'}, 'Tunit')
+        if Trange is not None \
+                and not (len(Trange) == 2 and Trange[1] > Trange[0]):
+            raise RangeError(f"`Trange` is invalid: {Trange}")
+
+        # general plot settings
+        fig, ax = plt.subplots()
+        self.fig = fig
+        if title is None:
+            title = self.name
+        if title:
+            fig.suptitle(title)
+        ax.grid(True)
+
+        xlabel = fr"$T$ [{Tunit}]"
+        ylabel = fr"${self.Ysymbol}$ [${self.Yunit}$]"
+        Tunit_range = Tunit
+        if kind == 'Arrhenius':
+            Tunit = 'K'
+            xlabel = r"$1/T$ [K$^{-1}$]"
+            ylabel = r"$\ln$" + ylabel
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
         # x-axis vector
-        if not (len(Trange) == 2 and Trange[1] > Trange[0]):
-            if self._shape:
-                Trange = (np.min(self.Tmin), np.max(self.Tmax))
+        if Trange is not None:
+            if Tunit_range == 'C':
+                Trange = tuple(np.asarray(Trange) + 273.15)
+        else:
+            Trange = (np.min(self.Tmin), np.max(self.Tmax))
+            if Trange == (0.0, np.inf):
+                Trange = (273.15, 373.15)
+
+        if self._shape:
+            print("Plot method not yet implemented for array-like coefficients.")
+        else:
+            TK = np.linspace(Trange[0], Trange[1], 100)
+            y = self.__call__(TK, 'K')
+            TC = TK - 273.15
+            if Tunit == 'C':
+                T = TC
             else:
-                Trange = (self.Tmin, self.Tmax)
-        x = np.linspace(*Trange, 100)
-
-        fig, ax = plt.subplots()
-        if title is None:
-            title = f"Coefficient: {self.name}"
-        fig.suptitle(title)
-
-        y = self.__call__(x, Tunit)
-
-        if kind == 'default':
-            ax.plot(x, y)
-        elif kind == 'Arrhenius':
-            ax.plot(1/x, np.log(y))
+                T = TK
+            if kind == 'linear':
+                ax.plot(T, y)
+            elif kind == 'semilogy':
+                ax.semilogy(T, y)
+            elif kind == 'Arrhenius':
+                ax.semilogy(1/TK, y)
 
         return None
 
@@ -185,20 +235,20 @@ class Arrhenius(CoefficientT):
     r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) kinetic
     rate coefficient.
 
-    The temperature dependence is given by:
+    This coefficient implements the following temperature dependence:
 
     $$ k(T)=k_0\exp\left(-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
         \right)\right) $$
 
     where $T_0$ is a convenient reference temperature, $E_a$ is the activation
     energy, and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
-    form of Arrhenius equation with $k_0=A$ is recovered.
+    form of the Arrhenius equation with $k_0=A$ is recovered.
 
     Parameters
     ----------
     k0 : FloatOrArrayLike
         Rate coefficient at the reference temperature, $k_0=k(T_0)$.
-        Unit = Any.
+        Unit = `unit_k`.
     EaR : FloatOrArrayLike
         Energy of activation, $E_a/R$.
         Unit = K.
@@ -211,9 +261,12 @@ class Arrhenius(CoefficientT):
     Tmax : FloatOrArrayLike
         Upper temperature bound.
         Unit = K.
+    Yunit : str
+        Unit of rate coefficient.
     name : str
         Name.
     """
+    Ysymbol = 'k'
 
     def __init__(self,
                  k0: FloatOrArrayLike,
@@ -221,6 +274,7 @@ class Arrhenius(CoefficientT):
                  T0: FloatOrArrayLike = np.inf,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = +np.inf,
+                 Yunit: str = '-',
                  name: str = ''
                  ) -> None:
 
@@ -252,13 +306,14 @@ class Arrhenius(CoefficientT):
         self.T0 = T0
         self.Tmin = Tmin
         self.Tmax = Tmax
+        self.Yunit = check_type(Yunit, str, 'Yunit')
         self.name = name
 
     def __mul__(self, other):
         """Multipy Arrhenius coefficients.
 
-        Create new Arrhenius coefficient from the product of two Arrhenius
-        coefficients.
+        Create a new Arrhenius coefficient from the product of two Arrhenius
+        coefficients with identical shapes.
 
         Parameters
         ----------
@@ -276,6 +331,7 @@ class Arrhenius(CoefficientT):
                                  EaR=self.EaR + other.EaR,
                                  Tmin=np.maximum(self.Tmin, other.Tmin),
                                  Tmax=np.minimum(self.Tmax, other.Tmax),
+                                 Yunit=self.Yunit + other.Yunit,
                                  name=f"{self.name}*{other.name}")
             else:
                 raise ShapeError(
@@ -285,18 +341,18 @@ class Arrhenius(CoefficientT):
 
     @property
     def A(self) -> FloatOrArray:
-        r"""Pre-exponential factor, $A$"""
+        r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
         return self.eval(np.inf)
 
-    def eval(self, T):
-        return self.k0*np.exp(-self.EaR*(1/T - 1/self.T0))
+    def eval(self, T: FloatOrArray) -> FloatOrArray:
+        return self.k0 * np.exp(-self.EaR*(1/T - 1/self.T0))
 
 
 class Eyring(CoefficientT):
     r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
     coefficient.
 
-    The temperature dependence is given by:
+    This coefficient implements the following temperature dependence:
 
     $$ k(T)=\dfrac{\kappa k_B T}{h} \\
         \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
@@ -326,6 +382,9 @@ class Eyring(CoefficientT):
     name : str
         Name.
     """
+
+    Ysymbol = 'k'
+    Yunit = 's^{-1}'
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
@@ -365,8 +424,8 @@ class Eyring(CoefficientT):
         self.Tmax = Tmax
         self.name = name
 
-    def eval(self, T):
-        return self.kappa*kB*T/h*np.exp((self.DSa-self.DHa/T)/R)
+    def eval(self, T: FloatOrArray) -> FloatOrArray:
+        return self.kappa * kB*T/h * np.exp((self.DSa - self.DHa/T)/R)
 
 
 class CoefficientCLD(Coefficient):
@@ -374,10 +433,12 @@ class CoefficientCLD(Coefficient):
     pass
 
 
-class TerminationCompositeModel(CoefficientCLD):
-    r"""Composite model for the termination rate coefficient.
+class CompositeModelTermination(CoefficientCLD):
+    r"""Composite model for the termination rate coefficient between two
+    radicals.
 
-    The chain-length dependence is given by:
+    This coefficient implements the chain-length dependence proposed by
+    [Smith and Russel (2003)](https://doi.org/10.1002/mats.200390029):
 
     $$ k_t(i,j)=\sqrt{k_t(i,i) k_t(j,j)} $$
 
@@ -393,29 +454,32 @@ class TerminationCompositeModel(CoefficientCLD):
     between two monomeric radicals, $i_{crit}$ is the critical chain length,
     $\alpha_S$ is the short-chain exponent, and $\alpha_L$ is the long-chain
     exponent.
-
-    Parameters
-    ----------
-    k11 : Arrhenius | Eyring
-        Temperature-dependent termination rate coefficient between two
-        monomeric radicals, $k_t(1,1)$.
-    icrit : int
-        Sritical chain length, $i_{crit}$.
-    aS : float
-        Short-chain exponent, $\alpha_S$.
-    aL : float
-        Long-chain exponent, $\alpha_L$.
-    name : str
-        Name.
     """
+
+    Ysymbol = "k_t (i,j)"
 
     def __init__(self,
                  k11: Union[Arrhenius, Eyring],
                  icrit: int,
-                 aS: float,
-                 aL: float,
+                 aS: float = 0.5,
+                 aL: float = 0.2,
                  name: str = ''
                  ) -> None:
+        r"""
+        Parameters
+        ----------
+        k11 : Arrhenius | Eyring
+            Temperature-dependent termination rate coefficient between two
+            monomeric radicals, $k_t(1,1)$.
+        icrit : int
+            Critical chain length, $i_{crit}$.
+        aS : float
+            Short-chain exponent, $\alpha_S$.
+        aL : float
+            Long-chain exponent, $\alpha_L$.
+        name : str
+            Name.
+        """
 
         check_bounds(icrit, 1, 200, 'icrit')
         check_bounds(aS, 0, 1, 'alpha_short')
@@ -429,19 +493,20 @@ class TerminationCompositeModel(CoefficientCLD):
 
     def eval(self,
              T: FloatOrArray,
-             i: IntOrArrayLike,
-             j: IntOrArrayLike
+             i: IntOrArray,
+             j: IntOrArray
              ) -> FloatOrArray:
-        """Evaluate coefficient at given SI conditions, without checks.
+        """Evaluate coefficient at given SI conditions, without unit
+        conversions or checks.
 
         Parameters
         ----------
         T : FloatOrArray
             Temperature.
             Unit = K.
-        i : IntOrArrayLike
+        i : IntOrArray
             Chain length of 1st radical.
-        j : IntOrArrayLike
+        j : IntOrArray
             Chain length of 2nd radical.
 
         Returns
@@ -463,7 +528,7 @@ class TerminationCompositeModel(CoefficientCLD):
         return np.sqrt(ktii(i)*ktii(j))
 
     def __call__(self,
-                 T: FloatOrArray,
+                 T: FloatOrArrayLike,
                  i: IntOrArrayLike,
                  j: IntOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'C'
@@ -489,12 +554,21 @@ class TerminationCompositeModel(CoefficientCLD):
             Coefficient value.
         """
         TK = self.k11._convert_check_temperature(T, Tunit)
+        if isinstance(i, list):
+            i = np.array(i, dtype=np.int32)
+        if isinstance(j, list):
+            j = np.array(j, dtype=np.int32)
         return self.eval(TK, i, j)
 
 
 class DIPPR(CoefficientT):
-    """[DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
-    temperature-dependent coefficient."""
+    """_Abstract_ class for all [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
+    temperature-dependent equations."""
+    pass
+
+
+class DIPPRP5(DIPPR):
+    """_Abstract_ class for DIPPR equations with 5 parameters (A-E)."""
 
     def __init__(self,
                  A: FloatOrArrayLike,
@@ -504,8 +578,36 @@ class DIPPR(CoefficientT):
                  E: FloatOrArrayLike,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = +np.inf,
+                 Yunit: str = '-',
+                 Ysymbol: str = 'Y',
                  name: str = ''
                  ) -> None:
+        r"""
+        Parameters
+        ----------
+        A : FloatOrArrayLike
+            Parameter of equation.
+        B : FloatOrArrayLike
+            Parameter of equation.
+        C : FloatOrArrayLike
+            Parameter of equation.
+        D : FloatOrArrayLike
+            Parameter of equation.
+        E : FloatOrArrayLike
+            Parameter of equation.
+        Tmin : FloatOrArrayLike
+            Lower temperature bound.
+            Unit = K.
+        Tmax : FloatOrArrayLike
+            Upper temperature bound.
+            Unit = K.
+        Yunit : str
+            Unit of output variable $Y$.
+        Ysymbol : str
+            Symbol of output variable $Y$.
+        name : str
+            Name.
+        """
 
         # convert lists to arrays
         if isinstance(A, list):
@@ -533,111 +635,13 @@ class DIPPR(CoefficientT):
         self.E = E
         self.Tmin = Tmin
         self.Tmax = Tmax
+        self.Yunit = check_type(Yunit, str, 'Yunit')
+        self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
 
-class DIPPR100(DIPPR):
-    r"""DIPPR-100 equation.
-
-    The temperature dependence is given by:
-
-    $$ Y = A + B T + C T^2 + D T^3 + E T^4 $$
-
-    Parameters
-    ----------
-    A : FloatOrArrayLike
-        Parameter of equation.
-    B : FloatOrArrayLike
-        Parameter of equation.
-    C : FloatOrArrayLike
-        Parameter of equation.
-    D : FloatOrArrayLike
-        Parameter of equation.
-    E : FloatOrArrayLike
-        Parameter of equation.
-    Tmin : FloatOrArrayLike
-        Lower temperature bound.
-        Unit = K.
-    Tmax : FloatOrArrayLike
-        Upper temperature bound.
-        Unit = K.
-    name : str
-        Name.
-    """
-
-    def eval(self, T):
-        A = self.A
-        B = self.B
-        C = self.C
-        D = self.D
-        E = self.E
-        return A + B * T + C * T**2 + D * T**3 + E * T**4
-
-
-class DIPPR101(DIPPR):
-    r"""DIPPR-101 equation.
-
-    The temperature dependence is given by:
-
-    $$ Y = \exp{\left(A + B / T + C \ln(T) + D T^E\right)} $$
-
-    Parameters
-    ----------
-    A : FloatOrArrayLike
-        Parameter of equation.
-    B : FloatOrArrayLike
-        Parameter of equation.
-    C : FloatOrArrayLike
-        Parameter of equation.
-    D : FloatOrArrayLike
-        Parameter of equation.
-    E : FloatOrArrayLike
-        Parameter of equation.
-    Tmin : FloatOrArrayLike
-        Lower temperature bound.
-        Unit = K.
-    Tmax : FloatOrArrayLike
-        Upper temperature bound.
-        Unit = K.
-    name : str
-        Name.
-    """
-
-    def eval(self, T):
-        A = self.A
-        B = self.B
-        C = self.C
-        D = self.D
-        E = self.E
-        return np.exp(A + B / T + C * np.log(T) + D * T**E)
-
-
-class DIPPR105(DIPPR):
-    r"""DIPPR-105 equation.
-
-    The temperature dependence is given by:
-
-    $$ Y = \frac{A}{B^{ \left( 1 + (1 - T / C)^D \right) }} $$
-
-    Parameters
-    ----------
-    A : FloatOrArrayLike
-        Parameter of equation.
-    B : FloatOrArrayLike
-        Parameter of equation.
-    C : FloatOrArrayLike
-        Parameter of equation.
-    D : FloatOrArrayLike
-        Parameter of equation.
-    Tmin : FloatOrArrayLike
-        Lower temperature bound.
-        Unit = K.
-    Tmax : FloatOrArrayLike
-        Upper temperature bound.
-        Unit = K.
-    name : str
-        Name.
-    """
+class DIPPRP4(DIPPRP5):
+    """_Abstract_ class for DIPPR equations with 4 parameters (A-D)."""
 
     def __init__(self,
                  A: FloatOrArrayLike,
@@ -646,16 +650,88 @@ class DIPPR105(DIPPR):
                  D: FloatOrArrayLike,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = +np.inf,
+                 Yunit: str = '-',
+                 Ysymbol: str = 'Y',
                  name: str = ''
                  ) -> None:
+        r"""
+        Parameters
+        ----------
+        A : FloatOrArrayLike
+            Parameter of equation.
+        B : FloatOrArrayLike
+            Parameter of equation.
+        C : FloatOrArrayLike
+            Parameter of equation.
+        D : FloatOrArrayLike
+            Parameter of equation.
+        Tmin : FloatOrArrayLike
+            Lower temperature bound.
+            Unit = K.
+        Tmax : FloatOrArrayLike
+            Upper temperature bound.
+            Unit = K.
+        Yunit : str
+            Unit of output variable $Y$.
+        Ysymbol : str
+            Symbol of output variable $Y$.
+        name : str
+            Name.
+        """
 
         if isinstance(A, (list, np.ndarray)):
             E = [0.0]*len(A)
         else:
             E = 0.0
-        super().__init__(A, B, C, D, E, Tmin, Tmax, name)
+        super().__init__(A, B, C, D, E, Tmin, Tmax, Yunit, Ysymbol, name)
 
-    def eval(self, T):
+
+class DIPPR100(DIPPRP5):
+    r"""[DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)-100 equation.
+
+    This equation implements the following temperature dependence:
+
+    $$ Y = A + B T + C T^2 + D T^3 + E T^4 $$
+
+    """
+
+    def eval(self, T: FloatOrArray) -> FloatOrArray:
+        A = self.A
+        B = self.B
+        C = self.C
+        D = self.D
+        E = self.E
+        return A + B * T + C * T**2 + D * T**3 + E * T**4
+
+
+class DIPPR101(DIPPRP5):
+    r"""[DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)-101 equation.
+
+    This equation implements the following temperature dependence:
+
+    $$ Y = \exp{\left(A + B / T + C \ln(T) + D T^E\right)} $$
+
+    """
+
+    def eval(self, T: FloatOrArray) -> FloatOrArray:
+        A = self.A
+        B = self.B
+        C = self.C
+        D = self.D
+        E = self.E
+        return np.exp(A + B / T + C * np.log(T) + D * T**E)
+
+
+class DIPPR105(DIPPRP4):
+    r"""[DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)-105 equation.
+
+    This equation implements the following temperature dependence:
+
+    $$ Y = \frac{A}{B^{ \left( 1 + (1 - T / C)^D \right) }} $$
+
+    """
+
+    def eval(self, T: FloatOrArray) -> FloatOrArray:
         A = self.A
         B = self.B
         C = self.C
