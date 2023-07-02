@@ -14,8 +14,8 @@ IntOrArrayLike = Union[int, IntArrayLike]
 
 FloatArray = NDArray[Any, Float64]
 FloatArrayLike = Union[list[float], FloatArray]
-FloatOrArray = Union[int, float, FloatArray]
-FloatOrArrayLike = Union[int, float, FloatArrayLike]
+FloatOrArray = Union[float, FloatArray]
+FloatOrArrayLike = Union[float, FloatArrayLike]
 
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
