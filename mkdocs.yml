@@ -76,7 +76,8 @@ plugins:
             show_root_toc_entry: false
             show_bases: false
             separate_signature: true
-            inherited_members: true 
+            inherited_members: true
+            merge_init_into_class: True
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       include_source: False

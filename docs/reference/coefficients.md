@@ -8,4 +8,4 @@
             - DIPPR100
             - DIPPR101
             - DIPPR105
-            - TerminationCompositeModel
+            - CompositeModelTermination
