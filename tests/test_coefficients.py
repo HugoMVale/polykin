@@ -1,4 +1,4 @@
-from polykin import Arrhenius, Eyring, TerminationCompositeModel
+from polykin import Arrhenius, Eyring, CompositeModelTermination
 from polykin.utils import RangeWarning, RangeError
 
 import pytest
@@ -115,6 +115,6 @@ def test_evaluation_TerminationCompostiteModel():
     aS = 0.5
     aL = 0.2
     kt11 = Arrhenius(1, 2000, T0, name='kt11')
-    kt = TerminationCompositeModel(kt11, icrit, aS, aL, 'kt')
+    kt = CompositeModelTermination(kt11, icrit, aS, aL, 'kt')
     assert (np.isclose(kt.eval(T0, icrit, icrit), kt11.eval(T0)/icrit**aS))
     assert len(kt.eval(T0, np.arange(1, 1000, 1), np.arange(1, 1000, 1)))
