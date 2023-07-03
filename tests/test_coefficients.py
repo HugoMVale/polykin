@@ -5,7 +5,7 @@ import pytest
 import numpy as np
 
 
-def test_input_validation():
+def test_input_validation(capsys):
     with pytest.raises(ValueError):
         _ = Arrhenius(-1, 1, 1)
     with pytest.raises(ValueError):
@@ -50,9 +50,9 @@ def test_input_validation():
         _ = k(-300)
     with pytest.raises(RangeError):
         _ = k(-1, 'K')
-    with pytest.warns(RangeWarning):
-        _ = k(550, 'K')
-
+    _ = k(550, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
 
 def test_evaluation_Arrhenius():
     k0 = [1., 1.]
@@ -67,7 +67,7 @@ def test_evaluation_Arrhenius():
     assert (np.isclose(k2[1]/k1[0], 1))  # type:ignore
 
 
-def test_product_Arrhenius_scalar():
+def test_product_Arrhenius_scalar(capsys):
     k1 = Arrhenius(1e2, 1e4, T0=340, Tmin=300, Tmax=380, name='k1')
     k2 = Arrhenius(2e2, 5e3, T0=360, Tmin=320, Tmax=400, name='k2')
     T = 350.
@@ -76,13 +76,15 @@ def test_product_Arrhenius_scalar():
     k3 = k1*k2
     k3_value = k3(T, 'K')
     assert (np.isclose(k3_value, k1_value*k2_value))
-    with pytest.warns(RangeWarning):
-        _ = k3(390, 'K')
-    with pytest.warns(RangeWarning):
-        _ = k3(310, 'K')
+    _ = k3(390, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+    _ = k3(310, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
 
 
-def test_product_Arrhenius_array():
+def test_product_Arrhenius_array(capsys):
     k1 = Arrhenius([1e2, 2e3], [2e4, 1e4], T0=[340, 341],
                    Tmin=[300, 301], Tmax=[380, 381], name='k1')
     k2 = Arrhenius([2e2, 3e3], [3e4, 4e4], T0=[350, 351],
@@ -93,10 +95,12 @@ def test_product_Arrhenius_array():
     k3 = k1*k2
     k3_value = k3(T, 'K')
     assert (np.all(np.isclose(k3_value, k1_value*k2_value)))
-    with pytest.warns(RangeWarning):
-        _ = k3(390, 'K')
-    with pytest.warns(RangeWarning):
-        _ = k3(310, 'K')
+    _ = k3(390, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+    _ = k3(310, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
 
 
 def test_evaluation_Eyring():
