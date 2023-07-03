@@ -1,4 +1,5 @@
-from polykin import Arrhenius, Eyring, CompositeModelTermination
+from polykin.coefficients import Arrhenius, Eyring, CompositeModelTermination,\
+    DIPPR100, DIPPR101, DIPPR105
 from polykin.utils import RangeWarning, RangeError
 
 import pytest
@@ -53,6 +54,7 @@ def test_input_validation(capsys):
     _ = k(550, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
+
 
 def test_evaluation_Arrhenius():
     k0 = [1., 1.]
@@ -122,3 +124,17 @@ def test_evaluation_TerminationCompostiteModel():
     kt = CompositeModelTermination(kt11, icrit, aS, aL, 'kt')
     assert (np.isclose(kt.eval(T0, icrit, icrit), kt11.eval(T0)/icrit**aS))
     assert len(kt.eval(T0, np.arange(1, 1000, 1), np.arange(1, 1000, 1)))
+
+
+def test_DIPPR_100():
+    p = DIPPR100(276370., -2090.1, 8.125, -0.014116, 0.0000093701)
+    assert np.isclose(p(25.)/18.02e3, 4.18, rtol=1e-3)
+
+
+def test_DIPPR_101():
+    p = DIPPR101(73.649, -7258.2, -7.3037, 4.1653E-6, 2.)
+    assert np.isclose(p(100.), 101325., rtol=1e-3)
+
+def test_DIPPR_105():
+    p = DIPPR105(0.14395, 0.0112, 649.727, 0.05107)
+    assert np.isclose(p(25.), 998., rtol=1e-3)
