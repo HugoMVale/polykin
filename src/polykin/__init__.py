@@ -15,4 +15,4 @@ Using any of these subpackages requires an explicit import. For example,
 from polykin.coefficients import Arrhenius, Eyring, \
     CompositeModelTermination
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
