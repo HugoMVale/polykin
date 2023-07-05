@@ -10,8 +10,6 @@ def test_input_validation(capsys):
     with pytest.raises(ValueError):
         _ = Arrhenius(-1, 1, 1)
     with pytest.raises(ValueError):
-        _ = Arrhenius(1, -1, 1)
-    with pytest.raises(ValueError):
         _ = Arrhenius(1, 1, -1)
     with pytest.raises(ValueError):
         _ = Arrhenius(1, 1, 1, -1)
@@ -25,10 +23,6 @@ def test_input_validation(capsys):
         _ = Arrhenius([1, 2], [2, 3], Tmin=[200])
     with pytest.raises(ValueError):
         _ = Arrhenius([1, 2], [2, 3], Tmax=[500])
-    with pytest.raises(ValueError):
-        _ = Arrhenius([1, -2], [2, 3], [500, 600])
-    with pytest.raises(ValueError):
-        _ = Arrhenius([1, 2], [2, -3], [500, 600])
     with pytest.raises(ValueError):
         _ = Arrhenius([1, 2], [2, 3], [500, -100])
     with pytest.raises(ValueError):
@@ -69,7 +63,26 @@ def test_evaluation_Arrhenius():
     assert (np.isclose(k2[1]/k1[0], 1))  # type:ignore
 
 
-def test_product_Arrhenius_scalar(capsys):
+def test_product_Arrhenius_number():
+    k1 = Arrhenius(1e2, 1e4, T0=340, Tmin=300, Tmax=380, name='k1')
+    T = 350.
+    number = 100
+    k1_value = k1(T, 'K')
+    # int left
+    k2 = number*k1
+    assert (np.isclose(k1_value*number, k2.eval(T)))
+    # float left
+    k2 = float(number)*k1
+    assert (np.isclose(k1_value*number, k2.eval(T)))
+    # int right
+    k2 = k1*number
+    assert (np.isclose(k1_value*number, k2.eval(T)))
+    # float right
+    k2 = k1*float(number)
+    assert (np.isclose(k1_value*number, k2.eval(T)))
+
+
+def test_product_Arrhenius_Arrhenius_scalar(capsys):
     k1 = Arrhenius(1e2, 1e4, T0=340, Tmin=300, Tmax=380, name='k1')
     k2 = Arrhenius(2e2, 5e3, T0=360, Tmin=320, Tmax=400, name='k2')
     T = 350.
@@ -85,8 +98,23 @@ def test_product_Arrhenius_scalar(capsys):
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
 
+def test_division_Arrhenius_Arrhenius_scalar(capsys):
+    k1 = Arrhenius(1e2, 1e4, T0=340, Tmin=300, Tmax=380, name='k1')
+    k2 = Arrhenius(2e2, 5e3, T0=360, Tmin=320, Tmax=400, name='k2')
+    T = 350.
+    k1_value = k1(T, 'K')
+    k2_value = k2(T, 'K')
+    k3 = k1/k2
+    k3_value = k3(T, 'K')
+    assert (np.isclose(k3_value, k1_value/k2_value))
+    _ = k3(390, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+    _ = k3(310, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
 
-def test_product_Arrhenius_array(capsys):
+def test_product_Arrhenius_Arrhenius_array(capsys):
     k1 = Arrhenius([1e2, 2e3], [2e4, 1e4], T0=[340, 341],
                    Tmin=[300, 301], Tmax=[380, 381], name='k1')
     k2 = Arrhenius([2e2, 3e3], [3e4, 4e4], T0=[350, 351],
@@ -104,6 +132,23 @@ def test_product_Arrhenius_array(capsys):
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
 
+def test_division_Arrhenius_Arrhenius_array(capsys):
+    k1 = Arrhenius([1e2, 2e3], [2e4, 1e4], T0=[340, 341],
+                   Tmin=[300, 301], Tmax=[380, 381], name='k1')
+    k2 = Arrhenius([2e2, 3e3], [3e4, 4e4], T0=[350, 351],
+                   Tmin=[310, 311], Tmax=[390, 391], name='k2')
+    T = 350.
+    k1_value = k1(T, 'K')
+    k2_value = k2(T, 'K')
+    k3 = k1/k2
+    k3_value = k3(T, 'K')
+    assert (np.all(np.isclose(k3_value, k1_value/k2_value)))
+    _ = k3(390, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+    _ = k3(310, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
 
 def test_evaluation_Eyring():
     DSa = [1e2, 0]
@@ -134,6 +179,7 @@ def test_DIPPR_100():
 def test_DIPPR_101():
     p = DIPPR101(73.649, -7258.2, -7.3037, 4.1653E-6, 2.)
     assert np.isclose(p(100.), 101325., rtol=1e-3)
+
 
 def test_DIPPR_105():
     p = DIPPR105(0.14395, 0.0112, 649.727, 0.05107)
