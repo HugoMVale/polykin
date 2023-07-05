@@ -248,7 +248,7 @@ class Arrhenius(CoefficientT):
     ----------
     k0 : FloatOrArrayLike
         Coefficient value at the reference temperature, $k_0=k(T_0)$.
-        Unit = `unit_k`.
+        Unit = `Yunit`.
     EaR : FloatOrArrayLike
         Energy of activation, $E_a/R$.
         Unit = K.
@@ -449,11 +449,12 @@ class Eyring(CoefficientT):
     Tmax : FloatOrArrayLike
         Upper temperature bound.
         Unit = K.
+    Ysymbol : str
+        Symbol of coefficient $k$.
     name : str
         Name.
     """
 
-    Ysymbol = 'k'
     Yunit = 's^{-1}'
 
     def __init__(self,
@@ -462,6 +463,7 @@ class Eyring(CoefficientT):
                  kappa: FloatOrArrayLike = 1.0,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = np.inf,
+                 Ysymbol: str = 'k',
                  name: str = ''
                  ) -> None:
 
@@ -492,6 +494,7 @@ class Eyring(CoefficientT):
         self.kappa = kappa
         self.Tmin = Tmin
         self.Tmax = Tmax
+        self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
