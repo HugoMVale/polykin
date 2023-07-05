@@ -165,7 +165,7 @@ class CoefficientT(CoefficientX1):
         Parameters
         ----------
         kind : Literal['linear', 'semilogy', 'Arrhenius']
-            Kind of plot to be generated. 
+            Kind of plot to be generated.
         Trange : tuple[float, float] | None
             Temperature range for x-axis. If `None`, the validity range
             (Tmin, Tmax) will be used. If no validity range was defined, the
@@ -247,7 +247,7 @@ class Arrhenius(CoefficientT):
     Parameters
     ----------
     k0 : FloatOrArrayLike
-        Rate coefficient at the reference temperature, $k_0=k(T_0)$.
+        Coefficient value at the reference temperature, $k_0=k(T_0)$.
         Unit = `unit_k`.
     EaR : FloatOrArrayLike
         Energy of activation, $E_a/R$.
@@ -262,7 +262,9 @@ class Arrhenius(CoefficientT):
         Upper temperature bound.
         Unit = K.
     Yunit : str
-        Unit of rate coefficient.
+        Unit of coefficient.
+    Ysymbol : str
+        Symbol of coefficient $k$.
     name : str
         Name.
     """
@@ -273,8 +275,9 @@ class Arrhenius(CoefficientT):
                  EaR: FloatOrArrayLike,
                  T0: FloatOrArrayLike = np.inf,
                  Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = +np.inf,
+                 Tmax: FloatOrArrayLike = np.inf,
                  Yunit: str = '-',
+                 Ysymbol: str = 'k',
                  name: str = ''
                  ) -> None:
 
@@ -295,7 +298,7 @@ class Arrhenius(CoefficientT):
 
         # check bounds
         check_bounds(k0, 0, np.inf, 'k0')
-        check_bounds(EaR, 0, np.inf, 'EaR')
+        check_bounds(EaR, -np.inf, np.inf, 'EaR')
         check_bounds(T0, 0, np.inf, 'T0')
         check_bounds(Tmin, 0, np.inf, 'Tmin')
         check_bounds(Tmax, 0, np.inf, 'Tmax')
@@ -307,6 +310,7 @@ class Arrhenius(CoefficientT):
         self.Tmin = Tmin
         self.Tmax = Tmax
         self.Yunit = check_type(Yunit, str, 'Yunit')
+        self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
     def __mul__(self, other):
@@ -327,15 +331,81 @@ class Arrhenius(CoefficientT):
         """
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
-                return Arrhenius(k0=self.eval(np.inf)*other.eval(np.inf),
+                return Arrhenius(k0=self.A*other.A,
                                  EaR=self.EaR + other.EaR,
                                  Tmin=np.maximum(self.Tmin, other.Tmin),
                                  Tmax=np.minimum(self.Tmax, other.Tmax),
-                                 Yunit=self.Yunit + other.Yunit,
-                                 name=f"{self.name}*{other.name}")
+                                 Yunit=f"{self.Yunit}·{other.Yunit}",
+                                 Ysymbol=f"{self.Ysymbol}·{other.Ysymbol}",
+                                 name=f"{self.name}·{other.name}")
             else:
                 raise ShapeError(
-                    "Product of coefficients requires identical shapes.")
+                    "Product of array-like coefficients requires identical shapes.")
+        elif isinstance(other, (int, float)):
+            return Arrhenius(k0=self.k0*other,
+                             EaR=self.EaR,
+                             T0=self.T0,
+                             Tmin=self.Tmin,
+                             Tmax=self.Tmax,
+                             Yunit=self.Yunit,
+                             Ysymbol=f"{str(other)}·{self.Ysymbol}",
+                             name=f"{str(other)}·{self.name}")
+        else:
+            return NotImplemented
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __truediv__(self, other):
+        """Divide Arrhenius coefficients.
+
+        Create a new Arrhenius coefficient from the quotient of two Arrhenius
+        coefficients with identical shapes.
+
+        Parameters
+        ----------
+        other : Arrhenius
+            Another coefficient.
+
+        Returns
+        -------
+        Arrhenius
+            Quotient coefficient.
+        """
+        if isinstance(other, Arrhenius):
+            if self._shape == other._shape:
+                return Arrhenius(k0=self.A/other.A,
+                                 EaR=self.EaR - other.EaR,
+                                 Tmin=np.maximum(self.Tmin, other.Tmin),
+                                 Tmax=np.minimum(self.Tmax, other.Tmax),
+                                 Yunit=f"{self.Yunit}/{other.Yunit}",
+                                 Ysymbol=f"{self.Ysymbol}/{other.Ysymbol}",
+                                 name=f"{self.name}/{other.name}")
+            else:
+                raise ShapeError(
+                    "Division of array-like coefficients requires identical shapes.")
+        elif isinstance(other, (int, float)):
+            return Arrhenius(k0=self.k0/other,
+                             EaR=self.EaR,
+                             T0=self.T0,
+                             Tmin=self.Tmin,
+                             Tmax=self.Tmax,
+                             Yunit=self.Yunit,
+                             Ysymbol=f"{self.Ysymbol}/{str(other)}",
+                             name=f"{self.name}/{str(other)}")
+        else:
+            return NotImplemented
+
+    def __rtruediv__(self, other):
+        if isinstance(other, (int, float)):
+            return Arrhenius(k0=other/self.k0,
+                             EaR=-self.EaR,
+                             T0=self.T0,
+                             Tmin=self.Tmin,
+                             Tmax=self.Tmax,
+                             Yunit=f"1/{self.Yunit}",
+                             Ysymbol=f"{str(other)}/{self.Ysymbol}",
+                             name=f"{str(other)}/{self.name}")
         else:
             return NotImplemented
 
@@ -360,7 +430,7 @@ class Eyring(CoefficientT):
 
     where $\kappa$ is the transmission coefficient, $\Delta S^\ddagger$ is
     the entropy of activation, and $\Delta H^\ddagger$ is the enthalpy of
-    activation.
+    activation. The unit of $k$ is 1/s.
 
     Parameters
     ----------
@@ -391,7 +461,7 @@ class Eyring(CoefficientT):
                  DHa: FloatOrArrayLike,
                  kappa: FloatOrArrayLike = 1.0,
                  Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = +np.inf,
+                 Tmax: FloatOrArrayLike = np.inf,
                  name: str = ''
                  ) -> None:
 
@@ -577,7 +647,7 @@ class DIPPRP5(DIPPR):
                  D: FloatOrArrayLike,
                  E: FloatOrArrayLike,
                  Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = +np.inf,
+                 Tmax: FloatOrArrayLike = np.inf,
                  Yunit: str = '-',
                  Ysymbol: str = 'Y',
                  name: str = ''
@@ -649,7 +719,7 @@ class DIPPRP4(DIPPRP5):
                  C: FloatOrArrayLike,
                  D: FloatOrArrayLike,
                  Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = +np.inf,
+                 Tmax: FloatOrArrayLike = np.inf,
                  Yunit: str = '-',
                  Ysymbol: str = 'Y',
                  name: str = ''
