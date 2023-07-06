@@ -313,16 +313,28 @@ class Arrhenius(CoefficientT):
         self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
-    def __mul__(self, other):
-        """Multipy Arrhenius coefficients.
+    def __str__(self) -> str:
+        return \
+            f"name:      {self.name}\n" + \
+            f"symbol:    {self.Ysymbol}\n" + \
+            f"unit:      {self.Yunit}\n" + \
+            f"k0:        {self.k0}\n" + \
+            f"Ea/R [K]:  {self.EaR}\n" + \
+            f"T0   [K]:  {self.T0}\n" + \
+            f"Tmin [K]:  {self.Tmin}\n" + \
+            f"Tmax [K]:  {self.Tmax}"
 
-        Create a new Arrhenius coefficient from the product of two Arrhenius
-        coefficients with identical shapes.
+    def __mul__(self, other):
+        """Multipy Arrhenius coefficient(s).
+
+        Create a new Arrhenius coefficient from a product of two Arrhenius
+        coefficients with identical shapes or a product of an Arrhenius
+        coefficient and a numerical constant.
 
         Parameters
         ----------
-        other : Arrhenius
-            Another coefficient.
+        other : Arrhenius | float | int
+            Another Arrhenius coefficient or number.
 
         Returns
         -------
@@ -357,15 +369,16 @@ class Arrhenius(CoefficientT):
         return self.__mul__(other)
 
     def __truediv__(self, other):
-        """Divide Arrhenius coefficients.
+        """Divide Arrhenius coefficient(s).
 
-        Create a new Arrhenius coefficient from the quotient of two Arrhenius
-        coefficients with identical shapes.
+        Create a new Arrhenius coefficient from a division of two Arrhenius
+        coefficients with identical shapes or a division involving an Arrhenius
+        coefficient and a numerical constant.
 
         Parameters
         ----------
-        other : Arrhenius
-            Another coefficient.
+        other : Arrhenius | float | int
+            Another Arrhenius coefficient or number.
 
         Returns
         -------
@@ -496,6 +509,17 @@ class Eyring(CoefficientT):
         self.Tmax = Tmax
         self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
+
+    def __str__(self) -> str:
+        return \
+            f"name:             {self.name}\n" + \
+            f"symbol:           {self.Ysymbol}\n" + \
+            f"unit:             {self.Yunit}\n" + \
+            f"DSa [J/(mol·K)]:  {self.DSa}\n" + \
+            f"DHa [J/mol]:      {self.DHa}\n" + \
+            f"kappa [—]:        {self.kappa}\n" + \
+            f"Tmin [K]:         {self.Tmin}\n" + \
+            f"Tmax [K]:         {self.Tmax}"
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
         return self.kappa * kB*T/h * np.exp((self.DSa - self.DHa/T)/R)
@@ -712,6 +736,19 @@ class DIPPRP5(DIPPR):
         self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
+    def __str__(self) -> str:
+        return \
+            f"name:      {self.name}\n" + \
+            f"symbol:    {self.Ysymbol}\n" + \
+            f"unit:      {self.Yunit}\n" + \
+            f"A:         {self.A}\n" + \
+            f"B:         {self.B}\n" + \
+            f"C:         {self.C}\n" + \
+            f"D:         {self.D}\n" + \
+            f"E:         {self.E}\n" + \
+            f"Tmin [K]:  {self.Tmin}\n" + \
+            f"Tmax [K]:  {self.Tmax}"
+
 
 class DIPPRP4(DIPPRP5):
     """_Abstract_ class for DIPPR equations with 4 parameters (A-D)."""
@@ -757,6 +794,18 @@ class DIPPRP4(DIPPRP5):
         else:
             E = 0.0
         super().__init__(A, B, C, D, E, Tmin, Tmax, Yunit, Ysymbol, name)
+
+    def __str__(self) -> str:
+        return \
+            f"name:      {self.name}\n" + \
+            f"symbol:    {self.Ysymbol}\n" + \
+            f"unit:      {self.Yunit}\n" + \
+            f"A:         {self.A}\n" + \
+            f"B:         {self.B}\n" + \
+            f"C:         {self.C}\n" + \
+            f"D:         {self.D}\n" + \
+            f"Tmin [K]:  {self.Tmin}\n" + \
+            f"Tmax [K]:  {self.Tmax}"
 
 
 class DIPPR100(DIPPRP5):
