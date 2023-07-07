@@ -170,7 +170,7 @@ class Distribution(Base, ABC):
              xrange: FloatRange = [],
              cdf: Literal[0, 1, 2] = 0,
              title: Union[str, None] = None,
-             axes: Union[list[plt.Axes], None] = None,
+             axes: Union[list[plt.Axes], None] = None
              ) -> None:
         """Plot the chain-length distribution.
 
