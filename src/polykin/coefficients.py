@@ -588,6 +588,15 @@ class CompositeModelTermination(CoefficientCLD):
         self.aL = aL
         self.name = name
 
+    def __str__(self) -> str:
+        return \
+            f"name:      {self.name}\n" + \
+            f"icrit:     {self.icrit}\n" + \
+            f"aS:        {self.aS}\n" + \
+            f"aL:        {self.aL}\n" + \
+            "- k11 -\n" + \
+            self.k11.__str__()
+
     def eval(self,
              T: FloatOrArray,
              i: IntOrArray,
