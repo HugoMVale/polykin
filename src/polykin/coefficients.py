@@ -7,6 +7,7 @@ from polykin.base import Base
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 from scipy.constants import h, R, Boltzmann as kB
 from abc import ABC, abstractmethod
 from typing import Union, Literal
@@ -159,6 +160,7 @@ class CoefficientT(CoefficientX1):
              Trange: Union[tuple[float, float], None] = None,
              Tunit: Literal['C', 'K'] = 'K',
              title: Union[str, None] = None,
+             axes: Union[plt.Axes, None] = None
              ) -> None:
         """Plot the coefficient as a function of temperature.
 
@@ -174,6 +176,8 @@ class CoefficientT(CoefficientX1):
             Temperature unit.
         title : str | None
             Title of plot. If `None`, the object name will be used.
+        axes : list[plt.Axes] | None
+            Matplotlib Axes object.
         """
 
         # check inputs
@@ -183,24 +187,38 @@ class CoefficientT(CoefficientX1):
                 and not (len(Trange) == 2 and Trange[1] > Trange[0]):
             raise RangeError(f"`Trange` is invalid: {Trange}")
 
-        # general plot settings
-        fig, ax = plt.subplots()
-        self.fig = fig
-        if title is None:
-            title = self.name
-        if title:
-            fig.suptitle(title)
-        ax.grid(True)
+        # plot objects
+        if axes is None:
+            ext_mode = False
+            fig, ax = plt.subplots()
+            self.fig = fig
+            if title is None:
+                title = self.name
+            if title:
+                fig.suptitle(title)
+        else:
+            ext_mode = True
+            ax = axes
 
-        xlabel = fr"$T$ [{Tunit}]"
+        # plot labels
+        Tsymbol = Tunit
+        if Tunit == 'C':
+            Tsymbol = '°' + Tsymbol 
+        xlabel = fr"$T$ [{Tsymbol}]"
         ylabel = fr"${self.Ysymbol}$ [${self.Yunit}$]"
+        if ext_mode:
+            label = ylabel
+            ylabel = "$c(T)$"
+        else:
+            label = None
         Tunit_range = Tunit
         if kind == 'Arrhenius':
             Tunit = 'K'
-            xlabel = r"$1/T$ [K$^{-1}$]"
+            xlabel = r"$1/T$ [" + Tsymbol + r"$^{-1}$]"
             ylabel = r"$\ln$" + ylabel
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
+        ax.grid(True)
 
         # x-axis vector
         if Trange is not None:
@@ -222,11 +240,14 @@ class CoefficientT(CoefficientX1):
             else:
                 T = TK
             if kind == 'linear':
-                ax.plot(T, y)
+                ax.plot(T, y, label=label)
             elif kind == 'semilogy':
-                ax.semilogy(T, y)
+                ax.semilogy(T, y, label=label)
             elif kind == 'Arrhenius':
-                ax.semilogy(1/TK, y)
+                ax.semilogy(1/TK, y, label=label)
+
+        if ext_mode:
+            ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
 
         return None
 
@@ -869,4 +890,41 @@ class DIPPR105(DIPPRP4):
         D = self.D
         return A / B**(1 + (1 - T / C)**D)
 
-# %%
+# %% Functions
+
+
+def plotcoeffs(coeffs: list[CoefficientT],
+               kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
+               title: Union[str, None] = None,
+               **kwargs
+               ) -> Figure:
+    """Plot a list of temperature-dependent coefficients in a joint plot.
+
+    Parameters
+    ----------
+    coeffs : list[CoefficientT]
+        List of coefficients to be ploted together.
+    kind : Literal['linear', 'semilogy', 'Arrhenius']
+        Kind of plot to be generated.
+    title : str | None
+        Title of plot.
+
+    Returns
+    -------
+    Figure
+        Matplotlib Figure object holding the joint plot.
+    """
+
+    # Create matplotlib objects
+    fig, ax = plt.subplots()
+
+    # Title
+    if title is None:
+        title = "Coefficient overlay"
+    fig.suptitle(title)
+
+    # Draw plots sequentially
+    for c in coeffs:
+        c.plot(kind=kind, axes=ax, **kwargs)
+
+    return fig
