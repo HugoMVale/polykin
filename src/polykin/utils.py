@@ -231,6 +231,48 @@ def check_in_set(var_value: Any,
             f"The following items do not belong to the valid set: {diff_set}.",
         )
 
+
+def check_shapes(a: list, b: list) -> Union[tuple[int, ...], None]:
+    """Check shape homogeneity between objects in lists `a` and `b`.
+
+    Rules:
+    - All objects in `a` must have the same shape, i.e., either all floats
+    or all arrays with same shape.
+    - Objects in `b` that are arrays, must have identical shape to the
+    objects in `a`.
+
+    Parameters
+    ----------
+    a : list
+        List of objects which must have the same shape.
+    b : list
+        List of objects which, if arrays, must have identical shape to the
+        objects in `a`.
+
+    Returns
+    -------
+    Union[tuple[int, ...], None]
+        Common shape of `a` or None.
+    """
+
+    check_a = True
+    check_b = True
+    shape = None
+    shapes_a = [elem.shape for elem in a if isinstance(elem, np.ndarray)]
+    shapes_b = [elem.shape for elem in b if isinstance(elem, np.ndarray)]
+    if shapes_a:
+        if len(shapes_a) != len(a) or len(set(shapes_a)) != 1:
+            check_a = False
+        else:
+            shape = shapes_a[0]
+    if shapes_b:
+        if len(set(shapes_a + shapes_b)) != 1:
+            check_b = False
+    if not (check_a and check_b):
+        raise ShapeError("Input parameters have inconsistent shapes.")
+    return shape
+
+
 # %% Special functions
 
 
@@ -248,7 +290,7 @@ def add_dicts(d1: dict[Any, Union[int, float]],
         second dictionary
     new : bool
         if True, a new dictionary will be created (`d = d1 + d2`), otherwise,
-        d1 will be modified (`d1 <- d1 + d2`).
+        d1 will be modified in place (`d1 <- d1 + d2`).
 
     Returns
     -------

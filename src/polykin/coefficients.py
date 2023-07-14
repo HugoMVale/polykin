@@ -1,6 +1,7 @@
 # %% Coefficients
 
 from polykin.utils import check_bounds, check_type, check_in_set, \
+    check_shapes, \
     FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray, \
     eps, RangeError, ShapeError
 from polykin.base import Base
@@ -23,47 +24,6 @@ class Coefficient(Base, ABC):
     def shape(self) -> Union[tuple[int, ...], None]:
         """Shape of underlying coefficient array."""
         return self._shape
-
-    @staticmethod
-    def _check_shapes(a: list, b: list) -> Union[tuple[int, ...], None]:
-        """Check shape homogeneity between objects in lists `a` and `b`.
-
-        Rules:
-        - All objects in `a` must have the same shape, i.e., either all floats
-        or all arrays with same shape.
-        - Objects in `b` that are arrays, must have identical shape to the
-        objects in `a`.
-
-        Parameters
-        ----------
-        a : list
-            List of objects which must have the same shape.
-        b : list
-            List of objects which, if arrays, must have identical shape to the
-            objects in `a`.
-
-        Returns
-        -------
-        Union[tuple[int, ...], None]
-            Common shape of `a` or None.
-        """
-
-        check_a = True
-        check_b = True
-        shape = None
-        shapes_a = [elem.shape for elem in a if isinstance(elem, np.ndarray)]
-        shapes_b = [elem.shape for elem in b if isinstance(elem, np.ndarray)]
-        if shapes_a:
-            if len(shapes_a) != len(a) or len(set(shapes_a)) != 1:
-                check_a = False
-            else:
-                shape = shapes_a[0]
-        if shapes_b:
-            if len(set(shapes_a + shapes_b)) != 1:
-                check_b = False
-        if not (check_a and check_b):
-            raise ShapeError("Input parameters have inconsistent shapes.")
-        return shape
 
     @abstractmethod
     def __call__(self, *args) -> FloatOrArray:
@@ -180,14 +140,14 @@ class CoefficientT(CoefficientX1):
             Matplotlib Axes object.
         """
 
-        # check inputs
+        # Check inputs
         check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
         check_in_set(Tunit, {'K', 'C'}, 'Tunit')
         if Trange is not None \
                 and not (len(Trange) == 2 and Trange[1] > Trange[0]):
             raise RangeError(f"`Trange` is invalid: {Trange}")
 
-        # plot objects
+        # Plot objects
         if axes is None:
             ext_mode = False
             fig, ax = plt.subplots()
@@ -200,7 +160,7 @@ class CoefficientT(CoefficientX1):
             ext_mode = True
             ax = axes
 
-        # plot labels
+        # Plot labels
         Tsymbol = Tunit
         if Tunit == 'C':
             Tsymbol = '°' + Tsymbol 
@@ -302,7 +262,7 @@ class Arrhenius(CoefficientT):
                  name: str = ''
                  ) -> None:
 
-        # convert lists to arrays
+        # Convert lists to arrays
         if isinstance(k0, list):
             k0 = np.array(k0, dtype=np.float64)
         if isinstance(EaR, list):
@@ -314,10 +274,10 @@ class Arrhenius(CoefficientT):
         if isinstance(Tmax, list):
             Tmax = np.array(Tmax, dtype=np.float64)
 
-        # check shapes
-        self._shape = self._check_shapes([k0, EaR], [T0, Tmin, Tmax])
+        # Check shapes
+        self._shape = check_shapes([k0, EaR], [T0, Tmin, Tmax])
 
-        # check bounds
+        # Check bounds
         check_bounds(k0, 0, np.inf, 'k0')
         check_bounds(EaR, -np.inf, np.inf, 'EaR')
         check_bounds(T0, 0, np.inf, 'T0')
@@ -334,15 +294,15 @@ class Arrhenius(CoefficientT):
         self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return \
-            f"name:      {self.name}\n" + \
-            f"symbol:    {self.Ysymbol}\n" + \
-            f"unit:      {self.Yunit}\n" + \
-            f"k0:        {self.k0}\n" + \
-            f"Ea/R [K]:  {self.EaR}\n" + \
-            f"T0   [K]:  {self.T0}\n" + \
-            f"Tmin [K]:  {self.Tmin}\n" + \
+            f"name:      {self.name}\n" \
+            f"symbol:    {self.Ysymbol}\n" \
+            f"unit:      {self.Yunit}\n" \
+            f"k0:        {self.k0}\n" \
+            f"Ea/R [K]:  {self.EaR}\n" \
+            f"T0   [K]:  {self.T0}\n" \
+            f"Tmin [K]:  {self.Tmin}\n" \
             f"Tmax [K]:  {self.Tmax}"
 
     def __mul__(self, other):
@@ -501,7 +461,7 @@ class Eyring(CoefficientT):
                  name: str = ''
                  ) -> None:
 
-        # convert lists to arrays
+        # Convert lists to arrays
         if isinstance(DSa, list):
             DSa = np.array(DSa, dtype=np.float64)
         if isinstance(DHa, list):
@@ -512,10 +472,11 @@ class Eyring(CoefficientT):
             Tmin = np.array(Tmin, dtype=np.float64)
         if isinstance(Tmax, list):
             Tmax = np.array(Tmax, dtype=np.float64)
-        # check shapes
-        self._shape = self._check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
+        
+        # Check shapes
+        self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
 
-        # check bounds
+        # Check bounds
         check_bounds(DSa, 0, np.inf, 'DSa')
         check_bounds(DHa, 0, np.inf, 'DHa')
         check_bounds(kappa, 0, 1, 'kappa')
@@ -531,15 +492,15 @@ class Eyring(CoefficientT):
         self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return \
-            f"name:             {self.name}\n" + \
-            f"symbol:           {self.Ysymbol}\n" + \
-            f"unit:             {self.Yunit}\n" + \
-            f"DSa [J/(mol·K)]:  {self.DSa}\n" + \
-            f"DHa [J/mol]:      {self.DHa}\n" + \
-            f"kappa [—]:        {self.kappa}\n" + \
-            f"Tmin [K]:         {self.Tmin}\n" + \
+            f"name:             {self.name}\n" \
+            f"symbol:           {self.Ysymbol}\n" \
+            f"unit:             {self.Yunit}\n" \
+            f"DSa [J/(mol·K)]:  {self.DSa}\n" \
+            f"DHa [J/mol]:      {self.DHa}\n" \
+            f"kappa [—]:        {self.kappa}\n" \
+            f"Tmin [K]:         {self.Tmin}\n" \
             f"Tmax [K]:         {self.Tmax}"
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
@@ -609,14 +570,14 @@ class CompositeModelTermination(CoefficientCLD):
         self.aL = aL
         self.name = name
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return \
-            f"name:      {self.name}\n" + \
-            f"icrit:     {self.icrit}\n" + \
-            f"aS:        {self.aS}\n" + \
-            f"aL:        {self.aL}\n" + \
+            f"name:      {self.name}\n" \
+            f"icrit:     {self.icrit}\n" \
+            f"aS:        {self.aS}\n" \
+            f"aL:        {self.aL}\n" \
             "- k11 -\n" + \
-            self.k11.__str__()
+            self.k11.__repr__()
 
     def eval(self,
              T: FloatOrArray,
@@ -736,7 +697,7 @@ class DIPPRP5(DIPPR):
             Name.
         """
 
-        # convert lists to arrays
+        # Convert lists to arrays
         if isinstance(A, list):
             A = np.array(A, dtype=np.float64)
         if isinstance(B, list):
@@ -752,8 +713,8 @@ class DIPPRP5(DIPPR):
         if isinstance(Tmax, list):
             Tmax = np.array(Tmax, dtype=np.float64)
 
-        # check shapes
-        self._shape = self._check_shapes([A, B, C, D, E], [Tmin, Tmax])
+        # Check shapes
+        self._shape = check_shapes([A, B, C, D, E], [Tmin, Tmax])
 
         self.A = A
         self.B = B
@@ -766,17 +727,17 @@ class DIPPRP5(DIPPR):
         self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
         self.name = name
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return \
-            f"name:      {self.name}\n" + \
-            f"symbol:    {self.Ysymbol}\n" + \
-            f"unit:      {self.Yunit}\n" + \
-            f"A:         {self.A}\n" + \
-            f"B:         {self.B}\n" + \
-            f"C:         {self.C}\n" + \
-            f"D:         {self.D}\n" + \
-            f"E:         {self.E}\n" + \
-            f"Tmin [K]:  {self.Tmin}\n" + \
+            f"name:      {self.name}\n" \
+            f"symbol:    {self.Ysymbol}\n" \
+            f"unit:      {self.Yunit}\n" \
+            f"A:         {self.A}\n" \
+            f"B:         {self.B}\n" \
+            f"C:         {self.C}\n" \
+            f"D:         {self.D}\n" \
+            f"E:         {self.E}\n" \
+            f"Tmin [K]:  {self.Tmin}\n" \
             f"Tmax [K]:  {self.Tmax}"
 
 
@@ -825,16 +786,16 @@ class DIPPRP4(DIPPRP5):
             E = 0.0
         super().__init__(A, B, C, D, E, Tmin, Tmax, Yunit, Ysymbol, name)
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return \
-            f"name:      {self.name}\n" + \
-            f"symbol:    {self.Ysymbol}\n" + \
-            f"unit:      {self.Yunit}\n" + \
-            f"A:         {self.A}\n" + \
-            f"B:         {self.B}\n" + \
-            f"C:         {self.C}\n" + \
-            f"D:         {self.D}\n" + \
-            f"Tmin [K]:  {self.Tmin}\n" + \
+            f"name:      {self.name}\n" \
+            f"symbol:    {self.Ysymbol}\n" \
+            f"unit:      {self.Yunit}\n" \
+            f"A:         {self.A}\n" \
+            f"B:         {self.B}\n" \
+            f"C:         {self.C}\n" \
+            f"D:         {self.D}\n" \
+            f"Tmin [K]:  {self.Tmin}\n" \
             f"Tmax [K]:  {self.Tmax}"
 
 
