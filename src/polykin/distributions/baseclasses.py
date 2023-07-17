@@ -29,17 +29,17 @@ class Distribution(Base, ABC):
     kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
     units = {'molar_mass': 'g/mol'}
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         unit_M = self.units['molar_mass']
-        return f"type: {self.__class__.__name__}\n" + \
-            f"name: {self.name}\n" + \
-            f"DPn:  {self.DPn:.1f}\n" + \
-            f"DPw:  {self.DPw:.1f}\n" + \
-            f"DPz:  {self.DPz:.1f}\n" + \
-            f"PDI:  {self.PDI:.2f}\n" + \
-            f"M0:   {self.M0:,.1f} {unit_M}\n" + \
-            f"Mn:   {self.Mn:,.0f} {unit_M}\n" + \
-            f"Mw:   {self.Mw:,.0f} {unit_M}\n" + \
+        return f"type: {self.__class__.__name__}\n" \
+            f"name: {self.name}\n" \
+            f"DPn:  {self.DPn:.1f}\n" \
+            f"DPw:  {self.DPw:.1f}\n" \
+            f"DPz:  {self.DPz:.1f}\n" \
+            f"PDI:  {self.PDI:.2f}\n" \
+            f"M0:   {self.M0:,.1f} {unit_M}\n" \
+            f"Mn:   {self.Mn:,.0f} {unit_M}\n" \
+            f"Mw:   {self.Mw:,.0f} {unit_M}\n" \
             f"Mz:   {self.Mz:,.0f} {unit_M}"
 
     def __lt__(self, other) -> bool:
@@ -735,9 +735,9 @@ class MixtureDistribution(Distribution):
     def __contains__(self, component):
         return (component in self.components)
 
-    def __str__(self):
+    def __repr__(self):
         if len(self.components) > 0:
-            return super().__str__()
+            return super().__repr__()
         else:
             return 'empty'
 
