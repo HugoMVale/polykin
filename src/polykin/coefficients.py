@@ -51,8 +51,8 @@ class CoefficientT(CoefficientX1):
 
     Tmin: FloatOrArray
     Tmax: FloatOrArray
-    Yunit: str
-    Ysymbol: str
+    unit: str
+    symbol: str
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -163,9 +163,9 @@ class CoefficientT(CoefficientX1):
         # Plot labels
         Tsymbol = Tunit
         if Tunit == 'C':
-            Tsymbol = '°' + Tsymbol 
+            Tsymbol = '°' + Tsymbol
         xlabel = fr"$T$ [{Tsymbol}]"
-        ylabel = fr"${self.Ysymbol}$ [${self.Yunit}$]"
+        ylabel = fr"${self.symbol}$ [${self.unit}$]"
         if ext_mode:
             label = ylabel
             ylabel = "$c(T)$"
@@ -218,8 +218,8 @@ class Arrhenius(CoefficientT):
 
     This coefficient implements the following temperature dependence:
 
-    $$ k(T)=k_0\exp\left(-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
-        \right)\right) $$
+    $$ k(T)=k_0\exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
+        \right)\right] $$
 
     where $T_0$ is a convenient reference temperature, $E_a$ is the activation
     energy, and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
@@ -229,7 +229,7 @@ class Arrhenius(CoefficientT):
     ----------
     k0 : FloatOrArrayLike
         Coefficient value at the reference temperature, $k_0=k(T_0)$.
-        Unit = `Yunit`.
+        Unit = `unit`.
     EaR : FloatOrArrayLike
         Energy of activation, $E_a/R$.
         Unit = K.
@@ -242,9 +242,9 @@ class Arrhenius(CoefficientT):
     Tmax : FloatOrArrayLike
         Upper temperature bound.
         Unit = K.
-    Yunit : str
+    unit : str
         Unit of coefficient.
-    Ysymbol : str
+    symbol : str
         Symbol of coefficient $k$.
     name : str
         Name.
@@ -257,8 +257,8 @@ class Arrhenius(CoefficientT):
                  T0: FloatOrArrayLike = np.inf,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = np.inf,
-                 Yunit: str = '-',
-                 Ysymbol: str = 'k',
+                 unit: str = '-',
+                 symbol: str = 'k',
                  name: str = ''
                  ) -> None:
 
@@ -290,15 +290,15 @@ class Arrhenius(CoefficientT):
         self.T0 = T0
         self.Tmin = Tmin
         self.Tmax = Tmax
-        self.Yunit = check_type(Yunit, str, 'Yunit')
-        self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
+        self.unit = check_type(unit, str, 'unit')
+        self.symbol = check_type(symbol, str, 'symbol')
         self.name = name
 
     def __repr__(self) -> str:
         return \
             f"name:      {self.name}\n" \
-            f"symbol:    {self.Ysymbol}\n" \
-            f"unit:      {self.Yunit}\n" \
+            f"symbol:    {self.symbol}\n" \
+            f"unit:      {self.unit}\n" \
             f"k0:        {self.k0}\n" \
             f"Ea/R [K]:  {self.EaR}\n" \
             f"T0   [K]:  {self.T0}\n" \
@@ -328,8 +328,8 @@ class Arrhenius(CoefficientT):
                                  EaR=self.EaR + other.EaR,
                                  Tmin=np.maximum(self.Tmin, other.Tmin),
                                  Tmax=np.minimum(self.Tmax, other.Tmax),
-                                 Yunit=f"{self.Yunit}·{other.Yunit}",
-                                 Ysymbol=f"{self.Ysymbol}·{other.Ysymbol}",
+                                 unit=f"{self.unit}·{other.unit}",
+                                 symbol=f"{self.symbol}·{other.symbol}",
                                  name=f"{self.name}·{other.name}")
             else:
                 raise ShapeError(
@@ -340,8 +340,8 @@ class Arrhenius(CoefficientT):
                              T0=self.T0,
                              Tmin=self.Tmin,
                              Tmax=self.Tmax,
-                             Yunit=self.Yunit,
-                             Ysymbol=f"{str(other)}·{self.Ysymbol}",
+                             unit=self.unit,
+                             symbol=f"{str(other)}·{self.symbol}",
                              name=f"{str(other)}·{self.name}")
         else:
             return NotImplemented
@@ -372,8 +372,8 @@ class Arrhenius(CoefficientT):
                                  EaR=self.EaR - other.EaR,
                                  Tmin=np.maximum(self.Tmin, other.Tmin),
                                  Tmax=np.minimum(self.Tmax, other.Tmax),
-                                 Yunit=f"{self.Yunit}/{other.Yunit}",
-                                 Ysymbol=f"{self.Ysymbol}/{other.Ysymbol}",
+                                 unit=f"{self.unit}/{other.unit}",
+                                 symbol=f"{self.symbol}/{other.symbol}",
                                  name=f"{self.name}/{other.name}")
             else:
                 raise ShapeError(
@@ -384,8 +384,8 @@ class Arrhenius(CoefficientT):
                              T0=self.T0,
                              Tmin=self.Tmin,
                              Tmax=self.Tmax,
-                             Yunit=self.Yunit,
-                             Ysymbol=f"{self.Ysymbol}/{str(other)}",
+                             unit=self.unit,
+                             symbol=f"{self.symbol}/{str(other)}",
                              name=f"{self.name}/{str(other)}")
         else:
             return NotImplemented
@@ -397,8 +397,8 @@ class Arrhenius(CoefficientT):
                              T0=self.T0,
                              Tmin=self.Tmin,
                              Tmax=self.Tmax,
-                             Yunit=f"1/{self.Yunit}",
-                             Ysymbol=f"{str(other)}/{self.Ysymbol}",
+                             unit=f"1/{self.unit}",
+                             symbol=f"{str(other)}/{self.symbol}",
                              name=f"{str(other)}/{self.name}")
         else:
             return NotImplemented
@@ -424,7 +424,7 @@ class Eyring(CoefficientT):
 
     where $\kappa$ is the transmission coefficient, $\Delta S^\ddagger$ is
     the entropy of activation, and $\Delta H^\ddagger$ is the enthalpy of
-    activation. The unit of $k$ is 1/s.
+    activation. The unit of $k$ is physically set to s$^{-1}$.
 
     Parameters
     ----------
@@ -443,13 +443,13 @@ class Eyring(CoefficientT):
     Tmax : FloatOrArrayLike
         Upper temperature bound.
         Unit = K.
-    Ysymbol : str
+    symbol : str
         Symbol of coefficient $k$.
     name : str
         Name.
     """
 
-    Yunit = 's^{-1}'
+    unit = 's^{-1}'
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
@@ -457,7 +457,7 @@ class Eyring(CoefficientT):
                  kappa: FloatOrArrayLike = 1.0,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = np.inf,
-                 Ysymbol: str = 'k',
+                 symbol: str = 'k',
                  name: str = ''
                  ) -> None:
 
@@ -472,7 +472,7 @@ class Eyring(CoefficientT):
             Tmin = np.array(Tmin, dtype=np.float64)
         if isinstance(Tmax, list):
             Tmax = np.array(Tmax, dtype=np.float64)
-        
+
         # Check shapes
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
 
@@ -489,14 +489,14 @@ class Eyring(CoefficientT):
         self.kappa = kappa
         self.Tmin = Tmin
         self.Tmax = Tmax
-        self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
+        self.symbol = check_type(symbol, str, 'symbol')
         self.name = name
 
     def __repr__(self) -> str:
         return \
             f"name:             {self.name}\n" \
-            f"symbol:           {self.Ysymbol}\n" \
-            f"unit:             {self.Yunit}\n" \
+            f"symbol:           {self.symbol}\n" \
+            f"unit:             {self.unit}\n" \
             f"DSa [J/(mol·K)]:  {self.DSa}\n" \
             f"DHa [J/mol]:      {self.DHa}\n" \
             f"kappa [—]:        {self.kappa}\n" \
@@ -512,7 +512,7 @@ class CoefficientCLD(Coefficient):
     pass
 
 
-class CompositeModelTermination(CoefficientCLD):
+class TerminationCompositeModel(CoefficientCLD):
     r"""Composite model for the termination rate coefficient between two
     radicals.
 
@@ -649,6 +649,112 @@ class CompositeModelTermination(CoefficientCLD):
         return self.eval(TK, i, j)
 
 
+class PropagationHalfLength(CoefficientCLD):
+    r"""Half-length model for the decay of the propagation rate coefficient
+    with chain length.
+
+    This coefficient implements the chain-length dependence proposed by
+    [Smith et al. (2005)](https://doi.org/10.1016/j.eurpolymj.2004.09.002):
+
+    $$ k_p(i) = k_p \left[ 1+ (C - 1)\exp{\left (-\frac{\ln 2}{i_{1/2}} (i-1) \
+    \right )} \right] $$
+
+    where $k_p=k_p(\infty)$ is the long-chain value of the propagation rate
+    coefficient, $C\ge 1$ is the ratio $k_p(1)/k_p$ and $(i_{1/2}+1)$ is the
+    hypothetical chain-length at which the difference $k_p(1) - k_p$ is halved.
+    """
+
+    def __init__(self,
+                 kp: Union[Arrhenius, Eyring],
+                 C: float = 10.,
+                 ihalf: float = 1.0,
+                 name: str = ''
+                 ) -> None:
+        r"""
+        Parameters
+        ----------
+        kp : Arrhenius | Eyring
+            Long-chain value of the propagation rate coefficient, $k_p$.
+        C : float
+            Ratio of the propagation coefficients of a monomeric radical and a 
+            long-chain radical, $C$.
+        ihalf : float
+            Half-length, $i_{i/2}$.
+        name : str
+            Name.
+        """
+
+        check_bounds(C, 1., 100., 'C')
+        check_bounds(ihalf, 0.1, 10, 'ihalf')
+
+        self.kp = kp
+        self.C = C
+        self.ihalf = ihalf
+        self.name = name
+
+    def __repr__(self) -> str:
+        return \
+            f"name:      {self.name}\n" \
+            f"C:         {self.C}\n" \
+            f"ihalf:     {self.ihalf}\n" \
+            "- kp -\n" + \
+            self.kp.__repr__()
+
+    def eval(self,
+             T: FloatOrArray,
+             i: IntOrArray,
+             ) -> FloatOrArray:
+        """Evaluate coefficient at given SI conditions, without unit
+        conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+        i : IntOrArray
+            Chain length of radical.
+
+        Returns
+        -------
+        FloatOrArray
+            Coefficient value.
+        """
+        kp = self.kp.eval(T)
+        C = self.C
+        ihalf = self.ihalf
+
+        return kp*(1 + (C - 1)*np.exp(-np.log(2)*(i - 1)/ihalf))
+
+    def __call__(self,
+                 T: FloatOrArrayLike,
+                 i: IntOrArrayLike,
+                 Tunit: Literal['C', 'K'] = 'C'
+                 ) -> FloatOrArray:
+        r"""Evaluate coefficient at given conditions, including unit
+        conversion and range check.
+
+        Parameters
+        ----------
+        T : FloatOrArrayLike
+            Temperature.
+            Unit = `Tunit`.
+        i : IntOrArrayLike
+            Chain length of radical.
+        Tunit : Literal['C', 'K']
+            Temperature unit.
+
+        Returns
+        -------
+        FloatOrArray
+            Coefficient value.
+        """
+        TK = self.kp._convert_check_temperature(T, Tunit)
+        if isinstance(i, list):
+            i = np.array(i, dtype=np.int32)
+        return self.eval(TK, i)
+
+
 class DIPPR(CoefficientT):
     """_Abstract_ class for all [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
     temperature-dependent equations."""
@@ -666,8 +772,8 @@ class DIPPRP5(DIPPR):
                  E: FloatOrArrayLike,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = np.inf,
-                 Yunit: str = '-',
-                 Ysymbol: str = 'Y',
+                 unit: str = '-',
+                 symbol: str = 'Y',
                  name: str = ''
                  ) -> None:
         r"""
@@ -689,9 +795,9 @@ class DIPPRP5(DIPPR):
         Tmax : FloatOrArrayLike
             Upper temperature bound.
             Unit = K.
-        Yunit : str
+        unit : str
             Unit of output variable $Y$.
-        Ysymbol : str
+        symbol : str
             Symbol of output variable $Y$.
         name : str
             Name.
@@ -723,15 +829,15 @@ class DIPPRP5(DIPPR):
         self.E = E
         self.Tmin = Tmin
         self.Tmax = Tmax
-        self.Yunit = check_type(Yunit, str, 'Yunit')
-        self.Ysymbol = check_type(Ysymbol, str, 'Ysymbol')
+        self.unit = check_type(unit, str, 'unit')
+        self.symbol = check_type(symbol, str, 'symbol')
         self.name = name
 
     def __repr__(self) -> str:
         return \
             f"name:      {self.name}\n" \
-            f"symbol:    {self.Ysymbol}\n" \
-            f"unit:      {self.Yunit}\n" \
+            f"symbol:    {self.symbol}\n" \
+            f"unit:      {self.unit}\n" \
             f"A:         {self.A}\n" \
             f"B:         {self.B}\n" \
             f"C:         {self.C}\n" \
@@ -751,8 +857,8 @@ class DIPPRP4(DIPPRP5):
                  D: FloatOrArrayLike,
                  Tmin: FloatOrArrayLike = 0.0,
                  Tmax: FloatOrArrayLike = np.inf,
-                 Yunit: str = '-',
-                 Ysymbol: str = 'Y',
+                 unit: str = '-',
+                 symbol: str = 'Y',
                  name: str = ''
                  ) -> None:
         r"""
@@ -772,9 +878,9 @@ class DIPPRP4(DIPPRP5):
         Tmax : FloatOrArrayLike
             Upper temperature bound.
             Unit = K.
-        Yunit : str
+        unit : str
             Unit of output variable $Y$.
-        Ysymbol : str
+        symbol : str
             Symbol of output variable $Y$.
         name : str
             Name.
@@ -784,13 +890,13 @@ class DIPPRP4(DIPPRP5):
             E = [0.0]*len(A)
         else:
             E = 0.0
-        super().__init__(A, B, C, D, E, Tmin, Tmax, Yunit, Ysymbol, name)
+        super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     def __repr__(self) -> str:
         return \
             f"name:      {self.name}\n" \
-            f"symbol:    {self.Ysymbol}\n" \
-            f"unit:      {self.Yunit}\n" \
+            f"symbol:    {self.symbol}\n" \
+            f"unit:      {self.unit}\n" \
             f"A:         {self.A}\n" \
             f"B:         {self.B}\n" \
             f"C:         {self.C}\n" \
@@ -859,7 +965,7 @@ def plotcoeffs(coeffs: list[CoefficientT],
                title: Union[str, None] = None,
                **kwargs
                ) -> Figure:
-    """Plot a list of temperature-dependent coefficients in a joint plot.
+    """Plot a list of temperature-dependent coefficients in a combined plot.
 
     Parameters
     ----------
@@ -873,7 +979,7 @@ def plotcoeffs(coeffs: list[CoefficientT],
     Returns
     -------
     Figure
-        Matplotlib Figure object holding the joint plot.
+        Matplotlib Figure object holding the combined plot.
     """
 
     # Create matplotlib objects
