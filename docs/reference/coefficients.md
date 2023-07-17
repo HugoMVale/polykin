@@ -8,4 +8,6 @@
             - DIPPR100
             - DIPPR101
             - DIPPR105
-            - CompositeModelTermination
+            - PropagationHalfLength
+            - TerminationCompositeModel
+            - plotcoeffs
