@@ -2,7 +2,7 @@ from collections.abc import Iterable
 import numbers
 import functools
 import numpy as np
-from typing import Union, Any
+from typing import Union, Any, Literal
 from nptyping import NDArray, Shape, Int32, Float64
 
 # %% Own types
@@ -167,7 +167,7 @@ def check_bounds(x: Union[float, np.ndarray],
     Example:
     -------
     >>> check_bounds(1.0, 0.1, 2.0, 'x') -> 1.0
-    >>> check_bounds(-1.0, 0.1, 2.0, 'x') -> ValueError
+    >>> check_bounds(-1.0, 0.1, 2.0, 'x') -> RangeError
 
     Parameters
     ----------
@@ -312,3 +312,48 @@ class vectorize(np.vectorize):
 
     def __get__(self, obj, objtype):
         return functools.partial(self.__call__, obj)
+
+# %% Unit functions
+
+
+def convert_check_temperature(T: FloatOrArrayLike,
+                              Tunit: Literal['C', 'K'],
+                              Tmin: FloatOrArray = 0.,
+                              Tmax: FloatOrArray = np.inf
+                              ) -> FloatOrArray:
+    """Convert temperature input to K and check range.
+
+    Parameters
+    ----------
+    T : FloatOrArrayLike
+        Temperature
+    Tunit : Literal['C', 'K']
+        Temperature unit.
+    Tmin : FloatOrArray
+        Lower temperature bound.
+        Unit = K.
+    Tmax : FloatOrArray
+        Upper temperature bound.
+        Unit = K.
+
+    Returns
+    -------
+    FloatOrArray
+        Temperature in K.
+    """
+
+    if isinstance(T, list):
+        T = np.array(T, dtype=np.float64)
+    if Tunit == 'K':
+        TK = T
+    elif Tunit == 'C':
+        TK = T + 273.15
+    else:
+        raise ValueError("Invalid `Tunit` input.")
+    if np.any(TK < 0):
+        raise RangeError("`T` must be > 0 K.")
+    if np.any(TK < Tmin) or np.any(TK > Tmax):
+        print("Warning: `T` input is outside validity range [Tmin, Tmax].")
+        # warn("`T` input is outside validity range [Tmin, Tmax].",
+        #      RangeWarning)
+    return TK

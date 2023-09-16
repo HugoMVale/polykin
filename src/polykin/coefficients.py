@@ -1,7 +1,12 @@
-# %% Coefficients
+"""
+PolyKin `coefficients` provides classes to create and visualize the types of
+kinetic coefficients and physical property correlations most often found in
+polymer reactor models.
+
+"""
 
 from polykin.utils import check_bounds, check_type, check_in_set, \
-    check_shapes, \
+    check_shapes, convert_check_temperature, \
     FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray, \
     eps, RangeError, ShapeError
 from polykin.base import Base
@@ -74,7 +79,7 @@ class CoefficientT(CoefficientX1):
         FloatOrArray
             Coefficient value.
         """
-        TK = self._convert_check_temperature(T, Tunit)
+        TK = convert_check_temperature(T, Tunit, self.Tmin, self.Tmax)
         return self.eval(TK)
 
     @abstractmethod
@@ -94,26 +99,6 @@ class CoefficientT(CoefficientX1):
             Coefficient value.
         """
         pass
-
-    def _convert_check_temperature(self,
-                                   T: FloatOrArrayLike,
-                                   Tunit: Literal['C', 'K']
-                                   ) -> FloatOrArray:
-        if isinstance(T, list):
-            T = np.array(T, dtype=np.float64)
-        if Tunit == 'K':
-            TK = T
-        elif Tunit == 'C':
-            TK = T + 273.15
-        else:
-            raise ValueError("Invalid `Tunit` input.")
-        if np.any(TK < 0):
-            raise RangeError("`T` must be > 0 K.")
-        if np.any(TK < self.Tmin) or np.any(TK > self.Tmax):
-            print("Warning: `T` input is outside validity range [Tmin, Tmax].")
-            # warn("`T` input is outside validity range [Tmin, Tmax].",
-            #      RangeWarning)
-        return TK
 
     def plot(self,
              kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
@@ -249,7 +234,6 @@ class Arrhenius(CoefficientT):
     name : str
         Name.
     """
-    Ysymbol = 'k'
 
     def __init__(self,
                  k0: FloatOrArrayLike,
