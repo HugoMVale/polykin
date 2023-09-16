@@ -122,12 +122,15 @@ nav:
       - installation.md
   - Learn:
       - PolyKin Tutorials: "tutorials/polykin_tutorials.md"
-      - Distributions: "tutorials/distributions.ipynb"
       - Coefficients: "tutorials/coefficients.ipynb"
-      - Copolymerization: "tutorials/copolymerization.ipynb"
+      - Diffusion: "tutorials/diffusion.ipynb"
+      - Distributions: "tutorials/distributions.ipynb"
+      # - Copolymerization: "tutorials/copolymerization.ipynb"
   #- Code Reference: reference/polykin/
   - API Reference:
-      - Distributions: "reference/distributions.md"
       - Coefficients: "reference/coefficients.md"
-      - Copolymerization: "reference/copolymerization.md"
+      - Diffusion: "reference/diffusion.md"
+      - Distributions: "reference/distributions.md"
+      # - Copolymerization: "reference/copolymerization.md"
+
 
