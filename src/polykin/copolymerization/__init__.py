@@ -1,7 +1,7 @@
 """
-PolyKin `copolymerization` provides classes to create, visualize, fit, combine,
-integrate, etc. theoretical and experimental chain-length distributions.
+PolyKin `copolymerization` provides classes to analyze and fit copolymerization
+data.
 
 """
 
-# from polykin.copolymerization import
+from polykin.copolymerization.copo import CopoData, CopoAnalysis
