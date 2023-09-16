@@ -2,8 +2,8 @@
 
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, \
-    custom_error, add_dicts, vectorize, FloatOrArrayLike, FloatOrArray, \
-    IntOrArray, FloatRange
+    check_valid_range, custom_error, add_dicts, vectorize, \
+    FloatOrArrayLike, FloatOrArray, IntOrArray
 
 from math import log10
 import numpy as np
@@ -167,7 +167,7 @@ class Distribution(Base, ABC):
              kinds: Union[Kind, list[Kind]] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
-             xrange: FloatRange = [],
+             xrange: Union[tuple[float, float], None] = None,
              cdf: Literal[0, 1, 2] = 0,
              title: Union[str, None] = None,
              axes: Union[list[plt.Axes], None] = None
@@ -183,7 +183,7 @@ class Distribution(Base, ABC):
             *mass* (if `True`).
         xscale : Literal['auto', 'linear', 'log']
             x-axis scale.
-        xrange : list | tuple | ndarray
+        xrange : Union[tuple[float, float], None]
             x-axis range.
         cdf : Literal[0, 1, 2]
             y-axis where cdf is displayed. If `0` the cdf if not displayed; if
@@ -211,14 +211,15 @@ class Distribution(Base, ABC):
             xscale = 'linear'
 
         # x-axis range
-        if not (len(xrange) == 2 and xrange[1] > xrange[0]):
+        if xrange is not None:
+            check_valid_range(xrange, 'xrange')
+            xrange: np.ndarray = np.asarray(xrange)
+        else:
             xrange = np.array(self._xrange_plot(sizeasmass))
             if xscale == 'log' and log10(xrange[1]/xrange[0]) > 3 and \
                     isinstance(self, (AnalyticalDistribution,
                                       MixtureDistribution)):
                 xrange[1] *= 10
-        else:
-            xrange = np.asarray(xrange)
 
         # x-axis vector
         npoints = 200
@@ -293,7 +294,7 @@ class Distribution(Base, ABC):
         ax.set_ylabel(label_y1)
         ax.set_xscale(xscale)
         ax.grid(True)
-        ax.legend(bbox_to_anchor=bbox_to_anchor)
+        ax.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
 
         return None
 

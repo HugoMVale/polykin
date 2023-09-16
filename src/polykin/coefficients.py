@@ -6,9 +6,9 @@ polymer reactor models.
 """
 
 from polykin.utils import check_bounds, check_type, check_in_set, \
-    check_shapes, convert_check_temperature, \
+    check_shapes, check_valid_range, convert_check_temperature, \
     FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray, \
-    eps, RangeError, ShapeError
+    eps, ShapeError
 from polykin.base import Base
 
 import numpy as np
@@ -128,9 +128,8 @@ class CoefficientT(CoefficientX1):
         # Check inputs
         check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
         check_in_set(Tunit, {'K', 'C'}, 'Tunit')
-        if Trange is not None \
-                and not (len(Trange) == 2 and Trange[1] > Trange[0]):
-            raise RangeError(f"`Trange` is invalid: {Trange}")
+        if Trange is not None:
+            check_valid_range(Trange, 'Trange')
 
         # Plot objects
         if axes is None:
@@ -192,7 +191,7 @@ class CoefficientT(CoefficientX1):
                 ax.semilogy(1/TK, y, label=label)
 
         if ext_mode:
-            ax.legend(bbox_to_anchor=(1.05, 1.0))
+            ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
 
         return None
 
@@ -625,7 +624,7 @@ class TerminationCompositeModel(CoefficientCLD):
         FloatOrArray
             Coefficient value.
         """
-        TK = self.k11._convert_check_temperature(T, Tunit)
+        TK = convert_check_temperature(T, Tunit, self.k11.Tmin, self.k11.Tmax)
         if isinstance(i, list):
             i = np.array(i, dtype=np.int32)
         if isinstance(j, list):
@@ -733,7 +732,7 @@ class PropagationHalfLength(CoefficientCLD):
         FloatOrArray
             Coefficient value.
         """
-        TK = self.kp._convert_check_temperature(T, Tunit)
+        TK = convert_check_temperature(T, Tunit, self.kp.Tmin, self.kp.Tmax)
         if isinstance(i, list):
             i = np.array(i, dtype=np.int32)
         return self.eval(TK, i)
