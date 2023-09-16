@@ -192,7 +192,7 @@ class CoefficientT(CoefficientX1):
                 ax.semilogy(1/TK, y, label=label)
 
         if ext_mode:
-            ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
+            ax.legend(bbox_to_anchor=(1.05, 1.0))
 
         return None
 

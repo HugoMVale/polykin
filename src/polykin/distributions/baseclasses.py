@@ -293,7 +293,7 @@ class Distribution(Base, ABC):
         ax.set_ylabel(label_y1)
         ax.set_xscale(xscale)
         ax.grid(True)
-        ax.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
+        ax.legend(bbox_to_anchor=bbox_to_anchor)
 
         return None
 
