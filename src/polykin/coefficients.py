@@ -103,7 +103,7 @@ class CoefficientT(CoefficientX1):
     def plot(self,
              kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
              Trange: Union[tuple[float, float], None] = None,
-             Tunit: Literal['C', 'K'] = 'K',
+             Tunit: Literal['C', 'K'] = 'C',
              title: Union[str, None] = None,
              axes: Union[plt.Axes, None] = None
              ) -> None:
@@ -145,19 +145,20 @@ class CoefficientT(CoefficientX1):
             ax = axes
 
         # Plot labels
-        Tsymbol = Tunit
-        if Tunit == 'C':
-            Tsymbol = '°' + Tsymbol
-        xlabel = fr"$T$ [{Tsymbol}]"
-        ylabel = fr"${self.symbol}$ [${self.unit}$]"
-        if ext_mode:
-            label = ylabel
-            ylabel = "$c(T)$"
-        else:
-            label = None
         Tunit_range = Tunit
         if kind == 'Arrhenius':
             Tunit = 'K'
+        Tsymbol = Tunit
+        if Tunit == 'C':
+            Tsymbol = '°' + Tunit
+        
+        xlabel = fr"$T$ [{Tsymbol}]"
+        ylabel = fr"${self.symbol}$ [${self.unit}$]"
+        label = None
+        if ext_mode:
+            label = ylabel
+            ylabel = "$c(T)$"
+        if kind == 'Arrhenius':
             xlabel = r"$1/T$ [" + Tsymbol + r"$^{-1}$]"
             ylabel = r"$\ln$" + ylabel
         ax.set_xlabel(xlabel)
