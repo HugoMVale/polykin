@@ -737,7 +737,7 @@ class MixtureDistribution(Distribution):
 
     def __repr__(self):
         if len(self.components) > 0:
-            return super().__repr__()
+            return super().__repr__() + "\n\n" + self.components_table
         else:
             return 'empty'
 
