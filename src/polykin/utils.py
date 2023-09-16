@@ -20,8 +20,6 @@ FloatOrArrayLike = Union[float, FloatArrayLike]
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
 
-FloatRange = Union[list[float], tuple[float, float],
-                   NDArray[Shape['1, 2'], Float64]]
 
 # %% Maths
 
@@ -273,6 +271,11 @@ def check_shapes(a: list, b: list) -> Union[tuple[int, ...], None]:
     return shape
 
 
+def check_valid_range(r: tuple[float, float], name: str) -> None:
+    "Check is a given input range is a valid range."
+    if not (len(r) == 2 and r[1] > r[0]):
+        raise RangeError(f"`{name}` is invalid: {r}")
+
 # %% Special functions
 
 
@@ -354,6 +357,4 @@ def convert_check_temperature(T: FloatOrArrayLike,
         raise RangeError("`T` must be > 0 K.")
     if np.any(TK < Tmin) or np.any(TK > Tmax):
         print("Warning: `T` input is outside validity range [Tmin, Tmax].")
-        # warn("`T` input is outside validity range [Tmin, Tmax].",
-        #      RangeWarning)
     return TK
