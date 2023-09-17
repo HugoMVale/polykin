@@ -1,6 +1,7 @@
 # %% Data distribution
 
-from polykin.utils import vectorize, check_subclass, FloatArrayLike
+from polykin.utils import vectorize, check_subclass, check_bounds, \
+     FloatVectorLike
 from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 from polykin.distributions.baseclasses import Kind, \
     IndividualDistribution, MixtureDistribution,\
@@ -18,9 +19,9 @@ class DataDistribution(IndividualDistribution):
 
     Parameters
     ----------
-    size_data : FloatArrayLike
+    size_data : FloatVectorLike
         Chain length or molar mass data.
-    pdf_data : FloatArrayLike
+    pdf_data : FloatVectorLike
         Distribution data.
     kind : Literal['number', 'mass', 'gpc']
         Kind of distribution.
@@ -35,24 +36,24 @@ class DataDistribution(IndividualDistribution):
     _continuous = True
 
     def __init__(self,
-                 size_data: FloatArrayLike,
-                 pdf_data: FloatArrayLike,
+                 size_data: FloatVectorLike,
+                 pdf_data: FloatVectorLike,
                  kind: Kind = 'mass',
                  sizeasmass: bool = False,
-                 M0: float = 100,
+                 M0: float = 100.,
                  name: str = ''
                  ) -> None:
 
         # Check and clean input
         self.M0 = M0
         self.name = name
-        size_data = np.asarray(size_data)
-        pdf_data = np.asarray(pdf_data)
+        size_data = np.array(size_data)
+        pdf_data = np.array(pdf_data)
         if self._verify_sizeasmass(sizeasmass):
             size_data /= self.M0
-        idx_valid = np.logical_and(pdf_data > 0, size_data >= 1)
+        idx_valid = np.logical_and(pdf_data > 0., size_data >= 1.)
         if not idx_valid.all():
-            print("Warning: Found and removed some inconsistent values.")
+            print("Warning: Found and removed inconsistent values.")
         self._pdf_data = pdf_data[idx_valid]
         self._length_data = size_data[idx_valid]
         self._pdf_order = self.kind_order[self._verify_kind(kind)]
@@ -121,6 +122,7 @@ class DataDistribution(IndividualDistribution):
 
         check_subclass(dist_class, AnalyticalDistribution, 'dist_class')
         isP2 = issubclass(dist_class, AnalyticalDistributionP2)
+        check_bounds(dim, 1, 10, 'dim')
 
         # Init fit distribution
         dfit = MixtureDistribution({})
