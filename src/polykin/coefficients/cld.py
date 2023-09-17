@@ -17,7 +17,7 @@ class TerminationCompositeModel(CoefficientCLD):
     radicals.
 
     This coefficient implements the chain-length dependence proposed by
-    [Smith and Russel (2003)](https://doi.org/10.1002/mats.200390029):
+    [Smith & Russel (2003)](https://doi.org/10.1002/mats.200390029):
 
     $$ k_t(i,j)=\sqrt{k_t(i,i) k_t(j,j)} $$
 

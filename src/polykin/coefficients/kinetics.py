@@ -246,7 +246,7 @@ class Eyring(CoefficientT):
         Name.
     """
 
-    unit = '1/s'
+    unit: str = '1/s'
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
