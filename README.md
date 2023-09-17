@@ -10,7 +10,7 @@ development stage, but the following modules can already be used:
 - [x] coefficients
 - [ ] copolymerization
 - [ ] database
-- [ ] diffusion
+- [x] diffusion
 - [x] distributions
 - [ ] kinetics
 - [ ] thermodynamics
