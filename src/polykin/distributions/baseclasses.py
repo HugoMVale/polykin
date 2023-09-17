@@ -187,7 +187,7 @@ class Distribution(Base, ABC):
         xrange : tuple[float, float] | None
             x-axis range.
         cdf : Literal[0, 1, 2]
-            y-axis where cdf is displayed. If `0` the cdf if not displayed; if
+            y-axis where cdf is displayed. If `0` the cdf is not displayed; if
             `1` the cdf is displayed on the primary y-axis; if `2` the cdf is
             displayed on the secondary axis.
         title: str | None
