@@ -556,15 +556,6 @@ class IndividualDistribution(Distribution):
 
 class AnalyticalDistribution(IndividualDistribution):
     r"""_Abstract_ class for all analytical chain-length distributions.
-
-    Parameters
-    ----------
-    DPn : int
-        Number-average degree of polymerization, $DP_n$.
-    M0 : float
-        Molar mass of the repeating unit, $M_0$.
-    name : str
-        Name
     """
 
     # (min-DPn, max-DPn)
@@ -573,8 +564,8 @@ class AnalyticalDistribution(IndividualDistribution):
 
     def __init__(self,
                  DPn: int,
-                 M0: float = 100.0,
-                 name: str = ''
+                 M0: float,
+                 name: str
                  ) -> None:
 
         self.DPn = DPn
@@ -651,18 +642,6 @@ class AnalyticalDistributionP1(AnalyticalDistribution):
 
 class AnalyticalDistributionP2(AnalyticalDistribution):
     r"""_Abstract_ class for 2-parameter analytical chain-length distributions.
-
-    Parameters
-    ----------
-    DPn : int
-        Number-average degree of polymerization, $DP_n$.
-    PDI : float
-        Polydispersity index, $PDI$.
-    M0 : float
-        Molar mass of the repeating unit, $M_0$.
-    name : str
-        Name.
-
     """
 
     # ((min-DPn, min-PDI), (max-DPn, max-PDI))
@@ -671,8 +650,8 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
     def __init__(self,
                  DPn: int,
                  PDI: float,
-                 M0: float = 100.0,
-                 name: str = ''
+                 M0: float,
+                 name: str
                  ) -> None:
 
         super().__init__(DPn=DPn, M0=M0, name=name)

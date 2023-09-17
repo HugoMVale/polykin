@@ -19,8 +19,25 @@ class Flory(AnalyticalDistributionP1):
 
     where $a=1-1/DP_n$. Mathematically speaking, this is a [geometric
     distribution](https://en.wikipedia.org/wiki/Geometric_distribution).
+
+    Parameters
+    ----------
+    DPn : int
+        Number-average degree of polymerization, $DP_n$.
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name
     """
     _continuous = False
+
+    def __init__(self,
+                 DPn: int,
+                 M0: float = 100.0,
+                 name: str = ''
+                 ) -> None:
+
+        super().__init__(DPn, M0, name)
 
     def _update_internal_parameters(self):
         super()._update_internal_parameters()
@@ -71,9 +88,26 @@ class Poisson(AnalyticalDistributionP1):
     $$ p(k) = \frac{a^{k-1} e^{-a}}{\Gamma(k)} $$
 
     where $a=DP_n-1$.
+
+    Parameters
+    ----------
+    DPn : int
+        Number-average degree of polymerization, $DP_n$.
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name
     """
 
     _continuous = False
+
+    def __init__(self,
+                 DPn: int,
+                 M0: float = 100.0,
+                 name: str = ''
+                 ) -> None:
+
+        super().__init__(DPn, M0, name)
 
     def _update_internal_parameters(self):
         super()._update_internal_parameters()
@@ -126,11 +160,31 @@ class LogNormal(AnalyticalDistributionP2):
     \exp\left (- \frac{(\ln{x}-\mu)^2}{2\sigma^2} \right ) $$
 
     where $\mu = \ln{(DP_n/\sqrt{PDI})}$ and $\sigma=\sqrt{\ln(PDI)}$.
+
+    Parameters
+    ----------
+    DPn : int
+        Number-average degree of polymerization, $DP_n$.
+    PDI : float
+        Polydispersity index, $PDI$.
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name.
     """
     # https://reference.wolfram.com/language/ref/LogNormalDistribution.html
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html
 
     _continuous = True
+
+    def __init__(self,
+                 DPn: int,
+                 PDI: float,
+                 M0: float = 100.0,
+                 name: str = ''
+                 ) -> None:
+
+        super().__init__(DPn, PDI, M0, name)
 
     def _update_internal_parameters(self):
         super()._update_internal_parameters()
@@ -186,11 +240,31 @@ class SchulzZimm(AnalyticalDistributionP2):
     where $k = 1/(DP_n-1)$ and $\theta = DP_n(PDI-1)$. Mathematically speaking,
     this is a
     [Gamma distribution](https://en.wikipedia.org/wiki/Gamma_distribution).
+
+    Parameters
+    ----------
+    DPn : int
+        Number-average degree of polymerization, $DP_n$.
+    PDI : float
+        Polydispersity index, $PDI$.
+    M0 : float
+        Molar mass of the repeating unit, $M_0$.
+    name : str
+        Name.
     """
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
     # https://goldbook.iupac.org/terms/view/S05502
 
     _continuous = True
+
+    def __init__(self,
+                 DPn: int,
+                 PDI: float,
+                 M0: float = 100.0,
+                 name: str = ''
+                 ) -> None:
+
+        super().__init__(DPn, PDI, M0, name)
 
     def _update_internal_parameters(self):
         super()._update_internal_parameters()
