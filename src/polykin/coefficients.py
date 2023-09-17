@@ -14,6 +14,7 @@ from polykin.base import Base
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.axes._axes import Axes
 from scipy.constants import h, R, Boltzmann as kB
 from abc import ABC, abstractmethod
 from typing import Union, Literal
@@ -105,7 +106,7 @@ class CoefficientT(CoefficientX1):
              Trange: Union[tuple[float, float], None] = None,
              Tunit: Literal['C', 'K'] = 'C',
              title: Union[str, None] = None,
-             axes: Union[plt.Axes, None] = None
+             axes: Union[Axes, None] = None
              ) -> None:
         """Plot the coefficient as a function of temperature.
 
@@ -129,7 +130,7 @@ class CoefficientT(CoefficientX1):
         check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
         check_in_set(Tunit, {'K', 'C'}, 'Tunit')
         if Trange is not None:
-            check_valid_range(Trange, 'Trange')
+            check_valid_range(Trange, 0., np.inf, 'Trange')
 
         # Plot objects
         if axes is None:
@@ -151,9 +152,9 @@ class CoefficientT(CoefficientX1):
         Tsymbol = Tunit
         if Tunit == 'C':
             Tsymbol = '°' + Tunit
-        
+
         xlabel = fr"$T$ [{Tsymbol}]"
-        ylabel = fr"${self.symbol}$ [${self.unit}$]"
+        ylabel = fr"${self.symbol}$ [{self.unit}]"
         label = None
         if ext_mode:
             label = ylabel
@@ -269,13 +270,17 @@ class Arrhenius(CoefficientT):
         check_bounds(Tmax, 0, np.inf, 'Tmax')
         check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
 
+        # Check types
+        check_type(unit, str, 'unit')
+        check_type(symbol, str, 'symbol')
+
         self.k0 = k0
         self.EaR = EaR
         self.T0 = T0
         self.Tmin = Tmin
         self.Tmax = Tmax
-        self.unit = check_type(unit, str, 'unit')
-        self.symbol = check_type(symbol, str, 'symbol')
+        self.unit = unit
+        self.symbol = symbol
         self.name = name
 
     def __repr__(self) -> str:
@@ -317,7 +322,7 @@ class Arrhenius(CoefficientT):
                                  name=f"{self.name}·{other.name}")
             else:
                 raise ShapeError(
-                    "Product of array-like coefficients requires identical shapes.")
+                    "Product of array-like coefficients requires identical shapes.")  # noqa: E501
         elif isinstance(other, (int, float)):
             return Arrhenius(k0=self.k0*other,
                              EaR=self.EaR,
@@ -361,7 +366,7 @@ class Arrhenius(CoefficientT):
                                  name=f"{self.name}/{other.name}")
             else:
                 raise ShapeError(
-                    "Division of array-like coefficients requires identical shapes.")
+                    "Division of array-like coefficients requires identical shapes.")  # noqa: E501
         elif isinstance(other, (int, float)):
             return Arrhenius(k0=self.k0/other,
                              EaR=self.EaR,
@@ -433,7 +438,7 @@ class Eyring(CoefficientT):
         Name.
     """
 
-    unit = 's^{-1}'
+    unit = '1/s'
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
@@ -468,12 +473,15 @@ class Eyring(CoefficientT):
         check_bounds(Tmax, 0, np.inf, 'Tmax')
         check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
 
+        # check types
+        check_type(symbol, str, 'symbol')
+
         self.DSa = DSa
         self.DHa = DHa
         self.kappa = kappa
         self.Tmin = Tmin
         self.Tmax = Tmax
-        self.symbol = check_type(symbol, str, 'symbol')
+        self.symbol = symbol
         self.name = name
 
     def __repr__(self) -> str:
@@ -509,7 +517,7 @@ class TerminationCompositeModel(CoefficientCLD):
 
     $$ k_t(i,i)=\begin{cases}
     k_t(1,1)i^{-\alpha_S}& \text{if } i \leq i_{crit} \\
-    k_t(1,1)i_{crit}^{-(\alpha_S-\alpha_L)}i^{-\alpha_L} & \text{if } i>i_{crit}
+    k_t(1,1)i_{crit}^{-(\alpha_S-\alpha_L)}i^{-\alpha_L} & \text{if }i>i_{crit}
     \end{cases}
     $$
 
@@ -544,6 +552,7 @@ class TerminationCompositeModel(CoefficientCLD):
             Name.
         """
 
+        check_type(k11, (Arrhenius, Eyring), 'k11')
         check_bounds(icrit, 1, 200, 'icrit')
         check_bounds(aS, 0, 1, 'alpha_short')
         check_bounds(aL, 0, 0.5, 'alpha_long')
@@ -660,7 +669,7 @@ class PropagationHalfLength(CoefficientCLD):
         kp : Arrhenius | Eyring
             Long-chain value of the propagation rate coefficient, $k_p$.
         C : float
-            Ratio of the propagation coefficients of a monomeric radical and a 
+            Ratio of the propagation coefficients of a monomeric radical and a
             long-chain radical, $C$.
         ihalf : float
             Half-length, $i_{i/2}$.
@@ -668,6 +677,7 @@ class PropagationHalfLength(CoefficientCLD):
             Name.
         """
 
+        check_type(kp, (Arrhenius, Eyring), 'kp')
         check_bounds(C, 1., 100., 'C')
         check_bounds(ihalf, 0.1, 10, 'ihalf')
 
@@ -740,7 +750,8 @@ class PropagationHalfLength(CoefficientCLD):
 
 
 class DIPPR(CoefficientT):
-    """_Abstract_ class for all [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
+    """_Abstract_ class for all
+    [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
     temperature-dependent equations."""
     pass
 
@@ -806,6 +817,10 @@ class DIPPRP5(DIPPR):
         # Check shapes
         self._shape = check_shapes([A, B, C, D, E], [Tmin, Tmax])
 
+        # Check types
+        check_type(unit, str, 'unit')
+        check_type(symbol, str, 'symbol')
+
         self.A = A
         self.B = B
         self.C = C
@@ -813,8 +828,8 @@ class DIPPRP5(DIPPR):
         self.E = E
         self.Tmin = Tmin
         self.Tmax = Tmax
-        self.unit = check_type(unit, str, 'unit')
-        self.symbol = check_type(symbol, str, 'symbol')
+        self.unit = unit
+        self.symbol = symbol
         self.name = name
 
     def __repr__(self) -> str:
