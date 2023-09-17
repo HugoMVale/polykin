@@ -122,7 +122,7 @@ class CoefficientT(CoefficientX1):
             Temperature unit.
         title : str | None
             Title of plot. If `None`, the object name will be used.
-        axes : list[plt.Axes] | None
+        axes : Axes | None
             Matplotlib Axes object.
         """
 
@@ -425,7 +425,6 @@ class Eyring(CoefficientT):
         Unit = J/mol.
     kappa : FloatOrArrayLike
         Transmission coefficient.
-        Unit = dimensionless.
     Tmin : FloatOrArrayLike
         Lower temperature bound.
         Unit = K.
@@ -771,32 +770,6 @@ class DIPPRP5(DIPPR):
                  symbol: str = 'Y',
                  name: str = ''
                  ) -> None:
-        r"""
-        Parameters
-        ----------
-        A : FloatOrArrayLike
-            Parameter of equation.
-        B : FloatOrArrayLike
-            Parameter of equation.
-        C : FloatOrArrayLike
-            Parameter of equation.
-        D : FloatOrArrayLike
-            Parameter of equation.
-        E : FloatOrArrayLike
-            Parameter of equation.
-        Tmin : FloatOrArrayLike
-            Lower temperature bound.
-            Unit = K.
-        Tmax : FloatOrArrayLike
-            Upper temperature bound.
-            Unit = K.
-        unit : str
-            Unit of output variable $Y$.
-        symbol : str
-            Symbol of output variable $Y$.
-        name : str
-            Name.
-        """
 
         # Convert lists to arrays
         if isinstance(A, list):
@@ -860,30 +833,6 @@ class DIPPRP4(DIPPRP5):
                  symbol: str = 'Y',
                  name: str = ''
                  ) -> None:
-        r"""
-        Parameters
-        ----------
-        A : FloatOrArrayLike
-            Parameter of equation.
-        B : FloatOrArrayLike
-            Parameter of equation.
-        C : FloatOrArrayLike
-            Parameter of equation.
-        D : FloatOrArrayLike
-            Parameter of equation.
-        Tmin : FloatOrArrayLike
-            Lower temperature bound.
-            Unit = K.
-        Tmax : FloatOrArrayLike
-            Upper temperature bound.
-            Unit = K.
-        unit : str
-            Unit of output variable $Y$.
-        symbol : str
-            Symbol of output variable $Y$.
-        name : str
-            Name.
-        """
 
         if isinstance(A, (list, np.ndarray)):
             E = [0.0]*len(A)
@@ -911,9 +860,50 @@ class DIPPR100(DIPPRP5):
 
     $$ Y = A + B T + C T^2 + D T^3 + E T^4 $$
 
+    where $A$ to $E$ are constant parameters and $T$ is the absolute
+    temperature.
+
+    Parameters
+    ----------
+    A : FloatOrArrayLike
+        Parameter of equation.
+    B : FloatOrArrayLike
+        Parameter of equation.
+    C : FloatOrArrayLike
+        Parameter of equation.
+    D : FloatOrArrayLike
+        Parameter of equation.
+    E : FloatOrArrayLike
+        Parameter of equation.
+    Tmin : FloatOrArrayLike
+        Lower temperature bound.
+        Unit = K.
+    Tmax : FloatOrArrayLike
+        Upper temperature bound.
+        Unit = K.
+    unit : str
+        Unit of output variable $Y$.
+    symbol : str
+        Symbol of output variable $Y$.
+    name : str
+        Name.
     """
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
+        """Evaluate correlation at given SI conditions, without unit
+        conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+
+        Returns
+        -------
+        FloatOrArray
+            Property value, $Y$.
+        """
         A = self.A
         B = self.B
         C = self.C
@@ -929,9 +919,50 @@ class DIPPR101(DIPPRP5):
 
     $$ Y = \exp{\left(A + B / T + C \ln(T) + D T^E\right)} $$
 
+    where $A$ to $E$ are constant parameters and $T$ is the absolute
+    temperature.
+
+    Parameters
+    ----------
+    A : FloatOrArrayLike
+        Parameter of equation.
+    B : FloatOrArrayLike
+        Parameter of equation.
+    C : FloatOrArrayLike
+        Parameter of equation.
+    D : FloatOrArrayLike
+        Parameter of equation.
+    E : FloatOrArrayLike
+        Parameter of equation.
+    Tmin : FloatOrArrayLike
+        Lower temperature bound.
+        Unit = K.
+    Tmax : FloatOrArrayLike
+        Upper temperature bound.
+        Unit = K.
+    unit : str
+        Unit of output variable $Y$.
+    symbol : str
+        Symbol of output variable $Y$.
+    name : str
+        Name.
     """
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
+        """Evaluate correlation at given SI conditions, without unit
+        conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+
+        Returns
+        -------
+        FloatOrArray
+            Property value, $Y$.
+        """
         A = self.A
         B = self.B
         C = self.C
@@ -947,9 +978,48 @@ class DIPPR105(DIPPRP4):
 
     $$ Y = \frac{A}{B^{ \left( 1 + (1 - T / C)^D \right) }} $$
 
+    where $A$ to $D$ are constant parameters and $T$ is the absolute
+    temperature.
+
+    Parameters
+    ----------
+    A : FloatOrArrayLike
+        Parameter of equation.
+    B : FloatOrArrayLike
+        Parameter of equation.
+    C : FloatOrArrayLike
+        Parameter of equation.
+    D : FloatOrArrayLike
+        Parameter of equation.
+    Tmin : FloatOrArrayLike
+        Lower temperature bound.
+        Unit = K.
+    Tmax : FloatOrArrayLike
+        Upper temperature bound.
+        Unit = K.
+    unit : str
+        Unit of output variable $Y$.
+    symbol : str
+        Symbol of output variable $Y$.
+    name : str
+        Name.
     """
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
+        """Evaluate correlation at given SI conditions, without unit
+        conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature. 
+            Unit = K.
+
+        Returns
+        -------
+        FloatOrArray
+            Property value, $Y$.
+        """
         A = self.A
         B = self.B
         C = self.C
