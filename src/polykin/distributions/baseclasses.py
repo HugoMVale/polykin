@@ -3,7 +3,7 @@
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, \
     check_valid_range, custom_error, add_dicts, vectorize, \
-    FloatOrArrayLike, FloatOrArray, IntOrArray
+    FloatOrArrayLike, FloatOrArray, IntOrArray, FloatRangeArray
 
 from math import log10
 import numpy as np
@@ -12,6 +12,7 @@ import mpmath
 from scipy import integrate
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib.axes._axes import Axes
 from typing import Literal, Union
 from abc import ABC, abstractmethod
 import functools
@@ -170,20 +171,20 @@ class Distribution(Base, ABC):
              xrange: Union[tuple[float, float], None] = None,
              cdf: Literal[0, 1, 2] = 0,
              title: Union[str, None] = None,
-             axes: Union[list[plt.Axes], None] = None
+             axes: Union[list[Axes], None] = None
              ) -> None:
         """Plot the chain-length distribution.
 
         Parameters
         ----------
-        kind : Literal['number', 'mass', 'gpc']
+        kinds : Literal['number', 'mass', 'gpc']
             Kind of distribution.
         sizeasmass : bool
             Switch size input between chain-*length* (if `False`) or molar
             *mass* (if `True`).
         xscale : Literal['auto', 'linear', 'log']
             x-axis scale.
-        xrange : Union[tuple[float, float], None]
+        xrange : tuple[float, float] | None
             x-axis range.
         cdf : Literal[0, 1, 2]
             y-axis where cdf is displayed. If `0` the cdf if not displayed; if
@@ -191,7 +192,7 @@ class Distribution(Base, ABC):
             displayed on the secondary axis.
         title: str | None
             Title
-        axes : list[plt.Axes] | None
+        axes : list[Axes] | None
             Matplotlib Axes object.
         """
         # Check inputs
@@ -212,14 +213,14 @@ class Distribution(Base, ABC):
 
         # x-axis range
         if xrange is not None:
-            check_valid_range(xrange, 'xrange')
-            xrange: np.ndarray = np.asarray(xrange)
+            check_valid_range(xrange, 0., np.inf, 'xrange')
         else:
-            xrange = np.array(self._xrange_plot(sizeasmass))
-            if xscale == 'log' and log10(xrange[1]/xrange[0]) > 3 and \
+            vrange = self._xrange_plot(sizeasmass)  # type : ignore
+            if xscale == 'log' and log10(vrange[1]/vrange[0]) > 3 and \
                     isinstance(self, (AnalyticalDistribution,
                                       MixtureDistribution)):
-                xrange[1] *= 10
+                vrange[1] *= 10
+            xrange = tuple(vrange)  # type: ignore
 
         # x-axis vector
         npoints = 200
@@ -351,7 +352,7 @@ class Distribution(Base, ABC):
     @abstractmethod
     def _xrange_plot(self,
                      sizeasmass: bool
-                     ) -> ndarray:
+                     ) -> FloatRangeArray:
         """Default chain-length or molar mass range for distribution plots.
         """
         pass
@@ -434,7 +435,7 @@ class IndividualDistribution(Distribution):
         self.__dict__.pop('_range_length_default', None)
 
     @property
-    def _range_length_default(self) -> ndarray:
+    def _range_length_default(self) -> FloatRangeArray:
         """Default chain-length range for distribution plots.
 
         This implementation is just a fallback solution. More specific
