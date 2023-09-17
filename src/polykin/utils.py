@@ -1,9 +1,9 @@
 from collections.abc import Iterable
-import numbers
 import functools
 import numpy as np
 from typing import Union, Any, Literal
 from nptyping import NDArray, Shape, Int32, Float64
+from numbers import Number
 
 # %% Own types
 
@@ -20,6 +20,7 @@ FloatOrArrayLike = Union[float, FloatArrayLike]
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
 
+FloatRangeArray = NDArray[Shape['2'], Float64]
 
 # %% Maths
 
@@ -124,7 +125,7 @@ def check_type(var_value: Any,
             var_name,
             var_value,
             TypeError,
-            f"Valid `{var_name}` types are: {valid_types}.",
+            f"Variable `{var_name}` if of type {type(var_value)}. Valid `{var_name}` types are: {valid_types}."  # noqa: E501
         )
 
 
@@ -155,11 +156,11 @@ def check_subclass(myobject: Any,
         )
 
 
-def check_bounds(x: Union[float, np.ndarray],
+def check_bounds(x: Union[float, np.ndarray, Iterable],
                  xmin: float,
                  xmax: float,
                  xname: str
-                 ) -> Union[float, np.ndarray, None]:
+                 ) -> Union[float, np.ndarray, Iterable, None]:
     """Check if a numerical value is between given bounds.
 
     Example:
@@ -184,13 +185,16 @@ def check_bounds(x: Union[float, np.ndarray],
         Variable.
 
     """
-    if isinstance(x, numbers.Number) and (x >= xmin) and (x <= xmax):
+    if isinstance(x, (float, Number)) and ((x >= xmin) and (x <= xmax)):
         return x
     elif isinstance(x, np.ndarray) and \
             np.all(np.logical_and.reduce((x >= xmin, x <= xmax))):
         return x
+    elif isinstance(x, Iterable) and \
+            all((xi >= xmin and xi <= xmax for xi in x)):
+        return x
     else:
-        check_type(x, (numbers.Number, np.ndarray), xname)
+        check_type(x, (float, Number, np.ndarray, Iterable), xname)
         custom_error(
             xname, x, RangeError, f"Valid `{xname}` range is [{xmin}, {xmax}]."
         )
@@ -230,7 +234,9 @@ def check_in_set(var_value: Any,
         )
 
 
-def check_shapes(a: list, b: list) -> Union[tuple[int, ...], None]:
+def check_shapes(a: list,
+                 b: list
+                 ) -> Union[tuple[int, ...], None]:
     """Check shape homogeneity between objects in lists `a` and `b`.
 
     Rules:
@@ -271,10 +277,17 @@ def check_shapes(a: list, b: list) -> Union[tuple[int, ...], None]:
     return shape
 
 
-def check_valid_range(r: tuple[float, float], name: str) -> None:
-    "Check is a given input range is a valid range."
+def check_valid_range(r: tuple[float, float],
+                      xmin: float,
+                      xmax: float,
+                      name: str
+                      ) -> Union[tuple[float, float], None]:
+    "Check if a given input range is a valid range."
+    check_type(r, tuple, name)
     if not (len(r) == 2 and r[1] > r[0]):
         raise RangeError(f"`{name}` is invalid: {r}")
+    check_bounds(r, xmin, xmax, name)
+    return r
 
 # %% Special functions
 
