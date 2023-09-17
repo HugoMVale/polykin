@@ -126,7 +126,7 @@ nav:
       - Diffusion: "tutorials/diffusion.ipynb"
       - Distributions: "tutorials/distributions.ipynb"
       # - Copolymerization: "tutorials/copolymerization.ipynb"
-  #- Code Reference: reference/polykin/
+  #- API Reference: reference/polykin/
   - API Reference:
       - Coefficients: "reference/coefficients.md"
       - Diffusion: "reference/diffusion.md"
