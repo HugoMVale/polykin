@@ -2,7 +2,7 @@
 
 ::: polykin.diffusion
 
-::: polykin.diffusion.coefficients
+::: polykin.diffusion.diffusivity
     options:
         members:
             - VrentasDudaBinary
