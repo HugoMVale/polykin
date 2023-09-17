@@ -92,7 +92,7 @@ class DataDistribution(IndividualDistribution):
 
     @functools.cached_property
     def _range_length_default(self):
-        return self._length_data[(0, -1),]
+        return self._length_data[(0, -1), ]
 
     def fit(self,
             dist_class: Union[type[Flory], type[Poisson], type[LogNormal],
