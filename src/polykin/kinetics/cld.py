@@ -1,15 +1,26 @@
 from polykin.utils import check_type, check_bounds, convert_check_temperature,\
     FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray
-from polykin.coefficients.baseclasses import Coefficient
-from polykin.coefficients.kinetics import Arrhenius, Eyring
+from polykin.kinetics.thermal import Arrhenius, Eyring
+from polykin.base import Base
 
 import numpy as np
+from abc import ABC, abstractmethod
 from typing import Union, Literal
 
 
-class CoefficientCLD(Coefficient):
+__all__ = ['TerminationCompositeModel', 'PropagationHalfLength']
+
+
+class CoefficientCLD(Base, ABC):
     """_Abstract_ chain-length dependent (CLD) coefficient."""
-    pass
+
+    @abstractmethod
+    def __call__(self, T, i, *args) -> FloatOrArray:
+        pass
+
+    @abstractmethod
+    def eval(self, T, i, *args) -> FloatOrArray:
+        pass
 
 
 class TerminationCompositeModel(CoefficientCLD):

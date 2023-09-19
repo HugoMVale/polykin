@@ -11,15 +11,15 @@ from abc import ABC, abstractmethod
 from typing import Union, Literal
 
 
-class Coefficient(Base, ABC):
-    """_Abstract_ class for all coefficients, c(...)."""
+class Correlation(Base, ABC):
+    r"""_Abstract_ class for all correlations, $c(...)$."""
 
     def __init__(self) -> None:
         self._shape = None
 
     @property
     def shape(self) -> Union[tuple[int, ...], None]:
-        """Shape of underlying coefficient array."""
+        """Shape of underlying array."""
         return self._shape
 
     @abstractmethod
@@ -31,18 +31,18 @@ class Coefficient(Base, ABC):
         pass
 
 
-class CoefficientX1(Coefficient):
-    r"""_Abstract_ class for 1-argument coefficient, $c(x)$."""
+class CorrelationX1(Correlation):
+    r"""_Abstract_ class for 1-argument correlation, $c(x)$."""
     pass
 
 
-class CoefficientX2(Coefficient):
-    r"""_Abstract_ class for 2-arguments coefficient, $c(x, y)$."""
+class CorrelationX2(Correlation):
+    r"""_Abstract_ class for 2-argument correlations, $c(x, y)$."""
     pass
 
 
-class CoefficientT(CoefficientX1):
-    r"""_Abstract_ temperature-dependent coefficient, $c(T)$"""
+class CorrelationT(CorrelationX1):
+    r"""_Abstract_ temperature-dependent correlation, $c(T)$"""
 
     Tmin: FloatOrArray
     Tmax: FloatOrArray
@@ -53,7 +53,7 @@ class CoefficientT(CoefficientX1):
                  T: FloatOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'C'
                  ) -> FloatOrArray:
-        r"""Evaluate coefficient at given temperature, including unit
+        r"""Evaluate correlation at given temperature, including unit
         conversion and range check.
 
         Parameters
@@ -67,14 +67,14 @@ class CoefficientT(CoefficientX1):
         Returns
         -------
         FloatOrArray
-            Coefficient value.
+            Correlation value.
         """
         TK = convert_check_temperature(T, Tunit, self.Tmin, self.Tmax)
         return self.eval(TK)
 
     @abstractmethod
     def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate coefficient at given SI conditions, without unit
+        """Evaluate correlation at given SI conditions, without unit
         conversions or checks.
 
         Parameters
@@ -86,7 +86,7 @@ class CoefficientT(CoefficientX1):
         Returns
         -------
         FloatOrArray
-            Coefficient value.
+            Correlation value.
         """
         pass
 
@@ -97,7 +97,7 @@ class CoefficientT(CoefficientX1):
              title: Union[str, None] = None,
              axes: Union[Axes, None] = None
              ) -> None:
-        """Plot the coefficient as a function of temperature.
+        """Plot the correlation as a function of temperature.
 
         Parameters
         ----------
@@ -165,7 +165,7 @@ class CoefficientT(CoefficientX1):
                 Trange = (273.15, 373.15)
 
         if self._shape:
-            print("Plot method not yet implemented for array-like coefficients.")
+            print("Plot method not yet implemented for array-like correlations.")
         else:
             TK = np.linspace(Trange[0], Trange[1], 100)
             y = self.__call__(TK, 'K')
@@ -190,7 +190,7 @@ class CoefficientT(CoefficientX1):
 # %% Functions
 
 
-def plotcoeffs(coeffs: list[CoefficientT],
+def plotcoeffs(coeffs: list[CorrelationT],
                kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
                title: Union[str, None] = None,
                **kwargs
@@ -199,8 +199,8 @@ def plotcoeffs(coeffs: list[CoefficientT],
 
     Parameters
     ----------
-    coeffs : list[CoefficientT]
-        List of coefficients to be ploted together.
+    coeffs : list[CorrelationT]
+        List of correlations to be ploted together.
     kind : Literal['linear', 'semilogy', 'Arrhenius']
         Kind of plot to be generated.
     title : str | None
@@ -217,7 +217,7 @@ def plotcoeffs(coeffs: list[CoefficientT],
 
     # Title
     if title is None:
-        title = "Coefficient overlay"
+        title = "Correlation overlay"
     fig.suptitle(title)
 
     # Draw plots sequentially

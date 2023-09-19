@@ -1,13 +1,17 @@
 from polykin.utils import check_type, check_shapes, check_bounds, \
+    convert_list_to_array, \
     FloatOrArray, FloatOrArrayLike, ShapeError, \
     eps
-from polykin.coefficients.baseclasses import CoefficientT
+from polykin.correlation import CorrelationT
 
 import numpy as np
 from scipy.constants import h, R, Boltzmann as kB
 
 
-class Arrhenius(CoefficientT):
+__all__ = ['Arrhenius', 'Eyring']
+
+
+class Arrhenius(CorrelationT):
     r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) kinetic
     rate coefficient.
 
@@ -57,16 +61,8 @@ class Arrhenius(CoefficientT):
                  ) -> None:
 
         # Convert lists to arrays
-        if isinstance(k0, list):
-            k0 = np.array(k0, dtype=np.float64)
-        if isinstance(EaR, list):
-            EaR = np.array(EaR, dtype=np.float64)
-        if isinstance(T0, list):
-            T0 = np.array(T0, dtype=np.float64)
-        if isinstance(Tmin, list):
-            Tmin = np.array(Tmin, dtype=np.float64)
-        if isinstance(Tmax, list):
-            Tmax = np.array(Tmax, dtype=np.float64)
+        k0, EaR, T0, Tmin, Tmax = \
+            convert_list_to_array([k0, EaR, T0, Tmin, Tmax])
 
         # Check shapes
         self._shape = check_shapes([k0, EaR], [T0, Tmin, Tmax])
@@ -210,7 +206,7 @@ class Arrhenius(CoefficientT):
         return self.k0 * np.exp(-self.EaR*(1/T - 1/self.T0))
 
 
-class Eyring(CoefficientT):
+class Eyring(CorrelationT):
     r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
     coefficient.
 
@@ -259,16 +255,8 @@ class Eyring(CoefficientT):
                  ) -> None:
 
         # Convert lists to arrays
-        if isinstance(DSa, list):
-            DSa = np.array(DSa, dtype=np.float64)
-        if isinstance(DHa, list):
-            DHa = np.array(DHa, dtype=np.float64)
-        if isinstance(kappa, list):
-            kappa = np.array(kappa, dtype=np.float64)
-        if isinstance(Tmin, list):
-            Tmin = np.array(Tmin, dtype=np.float64)
-        if isinstance(Tmax, list):
-            Tmax = np.array(Tmax, dtype=np.float64)
+        DSa, DHa, kappa, Tmin, Tmax = \
+            convert_list_to_array([DSa, DHa, kappa, Tmin, Tmax])
 
         # Check shapes
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
