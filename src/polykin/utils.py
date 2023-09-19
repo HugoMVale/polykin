@@ -234,8 +234,8 @@ def check_in_set(var_value: Any,
         )
 
 
-def check_shapes(a: list,
-                 b: list
+def check_shapes(a: list[Union[float, np.ndarray]],
+                 b: list[Union[float, np.ndarray]]
                  ) -> Union[tuple[int, ...], None]:
     """Check shape homogeneity between objects in lists `a` and `b`.
 
@@ -328,6 +328,14 @@ class vectorize(np.vectorize):
 
     def __get__(self, obj, objtype):
         return functools.partial(self.__call__, obj)
+
+
+def convert_list_to_array(a: list[Union[float, list, tuple, np.ndarray]]
+                          ) -> list[Union[float, np.ndarray]]:
+    for i in range(len(a)):
+        if isinstance(a[i], (list, tuple)):
+            a[i] = np.array(a[i], dtype=np.float64)
+    return a  # type: ignore
 
 # %% Unit functions
 
