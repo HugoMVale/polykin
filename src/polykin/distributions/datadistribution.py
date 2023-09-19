@@ -1,7 +1,7 @@
 # %% Data distribution
 
 from polykin.utils import vectorize, check_subclass, check_bounds, \
-     FloatVectorLike
+    FloatVectorLike
 from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
 from polykin.distributions.baseclasses import Kind, \
     IndividualDistribution, MixtureDistribution,\
@@ -11,6 +11,8 @@ import numpy as np
 from scipy import interpolate, integrate, optimize
 from typing import Union
 import functools
+
+__all__ = ['DataDistribution']
 
 
 class DataDistribution(IndividualDistribution):

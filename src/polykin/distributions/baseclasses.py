@@ -17,6 +17,8 @@ from typing import Literal, Union
 from abc import ABC, abstractmethod
 import functools
 
+__all__ = ['plotdists']
+
 # %% Types
 
 Kind = Literal['number', 'mass', 'gpc']
