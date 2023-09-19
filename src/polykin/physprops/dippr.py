@@ -1,6 +1,6 @@
 from polykin.utils import check_type, check_shapes, convert_list_to_array, \
     FloatOrArray, FloatOrArrayLike
-from polykin.coefficients.baseclasses import CoefficientT
+from polykin.correlation import CorrelationT
 
 import numpy as np
 
@@ -8,7 +8,7 @@ __all__ = ['DIPPR100', 'DIPPR101', 'DIPPR102', 'DIPPR104', 'DIPPR105',
            'DIPPR106']
 
 
-class DIPPR(CoefficientT):
+class DIPPR(CorrelationT):
     """_Abstract_ class for all
     [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
     temperature-dependent equations."""
@@ -486,7 +486,7 @@ class DIPPR106(DIPPR):
     $$ Y = A (1 - T_r)^{B + C T_r + D T_r^2 + E T_r^3} $$
 
     where $A$ to $E$ are constant parameters, $T$ is the absolute temperature,
-    $T_c$ is the critical temperature and $T_r = T/T_c$ is the relative
+    $T_c$ is the critical temperature and $T_r = T/T_c$ is the reduced
     temperature.
 
     Parameters

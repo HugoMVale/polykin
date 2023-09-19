@@ -11,6 +11,10 @@ from scipy.constants import R as Rgas
 from typing import Literal, Union, Any
 from collections.abc import Iterable
 
+# %%
+
+__all__ = ['VrentasDudaBinary']
+
 # %% Vrentas-Duda
 
 

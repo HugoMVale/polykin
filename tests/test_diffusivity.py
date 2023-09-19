@@ -1,4 +1,4 @@
-from polykin.diffusion.diffusivity import VrentasDudaBinary
+from polykin.physprops.diffusivity import VrentasDudaBinary
 
 import numpy as np
 import pytest
