@@ -4,4 +4,4 @@ data.
 
 """
 
-from polykin.copolymerization.copo import CopoData, CopoAnalysis
+from polykin.copolymerization.copo import *

@@ -2,7 +2,6 @@ from polykin.utils import FloatVectorLike, FloatVector, ShapeError, eps
 from polykin import utils
 from polykin.base import Base
 
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from operator import itemgetter
 import numpy as np
@@ -16,6 +15,8 @@ import matplotlib.pyplot as plt
 import matplotlib.transforms as transforms
 from matplotlib.patches import Ellipse, Patch
 from matplotlib.figure import Figure
+
+__all__ = ['CopoData', 'CopoFitResult', 'TerminalModel']
 
 # %% Dataclasses
 
@@ -97,7 +98,7 @@ class CopoFitResult():
 # %% Models
 
 
-class CopoModel(Base, ABC):
+class CopoModel(Base):
     pass
 
 
