@@ -131,6 +131,6 @@ nav:
       - Coefficients: "reference/coefficients.md"
       - Diffusion: "reference/diffusion.md"
       - Distributions: "reference/distributions.md"
-      # - Copolymerization: "reference/copolymerization.md"
+      - Copolymerization: "reference/copolymerization.md" 
 
 

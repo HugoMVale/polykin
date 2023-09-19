@@ -64,6 +64,7 @@ class CopoData():
 
 @dataclass(frozen=True)
 class CopoFitResult():
+    """Something"""
     M1: str
     M2: str
     r1: Optional[float] = None
