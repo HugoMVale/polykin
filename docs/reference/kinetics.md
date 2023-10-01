@@ -1,13 +1,9 @@
-# Coefficients
+# Kinetics (polykin.kinetics)
 
-::: polykin.coefficients
+::: polykin.kinetics
     options:
         members:
             - Arrhenius
             - Eyring
-            - DIPPR100
-            - DIPPR101
-            - DIPPR105
             - PropagationHalfLength
             - TerminationCompositeModel
-            - plotcoeffs

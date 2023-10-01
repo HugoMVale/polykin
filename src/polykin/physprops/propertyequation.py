@@ -1,5 +1,9 @@
-from polykin.utils import check_in_set, check_valid_range, \
-    convert_check_temperature, \
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
+from polykin.utils import check_in_set, check_valid_range, check_type, \
+    convert_check_temperature, convert_check_pressure, \
     FloatOrArray, FloatOrArrayLike
 from polykin.base import Base
 
@@ -8,19 +12,11 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from abc import ABC, abstractmethod
-from typing import Union, Literal
+from typing import Union, Literal, Any
 
 
-class Correlation(Base, ABC):
-    r"""_Abstract_ class for all correlations, $c(...)$."""
-
-    def __init__(self) -> None:
-        self._shape = None
-
-    @property
-    def shape(self) -> Union[tuple[int, ...], None]:
-        """Shape of underlying array."""
-        return self._shape
+class PropertyEquation(Base, ABC):
+    r"""_Abstract_ class for all property equaitons, $p(...)$."""
 
     @abstractmethod
     def __call__(self, *args) -> FloatOrArray:
@@ -30,31 +26,39 @@ class Correlation(Base, ABC):
     def eval(self, *args) -> FloatOrArray:
         pass
 
+    @property
+    def symbol(self) -> str:
+        """Symbol of the object."""
+        return self.__symbol
 
-class CorrelationX1(Correlation):
-    r"""_Abstract_ class for 1-argument correlation, $c(x)$."""
-    pass
+    @symbol.setter
+    def symbol(self, symbol: str):
+        self.__symbol = check_type(symbol, str, "symbol")
+
+    @property
+    def unit(self) -> str:
+        """Unit of the object."""
+        return self.__unit
+
+    @unit.setter
+    def unit(self, unit: str):
+        self.__unit = check_type(unit, str, "unit")
 
 
-class CorrelationX2(Correlation):
-    r"""_Abstract_ class for 2-argument correlations, $c(x, y)$."""
-    pass
-
-
-class CorrelationT(CorrelationX1):
-    r"""_Abstract_ temperature-dependent correlation, $c(T)$"""
+class PropertyEquationT(PropertyEquation):
+    r"""_Abstract_ temperature-dependent property equation, $p(T)$"""
 
     Tmin: FloatOrArray
     Tmax: FloatOrArray
-    unit: str
-    symbol: str
 
     def __call__(self,
                  T: FloatOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'C'
                  ) -> FloatOrArray:
-        r"""Evaluate correlation at given temperature, including unit
-        conversion and range check.
+        r"""Evaluate quantity at given temperature.
+
+        Evaluation at given temperature, including unit conversion and range
+        check.
 
         Parameters
         ----------
@@ -95,9 +99,10 @@ class CorrelationT(CorrelationX1):
              Trange: Union[tuple[float, float], None] = None,
              Tunit: Literal['C', 'K'] = 'C',
              title: Union[str, None] = None,
-             axes: Union[Axes, None] = None
-             ) -> None:
-        """Plot the correlation as a function of temperature.
+             axes: Union[Axes, None] = None,
+             return_objects: bool = False
+             ) -> Any:
+        """Plot quantity as a function of temperature.
 
         Parameters
         ----------
@@ -106,13 +111,21 @@ class CorrelationT(CorrelationX1):
         Trange : tuple[float, float] | None
             Temperature range for x-axis. If `None`, the validity range
             (Tmin, Tmax) will be used. If no validity range was defined, the
-            range will fall back to 0-100°C.
+            range will default to 0-100°C.
         Tunit : Literal['C', 'K']
             Temperature unit.
         title : str | None
             Title of plot. If `None`, the object name will be used.
         axes : Axes | None
             Matplotlib Axes object.
+        return_objects : bool
+            If `True`, the Figure and Axes objects are returned (for saving or
+            further manipulations).
+
+        Returns
+        -------
+        tuple[Figure | None, Axes] | None
+            Figure and Axes objects if return_objects is `True`.    
         """
 
         # Check inputs
@@ -123,7 +136,6 @@ class CorrelationT(CorrelationX1):
 
         # Plot objects
         if axes is None:
-            ext_mode = False
             fig, ax = plt.subplots()
             self.fig = fig
             if title is None:
@@ -131,7 +143,7 @@ class CorrelationT(CorrelationX1):
             if title:
                 fig.suptitle(title)
         else:
-            ext_mode = True
+            fig = None
             ax = axes
 
         # Plot labels
@@ -145,9 +157,9 @@ class CorrelationT(CorrelationX1):
         xlabel = fr"$T$ [{Tsymbol}]"
         ylabel = fr"${self.symbol}$ [{self.unit}]"
         label = None
-        if ext_mode:
+        if fig is None:
             label = ylabel
-            ylabel = "$c(T)$"
+            ylabel = "$y(T)$"
         if kind == 'Arrhenius':
             xlabel = r"$1/T$ [" + Tsymbol + r"$^{-1}$]"
             ylabel = r"$\ln$" + ylabel
@@ -164,8 +176,12 @@ class CorrelationT(CorrelationX1):
             if Trange == (0.0, np.inf):
                 Trange = (273.15, 373.15)
 
-        if self._shape:
-            print("Plot method not yet implemented for array-like correlations.")
+        try:
+            shape = getattr(self, '_shape')
+        except AttributeError:
+            shape = None
+        if shape is not None:
+            print("Plot method not yet implemented for array-like equations.")
         else:
             TK = np.linspace(Trange[0], Trange[1], 100)
             y = self.__call__(TK, 'K')
@@ -181,26 +197,89 @@ class CorrelationT(CorrelationX1):
             elif kind == 'Arrhenius':
                 ax.semilogy(1/TK, y, label=label)
 
-        if ext_mode:
+        if fig is None:
             ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
 
-        return None
+        if return_objects:
+            return (fig, ax)
 
+
+class PropertyEquationTP(PropertyEquation):
+    r"""_Abstract_ temperature and pressure dependent property equation,
+    $c(T, P)$"""
+
+    Tmin: float
+    Tmax: float
+    Pmin: float
+    Pmax: float
+
+    def __call__(self,
+                 T: FloatOrArrayLike,
+                 P: FloatOrArrayLike,
+                 Tunit: Literal['C', 'K'] = 'C',
+                 Punit: Literal['bar', 'MPa', 'Pa'] = 'bar'
+                 ) -> FloatOrArray:
+        r"""Evaluate correlation at given temperature, including unit
+        conversion and range check.
+
+        Parameters
+        ----------
+        T : FloatOrArrayLike
+            Temperature.
+            Unit = `Tunit`.
+        P : FloatOrArrayLike
+            Pressure.
+            Unit = `Punit`.
+        Tunit : Literal['C', 'K']
+            Temperature unit.
+        Punit : Literal['bar', 'MPa', 'Pa']
+            Pressure unit.
+
+        Returns
+        -------
+        FloatOrArray
+            Equation value.
+        """
+        TK = convert_check_temperature(T, Tunit, self.Tmin, self.Tmax)
+        Pa = convert_check_pressure(P, Punit, self.Pmin, self.Pmax)
+        return self.eval(TK, Pa)
+
+    @abstractmethod
+    def eval(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
+        """Evaluate equation at given SI conditions, without unit
+        conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+        P : FloatOrArray
+            Pressure.
+            Unit = Pa.
+
+        Returns
+        -------
+        FloatOrArray
+            Equation value.
+        """
+        pass
 
 # %% Functions
 
 
-def plotcoeffs(coeffs: list[CorrelationT],
-               kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
-               title: Union[str, None] = None,
-               **kwargs
-               ) -> Figure:
-    """Plot a list of temperature-dependent coefficients in a combined plot.
+def plotequations(eqs: list[PropertyEquationT],
+                  kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
+                  title: Union[str, None] = None,
+                  **kwargs
+                  ) -> Figure:
+    """Plot a list of temperature-dependent property equations in a combined
+    plot.
 
     Parameters
     ----------
-    coeffs : list[CorrelationT]
-        List of correlations to be ploted together.
+    eqs : list[PropertyEquationT]
+        List of property equations to be ploted together.
     kind : Literal['linear', 'semilogy', 'Arrhenius']
         Kind of plot to be generated.
     title : str | None
@@ -217,11 +296,11 @@ def plotcoeffs(coeffs: list[CorrelationT],
 
     # Title
     if title is None:
-        title = "Correlation overlay"
+        title = "Equation overlay"
     fig.suptitle(title)
 
     # Draw plots sequentially
-    for c in coeffs:
-        c.plot(kind=kind, axes=ax, **kwargs)
+    for item in eqs:
+        item.plot(kind=kind, axes=ax, **kwargs)
 
     return fig

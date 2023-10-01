@@ -1,17 +1,33 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 from polykin.utils import check_type, check_shapes, check_bounds, \
     convert_list_to_array, \
     FloatOrArray, FloatOrArrayLike, ShapeError, \
     eps
-from polykin.correlation import CorrelationT
+from polykin.physprops.propertyequation import PropertyEquationT
 
 import numpy as np
 from scipy.constants import h, R, Boltzmann as kB
+from typing import Union
 
 
 __all__ = ['Arrhenius', 'Eyring']
 
 
-class Arrhenius(CorrelationT):
+class KineticCoefficientT(PropertyEquationT):
+
+    def __init__(self) -> None:
+        self._shape = None
+
+    @property
+    def shape(self) -> Union[tuple[int, ...], None]:
+        """Shape of underlying parameter array."""
+        return self._shape
+
+
+class Arrhenius(KineticCoefficientT):
     r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) kinetic
     rate coefficient.
 
@@ -48,6 +64,10 @@ class Arrhenius(CorrelationT):
     name : str
         Name.
     """
+
+    k0: FloatOrArray
+    EaR: FloatOrArray
+    T0: FloatOrArray
 
     def __init__(self,
                  k0: FloatOrArrayLike,
@@ -203,10 +223,26 @@ class Arrhenius(CorrelationT):
         return self.eval(np.inf)
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
+        r"""Evaluate kinetic coefficient.
+
+        Direct evaluation at given SI conditions, without unit conversions or
+        checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+
+        Returns
+        -------
+        FloatOrArray
+            Coefficient value.
+        """
         return self.k0 * np.exp(-self.EaR*(1/T - 1/self.T0))
 
 
-class Eyring(CorrelationT):
+class Eyring(KineticCoefficientT):
     r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
     coefficient.
 
@@ -242,7 +278,9 @@ class Eyring(CorrelationT):
         Name.
     """
 
-    unit: str = '1/s'
+    DSa: FloatOrArray
+    DHa: FloatOrArray
+    kappa: FloatOrArray
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
@@ -269,14 +307,12 @@ class Eyring(CorrelationT):
         check_bounds(Tmax, 0, np.inf, 'Tmax')
         check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
 
-        # check types
-        check_type(symbol, str, 'symbol')
-
         self.DSa = DSa
         self.DHa = DHa
         self.kappa = kappa
         self.Tmin = Tmin
         self.Tmax = Tmax
+        self.unit = '1/s'
         self.symbol = symbol
         self.name = name
 
@@ -292,4 +328,20 @@ class Eyring(CorrelationT):
             f"Tmax [K]:         {self.Tmax}"
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
+        r"""Evaluate kinetic coefficient.
+
+        Direct evaluation at given SI conditions, without unit conversions or
+        checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+
+        Returns
+        -------
+        FloatOrArray
+            Coefficient value.
+        """
         return self.kappa * kB*T/h * np.exp((self.DSa - self.DHa/T)/R)

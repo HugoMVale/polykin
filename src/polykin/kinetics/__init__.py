@@ -1,10 +1,11 @@
-"""
-PolyKin `coefficients` provides classes to create and visualize the types of
-kinetic coefficients and physical property correlations most often found in
-polymer reactor models.
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
 
+"""
+This module provides methods to create and visualize the types of kinetic
+coefficients most often used in polymer reactor models.
 """
 
 from polykin.kinetics.thermal import *
 from polykin.kinetics.cld import *
-
