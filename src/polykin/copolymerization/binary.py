@@ -1,3 +1,7 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 from polykin.utils import FloatVectorLike, FloatVector, ShapeError, eps
 from polykin import utils
 from polykin.base import Base

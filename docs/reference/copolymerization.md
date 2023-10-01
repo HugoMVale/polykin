@@ -1,8 +1,8 @@
-# Copolymerization
+# Copolymerization (polykin.copolymerization)
 
 ::: polykin.copolymerization
 
-::: polykin.copolymerization.copo
+::: polykin.copolymerization.binary
     options:
         members:
             - CopoData

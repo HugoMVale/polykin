@@ -1,7 +1,10 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 """
-PolyKin `copolymerization` provides classes to analyze and fit copolymerization
-data.
+This module provides classes to analyze and fit copolymerization data.
 
 """
 
-from polykin.copolymerization.copo import *
+from polykin.copolymerization.binary import *
