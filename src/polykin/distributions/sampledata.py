@@ -1,3 +1,8 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
+# # code to generate sample data
 # from polykin.distributions import SchulzZimm
 # import numpy as np
 # import json

@@ -1,4 +1,6 @@
-# %% Base distribution classes
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
 
 from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, \
@@ -34,16 +36,18 @@ class Distribution(Base, ABC):
 
     def __repr__(self) -> str:
         unit_M = self.units['molar_mass']
-        return f"type: {self.__class__.__name__}\n" \
-            f"name: {self.name}\n" \
-            f"DPn:  {self.DPn:.1f}\n" \
-            f"DPw:  {self.DPw:.1f}\n" \
-            f"DPz:  {self.DPz:.1f}\n" \
-            f"PDI:  {self.PDI:.2f}\n" \
-            f"M0:   {self.M0:,.1f} {unit_M}\n" \
-            f"Mn:   {self.Mn:,.0f} {unit_M}\n" \
-            f"Mw:   {self.Mw:,.0f} {unit_M}\n" \
+        return (
+            f"type: {self.__class__.__name__}\n"
+            f"name: {self.name}\n"
+            f"DPn:  {self.DPn:.1f}\n"
+            f"DPw:  {self.DPw:.1f}\n"
+            f"DPz:  {self.DPz:.1f}\n"
+            f"PDI:  {self.PDI:.2f}\n"
+            f"M0:   {self.M0:,.1f} {unit_M}\n"
+            f"Mn:   {self.Mn:,.0f} {unit_M}\n"
+            f"Mw:   {self.Mw:,.0f} {unit_M}\n"
             f"Mz:   {self.Mz:,.0f} {unit_M}"
+        )
 
     def __lt__(self, other) -> bool:
         if isinstance(other, Distribution):

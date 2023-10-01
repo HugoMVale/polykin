@@ -1,4 +1,6 @@
-# %% Analytical distributions
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
 
 from polykin.distributions.baseclasses import \
     AnalyticalDistributionP1, AnalyticalDistributionP2

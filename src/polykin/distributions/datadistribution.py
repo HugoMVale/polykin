@@ -1,4 +1,6 @@
-# %% Data distribution
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
 
 from polykin.utils import vectorize, check_subclass, check_bounds, \
     FloatVectorLike
