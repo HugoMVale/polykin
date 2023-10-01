@@ -1,7 +1,10 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 from polykin.utils import check_bounds, check_in_set, check_valid_range, \
     convert_check_temperature, \
     FloatOrArray, FloatOrArrayLike
-from polykin.base import Base
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,7 +21,7 @@ __all__ = ['VrentasDudaBinary']
 # %% Vrentas-Duda
 
 
-class VrentasDudaBinary(Base):
+class VrentasDudaBinary():
     r"""Vrentas-Duda free volume model for the diffusivity of binary polymer
     solutions.
 
@@ -156,22 +159,23 @@ class VrentasDudaBinary(Base):
         self.name = name
 
     def __repr__(self) -> str:
-        return \
-            f"name:     {self.name}\n" \
-            f"unit:     {self.unit}\n" \
-            f"D0:       {self.D0}\n" \
-            f"E:        {self.E}\n" \
-            f"V1*:      {self.V1star}\n" \
-            f"V2*:      {self.V2star}\n" \
-            f"ξ:        {self.z}\n" \
-            f"K11:      {self.K11}\n" \
-            f"K12:      {self.K12}\n" \
-            f"K21:      {self.K21}\n" \
-            f"K22:      {self.K22}\n" \
-            f"Tg1:      {self.Tg1}\n" \
-            f"Tg2:      {self.Tg2}\n" \
-            f"𝛾:        {self.y}\n" \
-            f"𝜒:        {self.X}\n"
+        return (
+            f"name:     {self.name}\n"
+            f"unit:     {self.unit}\n"
+            f"D0:       {self.D0}\n"
+            f"E:        {self.E}\n"
+            f"V1*:      {self.V1star}\n"
+            f"V2*:      {self.V2star}\n"
+            f"ξ:        {self.z}\n"
+            f"K11:      {self.K11}\n"
+            f"K12:      {self.K12}\n"
+            f"K21:      {self.K21}\n"
+            f"K22:      {self.K22}\n"
+            f"Tg1:      {self.Tg1}\n"
+            f"Tg2:      {self.Tg2}\n"
+            f"𝛾:        {self.y}\n"
+            f"𝜒:        {self.X}"
+        )
 
     def __call__(self,
                  w1: FloatOrArrayLike,
@@ -179,9 +183,11 @@ class VrentasDudaBinary(Base):
                  Tunit: Literal['C', 'K'] = 'C',
                  selfd: bool = False
                  ) -> FloatOrArray:
-        r"""Evaluate solvent self-diffusion or mutual diffusion coefficient at
-        a given solvent content and temperature, including unit conversion and
-        range check.
+        r"""Evaluate solvent self-diffusion, $D_1$, or mutual diffusion
+        coefficient, $D$.
+
+        Evaluation at given solvent content and temperature, including unit
+        conversion and range check.
 
         Parameters
         ----------
@@ -217,8 +223,10 @@ class VrentasDudaBinary(Base):
               w1: FloatOrArray,
               T: FloatOrArray
               ) -> FloatOrArray:
-        r"""Evaluate the solvent self-diffusion coefficient, $D_1$, at given SI
-        conditions, without unit conversions or checks.
+        r"""Evaluate solvent self-diffusion coefficient, $D_1$.
+
+        Direct evaluation at given SI conditions, without unit conversions or
+        checks.
 
         Parameters
         ----------
@@ -258,8 +266,10 @@ class VrentasDudaBinary(Base):
                w1: FloatOrArray,
                T: FloatOrArray
                ) -> FloatOrArray:
-        r"""Evaluate the mutual diffusion coefficient, $D$, at given SI
-        conditions, without unit conversions or checks.
+        r"""Evaluate mutual diffusion coefficient, $D$.
+
+        Direct evaluation at given SI conditions, without unit conversions or
+        checks.
 
         Parameters
         ----------
@@ -366,5 +376,5 @@ class VrentasDudaBinary(Base):
         return NotImplemented
 
 
-class VrentasDudaMulticomponent(Base):
+class VrentasDudaMulticomponent():
     pass
