@@ -1,4 +1,4 @@
-# Distributions
+# Distributions (polykin.distributions)
 
 ::: polykin.distributions
 
@@ -19,8 +19,4 @@
     options:
         members:
             - MixtureDistribution
-
-::: polykin.distributions.baseclasses
-    options:
-        members:
             - plotdists
