@@ -1,7 +1,12 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 """
-PolyKin `physprops` provides means to evaluate physical property correlations
-and estimate physical properties often found in polymer reactor models.
+This module provides means to evaluate physical property
+equations and estimate physical properties often used in polymer reactor
+models.
 """
 
 from polykin.physprops.dippr import *
-from polykin.physprops.diffusivity import *
+from polykin.physprops.tait import *

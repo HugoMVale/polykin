@@ -1,6 +1,9 @@
-from polykin.utils import check_type, check_shapes, convert_list_to_array, \
-    FloatOrArray, FloatOrArrayLike
-from polykin.correlation import CorrelationT
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
+from polykin.utils import FloatOrArray
+from polykin.physprops.propertyequation import PropertyEquationT
 
 import numpy as np
 
@@ -8,7 +11,7 @@ __all__ = ['DIPPR100', 'DIPPR101', 'DIPPR102', 'DIPPR104', 'DIPPR105',
            'DIPPR106']
 
 
-class DIPPR(CorrelationT):
+class DIPPR(PropertyEquationT):
     """_Abstract_ class for all
     [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
     temperature-dependent equations."""
@@ -18,28 +21,22 @@ class DIPPR(CorrelationT):
 class DIPPRP4(DIPPR):
     """_Abstract_ class for DIPPR equations with 4 parameters (A-D)."""
 
+    A: float
+    B: float
+    C: float
+    D: float
+
     def __init__(self,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike,
-                 D: FloatOrArrayLike,
-                 Tmin: FloatOrArrayLike,
-                 Tmax: FloatOrArrayLike,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 Tmin: float,
+                 Tmax: float,
                  unit,
                  symbol,
                  name
                  ) -> None:
-
-        # Convert lists to arrays
-        A, B, C, D, Tmin, Tmax = \
-            convert_list_to_array([A, B, C, D, Tmin, Tmax])
-
-        # Check shapes
-        self._shape = check_shapes([A, B, C, D], [Tmin, Tmax])
-
-        # Check types
-        check_type(unit, str, 'unit')
-        check_type(symbol, str, 'symbol')
 
         self.A = A
         self.B = B
@@ -52,44 +49,40 @@ class DIPPRP4(DIPPR):
         self.name = name
 
     def __repr__(self) -> str:
-        return \
-            f"name:      {self.name}\n" \
-            f"symbol:    {self.symbol}\n" \
-            f"unit:      {self.unit}\n" \
-            f"A:         {self.A}\n" \
-            f"B:         {self.B}\n" \
-            f"C:         {self.C}\n" \
-            f"D:         {self.D}\n" \
-            f"Tmin [K]:  {self.Tmin}\n" \
+        return (
+            f"name:      {self.name}\n"
+            f"symbol:    {self.symbol}\n"
+            f"unit:      {self.unit}\n"
+            f"A:         {self.A}\n"
+            f"B:         {self.B}\n"
+            f"C:         {self.C}\n"
+            f"D:         {self.D}\n"
+            f"Tmin [K]:  {self.Tmin}\n"
             f"Tmax [K]:  {self.Tmax}"
+        )
 
 
 class DIPPRP5(DIPPR):
     """_Abstract_ class for DIPPR equations with 5 parameters (A-E)."""
 
+    A: float
+    B: float
+    C: float
+    D: float
+    E: float
+
     def __init__(self,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike,
-                 D: FloatOrArrayLike,
-                 E: FloatOrArrayLike,
-                 Tmin: FloatOrArrayLike,
-                 Tmax: FloatOrArrayLike,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float,
+                 Tmin: float,
+                 Tmax: float,
                  unit,
                  symbol,
                  name
                  ) -> None:
-
-        # Convert lists to arrays
-        A, B, C, D, E, Tmin, Tmax = \
-            convert_list_to_array([A, B, C, D, E, Tmin, Tmax])
-
-        # Check shapes
-        self._shape = check_shapes([A, B, C, D, E], [Tmin, Tmax])
-
-        # Check types
-        check_type(unit, str, 'unit')
-        check_type(symbol, str, 'symbol')
 
         self.A = A
         self.B = B
@@ -103,17 +96,18 @@ class DIPPRP5(DIPPR):
         self.name = name
 
     def __repr__(self) -> str:
-        return \
-            f"name:      {self.name}\n" \
-            f"symbol:    {self.symbol}\n" \
-            f"unit:      {self.unit}\n" \
-            f"A:         {self.A}\n" \
-            f"B:         {self.B}\n" \
-            f"C:         {self.C}\n" \
-            f"D:         {self.D}\n" \
-            f"E:         {self.E}\n" \
-            f"Tmin [K]:  {self.Tmin}\n" \
+        return (
+            f"name:      {self.name}\n"
+            f"symbol:    {self.symbol}\n"
+            f"unit:      {self.unit}\n"
+            f"A:         {self.A}\n"
+            f"B:         {self.B}\n"
+            f"C:         {self.C}\n"
+            f"D:         {self.D}\n"
+            f"E:         {self.E}\n"
+            f"Tmin [K]:  {self.Tmin}\n"
             f"Tmax [K]:  {self.Tmax}"
+        )
 
 
 class DIPPR100(DIPPRP5):
@@ -128,20 +122,20 @@ class DIPPR100(DIPPRP5):
 
     Parameters
     ----------
-    A : FloatOrArrayLike
+    A : float
         Parameter of equation.
-    B : FloatOrArrayLike
+    B : float
         Parameter of equation.
-    C : FloatOrArrayLike
+    C : float
         Parameter of equation.
-    D : FloatOrArrayLike
+    D : float
         Parameter of equation.
-    E : FloatOrArrayLike
+    E : float
         Parameter of equation.
-    Tmin : FloatOrArrayLike
+    Tmin : float
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -153,13 +147,13 @@ class DIPPR100(DIPPRP5):
     """
 
     def __init__(self,
-                 A: FloatOrArrayLike = 0.,
-                 B: FloatOrArrayLike = 0.,
-                 C: FloatOrArrayLike = 0.,
-                 D: FloatOrArrayLike = 0.,
-                 E: FloatOrArrayLike = 0.,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 A: float = 0.,
+                 B: float = 0.,
+                 C: float = 0.,
+                 D: float = 0.,
+                 E: float = 0.,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
                  unit: str = '-',
                  symbol: str = 'Y',
                  name: str = ''
@@ -202,20 +196,20 @@ class DIPPR101(DIPPRP5):
 
     Parameters
     ----------
-    A : FloatOrArrayLike
+    A : float
         Parameter of equation.
-    B : FloatOrArrayLike
+    B : float
         Parameter of equation.
-    C : FloatOrArrayLike
+    C : float
         Parameter of equation.
-    D : FloatOrArrayLike
+    D : float
         Parameter of equation.
-    E : FloatOrArrayLike
+    E : float
         Parameter of equation.
-    Tmin : FloatOrArrayLike
+    Tmin : float
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -227,13 +221,13 @@ class DIPPR101(DIPPRP5):
     """
 
     def __init__(self,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike = 0.,
-                 D: FloatOrArrayLike = 0.,
-                 E: FloatOrArrayLike = 0.,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 A: float,
+                 B: float,
+                 C: float = 0.,
+                 D: float = 0.,
+                 E: float = 0.,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
                  unit: str = '-',
                  symbol: str = 'Y',
                  name: str = ''
@@ -276,18 +270,18 @@ class DIPPR102(DIPPRP4):
 
     Parameters
     ----------
-    A : FloatOrArrayLike
+    A : float
         Parameter of equation.
-    B : FloatOrArrayLike
+    B : float
         Parameter of equation.
-    C : FloatOrArrayLike
+    C : float
         Parameter of equation.
-    D : FloatOrArrayLike
+    D : float
         Parameter of equation.
-    Tmin : FloatOrArrayLike
+    Tmin : float
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -299,12 +293,12 @@ class DIPPR102(DIPPRP4):
     """
 
     def __init__(self,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike = 0.,
-                 D: FloatOrArrayLike = 0.,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 A: float,
+                 B: float,
+                 C: float = 0.,
+                 D: float = 0.,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
                  unit: str = '-',
                  symbol: str = 'Y',
                  name: str = ''
@@ -346,20 +340,20 @@ class DIPPR104(DIPPRP5):
 
     Parameters
     ----------
-    A : FloatOrArrayLike
+    A : float
         Parameter of equation.
-    B : FloatOrArrayLike
+    B : float
         Parameter of equation.
-    C : FloatOrArrayLike
+    C : float
         Parameter of equation.
-    D : FloatOrArrayLike
+    D : float
         Parameter of equation.
-    E : FloatOrArrayLike
+    E : float
         Parameter of equation.
-    Tmin : FloatOrArrayLike
+    Tmin : float
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -371,13 +365,13 @@ class DIPPR104(DIPPRP5):
     """
 
     def __init__(self,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike = 0.,
-                 D: FloatOrArrayLike = 0.,
-                 E: FloatOrArrayLike = 0.,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 A: float,
+                 B: float,
+                 C: float = 0.,
+                 D: float = 0.,
+                 E: float = 0.,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
                  unit: str = '-',
                  symbol: str = 'Y',
                  name: str = ''
@@ -420,18 +414,18 @@ class DIPPR105(DIPPRP4):
 
     Parameters
     ----------
-    A : FloatOrArrayLike
+    A : float
         Parameter of equation.
-    B : FloatOrArrayLike
+    B : float
         Parameter of equation.
-    C : FloatOrArrayLike
+    C : float
         Parameter of equation.
-    D : FloatOrArrayLike
+    D : float
         Parameter of equation.
-    Tmin : FloatOrArrayLike
+    Tmin : float
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -443,12 +437,12 @@ class DIPPR105(DIPPRP4):
     """
 
     def __init__(self,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike,
-                 D: FloatOrArrayLike,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
                  unit: str = '-',
                  symbol: str = 'Y',
                  name: str = ''
@@ -491,23 +485,23 @@ class DIPPR106(DIPPR):
 
     Parameters
     ----------
-    Tc : FloatOrArrayLike
+    Tc : float
         Critical temperature.
         Unit = K.
-    A : FloatOrArrayLike
+    A : float
         Parameter of equation.
-    B : FloatOrArrayLike
+    B : float
         Parameter of equation.
-    C : FloatOrArrayLike
+    C : float
         Parameter of equation.
-    D : FloatOrArrayLike
+    D : float
         Parameter of equation.
-    E : FloatOrArrayLike
+    E : float
         Parameter of equation.
-    Tmin : FloatOrArrayLike
+    Tmin : float
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -518,30 +512,26 @@ class DIPPR106(DIPPR):
         Name.
     """
 
+    Tc: float
+    A: float
+    B: float
+    C: float
+    D: float
+    E: float
+
     def __init__(self,
-                 Tc: FloatOrArrayLike,
-                 A: FloatOrArrayLike,
-                 B: FloatOrArrayLike,
-                 C: FloatOrArrayLike = 0.,
-                 D: FloatOrArrayLike = 0.,
-                 E: FloatOrArrayLike = 0.,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 Tc: float,
+                 A: float,
+                 B: float,
+                 C: float = 0.,
+                 D: float = 0.,
+                 E: float = 0.,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
                  unit: str = '-',
                  symbol: str = 'Y',
                  name: str = ''
                  ) -> None:
-
-        # Convert lists to arrays
-        A, B, C, D, E, Tc, Tmin, Tmax = \
-            convert_list_to_array([A, B, C, D, E, Tc, Tmin, Tmax])
-
-        # Check shapes
-        self._shape = check_shapes([A, B, C, D, E, Tc], [Tmin, Tmax])
-
-        # Check types
-        check_type(unit, str, 'unit')
-        check_type(symbol, str, 'symbol')
 
         self.A = A
         self.B = B
@@ -556,18 +546,19 @@ class DIPPR106(DIPPR):
         self.name = name
 
     def __repr__(self) -> str:
-        return \
-            f"name:      {self.name}\n" \
-            f"symbol:    {self.symbol}\n" \
-            f"unit:      {self.unit}\n" \
-            f"A:         {self.A}\n" \
-            f"B:         {self.B}\n" \
-            f"C:         {self.C}\n" \
-            f"D:         {self.D}\n" \
-            f"E:         {self.E}\n" \
-            f"Tc [K]:    {self.Tc}\n" \
-            f"Tmin [K]:  {self.Tmin}\n" \
+        return (
+            f"name:      {self.name}\n"
+            f"symbol:    {self.symbol}\n"
+            f"unit:      {self.unit}\n"
+            f"A:         {self.A}\n"
+            f"B:         {self.B}\n"
+            f"C:         {self.C}\n"
+            f"D:         {self.D}\n"
+            f"E:         {self.E}\n"
+            f"Tc [K]:    {self.Tc}\n"
+            f"Tmin [K]:  {self.Tmin}\n"
             f"Tmax [K]:  {self.Tmax}"
+        )
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
         """Evaluate correlation at given SI conditions, without unit
