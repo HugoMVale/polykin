@@ -1,3 +1,7 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 from polykin.copolymerization import CopoData
 from polykin.utils import RangeError, ShapeError
 
@@ -5,6 +9,8 @@ import pytest
 import numpy as np
 
 # Create a fixture for a valid instance of CopoData
+
+
 @pytest.fixture
 def valid_copo_data():
     f1 = [0.1, 0.2, 0.3]

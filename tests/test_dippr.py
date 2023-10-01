@@ -1,4 +1,8 @@
-from polykin.physprops import \
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
+from polykin.physprops.dippr import \
     DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106
 
 

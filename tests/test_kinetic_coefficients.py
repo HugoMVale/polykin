@@ -1,3 +1,7 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 from polykin.kinetics import Arrhenius, Eyring, \
     TerminationCompositeModel, PropagationHalfLength
 from polykin.utils import RangeError
