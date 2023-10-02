@@ -109,15 +109,16 @@ class Arrhenius(KineticCoefficientT):
         self.name = name
 
     def __repr__(self) -> str:
-        return \
-            f"name:      {self.name}\n" \
-            f"symbol:    {self.symbol}\n" \
-            f"unit:      {self.unit}\n" \
-            f"k0:        {self.k0}\n" \
-            f"Ea/R [K]:  {self.EaR}\n" \
-            f"T0   [K]:  {self.T0}\n" \
-            f"Tmin [K]:  {self.Tmin}\n" \
+        return (
+            f"name:      {self.name}\n"
+            f"symbol:    {self.symbol}\n"
+            f"unit:      {self.unit}\n"
+            f"k0:        {self.k0}\n"
+            f"Ea/R [K]:  {self.EaR}\n"
+            f"T0   [K]:  {self.T0}\n"
+            f"Tmin [K]:  {self.Tmin}\n"
             f"Tmax [K]:  {self.Tmax}"
+        )
 
     def __mul__(self, other):
         """Multipy Arrhenius coefficient(s).
@@ -216,6 +217,38 @@ class Arrhenius(KineticCoefficientT):
                              name=f"{str(other)}/{self.name}")
         else:
             return NotImplemented
+
+    def __pow__(self, other):
+        """Power of an Arrhenius coefficient.
+
+        Create a new Arrhenius coefficient from the exponentiation of an
+        Arrhenius coefficient.
+
+        Parameters
+        ----------
+        other : float | int
+            Exponent.
+
+        Returns
+        -------
+        Arrhenius
+            Power coefficient.
+        """
+        if isinstance(other, (int, float)):
+            return Arrhenius(k0=self.k0**other,
+                             EaR=self.EaR*other,
+                             T0=self.T0,
+                             Tmin=self.Tmin,
+                             Tmax=self.Tmax,
+                             unit=f"{self.unit}^{str(other)}",
+                             symbol=f"{self.symbol}^{str(other)}",
+                             name=f"{self.name}^{str(other)}"
+                             )
+        else:
+            return NotImplemented
+
+    def __rpow__(self, other):
+        return NotImplemented
 
     @property
     def A(self) -> FloatOrArray:
@@ -317,15 +350,16 @@ class Eyring(KineticCoefficientT):
         self.name = name
 
     def __repr__(self) -> str:
-        return \
-            f"name:             {self.name}\n" \
-            f"symbol:           {self.symbol}\n" \
-            f"unit:             {self.unit}\n" \
-            f"DSa [J/(mol·K)]:  {self.DSa}\n" \
-            f"DHa [J/mol]:      {self.DHa}\n" \
-            f"kappa [—]:        {self.kappa}\n" \
-            f"Tmin [K]:         {self.Tmin}\n" \
+        return (
+            f"name:             {self.name}\n"
+            f"symbol:           {self.symbol}\n"
+            f"unit:             {self.unit}\n"
+            f"DSa [J/(mol·K)]:  {self.DSa}\n"
+            f"DHa [J/mol]:      {self.DHa}\n"
+            f"kappa [—]:        {self.kappa}\n"
+            f"Tmin [K]:         {self.Tmin}\n"
             f"Tmax [K]:         {self.Tmax}"
+        )
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
         r"""Evaluate kinetic coefficient.

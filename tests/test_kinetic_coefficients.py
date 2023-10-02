@@ -97,9 +97,11 @@ def test_product_Arrhenius_Arrhenius_scalar(capsys):
     k3 = k1*k2
     k3_value = k3(T, 'K')
     assert (np.isclose(k3_value, k1_value*k2_value))
+
     _ = k3(390, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
+
     _ = k3(310, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
@@ -114,9 +116,11 @@ def test_division_Arrhenius_Arrhenius_scalar(capsys):
     k3 = k1/k2
     k3_value = k3(T, 'K')
     assert (np.isclose(k3_value, k1_value/k2_value))
+
     _ = k3(390, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
+
     _ = k3(310, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
@@ -133,10 +137,30 @@ def test_product_Arrhenius_Arrhenius_array(capsys):
     k3 = k1*k2
     k3_value = k3(T, 'K')
     assert (np.all(np.isclose(k3_value, k1_value*k2_value)))
+
     _ = k3(390, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
+
     _ = k3(310, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+
+
+def test_power_Arrhenius_(capsys):
+    k1 = Arrhenius(1e2, 1e4, T0=340, Tmin=300, Tmax=380, name='k1')
+    T = 350.
+    k2 = k1*k1
+    k3 = k1**2
+    k2_value = k2(T, 'K')
+    k3_value = k3(T, 'K')
+    assert (np.isclose(k3_value, k2_value))
+
+    _ = k3(390, 'K')
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+
+    _ = k3(290, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
 
@@ -152,9 +176,11 @@ def test_division_Arrhenius_Arrhenius_array(capsys):
     k3 = k1/k2
     k3_value = k3(T, 'K')
     assert (np.all(np.isclose(k3_value, k1_value/k2_value)))
+
     _ = k3(390, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
+
     _ = k3(310, 'K')
     out, _ = capsys.readouterr()
     assert (out.lower().startswith('warning'))
