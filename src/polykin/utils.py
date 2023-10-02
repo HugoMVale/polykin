@@ -1,3 +1,7 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2023
+
 from collections.abc import Iterable
 import functools
 import numpy as np
@@ -332,6 +336,7 @@ class vectorize(np.vectorize):
 
 def convert_list_to_array(a: list[Union[float, list, tuple, np.ndarray]]
                           ) -> list[Union[float, np.ndarray]]:
+    "Convert lists to numpy arrays."
     for i in range(len(a)):
         if isinstance(a[i], (list, tuple)):
             a[i] = np.array(a[i], dtype=np.float64)
@@ -345,7 +350,7 @@ def convert_check_temperature(T: FloatOrArrayLike,
                               Tmin: FloatOrArray = 0.,
                               Tmax: FloatOrArray = np.inf
                               ) -> FloatOrArray:
-    """Convert temperature input to K and check range.
+    """Convert temperature input to 'K' and check range.
 
     Parameters
     ----------
@@ -368,14 +373,64 @@ def convert_check_temperature(T: FloatOrArrayLike,
 
     if isinstance(T, list):
         T = np.array(T, dtype=np.float64)
+
     if Tunit == 'K':
         TK = T
     elif Tunit == 'C':
         TK = T + 273.15
     else:
         raise ValueError("Invalid `Tunit` input.")
+
     if np.any(TK < 0):
         raise RangeError("`T` must be > 0 K.")
     if np.any(TK < Tmin) or np.any(TK > Tmax):
         print("Warning: `T` input is outside validity range [Tmin, Tmax].")
+
     return TK
+
+
+def convert_check_pressure(P: FloatOrArrayLike,
+                           Punit: Literal['bar', 'MPa', 'Pa'],
+                           Pmin: FloatOrArray = 0.,
+                           Pmax: FloatOrArray = np.inf
+                           ) -> FloatOrArray:
+    """Convert pressure input to 'Pa' and check range.
+
+    Parameters
+    ----------
+    P : FloatOrArrayLike
+        Pressure
+    Punit : Literal['bar', 'MPa', Pa']
+        Pressure unit.
+    Pmin : FloatOrArray
+        Lower pressure bound.
+        Unit = Pa.
+    Pmax : FloatOrArray
+        Upper pressure bound.
+        Unit = Pa.
+
+    Returns
+    -------
+    FloatOrArray
+        Pressure in Pa.
+    """
+
+    if isinstance(P, list):
+        P = np.array(P, dtype=np.float64)
+
+    if Punit == 'Pa':
+        f = 1
+    elif Punit == 'bar':
+        f = 1e5
+    elif Punit == 'MPa':
+        f = 1e6
+    else:
+        raise ValueError("Invalid `Punit` input.")
+    Pa = P*f
+
+    if np.any(Pa < 0):
+        raise RangeError("`P` must be > 0 Pa.")
+    if np.any(Pa < Pmin) or np.any(Pa > Pmax):
+        print("Warning: `P` input is outside validity range [Pmin, Pmax].")
+
+    return Pa
