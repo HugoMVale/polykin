@@ -45,7 +45,7 @@ theme:
     code: Roboto Mono
 
 extra_css:
-- css/mkdocstrings.css
+  - css/mkdocstrings.css
 
 watch:
   - src/polykin
@@ -56,6 +56,9 @@ watch:
 plugins:
   - search
   - autolinks
+  - bibtex:
+      bib_file: "docs/bibliography/bibliography.bib"
+  #    csl_file: "docs/bibliography/american-chemical-society.csl"
   # - gen-files:
   #     scripts:
   #       - docs/reference/gen_reference.py
@@ -122,15 +125,15 @@ nav:
       - installation.md
   - Learn:
       - PolyKin Tutorials: "tutorials/polykin_tutorials.md"
-      - Coefficients: "tutorials/coefficients.ipynb"
-      - Diffusion: "tutorials/diffusion.ipynb"
-      - Distributions: "tutorials/distributions.ipynb"
       # - Copolymerization: "tutorials/copolymerization.ipynb"
+      - Diffusion Coefficients: "tutorials/diffusion_coefficients.ipynb"
+      - Distributions: "tutorials/distributions.ipynb"
+      - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
+      - Physical Property Equations: "tutorials/physprop_equations.ipynb"
   #- API Reference: reference/polykin/
   - API Reference:
-      - Coefficients: "reference/coefficients.md"
-      - Diffusion: "reference/diffusion.md"
-      - Distributions: "reference/distributions.md"
-      - Copolymerization: "reference/copolymerization.md" 
-
-
+      - polykin.copolymerization: "reference/copolymerization.md"
+      - polykin.diffusion: "reference/diffusion.md"
+      - polykin.distributions: "reference/distributions.md"
+      - polykin.kinetics: "reference/kinetics.md"
+      - polykin.physprops: "reference/physprops.md"
