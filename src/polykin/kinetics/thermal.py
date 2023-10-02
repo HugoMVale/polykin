@@ -240,8 +240,8 @@ class Arrhenius(KineticCoefficientT):
                              T0=self.T0,
                              Tmin=self.Tmin,
                              Tmax=self.Tmax,
-                             unit=f"{self.unit}^{str(other)}",
-                             symbol=f"{self.symbol}^{str(other)}",
+                             unit=f"({self.unit})^{str(other)}",
+                             symbol=f"({self.symbol})^{str(other)}",
                              name=f"{self.name}^{str(other)}"
                              )
         else:
