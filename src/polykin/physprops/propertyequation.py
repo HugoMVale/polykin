@@ -132,7 +132,10 @@ class PropertyEquationT(PropertyEquation):
         check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
         check_in_set(Tunit, {'K', 'C'}, 'Tunit')
         if Trange is not None:
-            check_valid_range(Trange, 0., np.inf, 'Trange')
+            Trange_min = 0.
+            if Tunit == 'C':
+                Trange_min = -273.15
+            check_valid_range(Trange, Trange_min, np.inf, 'Trange')
 
         # Plot objects
         if axes is None:
