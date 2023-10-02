@@ -24,8 +24,10 @@ def wilke_chang(T: float,
     This method estimates the infinite-dilution coefficient of a solute A in a
     solvent B.
 
-    Reference: Reid et al., "The properties of gases and liquids", 4th ed.,
-    p. 598.
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
 
     Parameters
     ----------
@@ -63,8 +65,10 @@ def hayduk_minhas(T: float,
     This method estimates the infinite-dilution coefficient of a solute A in a
     solvent B.
 
-    Reference: Reid et al., "The properties of gases and liquids", 4th ed.,
-    p. 602.
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
 
     Parameters
     ----------
@@ -110,14 +114,17 @@ def wilke_lee(T: float,
               ) -> float:
     r"""Wilke-Lee estimation method for $D_{AB}$ in a binary gas mixture.
 
-    This method estimates the mutual diffusion coefficient of binary gas
+    This method estimates the mutual diffusion coefficient of a binary gas
     mixture. The value is independent of composition.
 
-    If air is one of the components of the mixture, arguments `TB` and `rhoB`
-    should both be set to `None`.
+    !!! Note
+        If air is one of the components of the mixture, arguments `TB` and
+        `rhoB` should both be set to `None`.
 
-    Reference: Reid et al., "The properties of gases and liquids", 4th ed.,
-    p. 602.
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
 
     Parameters
     ----------
