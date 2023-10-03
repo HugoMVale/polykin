@@ -9,3 +9,7 @@ coefficients in binary liquid and gas mixtures.
 
 from polykin.diffusion.vrentasduda import *
 from polykin.diffusion.estimation_methods import *
+
+from polykin._testutils import PytestTester
+test = PytestTester(__name__)
+del PytestTester

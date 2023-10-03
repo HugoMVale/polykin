@@ -8,3 +8,7 @@ This module provides classes to analyze and fit copolymerization data.
 """
 
 from polykin.copolymerization.binary import *
+
+from polykin._testutils import PytestTester
+test = PytestTester(__name__)
+del PytestTester

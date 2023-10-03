@@ -9,3 +9,7 @@ coefficients most often used in polymer reactor models.
 
 from polykin.kinetics.thermal import *
 from polykin.kinetics.cld import *
+
+from polykin._testutils import PytestTester
+test = PytestTester(__name__)
+del PytestTester

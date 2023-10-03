@@ -19,7 +19,10 @@ Using any of these subpackages requires an explicit import. For example,
 * physprops        = physical property equations
 
 """
+from polykin.physprops.propertyequation import plotequations
 
 __version__ = "0.2.0"
 
-from polykin.physprops.propertyequation import plotequations
+from polykin._testutils import PytestTester
+test = PytestTester(__name__)
+del PytestTester
