@@ -29,7 +29,7 @@ class Flory(AnalyticalDistributionP1):
     DPn : int
         Number-average degree of polymerization, $DP_n$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$.
+        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name
     """
@@ -37,7 +37,7 @@ class Flory(AnalyticalDistributionP1):
 
     def __init__(self,
                  DPn: int,
-                 M0: float = 100.0,
+                 M0: float = 0.1,
                  name: str = ''
                  ) -> None:
 
@@ -98,7 +98,7 @@ class Poisson(AnalyticalDistributionP1):
     DPn : int
         Number-average degree of polymerization, $DP_n$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$.
+        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name
     """
@@ -107,7 +107,7 @@ class Poisson(AnalyticalDistributionP1):
 
     def __init__(self,
                  DPn: int,
-                 M0: float = 100.0,
+                 M0: float = 0.1,
                  name: str = ''
                  ) -> None:
 
@@ -172,7 +172,7 @@ class LogNormal(AnalyticalDistributionP2):
     PDI : float
         Polydispersity index, $PDI$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$.
+        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name.
     """
@@ -184,7 +184,7 @@ class LogNormal(AnalyticalDistributionP2):
     def __init__(self,
                  DPn: int,
                  PDI: float,
-                 M0: float = 100.0,
+                 M0: float = 0.1,
                  name: str = ''
                  ) -> None:
 
@@ -252,7 +252,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     PDI : float
         Polydispersity index, $PDI$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$.
+        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name.
     """
@@ -264,7 +264,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     def __init__(self,
                  DPn: int,
                  PDI: float,
-                 M0: float = 100.0,
+                 M0: float = 0.1,
                  name: str = ''
                  ) -> None:
 

@@ -53,7 +53,7 @@ class PropertyEquationT(PropertyEquation):
 
     def __call__(self,
                  T: FloatOrArrayLike,
-                 Tunit: Literal['C', 'K'] = 'C'
+                 Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
         r"""Evaluate quantity at given temperature.
 
@@ -97,7 +97,7 @@ class PropertyEquationT(PropertyEquation):
     def plot(self,
              kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
              Trange: Union[tuple[float, float], None] = None,
-             Tunit: Literal['C', 'K'] = 'C',
+             Tunit: Literal['C', 'K'] = 'K',
              title: Union[str, None] = None,
              axes: Union[Axes, None] = None,
              return_objects: bool = False
@@ -219,8 +219,8 @@ class PropertyEquationTP(PropertyEquation):
     def __call__(self,
                  T: FloatOrArrayLike,
                  P: FloatOrArrayLike,
-                 Tunit: Literal['C', 'K'] = 'C',
-                 Punit: Literal['bar', 'MPa', 'Pa'] = 'bar'
+                 Tunit: Literal['C', 'K'] = 'K',
+                 Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
                  ) -> FloatOrArray:
         r"""Evaluate correlation at given temperature, including unit
         conversion and range check.

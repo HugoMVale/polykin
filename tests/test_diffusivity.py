@@ -55,8 +55,8 @@ def test_call(vrentas_instance):
 
     assert (np.isclose(D1, vrentas_instance(w1, T, 'K', True)))
     assert (np.isclose(D, vrentas_instance(w1, T, 'K')))
-    assert (np.isclose(D1, vrentas_instance(w1, 25., selfd=True)))
-    assert (np.isclose(D, vrentas_instance(w1, 25.)))
+    assert (np.isclose(D1, vrentas_instance(w1, 25., 'C', selfd=True)))
+    assert (np.isclose(D, vrentas_instance(w1, 25., 'C')))
 
 
 def test_plot(vrentas_instance):

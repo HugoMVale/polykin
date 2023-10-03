@@ -32,7 +32,7 @@ class Distribution(Base, ABC):
     r"""_Abstract_ class for all chain-length distributions."""
 
     kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
-    units = {'molar_mass': 'g/mol'}
+    units = {'molar_mass': 'kg/mol'}
 
     def __repr__(self) -> str:
         unit_M = self.units['molar_mass']

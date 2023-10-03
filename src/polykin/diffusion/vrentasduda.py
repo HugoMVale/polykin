@@ -180,7 +180,7 @@ class VrentasDudaBinary():
     def __call__(self,
                  w1: FloatOrArrayLike,
                  T: FloatOrArrayLike,
-                 Tunit: Literal['C', 'K'] = 'C',
+                 Tunit: Literal['C', 'K'] = 'K',
                  selfd: bool = False
                  ) -> FloatOrArray:
         r"""Evaluate solvent self-diffusion, $D_1$, or mutual diffusion
@@ -293,7 +293,7 @@ class VrentasDudaBinary():
     def plot(self,
              T: FloatOrArrayLike,
              w1range: tuple[float, float] = (0., 0.5),
-             Tunit: Literal['C', 'K'] = 'C',
+             Tunit: Literal['C', 'K'] = 'K',
              selfd: bool = False,
              title: Union[str, None] = None,
              ylim: Union[tuple[float, float], None] = None,

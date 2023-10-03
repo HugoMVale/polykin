@@ -13,13 +13,13 @@ import numpy as np
 def test_DIPPR100():
     "CpL of water"
     p = DIPPR100(276370., -2090.1, 8.125, -0.014116, 0.0000093701)
-    assert np.isclose(p(25.)/18.02e3, 4.18, rtol=1e-3)
+    assert np.isclose(p(25., 'C')/18.02e3, 4.18, rtol=1e-3)
 
 
 def test_DIPPR101():
     "P* of water"
     p = DIPPR101(73.649, -7258.2, -7.3037, 4.1653E-6, 2.)
-    assert np.isclose(p(100.), 101325., rtol=1e-3)
+    assert np.isclose(p(100., 'C'), 101325., rtol=1e-3)
 
 
 def test_DIPPR102():
@@ -37,7 +37,7 @@ def test_DIPPR104():
 def test_DIPPR105():
     "rhoL of water"
     p = DIPPR105(0.14395, 0.0112, 649.727, 0.05107)
-    assert np.isclose(p(25.), 998., rtol=1e-3)
+    assert np.isclose(p(25., 'C'), 998., rtol=1e-3)
 
 
 def test_DIPPR106():

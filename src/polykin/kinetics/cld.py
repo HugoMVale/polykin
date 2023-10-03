@@ -141,7 +141,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
                  T: FloatOrArrayLike,
                  i: IntOrArrayLike,
                  j: IntOrArrayLike,
-                 Tunit: Literal['C', 'K'] = 'C'
+                 Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
         r"""Evaluate kinetic coefficient.
 
@@ -261,7 +261,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
     def __call__(self,
                  T: FloatOrArrayLike,
                  i: IntOrArrayLike,
-                 Tunit: Literal['C', 'K'] = 'C'
+                 Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
         r"""Evaluate kinetic coefficient.
 
