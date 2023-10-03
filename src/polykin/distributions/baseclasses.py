@@ -43,10 +43,10 @@ class Distribution(Base, ABC):
             f"DPw:  {self.DPw:.1f}\n"
             f"DPz:  {self.DPz:.1f}\n"
             f"PDI:  {self.PDI:.2f}\n"
-            f"M0:   {self.M0:,.1f} {unit_M}\n"
-            f"Mn:   {self.Mn:,.0f} {unit_M}\n"
-            f"Mw:   {self.Mw:,.0f} {unit_M}\n"
-            f"Mz:   {self.Mz:,.0f} {unit_M}"
+            f"M0:   {self.M0:,.3f} {unit_M}\n"
+            f"Mn:   {self.Mn:,.3f} {unit_M}\n"
+            f"Mw:   {self.Mw:,.3f} {unit_M}\n"
+            f"Mz:   {self.Mz:,.3f} {unit_M}"
         )
 
     def __lt__(self, other) -> bool:
