@@ -5,6 +5,9 @@
 """
 This module provides methods to calculate mutual and self-diffusion
 coefficients in binary liquid and gas mixtures.
+
+For illustration examples, please refer to the associated
+[tutorial](/polykin/tutorials/diffusion_coefficients).
 """
 
 from polykin.diffusion.vrentasduda import *
