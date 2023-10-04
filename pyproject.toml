@@ -46,10 +46,13 @@ mkdocs-autolinks-plugin = "^0.6.0"
 mkdocs-gen-files = "^0.5.0"
 mkdocs-literate-nav = "^0.6.0"
 black = "^23.3.0"
-mkdocstrings = {extras = ["python"], version = "^0.22.0"}
+mkdocstrings = { extras = ["python"], version = "^0.22.0" }
 mkdocs-bibtex = "^2.11.0"
 markdown-exec = "^1.6.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = ["-n=2", "--import-mode=importlib"]
