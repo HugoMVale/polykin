@@ -687,8 +687,9 @@ class MixtureDistribution(Distribution):
     This kind of distributions are instantiated _indirectly_ by doing linear
     combinations of `IndividualDistribution` objects.
 
-    Example:
-    >>> blend = 2.0*Flory(100, name='A') + 1.0*Poisson(50, name='B')
+    ??? example
+
+        blend = 2.0*Flory(100, name='A') + 1.0*Poisson(50, name='B')
 
     """
 
