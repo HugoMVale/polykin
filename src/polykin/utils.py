@@ -380,7 +380,7 @@ def convert_check_temperature(
     if np.any(TK < 0):
         raise RangeError("`T` must be > 0 K.")
     if np.any(TK < Trange[0]) or np.any(TK > Trange[1]):
-        print("Warning: `T` input is outside validity range [Tmin, Tmax].")
+        print(f"Warning: `T` input is outside validity range {Trange}.")
 
     return TK
 
@@ -423,6 +423,6 @@ def convert_check_pressure(
     if np.any(Pa < 0):
         raise RangeError("`P` must be > 0 Pa.")
     if np.any(Pa < Prange[0]) or np.any(Pa > Prange[1]):
-        print("Warning: `P` input is outside validity range [Pmin, Pmax].")
+        print(f"Warning: `P` input is outside validity range {Prange}.")
 
     return Pa
