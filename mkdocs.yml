@@ -19,12 +19,13 @@ theme:
   language: en
   features:
     - search.highlight
-    #  - search.share
     - search.suggest
-    # - navigation.instant
+    - navigation.instant
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.expand
+    - navigation.indexes
+    - navigation.path
+    #- navigation.expand
     - navigation.top
     - toc.follow
   palette:
@@ -56,6 +57,7 @@ watch:
 plugins:
   - search
   - autolinks
+  - markdown-exec
   - bibtex:
       bib_file: "docs/bibliography/bibliography.bib"
   #    csl_file: "docs/bibliography/american-chemical-society.csl"
@@ -69,10 +71,12 @@ plugins:
       handlers:
         python:
           paths: [src]
+          #        import:
+          #          - https://docs.python.org/3/objects.inv
           options:
-            docstring_section_style: table
+            docstring_section_style: spacy
             group_by_category: true
-            # show_category_heading: True
+            # show_category_heading: true
             show_source: true
             members_order: alphabetical
             docstring_style: "numpy"
@@ -80,11 +84,14 @@ plugins:
             show_bases: false
             separate_signature: true
             inherited_members: true
-            merge_init_into_class: True
+            merge_init_into_class: true
+            show_symbol_type_toc: true
+            show_category_heading: false
   - mkdocs-jupyter:
       include: ["*.ipynb"]
-      include_source: False
-      ignore_h1_titles: True
+      include_source: false
+      ignore_h1_titles: true
+      write_markdown: true
 
 # Customization
 extra:
@@ -107,12 +114,22 @@ markdown_extensions:
   - pymdownx.caret
   - pymdownx.mark
   - pymdownx.tilde
+  - pymdownx.highlight
+  - pymdownx.magiclink
+  - pymdownx.snippets:
+      base_path:
+        - docs
+      check_paths: true
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.arithmatex:
       generic: true
   - pymdownx.tasklist:
       custom_checkbox: true
+  - toc:
+      permalink: "¤"
 
 extra_javascript:
   - javascripts/mathjax.js
@@ -120,20 +137,44 @@ extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
-  - Home: index.md
-  - Getting Started:
-      - installation.md
-  - Learn:
-      - PolyKin Tutorials: "tutorials/polykin_tutorials.md"
+  - Home:
+      - index.md
+      - Installation: installation.md
+  # - Installation: installation.md
+  # - Getting Started:
+  #     - installation.md
+  #     - quickstart.md
+  - Tutorials:
+      - "tutorials/index.md"
       # - Copolymerization: "tutorials/copolymerization.ipynb"
       - Diffusion Coefficients: "tutorials/diffusion_coefficients.ipynb"
       - Distributions: "tutorials/distributions.ipynb"
       - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
       - Physical Property Equations: "tutorials/physprop_equations.ipynb"
-  #- API Reference: reference/polykin/
+  #- API Reference: reference/polykin/ #
   - API Reference:
       - polykin.copolymerization: "reference/copolymerization.md"
-      - polykin.diffusion: "reference/diffusion.md"
-      - polykin.distributions: "reference/distributions.md"
-      - polykin.kinetics: "reference/kinetics.md"
-      - polykin.physprops: "reference/physprops.md"
+      - polykin.diffusion:
+          - reference/diffusion/index.md
+          - VrentasDudaBinary: reference/diffusion/VrentasDudaBinary.md
+          - hayduk_minhas: reference/diffusion/hayduk_minhas.md
+          - wilke_chang: reference/diffusion/wilke_chang.md
+          - wilke_lee: reference/diffusion/wilke_lee.md
+      - polykin.distributions:
+          - reference/distributions/index.md
+          - DataDistribution: reference/distributions/DataDistribution.md
+          - Flory: reference/distributions/Flory.md
+          - LogNormal: reference/distributions/LogNormal.md
+          - MixtureDistribution: reference/distributions/MixtureDistribution.md
+          - Poisson: reference/distributions/Poisson.md
+          - SchulzZimm: reference/distributions/SchulzZimm.md
+      - polykin.kinetics:
+          - reference/kinetics/index.md
+          - Arrhenius: reference/kinetics/Arrhenius.md
+          - Eyring: reference/kinetics/Eyring.md
+          - PropagationHalfLength: reference/kinetics/PropagationHalfLength.md
+          - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
+      - polykin.physprops:
+          - reference/physprops/index.md
+          - DIPPR: reference/physprops/DIPPR.md
+          - Tait: reference/physprops/Tait.md
