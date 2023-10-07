@@ -165,7 +165,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         FloatOrArray
             Coefficient value.
         """
-        TK = convert_check_temperature(T, Tunit, self.k11.Tmin, self.k11.Tmax)
+        TK = convert_check_temperature(T, Tunit, self.k11.Trange)
         if isinstance(i, (list, tuple)):
             i = np.array(i, dtype=np.int32)
         if isinstance(j, (list, tuple)):
@@ -282,7 +282,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
         FloatOrArray
             Coefficient value.
         """
-        TK = convert_check_temperature(T, Tunit, self.kp.Tmin, self.kp.Tmax)
+        TK = convert_check_temperature(T, Tunit, self.kp.Trange)
         if isinstance(i, (list, tuple)):
             i = np.array(i, dtype=np.int32)
         return self.eval(TK, i)
