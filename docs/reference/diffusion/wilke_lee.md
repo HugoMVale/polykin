@@ -1,4 +1,4 @@
-# polykin.diffusion.wilke_lee
+# polykin.diffusion
 
 ::: polykin.diffusion.estimation_methods
     options:

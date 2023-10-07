@@ -1,4 +1,4 @@
-# polykin.distributions.Poisson
+# polykin.distributions
 
 ::: polykin.distributions.analyticaldistributions
     options:

@@ -1,4 +1,4 @@
-# polykin.distributions.DataDistribution
+# polykin.distributions
 
 ::: polykin.distributions.datadistribution
     options:

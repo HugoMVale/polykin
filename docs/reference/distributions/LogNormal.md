@@ -1,4 +1,4 @@
-# polykin.distributions.LogNormal
+# polykin.distributions
 
 ::: polykin.distributions.analyticaldistributions
     options:

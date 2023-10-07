@@ -1,4 +1,4 @@
-# polykin.distributions.Flory
+# polykin.distributions
 
 ::: polykin.distributions.analyticaldistributions
     options:

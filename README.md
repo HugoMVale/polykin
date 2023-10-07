@@ -9,6 +9,7 @@ development stage, but the following modules can already be used:
 
 - [x] copolymerization
 - [ ] database
+- [x] diffusion
 - [x] distributions
 - [x] kinetics
 - [x] physprops

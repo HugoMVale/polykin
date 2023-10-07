@@ -1,5 +1,5 @@
 
-# polykin.diffusion.wilke_chang
+# polykin.diffusion
 
 ::: polykin.diffusion.estimation_methods
     options:

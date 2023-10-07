@@ -1,4 +1,4 @@
-# polykin.diffusion.hayduk_minhas
+# polykin.diffusion
 
 ::: polykin.diffusion.estimation_methods
     options:

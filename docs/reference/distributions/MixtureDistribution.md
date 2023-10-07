@@ -1,4 +1,4 @@
-# polykin.distributions.MixtureDistribution
+# polykin.distributions
 
 ::: polykin.distributions.baseclasses
     options:

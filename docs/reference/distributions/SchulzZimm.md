@@ -1,4 +1,4 @@
-# polykin.distributions.SchulzZimm
+# polykin.distributions
 
 ::: polykin.distributions.analyticaldistributions
     options:

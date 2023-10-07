@@ -1,4 +1,4 @@
-# polykin.diffusion.VrentasDudaBinary
+# polykin.diffusion
 
 ::: polykin.diffusion.vrentasduda
     options:

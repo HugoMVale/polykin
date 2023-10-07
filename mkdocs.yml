@@ -75,7 +75,7 @@ plugins:
           #          - https://docs.python.org/3/objects.inv
           options:
             docstring_section_style: spacy
-            group_by_category: true
+            group_by_category: false
             # show_category_heading: true
             show_source: true
             members_order: alphabetical
@@ -84,14 +84,13 @@ plugins:
             show_bases: false
             separate_signature: true
             inherited_members: true
-            merge_init_into_class: true
+            merge_init_into_class: false
             show_symbol_type_toc: true
             show_category_heading: false
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       include_source: false
       ignore_h1_titles: true
-      write_markdown: true
 
 # Customization
 extra:
@@ -176,5 +175,6 @@ nav:
           - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
       - polykin.physprops:
           - reference/physprops/index.md
+          - Antoine: reference/physprops/Antoine.md
           - DIPPR: reference/physprops/DIPPR.md
           - Tait: reference/physprops/Tait.md

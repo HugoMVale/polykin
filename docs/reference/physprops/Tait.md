@@ -1,4 +1,4 @@
-# polykin.physprops.Tait
+# polykin.physprops
 
 ::: polykin.physprops.tait
     options:
