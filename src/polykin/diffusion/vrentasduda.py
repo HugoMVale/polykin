@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 # from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from scipy.constants import R as Rgas
-from typing import Literal, Union, Any
+from typing import Literal, Optional, Any
 from collections.abc import Iterable
 
 # %%
@@ -295,9 +295,9 @@ class VrentasDudaBinary():
              w1range: tuple[float, float] = (0., 0.5),
              Tunit: Literal['C', 'K'] = 'K',
              selfd: bool = False,
-             title: Union[str, None] = None,
-             ylim: Union[tuple[float, float], None] = None,
-             axes: Union[Axes, None] = None,
+             title: Optional[str] = None,
+             ylim: Optional[tuple[float, float]] = None,
+             axes: Optional[Axes] = None,
              return_objects: bool = False
              ) -> Any:  # Union[tuple[Union[Figure, None], Axes], None]:
         """Plot the mutual or self-diffusion coefficient as a function of

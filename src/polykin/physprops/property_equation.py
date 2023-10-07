@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from abc import ABC, abstractmethod
-from typing import Union, Literal, Any
+from typing import Optional, Literal, Any
 
 
 class PropertyEquation(ABC):
@@ -80,10 +80,10 @@ class PropertyEquationT(PropertyEquation):
 
     def plot(self,
              kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
-             Trange: Union[tuple[float, float], None] = None,
+             Trange: Optional[tuple[float, float]] = None,
              Tunit: Literal['C', 'K'] = 'K',
-             title: Union[str, None] = None,
-             axes: Union[Axes, None] = None,
+             title: Optional[str] = None,
+             axes: Optional[Axes] = None,
              return_objects: bool = False
              ) -> Any:
         """Plot quantity as a function of temperature.
@@ -255,7 +255,7 @@ class PropertyEquationTP(PropertyEquation):
 
 def plotequations(eqs: list[PropertyEquationT],
                   kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
-                  title: Union[str, None] = None,
+                  title: Optional[str] = None,
                   **kwargs
                   ) -> Figure:
     """Plot a list of temperature-dependent property equations in a combined

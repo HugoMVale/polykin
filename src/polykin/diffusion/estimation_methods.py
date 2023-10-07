@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
-from typing import Literal, Union
+from typing import Literal, Optional
 from math import sqrt
 
 __all__ = ['wilke_chang', 'hayduk_minhas', 'wilke_lee']
@@ -102,9 +102,9 @@ def wilke_lee(T: float,
               MA: float,
               MB: float,
               rhoA: float,
-              rhoB: Union[float, None],
+              rhoB: Optional[float],
               TA: float,
-              TB: Union[float, None]
+              TB: Optional[float]
               ) -> float:
     r"""Wilke-Lee estimation method for the mutual diffusion coefficient of a
     binary gas mixture, $D_{AB}$.
