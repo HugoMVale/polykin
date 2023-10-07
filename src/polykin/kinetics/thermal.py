@@ -13,7 +13,7 @@ from scipy.constants import h, R, Boltzmann as kB
 from typing import Union
 
 
-__all__ = ['Arrhenius', 'Eyring']
+__all__ = ['Arrhenius', 'arrhenius', 'Eyring', 'eyring']
 
 
 class KineticCoefficientT(PropertyEquationT):
@@ -26,12 +26,14 @@ class KineticCoefficientT(PropertyEquationT):
         """Shape of underlying parameter array."""
         return self._shape
 
+# %% Arrhenius
+
 
 class Arrhenius(KineticCoefficientT):
     r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) kinetic
     rate coefficient.
 
-    This coefficient implements the following temperature dependence:
+    This class implements the following temperature dependence:
 
     $$ k(T)=k_0\exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
         \right)\right] $$
@@ -272,14 +274,56 @@ class Arrhenius(KineticCoefficientT):
         FloatOrArray
             Coefficient value.
         """
-        return self.k0 * np.exp(-self.EaR*(1/T - 1/self.T0))
+        return arrhenius(T, self.k0, self.EaR, self.T0)
+
+
+def arrhenius(T: FloatOrArray,
+              k0: FloatOrArray,
+              EaR: FloatOrArray,
+              T0: FloatOrArray = np.inf
+              ) -> FloatOrArray:
+    r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) kinetic
+    rate coefficient.
+
+    This function implements the following temperature dependence:
+
+    $$ k(T)=k_0\exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
+        \right)\right] $$
+
+    where $T_0$ is a convenient reference temperature, $E_a$ is the activation
+    energy, and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
+    form of the Arrhenius equation with $k_0=A$ is recovered.
+
+    Parameters
+    ----------
+    T : FloatOrArray
+        Temperature.
+        Unit = K.
+    k0 : FloatOrArray
+        Coefficient value at the reference temperature, $k_0=k(T_0)$.
+        Unit = Any.
+    EaR : FloatOrArray
+        Energy of activation, $E_a/R$.
+        Unit = K.
+    T0 : FloatOrArray
+        Reference temperature, $T_0$.
+        Unit = K.
+
+    Returns
+    -------
+    FloatOrArray
+        Coefficient value.
+    """
+    return k0 * np.exp(-EaR*(1/T - 1/T0))
+
+# %% Eyring
 
 
 class Eyring(KineticCoefficientT):
     r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
     coefficient.
 
-    This coefficient implements the following temperature dependence:
+    This class implements the following temperature dependence:
 
     $$ k(T)=\dfrac{\kappa k_B T}{h} \\
         \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
@@ -378,4 +422,44 @@ class Eyring(KineticCoefficientT):
         FloatOrArray
             Coefficient value.
         """
-        return self.kappa * kB*T/h * np.exp((self.DSa - self.DHa/T)/R)
+        return eyring(T, self.DSa, self.DHa, self.kappa)
+
+
+def eyring(T: FloatOrArray,
+           DSa: FloatOrArray,
+           DHa: FloatOrArray,
+           kappa: FloatOrArray
+           ) -> FloatOrArray:
+    r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
+    coefficient.
+
+    This function implements the following temperature dependence:
+
+    $$ k(T)=\dfrac{\kappa k_B T}{h} \\
+        \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
+        \exp\left(-\frac{\Delta H^\ddagger}{R T}\right)$$
+
+    where $\kappa$ is the transmission coefficient, $\Delta S^\ddagger$ is
+    the entropy of activation, and $\Delta H^\ddagger$ is the enthalpy of
+    activation. The unit of $k$ is physically set to s$^{-1}$.
+
+    Parameters
+    ----------
+    T : FloatOrArray
+        Temperature.
+        Unit = K.
+    DSa : FloatOrArray
+        Entropy of activation, $\Delta S^\ddagger$.
+        Unit = J/(mol·K).
+    DHa : FloatOrArray
+        Enthalpy of activation, $\Delta H^\ddagger$.
+        Unit = J/mol.
+    kappa : FloatOrArray
+        Transmission coefficient.
+
+    Returns
+    -------
+    FloatOrArray
+        Coefficient value.
+    """
+    return kappa * kB*T/h * np.exp((DSa - DHa/T)/R)
