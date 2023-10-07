@@ -78,6 +78,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
                  aL: float = 0.2,
                  name: str = ''
                  ) -> None:
+        """Construct `TerminationCompositeModel` with the given parameters."""
 
         check_type(k11, (Arrhenius, Eyring), 'k11')
         check_bounds(icrit, 1, 200, 'icrit')
@@ -211,6 +212,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
                  ihalf: float = 1.0,
                  name: str = ''
                  ) -> None:
+        """Construct `PropagationHalfLength` with the given parameters."""
 
         check_type(kp, (Arrhenius, Eyring), 'kp')
         check_bounds(C, 1., 100., 'C')
