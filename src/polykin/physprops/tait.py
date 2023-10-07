@@ -2,12 +2,30 @@
 #
 # Copyright Hugo Vale 2023
 
+from __future__ import annotations
+
 from polykin.utils import check_bounds, FloatOrArray, eps
 from polykin.physprops.property_equation import PropertyEquationTP
 
 import numpy as np
+import pandas as pd
+from pathlib import Path
+from typing import Optional
+
 
 __all__ = ['Tait']
+
+table_Tait_parameters: Optional[pd.DataFrame] = None
+
+
+def load_Tait_parameters() -> pd.DataFrame:
+    "Load table with Tait parameters."
+    global table_Tait_parameters
+    if table_Tait_parameters is None:
+        filepath = (Path(__file__).parent).joinpath('Table3b1.tsv')
+        table_Tait_parameters = pd.read_csv(filepath, delim_whitespace=True)
+        table_Tait_parameters.set_index("Polymer", inplace=True)
+    return table_Tait_parameters
 
 
 class Tait(PropertyEquationTP):
@@ -15,7 +33,7 @@ class Tait(PropertyEquationTP):
 
     This equation implements the following temperature and pressure dependence:
 
-    $$ \hat{V}(T,P)=\hat{V}(T,0)\left[1-C\ln\left(\frac{P}{B(T)}\right)\right]$$
+    $$\hat{V}(T,P)=\hat{V}(T,0)\left[1-C\ln\left(\frac{P}{B(T)}\right)\right]$$
 
     with:
 
@@ -82,6 +100,7 @@ class Tait(PropertyEquationTP):
                  Pmax: float = np.inf,
                  name: str = ''
                  ) -> None:
+        """Construct `Tait` with the given parameters."""
 
         # Check bounds
         check_bounds(A0, 1e-4, 2e-3, 'A0')
@@ -221,3 +240,28 @@ class Tait(PropertyEquationTP):
         """
         B = self._B(T)
         return (self._C/(P + B))/(1 - self._C*np.log(1 + P/B))
+
+    @classmethod
+    def from_database(cls, name: str) -> Optional[Tait]:
+        """Construct `Tait` with parameters from the database.
+
+        The parameters are thos reported in Table 3B-1 of 
+        Parameters
+        ----------
+        name : str
+            Polymer code name.
+        """
+        table = load_Tait_parameters()
+        try:
+            mask = table.index.to_series().str.contains(name, case=False)
+            parameters = table[mask].iloc[0, :].to_dict()
+        except IndexError:
+            parameters = None
+            print(
+                f"Error: '{name}' does not exist in polymer database.\n"
+                f"Valid names are: {table.index.to_list()}")
+
+        if parameters:
+            parameters['Pmin'] *= 1e6
+            parameters['Pmax'] *= 1e6
+            return cls(**parameters, name=name)
