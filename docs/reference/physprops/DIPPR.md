@@ -1,6 +1,4 @@
-# Physical Properties (polykin.physprops)
-
-::: polykin.physprops
+# polykin.physprops.dippr
 
 ::: polykin.physprops.dippr
     options:
@@ -8,13 +6,12 @@
             - DIPPR100
             - DIPPR101
             - DIPPR102
-            - DIPPR103
             - DIPPR104
             - DIPPR105
             - DIPPR106
-
-::: polykin.physprops.tait
-    options:
-        members:
-            - Tait
-
+            - dippr100
+            - dippr101
+            - dippr102
+            - dippr104
+            - dippr105
+            - dippr106
