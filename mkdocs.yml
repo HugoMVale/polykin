@@ -67,6 +67,9 @@ plugins:
   # - literate-nav:
   #     nav_file: SUMMARY.txt
   # - section-index
+  # - gallery:
+  #     examples_dirs: docs/tutorials
+  #     gallery_dirs: docs/generated/gallery
   - mkdocstrings:
       handlers:
         python:
@@ -139,6 +142,7 @@ nav:
   - Home:
       - index.md
       - Installation: installation.md
+  # - generated/gallery
   # - Installation: installation.md
   # - Getting Started:
   #     - installation.md

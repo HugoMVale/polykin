@@ -49,6 +49,7 @@ black = "^23.3.0"
 mkdocstrings = { extras = ["python"], version = "^0.22.0" }
 mkdocs-bibtex = "^2.11.0"
 markdown-exec = "^1.6.0"
+mkdocs-gallery = "^0.7.8"
 
 [build-system]
 requires = ["poetry-core"]
