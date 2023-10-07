@@ -2,7 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.base import Base
 from polykin.utils import check_bounds, check_type, check_in_set, \
     check_valid_range, custom_error, add_dicts, vectorize, \
     FloatOrArrayLike, FloatOrArray, IntOrArray, FloatRangeArray
@@ -28,11 +27,12 @@ Kind = Literal['number', 'mass', 'gpc']
 # %% Classes
 
 
-class Distribution(Base, ABC):
+class Distribution(ABC):
     r"""_Abstract_ class for all chain-length distributions."""
 
     kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
     units = {'molar_mass': 'kg/mol'}
+    name: str
 
     def __repr__(self) -> str:
         unit_M = self.units['molar_mass']

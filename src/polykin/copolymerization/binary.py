@@ -4,7 +4,6 @@
 
 from polykin.utils import FloatVectorLike, FloatVector, ShapeError, eps
 from polykin import utils
-from polykin.base import Base
 
 from dataclasses import dataclass
 from operator import itemgetter
@@ -102,7 +101,8 @@ class CopoFitResult():
 # %% Models
 
 
-class CopoModel(Base):
+class CopoModel():
+    name: str
     pass
 
 

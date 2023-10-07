@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.utils import check_bounds, FloatOrArray, eps
-from polykin.physprops.propertyequation import PropertyEquationTP
+from polykin.physprops.property_equation import PropertyEquationTP
 
 import numpy as np
 
@@ -101,10 +101,8 @@ class Tait(PropertyEquationTP):
         self.A2 = A2
         self.B0 = B0
         self.B1 = B1
-        self.Tmin = Tmin
-        self.Tmax = Tmax
-        self.Pmin = Pmin
-        self.Pmax = Pmax
+        self.Trange = (Tmin, Tmax)
+        self.Prange = (Pmin, Pmax)
         self.name = name
 
     def __repr__(self) -> str:
@@ -117,10 +115,8 @@ class Tait(PropertyEquationTP):
             f"A2 [m³/kg.K²]: {self.A2}\n"
             f"B0 [Pa]:       {self.B0}\n"
             f"B1 [1/K]:      {self.B1}\n"
-            f"Tmin [K]:      {self.Tmin}\n"
-            f"Tmax [K]:      {self.Tmax}"
-            f"Pmin [Pa]:     {self.Pmin}\n"
-            f"Pmax [Pa]:     {self.Pmax}\n"
+            f"Trange [K]:    {self.Trange}\n"
+            f"Prange [Pa]:   {self.Prange}"
         )
 
     def eval(self,

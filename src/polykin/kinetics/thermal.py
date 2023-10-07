@@ -6,7 +6,7 @@ from polykin.utils import check_type, check_shapes, check_bounds, \
     convert_list_to_array, \
     FloatOrArray, FloatOrArrayLike, ShapeError, \
     eps
-from polykin.physprops.propertyequation import PropertyEquationT
+from polykin.physprops.property_equation import PropertyEquationT
 
 import numpy as np
 from scipy.constants import h, R, Boltzmann as kB
@@ -81,6 +81,7 @@ class Arrhenius(KineticCoefficientT):
                  symbol: str = 'k',
                  name: str = ''
                  ) -> None:
+        """Construct `Arrhenius` with the given parameters."""
 
         # Convert lists to arrays
         k0, EaR, T0, Tmin, Tmax = \
@@ -104,22 +105,20 @@ class Arrhenius(KineticCoefficientT):
         self.k0 = k0
         self.EaR = EaR
         self.T0 = T0
-        self.Tmin = Tmin
-        self.Tmax = Tmax
+        self.Trange = (Tmin, Tmax)
         self.unit = unit
         self.symbol = symbol
         self.name = name
 
     def __repr__(self) -> str:
         return (
-            f"name:      {self.name}\n"
-            f"symbol:    {self.symbol}\n"
-            f"unit:      {self.unit}\n"
-            f"k0:        {self.k0}\n"
-            f"Ea/R [K]:  {self.EaR}\n"
-            f"T0   [K]:  {self.T0}\n"
-            f"Tmin [K]:  {self.Tmin}\n"
-            f"Tmax [K]:  {self.Tmax}"
+            f"name:        {self.name}\n"
+            f"symbol:      {self.symbol}\n"
+            f"unit:        {self.unit}\n"
+            f"k0:          {self.k0}\n"
+            f"Ea/R [K]:    {self.EaR}\n"
+            f"T0   [K]:    {self.T0}\n"
+            f"Trange [K]:  {self.Trange}"
         )
 
     def __mul__(self, other):
@@ -143,8 +142,10 @@ class Arrhenius(KineticCoefficientT):
             if self._shape == other._shape:
                 return Arrhenius(k0=self.A*other.A,
                                  EaR=self.EaR + other.EaR,
-                                 Tmin=np.maximum(self.Tmin, other.Tmin),
-                                 Tmax=np.minimum(self.Tmax, other.Tmax),
+                                 Tmin=np.maximum(
+                                     self.Trange[0], other.Trange[0]),
+                                 Tmax=np.minimum(
+                                     self.Trange[1], other.Trange[1]),
                                  unit=f"{self.unit}·{other.unit}",
                                  symbol=f"{self.symbol}·{other.symbol}",
                                  name=f"{self.name}·{other.name}")
@@ -155,8 +156,8 @@ class Arrhenius(KineticCoefficientT):
             return Arrhenius(k0=self.k0*other,
                              EaR=self.EaR,
                              T0=self.T0,
-                             Tmin=self.Tmin,
-                             Tmax=self.Tmax,
+                             Tmin=self.Trange[0],
+                             Tmax=self.Trange[1],
                              unit=self.unit,
                              symbol=f"{str(other)}·{self.symbol}",
                              name=f"{str(other)}·{self.name}")
@@ -187,8 +188,10 @@ class Arrhenius(KineticCoefficientT):
             if self._shape == other._shape:
                 return Arrhenius(k0=self.A/other.A,
                                  EaR=self.EaR - other.EaR,
-                                 Tmin=np.maximum(self.Tmin, other.Tmin),
-                                 Tmax=np.minimum(self.Tmax, other.Tmax),
+                                 Tmin=np.maximum(
+                                     self.Trange[0], other.Trange[0]),
+                                 Tmax=np.minimum(
+                                     self.Trange[1], other.Trange[1]),
                                  unit=f"{self.unit}/{other.unit}",
                                  symbol=f"{self.symbol}/{other.symbol}",
                                  name=f"{self.name}/{other.name}")
@@ -199,8 +202,8 @@ class Arrhenius(KineticCoefficientT):
             return Arrhenius(k0=self.k0/other,
                              EaR=self.EaR,
                              T0=self.T0,
-                             Tmin=self.Tmin,
-                             Tmax=self.Tmax,
+                             Tmin=self.Trange[0],
+                             Tmax=self.Trange[1],
                              unit=self.unit,
                              symbol=f"{self.symbol}/{str(other)}",
                              name=f"{self.name}/{str(other)}")
@@ -212,8 +215,8 @@ class Arrhenius(KineticCoefficientT):
             return Arrhenius(k0=other/self.k0,
                              EaR=-self.EaR,
                              T0=self.T0,
-                             Tmin=self.Tmin,
-                             Tmax=self.Tmax,
+                             Tmin=self.Trange[0],
+                             Tmax=self.Trange[1],
                              unit=f"1/{self.unit}",
                              symbol=f"{str(other)}/{self.symbol}",
                              name=f"{str(other)}/{self.name}")
@@ -240,8 +243,8 @@ class Arrhenius(KineticCoefficientT):
             return Arrhenius(k0=self.k0**other,
                              EaR=self.EaR*other,
                              T0=self.T0,
-                             Tmin=self.Tmin,
-                             Tmax=self.Tmax,
+                             Tmin=self.Trange[0],
+                             Tmax=self.Trange[1],
                              unit=f"({self.unit})^{str(other)}",
                              symbol=f"({self.symbol})^{str(other)}",
                              name=f"{self.name}^{str(other)}"
@@ -282,8 +285,7 @@ def arrhenius(T: FloatOrArray,
               EaR: FloatOrArray,
               T0: FloatOrArray = np.inf
               ) -> FloatOrArray:
-    r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) kinetic
-    rate coefficient.
+    r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) equation.
 
     This function implements the following temperature dependence:
 
@@ -368,6 +370,7 @@ class Eyring(KineticCoefficientT):
                  symbol: str = 'k',
                  name: str = ''
                  ) -> None:
+        """Construct `Eyring` with the given parameters."""
 
         # Convert lists to arrays
         DSa, DHa, kappa, Tmin, Tmax = \
@@ -387,8 +390,7 @@ class Eyring(KineticCoefficientT):
         self.DSa = DSa
         self.DHa = DHa
         self.kappa = kappa
-        self.Tmin = Tmin
-        self.Tmax = Tmax
+        self.Trange = (Tmin, Tmax)
         self.unit = '1/s'
         self.symbol = symbol
         self.name = name
@@ -430,8 +432,7 @@ def eyring(T: FloatOrArray,
            DHa: FloatOrArray,
            kappa: FloatOrArray
            ) -> FloatOrArray:
-    r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
-    coefficient.
+    r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) equation.
 
     This function implements the following temperature dependence:
 

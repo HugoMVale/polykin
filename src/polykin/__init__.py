@@ -19,7 +19,7 @@ Using any of these subpackages requires an explicit import. For example,
 * physprops        = physical property equations
 
 """
-from polykin.physprops.propertyequation import plotequations
+from polykin.physprops.property_equation import plotequations
 
 __version__ = "0.2.0"
 

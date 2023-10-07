@@ -345,12 +345,11 @@ def convert_list_to_array(a: list[Union[float, list, tuple, np.ndarray]]
 # %% Unit functions
 
 
-def convert_check_temperature(T: FloatOrArrayLike,
-                              Tunit: Literal['C', 'K'],
-                              Tmin: FloatOrArray = 0.,
-                              Tmax: FloatOrArray = np.inf
-                              ) -> FloatOrArray:
-    """Convert temperature input to 'K' and check range.
+def convert_check_temperature(
+        T: FloatOrArrayLike,
+        Tunit: Literal['C', 'K'],
+        Trange: tuple[FloatOrArray, FloatOrArray] = (0., np.inf)) -> FloatOrArray:
+    r"""Convert temperature input to 'K' and check range.
 
     Parameters
     ----------
@@ -358,11 +357,8 @@ def convert_check_temperature(T: FloatOrArrayLike,
         Temperature
     Tunit : Literal['C', 'K']
         Temperature unit.
-    Tmin : FloatOrArray
-        Lower temperature bound.
-        Unit = K.
-    Tmax : FloatOrArray
-        Upper temperature bound.
+    Trange : FloatOrArray
+        Temperature range.
         Unit = K.
 
     Returns
@@ -383,17 +379,16 @@ def convert_check_temperature(T: FloatOrArrayLike,
 
     if np.any(TK < 0):
         raise RangeError("`T` must be > 0 K.")
-    if np.any(TK < Tmin) or np.any(TK > Tmax):
+    if np.any(TK < Trange[0]) or np.any(TK > Trange[1]):
         print("Warning: `T` input is outside validity range [Tmin, Tmax].")
 
     return TK
 
 
-def convert_check_pressure(P: FloatOrArrayLike,
-                           Punit: Literal['bar', 'MPa', 'Pa'],
-                           Pmin: FloatOrArray = 0.,
-                           Pmax: FloatOrArray = np.inf
-                           ) -> FloatOrArray:
+def convert_check_pressure(
+        P: FloatOrArrayLike,
+        Punit: Literal['bar', 'MPa', 'Pa'],
+        Prange: tuple[FloatOrArray, FloatOrArray] = (0., np.inf)) -> FloatOrArray:
     """Convert pressure input to 'Pa' and check range.
 
     Parameters
@@ -402,11 +397,8 @@ def convert_check_pressure(P: FloatOrArrayLike,
         Pressure
     Punit : Literal['bar', 'MPa', Pa']
         Pressure unit.
-    Pmin : FloatOrArray
-        Lower pressure bound.
-        Unit = Pa.
-    Pmax : FloatOrArray
-        Upper pressure bound.
+    Prange : FloatOrArray
+        Pressure range.
         Unit = Pa.
 
     Returns
@@ -430,7 +422,7 @@ def convert_check_pressure(P: FloatOrArrayLike,
 
     if np.any(Pa < 0):
         raise RangeError("`P` must be > 0 Pa.")
-    if np.any(Pa < Pmin) or np.any(Pa > Pmax):
+    if np.any(Pa < Prange[0]) or np.any(Pa > Prange[1]):
         print("Warning: `P` input is outside validity range [Pmin, Pmax].")
 
     return Pa

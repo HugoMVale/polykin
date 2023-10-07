@@ -2,10 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.utils import check_in_set, check_valid_range, check_type, \
+from polykin.utils import check_in_set, check_valid_range, \
     convert_check_temperature, convert_check_pressure, \
     FloatOrArray, FloatOrArrayLike
-from polykin.base import Base
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,8 +14,12 @@ from abc import ABC, abstractmethod
 from typing import Union, Literal, Any
 
 
-class PropertyEquation(Base, ABC):
+class PropertyEquation(ABC):
     r"""_Abstract_ class for all property equaitons, $p(...)$."""
+
+    name: str
+    unit: str
+    symbol: str
 
     @abstractmethod
     def __call__(self, *args) -> FloatOrArray:
@@ -26,36 +29,17 @@ class PropertyEquation(Base, ABC):
     def eval(self, *args) -> FloatOrArray:
         pass
 
-    @property
-    def symbol(self) -> str:
-        """Symbol of the object."""
-        return self.__symbol
-
-    @symbol.setter
-    def symbol(self, symbol: str):
-        self.__symbol = check_type(symbol, str, "symbol")
-
-    @property
-    def unit(self) -> str:
-        """Unit of the object."""
-        return self.__unit
-
-    @unit.setter
-    def unit(self, unit: str):
-        self.__unit = check_type(unit, str, "unit")
-
 
 class PropertyEquationT(PropertyEquation):
     r"""_Abstract_ temperature-dependent property equation, $p(T)$"""
 
-    Tmin: FloatOrArray
-    Tmax: FloatOrArray
+    Trange: tuple[FloatOrArray, FloatOrArray]
 
     def __call__(self,
                  T: FloatOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
-        r"""Evaluate quantity at given temperature.
+        r"""Evaluate property equation at given temperature.
 
         Evaluation at given temperature, including unit conversion and range
         check.
@@ -73,12 +57,12 @@ class PropertyEquationT(PropertyEquation):
         FloatOrArray
             Correlation value.
         """
-        TK = convert_check_temperature(T, Tunit, self.Tmin, self.Tmax)
+        TK = convert_check_temperature(T, Tunit, self.Trange)
         return self.eval(TK)
 
     @abstractmethod
     def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
+        """Evaluate property equation at given SI conditions, without unit
         conversions or checks.
 
         Parameters
@@ -90,7 +74,7 @@ class PropertyEquationT(PropertyEquation):
         Returns
         -------
         FloatOrArray
-            Correlation value.
+            Property value.
         """
         pass
 
@@ -175,7 +159,7 @@ class PropertyEquationT(PropertyEquation):
             if Tunit_range == 'C':
                 Trange = tuple(np.asarray(Trange) + 273.15)
         else:
-            Trange = (np.min(self.Tmin), np.max(self.Tmax))
+            Trange = (np.min(self.Trange[0]), np.max(self.Trange[1]))
             if Trange == (0.0, np.inf):
                 Trange = (273.15, 373.15)
 
@@ -211,10 +195,8 @@ class PropertyEquationTP(PropertyEquation):
     r"""_Abstract_ temperature and pressure dependent property equation,
     $c(T, P)$"""
 
-    Tmin: float
-    Tmax: float
-    Pmin: float
-    Pmax: float
+    Trange: tuple[FloatOrArray, FloatOrArray]
+    Prange: tuple[FloatOrArray, FloatOrArray]
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -222,8 +204,8 @@ class PropertyEquationTP(PropertyEquation):
                  Tunit: Literal['C', 'K'] = 'K',
                  Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
                  ) -> FloatOrArray:
-        r"""Evaluate correlation at given temperature, including unit
-        conversion and range check.
+        r"""Evaluate property equation at given temperature and pressure,
+        including unit conversion and range check.
 
         Parameters
         ----------
@@ -243,13 +225,13 @@ class PropertyEquationTP(PropertyEquation):
         FloatOrArray
             Equation value.
         """
-        TK = convert_check_temperature(T, Tunit, self.Tmin, self.Tmax)
-        Pa = convert_check_pressure(P, Punit, self.Pmin, self.Pmax)
+        TK = convert_check_temperature(T, Tunit, self.Trange)
+        Pa = convert_check_pressure(P, Punit, self.Prange)
         return self.eval(TK, Pa)
 
     @abstractmethod
     def eval(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
-        """Evaluate equation at given SI conditions, without unit
+        """Evaluate  property equation at given SI conditions, without unit
         conversions or checks.
 
         Parameters

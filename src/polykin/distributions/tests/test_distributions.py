@@ -47,8 +47,6 @@ def test_inputs():
         d = LogNormal(10, 1)
     with pytest.raises(ValueError):
         d = LogNormal(10, 2, M0=-10)
-    with pytest.raises(TypeError):
-        d = LogNormal(10, 2, name=123)
 
     d = Flory(100)
     with pytest.raises(ValueError):

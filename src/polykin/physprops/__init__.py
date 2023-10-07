@@ -12,7 +12,7 @@ For illustration examples, please refer to the associated
 
 from polykin.physprops.dippr import *
 from polykin.physprops.tait import *
-
+from polykin.physprops.vapor_pressure import *
 
 from polykin._testutils import PytestTester
 test = PytestTester(__name__)

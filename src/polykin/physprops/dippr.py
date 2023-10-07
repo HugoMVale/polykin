@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.utils import FloatOrArray
-from polykin.physprops.propertyequation import PropertyEquationT
+from polykin.physprops.property_equation import PropertyEquationT
 
 import numpy as np
 
@@ -46,8 +46,7 @@ class DIPPRP4(DIPPR):
         self.B = B
         self.C = C
         self.D = D
-        self.Tmin = Tmin
-        self.Tmax = Tmax
+        self.Trange = (Tmin, Tmax)
         self.unit = unit
         self.symbol = symbol
         self.name = name
@@ -61,8 +60,7 @@ class DIPPRP4(DIPPR):
             f"B:         {self.B}\n"
             f"C:         {self.C}\n"
             f"D:         {self.D}\n"
-            f"Tmin [K]:  {self.Tmin}\n"
-            f"Tmax [K]:  {self.Tmax}"
+            f"Trange [K]:  {self.Trange}"
         )
 
 
@@ -93,8 +91,7 @@ class DIPPRP5(DIPPR):
         self.C = C
         self.D = D
         self.E = E
-        self.Tmin = Tmin
-        self.Tmax = Tmax
+        self.Trange = (Tmin, Tmax)
         self.unit = unit
         self.symbol = symbol
         self.name = name
@@ -109,8 +106,7 @@ class DIPPRP5(DIPPR):
             f"C:         {self.C}\n"
             f"D:         {self.D}\n"
             f"E:         {self.E}\n"
-            f"Tmin [K]:  {self.Tmin}\n"
-            f"Tmax [K]:  {self.Tmax}"
+            f"Trange [K]:  {self.Trange}"
         )
 
 # %% DIPPR 100
@@ -725,8 +721,7 @@ class DIPPR106(DIPPR):
         self.D = D
         self.E = E
         self.Tc = Tc
-        self.Tmin = Tmin
-        self.Tmax = Tmax
+        self.Trange = (Tmin, Tmax)
         self.unit = unit
         self.symbol = symbol
         self.name = name
@@ -742,8 +737,7 @@ class DIPPR106(DIPPR):
             f"D:         {self.D}\n"
             f"E:         {self.E}\n"
             f"Tc [K]:    {self.Tc}\n"
-            f"Tmin [K]:  {self.Tmin}\n"
-            f"Tmax [K]:  {self.Tmax}"
+            f"Trange [K]:  {self.Trange}"
         )
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
