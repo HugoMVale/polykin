@@ -20,6 +20,17 @@ class Antoine(PropertyEquationT):
     where $A$, $B$ and $C$ are constant parameters, $T$ is the temperature,
     and $P^*$ is the vapor pressure.
 
+    !!! note
+        There is no consensus on the value of $base$, the unit of temperature,
+        or the unit of pressure. The function is flexible enough to accomodate
+        most cases, but care should be taken to ensure the parameters match the
+        intended use.
+
+    !!! hint
+        The Antoine equation is limited in terms of temperature range. Wider
+        ranges can be achieved with
+        [DIPPR101](DIPPR.md).
+
     Parameters
     ----------
     A : float
@@ -54,7 +65,7 @@ class Antoine(PropertyEquationT):
     def __init__(self,
                  A: float,
                  B: float,
-                 C: float = 0.,
+                 C: float,
                  base: float = 10.,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
@@ -86,7 +97,7 @@ class Antoine(PropertyEquationT):
         )
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate equation at given SI conditions, without unit
+        """Evaluate property equation at given SI conditions, without unit
         conversions or checks.
 
         Parameters
@@ -124,7 +135,7 @@ def antoine(T: FloatOrArray,
         most cases, but care should be taken to ensure the parameters match the
         intended use.
 
-    !!! note
+    !!! hint
         The Antoine equation is limited in terms of temperature range. Wider
         ranges can be achieved with
         [DIPPR101](DIPPR.md).
