@@ -39,10 +39,8 @@ class PropertyEquationT(PropertyEquation):
                  T: FloatOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
-        r"""Evaluate property equation at given temperature.
-
-        Evaluation at given temperature, including unit conversion and range
-        check.
+        r"""Evaluate property equation at given temperature, including unit
+        conversion and range check.
 
         Parameters
         ----------
@@ -190,65 +188,6 @@ class PropertyEquationT(PropertyEquation):
         if return_objects:
             return (fig, ax)
 
-
-class PropertyEquationTP(PropertyEquation):
-    r"""_Abstract_ temperature and pressure dependent property equation,
-    $c(T, P)$"""
-
-    Trange: tuple[FloatOrArray, FloatOrArray]
-    Prange: tuple[FloatOrArray, FloatOrArray]
-
-    def __call__(self,
-                 T: FloatOrArrayLike,
-                 P: FloatOrArrayLike,
-                 Tunit: Literal['C', 'K'] = 'K',
-                 Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
-                 ) -> FloatOrArray:
-        r"""Evaluate property equation at given temperature and pressure,
-        including unit conversion and range check.
-
-        Parameters
-        ----------
-        T : FloatOrArrayLike
-            Temperature.
-            Unit = `Tunit`.
-        P : FloatOrArrayLike
-            Pressure.
-            Unit = `Punit`.
-        Tunit : Literal['C', 'K']
-            Temperature unit.
-        Punit : Literal['bar', 'MPa', 'Pa']
-            Pressure unit.
-
-        Returns
-        -------
-        FloatOrArray
-            Equation value.
-        """
-        TK = convert_check_temperature(T, Tunit, self.Trange)
-        Pa = convert_check_pressure(P, Punit, self.Prange)
-        return self.eval(TK, Pa)
-
-    @abstractmethod
-    def eval(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
-        """Evaluate  property equation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-        P : FloatOrArray
-            Pressure.
-            Unit = Pa.
-
-        Returns
-        -------
-        FloatOrArray
-            Equation value.
-        """
-        pass
 
 # %% Functions
 

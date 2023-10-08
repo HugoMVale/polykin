@@ -4,13 +4,16 @@
 
 from __future__ import annotations
 
-from polykin.utils import check_bounds, FloatOrArray, eps
-from polykin.physprops.property_equation import PropertyEquationTP
+from polykin.utils import check_bounds, convert_check_temperature, \
+    convert_check_pressure, \
+    FloatOrArray, FloatOrArrayLike, eps
+from polykin.physprops.property_equation import PropertyEquation
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Literal
+from abc import abstractmethod
 
 
 __all__ = ['Tait']
@@ -28,10 +31,70 @@ def load_Tait_parameters() -> pd.DataFrame:
     return table_Tait_parameters
 
 
-class Tait(PropertyEquationTP):
+class PolymerEoS(PropertyEquation):
+    r"""_Abstract_ polymer equation of state, $V(T, P)$"""
+
+    Trange: tuple[FloatOrArray, FloatOrArray]
+    Prange: tuple[FloatOrArray, FloatOrArray]
+
+    def __call__(self,
+                 T: FloatOrArrayLike,
+                 P: FloatOrArrayLike,
+                 Tunit: Literal['C', 'K'] = 'K',
+                 Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
+                 ) -> FloatOrArray:
+        r"""Evaluate specific volume, $\hat{V}$, at given temperature and
+        pressure, including unit conversion and range check.
+
+        Parameters
+        ----------
+        T : FloatOrArrayLike
+            Temperature.
+            Unit = `Tunit`.
+        P : FloatOrArrayLike
+            Pressure.
+            Unit = `Punit`.
+        Tunit : Literal['C', 'K']
+            Temperature unit.
+        Punit : Literal['bar', 'MPa', 'Pa']
+            Pressure unit.
+
+        Returns
+        -------
+        FloatOrArray
+            Specific volume.
+            Unit = m³/kg
+        """
+        TK = convert_check_temperature(T, Tunit, self.Trange)
+        Pa = convert_check_pressure(P, Punit, self.Prange)
+        return self.eval(TK, Pa)
+
+    @abstractmethod
+    def eval(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
+        """Evaluate property equation at given SI conditions, without unit
+        conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+        P : FloatOrArray
+            Pressure.
+            Unit = Pa.
+
+        Returns
+        -------
+        FloatOrArray
+            Equation value.
+        """
+        pass
+
+
+class Tait(PolymerEoS):
     r"""Tait equation of state for the specific volume of a liquid.
 
-    This equation implements the following temperature and pressure dependence:
+    This EoS implements the following temperature and pressure dependence:
 
     $$\hat{V}(T,P)=\hat{V}(T,0)\left[1-C\ln\left(\frac{P}{B(T)}\right)\right]$$
 
@@ -44,7 +107,10 @@ class Tait(PropertyEquationTP):
     where $A_i$ and $B_i$ are constant parameters, $T$ is the absolute
     temperature, and $P$ is the pressure.
 
-    Reference: Handbook of Polymer Solution Thermodynamics.
+    References:
+
+    *   Danner, Ronald P., and Martin S. High. Handbook of polymer
+        solution thermodynamics. John Wiley & Sons, 2010.
 
     Parameters
     ----------
@@ -142,10 +208,8 @@ class Tait(PropertyEquationTP):
              T: FloatOrArray,
              P: FloatOrArray
              ) -> FloatOrArray:
-        r"""Specific volume, $\hat{V}$.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
+        r"""Evaluate specific volume, $\hat{V}$, at given SI conditions without
+        unit conversions or checks.
 
         Parameters
         ----------
@@ -191,7 +255,7 @@ class Tait(PropertyEquationTP):
               T: FloatOrArray,
               P: FloatOrArray
               ) -> FloatOrArray:
-        r"""Thermal expansion coefficient, $\alpha$.
+        r"""Calculate thermal expansion coefficient, $\alpha$.
 
         $$\alpha=\frac{1}{V}\left(\frac{\partial V}{\partial T}\right)_{P}$$
 
@@ -220,7 +284,7 @@ class Tait(PropertyEquationTP):
              T: FloatOrArray,
              P: FloatOrArray
              ) -> FloatOrArray:
-        r"""Isothermal compressibility coefficient, $\beta$.
+        r"""Calculate isothermal compressibility coefficient, $\beta$.
 
         $$\beta=-\frac{1}{V}\left(\frac{\partial V}{\partial P}\right)_{T}$$
 
@@ -245,11 +309,10 @@ class Tait(PropertyEquationTP):
     def from_database(cls, name: str) -> Optional[Tait]:
         """Construct `Tait` with parameters from the database.
 
-        The parameters are those reported in Table 3B-1 of Danner et al.[^1].
+        The parameters are those reported in Table 3B-1 (p. 41) of the Handbook
+        of Polymer Solution Thermodynamics.
 
-        Reference:
-            [^1] Danner, Ronald P., and Martin S. High. Handbook of polymer
-            solution thermodynamics. John Wiley & Sons, 2010.
+
 
         Parameters
         ----------
