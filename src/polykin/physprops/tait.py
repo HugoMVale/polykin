@@ -22,7 +22,7 @@ def load_Tait_parameters() -> pd.DataFrame:
     "Load table with Tait parameters."
     global table_Tait_parameters
     if table_Tait_parameters is None:
-        filepath = (Path(__file__).parent).joinpath('Table3b1.tsv')
+        filepath = (Path(__file__).parent).joinpath('Tait_parameters.tsv')
         table_Tait_parameters = pd.read_csv(filepath, delim_whitespace=True)
         table_Tait_parameters.set_index("Polymer", inplace=True)
     return table_Tait_parameters
@@ -245,7 +245,12 @@ class Tait(PropertyEquationTP):
     def from_database(cls, name: str) -> Optional[Tait]:
         """Construct `Tait` with parameters from the database.
 
-        The parameters are thos reported in Table 3B-1 of 
+        The parameters are those reported in Table 3B-1 of Danner et al.[^1].
+
+        Reference:
+            [^1] Danner, Ronald P., and Martin S. High. Handbook of polymer
+            solution thermodynamics. John Wiley & Sons, 2010.
+
         Parameters
         ----------
         name : str
