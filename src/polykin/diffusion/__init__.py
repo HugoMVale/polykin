@@ -12,7 +12,3 @@ For illustration examples, please refer to the associated
 
 from polykin.diffusion.vrentasduda import *
 from polykin.diffusion.estimation_methods import *
-
-from polykin._testutils import PytestTester
-test = PytestTester(__name__)
-del PytestTester
