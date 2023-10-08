@@ -4,6 +4,7 @@
 
 from polykin.physprops.tait import Tait
 from polykin.utils import RangeError
+from polykin.physprops.tait import load_Tait_parameters
 
 
 import pytest
@@ -92,3 +93,13 @@ def test_alpha(tait_instance):
 def test_beta(tait_instance):
     beta = tait_instance.beta(432.15, 2e8)
     assert np.isclose(beta, 2.7765e-10, atol=atol, rtol=rtol)
+
+
+def test_all_polymers_database():
+    table = load_Tait_parameters()
+    polymers = table.index.to_list()
+    for polymer in polymers:
+        m = Tait.from_database(polymer)
+        assert m is not None
+        rhoP = 1/m.eval(298., 1e5)
+        assert (rhoP > 750. and rhoP < 2200.)
