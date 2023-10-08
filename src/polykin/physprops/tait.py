@@ -14,9 +14,12 @@ import pandas as pd
 from pathlib import Path
 from typing import Optional, Literal
 from abc import abstractmethod
+from scipy.optimize import root_scalar
 
 
 __all__ = ['Tait']
+
+# %% Parameter tables
 
 table_Tait_parameters: Optional[pd.DataFrame] = None
 
@@ -31,11 +34,35 @@ def load_Tait_parameters() -> pd.DataFrame:
     return table_Tait_parameters
 
 
+# %% PolymerEoS
+
 class PolymerEoS(PropertyEquation):
     r"""_Abstract_ polymer equation of state, $V(T, P)$"""
 
     Trange: tuple[FloatOrArray, FloatOrArray]
     Prange: tuple[FloatOrArray, FloatOrArray]
+    symbol = r"$\hat{V}$"
+    unit = "kg/m³"
+
+    def __init__(self,
+                 Tmin: float,
+                 Tmax: float,
+                 Pmin: float,
+                 Pmax: float,
+                 name: str
+                 ) -> None:
+
+        # Check bounds
+        check_bounds(Tmin, 0, np.inf, 'Tmin')
+        check_bounds(Tmax, 0, np.inf, 'Tmax')
+        check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
+        check_bounds(Pmin, 0, np.inf, 'Pmin')
+        check_bounds(Pmax, 0, np.inf, 'Pmax')
+        check_bounds(Pmax-Pmin, eps, np.inf, 'Pmax-Pmin')
+
+        self.Trange = (Tmin, Tmax)
+        self.Prange = (Pmin, Pmax)
+        self.name = name
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -71,8 +98,8 @@ class PolymerEoS(PropertyEquation):
 
     @abstractmethod
     def eval(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
-        """Evaluate property equation at given SI conditions, without unit
-        conversions or checks.
+        r"""Evaluate specific volume, $\hat{V}$, at given SI conditions without
+        unit conversions or checks.
 
         Parameters
         ----------
@@ -86,9 +113,12 @@ class PolymerEoS(PropertyEquation):
         Returns
         -------
         FloatOrArray
-            Equation value.
+            Specific volume.
+            Unit = m³/kg
         """
         pass
+
+# %% Tait
 
 
 class Tait(PolymerEoS):
@@ -150,8 +180,7 @@ class Tait(PolymerEoS):
     A2: float
     B0: float
     B1: float
-    symbol = r"$\hat{V}$"
-    unit = "kg/m³"
+
     _C = 0.0894
 
     def __init__(self,
@@ -174,21 +203,13 @@ class Tait(PolymerEoS):
         check_bounds(A2, -2e-9, 1e-8, 'A2')
         check_bounds(B0, 1e7, 1e9, 'B0')
         check_bounds(B1, 1e-3, 2e-2, 'B1')
-        check_bounds(Tmin, 0, np.inf, 'Tmin')
-        check_bounds(Tmax, 0, np.inf, 'Tmax')
-        check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
-        check_bounds(Pmin, 0, np.inf, 'Pmin')
-        check_bounds(Pmax, 0, np.inf, 'Pmax')
-        check_bounds(Pmax-Pmin, eps, np.inf, 'Pmax-Pmin')
 
         self.A0 = A0
         self.A1 = A1
         self.A2 = A2
         self.B0 = B0
         self.B1 = B1
-        self.Trange = (Tmin, Tmax)
-        self.Prange = (Pmin, Pmax)
-        self.name = name
+        super().__init__(Tmin, Tmax, Pmin, Pmax, name)
 
     def __repr__(self) -> str:
         return (
@@ -333,3 +354,57 @@ class Tait(PolymerEoS):
             parameters['Pmin'] *= 1e6
             parameters['Pmax'] *= 1e6
             return cls(**parameters, name=name)
+
+# %% FloryEoS
+
+
+class FloryEoS(PolymerEoS):
+
+    def __init__(self,
+                 V0: float,
+                 T0: float,
+                 P0: float,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
+                 Pmin: float = 0.0,
+                 Pmax: float = np.inf,
+                 name: str = ''
+                 ) -> None:
+        """Construct `FloryEoS` with the given parameters."""
+
+        # Check bounds
+        check_bounds(V0, 0, np.inf, 'V0')
+        check_bounds(T0, 0, np.inf, 'T0')
+        check_bounds(P0, 0, np.inf, 'P0')
+
+        self.V0 = V0
+        self.T0 = T0
+        self.P0 = P0
+        super().__init__(Tmin, Tmax, Pmin, Pmax, name)
+
+    def eval(self, T, P):
+        t = T/self.T0
+        p = P/self.P0
+        solution = root_scalar(f=self._eos,
+                               args=(t, p),
+                               # bracket=[1.1, 1.5],
+                               x0=1.1,
+                               method='newton',
+                               fprime=True
+                               )
+        # x0=1.2,
+        # fprime=True)
+        if solution.converged:
+            v = solution.root
+            V = v*self.V0
+        else:
+            print(solution.flag)
+            V = -1.
+        return V
+
+    def _eos(self, v: float, t: float, p: float) -> tuple[float, float]:
+        f = p*v/t - (v**(1/3)/(v**(1/3) - 1) - 1/(v*t))
+        # return f
+        df = p/t - 1/(t*v**2) - 1/(3*(v**(1/3) - 1)*v**(2/3)) + \
+            1/(3*(v**(1/3) - 1)**2*v**(1/3))
+        return (f, df)
