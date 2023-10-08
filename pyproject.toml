@@ -57,4 +57,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = ["-n=2", "--import-mode=importlib"]
+addopts = ["-n=1", "--import-mode=importlib"]
