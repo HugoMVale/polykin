@@ -47,6 +47,51 @@ class VrentasDudaBinary():
     $\xi$ is the ratio between the critical volume of the polymer and the
     solvent jumping units,
     and $\chi$ is the Flory-Huggins' interaction parameter.
+
+    Parameters
+    ----------
+    D0 : float
+        Pre-exponential factor.
+        Unit = L²/T.
+    E : float
+        Activation energy required to overcome the atractive forces
+        between neighboring molecules.
+        Units = J/mol/K.
+    V1star : float
+        Specific volume of solvent at 0 K.
+        Unit = L³/M
+    V2star : float
+        Specific volume of polymer at 0 K.
+        Unit = L³/M.
+    z : float
+        Ratio between the critical volume of the polymer and the
+        solvent jumping units, $\xi$.
+    K11 : float
+        Free-volume parameter of solvent.
+        Unit = L³/M/K.
+    K12 : float
+        Free-volume parameter of polymer.
+        Unit = L³/M/K.
+    K21 : float
+        Free-volume parameter of solvent.
+        Unit = K.
+    K22 : float
+        Free-volume parameter of polymer.
+        Unit = K.
+    Tg1 : float
+        Glas-transition temperature of solvent.
+        Unit = K.
+    Tg2 : float
+        Glas-transition temperature of polymer.
+        Unit = K.
+    y : float
+        Overlap factor, $\gamma$.
+    X : float
+        Flory-Huggings interaction parameter, $\chi$.
+    unit : str
+        Unit of diffusivity, by definition equal to L²/T.
+    name : str
+        Name.
     """  # noqa: E501
 
     D0: float
@@ -81,52 +126,7 @@ class VrentasDudaBinary():
                  unit: str = 'm²/s',
                  name: str = ''
                  ) -> None:
-        r"""
-        Parameters
-        ----------
-        D0 : float
-            Pre-exponential factor.
-            Unit = L²/T.
-        E : float
-            Activation energy required to overcome the atractive forces
-            between neighboring molecules.
-            Units = J/mol/K.
-        V1star : float
-            Specific volume of solvent at 0 K.
-            Unit = L³/M
-        V2star : float
-            Specific volume of polymer at 0 K.
-            Unit = L³/M.
-        z : float
-            Ratio between the critical volume of the polymer and the
-            solvent jumping units, $\xi$.
-        K11 : float
-            Free-volume parameter of solvent.
-            Unit = L³/M/K.
-        K12 : float
-            Free-volume parameter of polymer.
-            Unit = L³/M/K.
-        K21 : float
-            Free-volume parameter of solvent.
-            Unit = K.
-        K22 : float
-            Free-volume parameter of polymer.
-            Unit = K.
-        Tg1 : float
-            Glas-transition temperature of solvent.
-            Unit = K.
-        Tg2 : float
-            Glas-transition temperature of polymer.
-            Unit = K.
-        y : float
-            Overlap factor, $\gamma$.
-        X : float
-            Flory-Huggings interaction parameter, $\chi$.
-        unit : str
-            Unit of diffusivity, by definition equal to L²/T.
-        name : str
-            Name.
-        """
+        r"""Construct `VrentasDuda` with the given parameters."""
 
         check_bounds(D0, 0., np.inf, 'D0')
         check_bounds(E, 0., np.inf, 'E')
@@ -184,10 +184,8 @@ class VrentasDudaBinary():
                  selfd: bool = False
                  ) -> FloatOrArray:
         r"""Evaluate solvent self-diffusion, $D_1$, or mutual diffusion
-        coefficient, $D$.
-
-        Evaluation at given solvent content and temperature, including unit
-        conversion and range check.
+        coefficient, $D$, at given solvent content and temperature, including
+        unit conversion and range check.
 
         Parameters
         ----------
@@ -223,10 +221,8 @@ class VrentasDudaBinary():
               w1: FloatOrArray,
               T: FloatOrArray
               ) -> FloatOrArray:
-        r"""Evaluate solvent self-diffusion coefficient, $D_1$.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
+        r"""Evaluate solvent self-diffusion coefficient, $D_1$, at given SI
+        conditions, without unit conversions or checks.
 
         Parameters
         ----------
@@ -240,7 +236,7 @@ class VrentasDudaBinary():
         Returns
         -------
         FloatOrArray
-            Solvent self-diffusion coefficient.
+            Solvent self-diffusion coefficient, $D_1$.
         """
 
         D0 = self.D0
@@ -266,10 +262,8 @@ class VrentasDudaBinary():
                w1: FloatOrArray,
                T: FloatOrArray
                ) -> FloatOrArray:
-        r"""Evaluate mutual diffusion coefficient, $D$.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
+        r"""Evaluate mutual diffusion coefficient, $D$, at given SI conditions,
+        without unit conversions or checks.
 
         Parameters
         ----------
@@ -283,7 +277,7 @@ class VrentasDudaBinary():
         Returns
         -------
         FloatOrArray
-            Mutual diffusion coefficient.
+            Mutual diffusion coefficient, $D$.
         """
         D1 = self.selfd(w1, T)
         X = self.X
