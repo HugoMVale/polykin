@@ -2,8 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.utils import check_in_set, check_valid_range, \
-    convert_check_temperature, convert_check_pressure, \
+from polykin.utils import check_in_set, check_valid_range, check_bounds, \
+    convert_check_temperature, eps, \
     FloatOrArray, FloatOrArrayLike
 
 import numpy as np
@@ -21,6 +21,15 @@ class PropertyEquation(ABC):
     unit: str
     symbol: str
 
+    def __init__(self,
+                 unit: str,
+                 symbol: str,
+                 name: str
+                 ) -> None:
+        self.unit = unit
+        self.symbol = symbol
+        self.name = name
+
     @abstractmethod
     def __call__(self, *args) -> FloatOrArray:
         pass
@@ -34,6 +43,22 @@ class PropertyEquationT(PropertyEquation):
     r"""_Abstract_ temperature-dependent property equation, $p(T)$"""
 
     Trange: tuple[FloatOrArray, FloatOrArray]
+    _params: tuple[tuple[str, ...], tuple[str, ...]]
+    _shape: Optional[tuple]
+
+    def __init__(self,
+                 Trange: tuple[FloatOrArray, FloatOrArray],
+                 unit: str,
+                 symbol: str,
+                 name: str
+                 ) -> None:
+
+        check_bounds(Trange[0], 0, np.inf, 'Tmin')
+        check_bounds(Trange[1], 0, np.inf, 'Tmax')
+        check_bounds(Trange[1]-Trange[0], eps, np.inf, 'Tmax-Tmin')
+        self.Trange = Trange
+        self._shape = None
+        super().__init__(unit, symbol, name)
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -57,6 +82,21 @@ class PropertyEquationT(PropertyEquation):
         """
         TK = convert_check_temperature(T, Tunit, self.Trange)
         return self.eval(TK)
+
+    def __repr__(self) -> str:
+        s1 = (
+            f"name:        {self.name}\n"
+            f"symbol:      {self.symbol}\n"
+            f"unit:        {self.unit}\n"
+            f"Trange [K]:  {self.Trange}"
+        )
+        s2 = ""
+        params = getattr(self, '_params')
+        if params is not None:
+            for p in params[0] + params[1]:
+                pvalue = getattr(self, p)
+                s2 += "\n" + p + ":" + " "*(12 - len(p)) + f"{pvalue}"
+        return s1 + s2
 
     @abstractmethod
     def eval(self, T: FloatOrArray) -> FloatOrArray:
