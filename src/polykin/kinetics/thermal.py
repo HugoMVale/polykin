@@ -2,10 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.utils import check_type, check_shapes, check_bounds, \
-    convert_list_to_array, \
-    FloatOrArray, FloatOrArrayLike, ShapeError, \
-    eps
+from polykin.utils import check_shapes, check_bounds, convert_list_to_array, \
+    FloatOrArray, FloatOrArrayLike, ShapeError
 from polykin.physprops.property_equation import PropertyEquationT
 
 import numpy as np
@@ -13,20 +11,15 @@ from scipy.constants import h, R, Boltzmann as kB
 from typing import Union
 
 
-__all__ = ['Arrhenius', 'arrhenius', 'Eyring', 'eyring']
+__all__ = ['Arrhenius', 'Eyring']
 
 
 class KineticCoefficientT(PropertyEquationT):
-
-    def __init__(self) -> None:
-        self._shape = None
 
     @property
     def shape(self) -> Union[tuple[int, ...], None]:
         """Shape of underlying parameter array."""
         return self._shape
-
-# %% Arrhenius
 
 
 class Arrhenius(KineticCoefficientT):
@@ -71,6 +64,8 @@ class Arrhenius(KineticCoefficientT):
     EaR: FloatOrArray
     T0: FloatOrArray
 
+    _params = (('k0', 'EaR'), ('T0',))
+
     def __init__(self,
                  k0: FloatOrArrayLike,
                  EaR: FloatOrArrayLike,
@@ -94,31 +89,21 @@ class Arrhenius(KineticCoefficientT):
         check_bounds(k0, 0, np.inf, 'k0')
         check_bounds(EaR, -np.inf, np.inf, 'EaR')
         check_bounds(T0, 0, np.inf, 'T0')
-        check_bounds(Tmin, 0, np.inf, 'Tmin')
-        check_bounds(Tmax, 0, np.inf, 'Tmax')
-        check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
-
-        # Check types
-        check_type(unit, str, 'unit')
-        check_type(symbol, str, 'symbol')
 
         self.k0 = k0
         self.EaR = EaR
         self.T0 = T0
-        self.Trange = (Tmin, Tmax)
-        self.unit = unit
-        self.symbol = symbol
-        self.name = name
+        super().__init__((Tmin, Tmax), unit, symbol, name)
 
     def __repr__(self) -> str:
         return (
             f"name:        {self.name}\n"
             f"symbol:      {self.symbol}\n"
             f"unit:        {self.unit}\n"
+            f"Trange [K]:  {self.Trange}\n"
             f"k0:          {self.k0}\n"
             f"Ea/R [K]:    {self.EaR}\n"
-            f"T0   [K]:    {self.T0}\n"
-            f"Trange [K]:  {self.Trange}"
+            f"T0   [K]:    {self.T0}"
         )
 
     def __mul__(self, other):
@@ -277,48 +262,7 @@ class Arrhenius(KineticCoefficientT):
         FloatOrArray
             Coefficient value.
         """
-        return arrhenius(T, self.k0, self.EaR, self.T0)
-
-
-def arrhenius(T: FloatOrArray,
-              k0: FloatOrArray,
-              EaR: FloatOrArray,
-              T0: FloatOrArray = np.inf
-              ) -> FloatOrArray:
-    r"""[Arrhenius](https://en.wikipedia.org/wiki/Arrhenius_equation) equation.
-
-    This function implements the following temperature dependence:
-
-    $$ k(T)=k_0\exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
-        \right)\right] $$
-
-    where $T_0$ is a convenient reference temperature, $E_a$ is the activation
-    energy, and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
-    form of the Arrhenius equation with $k_0=A$ is recovered.
-
-    Parameters
-    ----------
-    T : FloatOrArray
-        Temperature.
-        Unit = K.
-    k0 : FloatOrArray
-        Coefficient value at the reference temperature, $k_0=k(T_0)$.
-        Unit = Any.
-    EaR : FloatOrArray
-        Energy of activation, $E_a/R$.
-        Unit = K.
-    T0 : FloatOrArray
-        Reference temperature, $T_0$.
-        Unit = K.
-
-    Returns
-    -------
-    FloatOrArray
-        Coefficient value.
-    """
-    return k0 * np.exp(-EaR*(1/T - 1/T0))
-
-# %% Eyring
+        return self.k0 * np.exp(-self.EaR*(1/T - 1/self.T0))
 
 
 class Eyring(KineticCoefficientT):
@@ -361,6 +305,8 @@ class Eyring(KineticCoefficientT):
     DHa: FloatOrArray
     kappa: FloatOrArray
 
+    _params = (('DSa', 'DHa'), ('kappa',))
+
     def __init__(self,
                  DSa: FloatOrArrayLike,
                  DHa: FloatOrArrayLike,
@@ -383,28 +329,21 @@ class Eyring(KineticCoefficientT):
         check_bounds(DSa, 0, np.inf, 'DSa')
         check_bounds(DHa, 0, np.inf, 'DHa')
         check_bounds(kappa, 0, 1, 'kappa')
-        check_bounds(Tmin, 0, np.inf, 'Tmin')
-        check_bounds(Tmax, 0, np.inf, 'Tmax')
-        check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
 
         self.DSa = DSa
         self.DHa = DHa
         self.kappa = kappa
-        self.Trange = (Tmin, Tmax)
-        self.unit = '1/s'
-        self.symbol = symbol
-        self.name = name
+        super().__init__((Tmin, Tmax), '1/s', symbol, name)
 
     def __repr__(self) -> str:
         return (
             f"name:             {self.name}\n"
             f"symbol:           {self.symbol}\n"
             f"unit:             {self.unit}\n"
+            f"Trange [K]:       {self.Trange}\n"
             f"DSa [J/(mol·K)]:  {self.DSa}\n"
             f"DHa [J/mol]:      {self.DHa}\n"
-            f"kappa [—]:        {self.kappa}\n"
-            f"Tmin [K]:         {self.Tmin}\n"
-            f"Tmax [K]:         {self.Tmax}"
+            f"kappa [—]:        {self.kappa}"
         )
 
     def eval(self, T: FloatOrArray) -> FloatOrArray:
@@ -424,43 +363,4 @@ class Eyring(KineticCoefficientT):
         FloatOrArray
             Coefficient value.
         """
-        return eyring(T, self.DSa, self.DHa, self.kappa)
-
-
-def eyring(T: FloatOrArray,
-           DSa: FloatOrArray,
-           DHa: FloatOrArray,
-           kappa: FloatOrArray
-           ) -> FloatOrArray:
-    r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) equation.
-
-    This function implements the following temperature dependence:
-
-    $$ k(T)=\dfrac{\kappa k_B T}{h} \\
-        \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
-        \exp\left(-\frac{\Delta H^\ddagger}{R T}\right)$$
-
-    where $\kappa$ is the transmission coefficient, $\Delta S^\ddagger$ is
-    the entropy of activation, and $\Delta H^\ddagger$ is the enthalpy of
-    activation. The unit of $k$ is physically set to s$^{-1}$.
-
-    Parameters
-    ----------
-    T : FloatOrArray
-        Temperature.
-        Unit = K.
-    DSa : FloatOrArray
-        Entropy of activation, $\Delta S^\ddagger$.
-        Unit = J/(mol·K).
-    DHa : FloatOrArray
-        Enthalpy of activation, $\Delta H^\ddagger$.
-        Unit = J/mol.
-    kappa : FloatOrArray
-        Transmission coefficient.
-
-    Returns
-    -------
-    FloatOrArray
-        Coefficient value.
-    """
-    return kappa * kB*T/h * np.exp((DSa - DHa/T)/R)
+        return self.kappa * kB*T/h * np.exp((self.DSa - self.DHa/T)/R)
