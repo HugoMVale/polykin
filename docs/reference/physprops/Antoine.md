@@ -4,4 +4,4 @@
     options:
         members:
             - Antoine
-            - antoine
+
