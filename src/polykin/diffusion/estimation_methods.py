@@ -19,7 +19,16 @@ def wilke_chang(T: float,
                 phi: float = 1.0
                 ) -> float:
     r"""Wilke-Chang estimation method for the infinite-dilution coefficient of
-    a solute A in a liquid solvent B, $D^0_{AB}$.    
+    a solute A in a liquid solvent B, $D^0_{AB}$.
+
+    $$
+    D^0_{AB} = 5.9\times 10^{-17} \\
+        \frac{(\phi M_B)^{1/2} T}{\eta_B (M_A/\rho_A)^{0.6}}
+    $$
+
+    where the meaning of all symbol is as described below in the parameters
+    section. The numerical factor has been adjusted to convert the equation to
+    SI units.
 
     Reference:
 
@@ -35,12 +44,14 @@ def wilke_chang(T: float,
     MB : float
         Molar mass of solvent B. Unit = kg/mol.
     rhoA : float
-        Density of solute A at the normal boiling point. Unit = kg/m³.
+        Density of solute A at the normal boiling point, $\rho_A$.
+        Unit = kg/m³.
     viscB : float
-        Viscostity of solvent B. Unit = Pa.s.
+        Viscostity of solvent B, $\eta_B$. Unit = Pa.s.
     phi : float
-        Association factor of solvent B. The following values are recomended:
-        {water: 2.6, methanol: 1.9, ethanol: 1.5, unassociated: 1.0}.
+        Association factor of solvent B, $\phi$. The following values are
+        recomended: {water: 2.6, methanol: 1.9, ethanol: 1.5,
+        unassociated: 1.0}.
 
     Returns
     -------
