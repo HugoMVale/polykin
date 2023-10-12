@@ -25,12 +25,7 @@ class DIPPR(PropertyEquationT):
 class DIPPRP4(DIPPR):
     """_Abstract_ class for DIPPR equations with 4 parameters (A-D)."""
 
-    A: float
-    B: float
-    C: float
-    D: float
-
-    _params = (('A', 'B', 'C', 'D'), ())
+    _pnames = (('A', 'B', 'C', 'D'), ())
 
     def __init__(self,
                  A: float,
@@ -44,23 +39,14 @@ class DIPPRP4(DIPPR):
                  name
                  ) -> None:
 
-        self.A = A
-        self.B = B
-        self.C = C
-        self.D = D
+        self.pvalues = (A, B, C, D)
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
 
 class DIPPRP5(DIPPR):
     """_Abstract_ class for DIPPR equations with 5 parameters (A-E)."""
 
-    A: float
-    B: float
-    C: float
-    D: float
-    E: float
-
-    _params = (('A', 'B', 'C', 'D', 'E'), ())
+    _pnames = (('A', 'B', 'C', 'D', 'E'), ())
 
     def __init__(self,
                  A: float,
@@ -75,11 +61,7 @@ class DIPPRP5(DIPPR):
                  name
                  ) -> None:
 
-        self.A = A
-        self.B = B
-        self.C = C
-        self.D = D
-        self.E = E
+        self.pvalues = (A, B, C, D, E)
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
 
@@ -119,6 +101,8 @@ class DIPPR100(DIPPRP5):
         Name.
     """
 
+    _punits = ('#', '#/K', '#/K²', '#/K³', '#/K⁴')
+
     def __init__(self,
                  A: float = 0.,
                  B: float = 0.,
@@ -134,22 +118,16 @@ class DIPPR100(DIPPRP5):
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value, $Y$.
-        """
-        return self.A + self.B*T + self.C*T**2 + self.D*T**3 + self.E*T**4
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float
+                 ) -> FloatOrArray:
+        r"""DIPPR-100 equation."""
+        return A + B*T + C*T**2 + D*T**3 + E*T**4
 
 
 class DIPPR101(DIPPRP5):
@@ -188,6 +166,8 @@ class DIPPR101(DIPPRP5):
         Name.
     """
 
+    _punits = ('', 'K', '', '', '')
+
     def __init__(self,
                  A: float,
                  B: float,
@@ -203,22 +183,16 @@ class DIPPR101(DIPPRP5):
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value, $Y$.
-        """
-        return np.exp(self.A + self.B/T + self.C*np.log(T) + self.D*T**self.E)
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float
+                 ) -> FloatOrArray:
+        r"""DIPPR-101 equation."""
+        return np.exp(A + B/T + C*np.log(T) + D*T**E)
 
 
 class DIPPR102(DIPPRP4):
@@ -255,6 +229,8 @@ class DIPPR102(DIPPRP4):
         Name.
     """
 
+    _punits = ('', '', 'K', 'K²')
+
     def __init__(self,
                  A: float,
                  B: float,
@@ -269,22 +245,15 @@ class DIPPR102(DIPPRP4):
 
         super().__init__(A, B, C, D, Tmin, Tmax, unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value, $Y$.
-        """
-        return (self.A * T**self.B) / (1 + self.C/T + self.D/T**2)
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float
+                 ) -> FloatOrArray:
+        r"""DIPPR-102 equation."""
+        return (A * T**B) / (1 + C/T + D/T**2)
 
 
 class DIPPR104(DIPPRP5):
@@ -323,6 +292,8 @@ class DIPPR104(DIPPRP5):
         Name.
     """
 
+    _punits = ('#', '#/K', '#/K³', '#/K⁸', '#/K⁹')
+
     def __init__(self,
                  A: float,
                  B: float,
@@ -338,22 +309,16 @@ class DIPPR104(DIPPRP5):
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value, $Y$.
-        """
-        return self.A + self.B/T + self.C/T**3 + self.D/T**8 + self.E/T**9
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float
+                 ) -> FloatOrArray:
+        r"""DIPPR-104 equation."""
+        return A + B/T + C/T**3 + D/T**8 + E/T**9
 
 
 class DIPPR105(DIPPRP4):
@@ -390,6 +355,8 @@ class DIPPR105(DIPPRP4):
         Name.
     """
 
+    _punits = ('#', '', 'K', '')
+
     def __init__(self,
                  A: float,
                  B: float,
@@ -404,22 +371,15 @@ class DIPPR105(DIPPRP4):
 
         super().__init__(A, B, C, D, Tmin, Tmax, unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value, $Y$.
-        """
-        return self.A / self.B**(1 + (1 - T / self.C)**self.D)
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float
+                 ) -> FloatOrArray:
+        r"""DIPPR-105 equation."""
+        return A / B**(1 + (1 - T / C)**D)
 
 
 class DIPPR106(DIPPR):
@@ -462,14 +422,8 @@ class DIPPR106(DIPPR):
         Name.
     """
 
-    Tc: float
-    A: float
-    B: float
-    C: float
-    D: float
-    E: float
-
-    _params = (('A', 'B', 'C', 'D', 'E'), ('Tc',))
+    _pnames = (('A', 'B', 'C', 'D', 'E'), ('Tc',))
+    _punits = ('#', '', '', '', '')
 
     def __init__(self,
                  Tc: float,
@@ -485,28 +439,18 @@ class DIPPR106(DIPPR):
                  name: str = ''
                  ) -> None:
 
-        self.A = A
-        self.B = B
-        self.C = C
-        self.D = D
-        self.E = E
-        self.Tc = Tc
+        self.pvalues = (A, B, C, D, E, Tc)
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate correlation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value, $Y$.
-        """
-        Tr = T/self.Tc
-        return self.A*(1-Tr)**(self.B + Tr*(self.C + Tr*(self.D + self.E*Tr)))
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float,
+                 Tc: float,
+                 ) -> FloatOrArray:
+        r"""DIPPR-106 equation."""
+        Tr = T/Tc
+        return A*(1-Tr)**(B + Tr*(C + Tr*(D + E*Tr)))
