@@ -24,8 +24,9 @@ class KineticCoefficientCLD(ABC):
     def __call__(self, T, i, *args) -> FloatOrArray:
         pass
 
+    @staticmethod
     @abstractmethod
-    def eval(self, T, i, *args) -> FloatOrArray:
+    def equation(T, i, *args) -> FloatOrArray:
         pass
 
 
@@ -53,7 +54,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
 
     Parameters
     ----------
-    k11 : Arrhenius | Eyring
+    kt11 : Arrhenius | Eyring
         Temperature-dependent termination rate coefficient between two
         monomeric radicals, $k_t(1,1)$.
     icrit : int
@@ -66,14 +67,14 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         Name.
     """
 
-    k11: Union[Arrhenius, Eyring]
+    kt11: Union[Arrhenius, Eyring]
     icrit: int
     aS: float
     aL: float
     symbol: str = 'k_t (i,j)'
 
     def __init__(self,
-                 k11: Union[Arrhenius, Eyring],
+                 kt11: Union[Arrhenius, Eyring],
                  icrit: int,
                  aS: float = 0.5,
                  aL: float = 0.2,
@@ -81,12 +82,12 @@ class TerminationCompositeModel(KineticCoefficientCLD):
                  ) -> None:
         """Construct `TerminationCompositeModel` with the given parameters."""
 
-        check_type(k11, (Arrhenius, Eyring), 'k11')
+        check_type(kt11, (Arrhenius, Eyring), 'k11')
         check_bounds(icrit, 1, 200, 'icrit')
         check_bounds(aS, 0, 1, 'alpha_short')
         check_bounds(aL, 0, 0.5, 'alpha_long')
 
-        self.k11 = k11
+        self.kt11 = kt11
         self.icrit = icrit
         self.aS = aS
         self.aL = aL
@@ -98,18 +99,18 @@ class TerminationCompositeModel(KineticCoefficientCLD):
             f"icrit:     {self.icrit}\n"
             f"aS:        {self.aS}\n"
             f"aL:        {self.aL}\n"
-            "- k11 -\n" + self.k11.__repr__()
+            "- kt11 -\n" + self.kt11.__repr__()
         )
 
-    def eval(self,
-             T: FloatOrArray,
-             i: IntOrArray,
-             j: IntOrArray
-             ) -> FloatOrArray:
-        r"""Evaluate kinetic coefficient.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
+    @staticmethod
+    def equation(i: IntOrArray,
+                 j: IntOrArray,
+                 kt11: FloatOrArray,
+                 icrit: int,
+                 aS: float,
+                 aL: float,
+                 ) -> FloatOrArray:
+        r"""Composite model chain-length dependence equation.
 
         Parameters
         ----------
@@ -120,6 +121,15 @@ class TerminationCompositeModel(KineticCoefficientCLD):
             Chain length of 1st radical.
         j : IntOrArray
             Chain length of 2nd radical.
+        kt11 : FloatOrArray
+            Temperature-dependent termination rate coefficient between two
+            monomeric radicals, $k_t(1,1)$.
+        icrit : int
+            Critical chain length, $i_{crit}$.
+        aS : float
+            Short-chain exponent, $\alpha_S$.
+        aL : float
+            Long-chain exponent, $\alpha_L$.
 
         Returns
         -------
@@ -127,15 +137,10 @@ class TerminationCompositeModel(KineticCoefficientCLD):
             Coefficient value.
         """
 
-        k11 = self.k11.eval(T)
-        aS = self.aS
-        aL = self.aL
-        icrit = self.icrit
-
         def ktii(i):
             return np.where(i <= icrit,
-                            k11*i**(-aS),
-                            k11*icrit**(-aS+aL)*i**(-aL))
+                            kt11*i**(-aS),
+                            kt11*icrit**(-aS+aL)*i**(-aL))
 
         return np.sqrt(ktii(i)*ktii(j))
 
@@ -145,10 +150,8 @@ class TerminationCompositeModel(KineticCoefficientCLD):
                  j: IntOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
-        r"""Evaluate kinetic coefficient.
-
-        Evaluation at given conditions, including unit conversion and range
-        check.
+        r"""Evaluate kinetic coefficient at given conditions, including unit
+        conversion and range check.
 
         Parameters
         ----------
@@ -167,12 +170,12 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         FloatOrArray
             Coefficient value.
         """
-        TK = convert_check_temperature(T, Tunit, self.k11.Trange)
+        TK = convert_check_temperature(T, Tunit, self.kt11.Trange)
         if isinstance(i, (list, tuple)):
             i = np.array(i, dtype=np.int32)
         if isinstance(j, (list, tuple)):
             j = np.array(j, dtype=np.int32)
-        return self.eval(TK, i, j)
+        return self.equation(i, j, self.kt11(TK), self.icrit, self.aS, self.aL)
 
 
 class PropagationHalfLength(KineticCoefficientCLD):
@@ -232,14 +235,13 @@ class PropagationHalfLength(KineticCoefficientCLD):
             "- kp -\n" + self.kp.__repr__()
         )
 
-    def eval(self,
-             T: FloatOrArray,
-             i: IntOrArray,
-             ) -> FloatOrArray:
-        r"""Evaluate kinetic coefficient.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
+    @staticmethod
+    def equation(i: IntOrArray,
+                 kp: FloatOrArray,
+                 C: float,
+                 ihalf: float
+                 ) -> FloatOrArray:
+        r"""Half-length model chain-length dependence equation.
 
         Parameters
         ----------
@@ -248,15 +250,19 @@ class PropagationHalfLength(KineticCoefficientCLD):
             Unit = K.
         i : IntOrArray
             Chain length of radical.
+        kp : FloatOrArray
+            Long-chain value of the propagation rate coefficient, $k_p$.
+        C : float
+            Ratio of the propagation coefficients of a monomeric radical and a
+            long-chain radical, $C$.
+        ihalf : float
+            Half-length, $i_{i/2}$.
 
         Returns
         -------
         FloatOrArray
             Coefficient value.
         """
-        kp = self.kp.eval(T)
-        C = self.C
-        ihalf = self.ihalf
 
         return kp*(1 + (C - 1)*np.exp(-np.log(2)*(i - 1)/ihalf))
 
@@ -265,10 +271,9 @@ class PropagationHalfLength(KineticCoefficientCLD):
                  i: IntOrArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
                  ) -> FloatOrArray:
-        r"""Evaluate kinetic coefficient.
+        r"""Evaluate kinetic coefficient at given conditions, including unit
+        conversion and range check.
 
-        Evaluation at given conditions, including unit conversion and range
-        check.
 
         Parameters
         ----------
@@ -288,4 +293,4 @@ class PropagationHalfLength(KineticCoefficientCLD):
         TK = convert_check_temperature(T, Tunit, self.kp.Trange)
         if isinstance(i, (list, tuple)):
             i = np.array(i, dtype=np.int32)
-        return self.eval(TK, i)
+        return self.equation(i, self.kp(TK), self.C, self.ihalf)

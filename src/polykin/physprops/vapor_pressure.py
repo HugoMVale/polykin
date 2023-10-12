@@ -59,7 +59,8 @@ class Antoine(PropertyEquationT):
         Name.
     """
 
-    _params = (('A', 'B', 'C'), ('base',))
+    _pnames = (('A', 'B', 'C'), ('base',))
+    _punits = ('', 'K', 'K', '')
 
     def __init__(self,
                  A: float,
@@ -74,39 +75,22 @@ class Antoine(PropertyEquationT):
                  ) -> None:
         """Construct `Antoine` with the given parameters."""
 
-        self.A = A
-        self.B = B
-        self.C = C
-        self.base = base
+        self.pvalues = (A, B, C, base)
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate property equation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Vapor pressure, $P^*$.
-        """
-        A = self.A
-        B = self.B
-        C = self.C
-        base = self.base
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 base: float
+                 ) -> FloatOrArray:
         return base**(A - B/(T + C))
-
 
 # %% Wagner
 
 
 class Wagner(PropertyEquationT):
-
     r"""[Wagner](https://de.wikipedia.org/wiki/Wagner-Gleichung) equation for
     vapor pressure.
 
@@ -159,15 +143,16 @@ class Wagner(PropertyEquationT):
         Name.
     """
 
-    _params = (('a', 'b', 'c', 'd', 'Pc'), ('Tc',))
+    _pnames = (('a', 'b', 'c', 'd'), ('Pc', 'Tc',))
+    _punits = ('', '', '', '', '#', 'K')
 
     def __init__(self,
-                 Pc: float,
-                 Tc: float,
                  a: float,
                  b: float,
                  c: float,
                  d: float,
+                 Pc: float,
+                 Tc: float,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = 'Pa',
@@ -176,35 +161,18 @@ class Wagner(PropertyEquationT):
                  ) -> None:
         """Construct `Wagner` with the given parameters."""
 
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.Pc = Pc
-        self.Tc = Tc
+        self.pvalues = (a, b, c, d, Pc, Tc)
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate property equation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Vapor pressure, $P^*$.
-        """
-        Tc = self.Tc
-        Pc = self.Pc
-        a = self.a
-        b = self.b
-        c = self.c
-        d = self.d
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 a: float,
+                 b: float,
+                 c: float,
+                 d: float,
+                 Pc: float,
+                 Tc: float,
+                 ) -> FloatOrArray:
         Tr = T/Tc
         t = 1 - Tr
         return Pc*np.exp((a*t + b*t**1.5 + c*t**2.5 + d*t**5)/Tr)

@@ -62,7 +62,7 @@ def test_evaluation_Arrhenius():
     T0 = 400
     k = Arrhenius(k0, EaR, T0, name='test')
     assert np.all((np.isclose(k(T0, 'K'), k0)))
-    assert np.all(np.isclose(k.A, k.eval(np.inf)))
+    assert np.all(np.isclose(k.A, k(np.inf)))
     k = Arrhenius(k0, EaR)
     k1 = k(300, 'K')
     k2 = k(600, 'K')
@@ -76,16 +76,16 @@ def test_product_Arrhenius_number():
     k1_value = k1(T, 'K')
     # int left
     k2 = number*k1
-    assert (np.isclose(k1_value*number, k2.eval(T)))
+    assert (np.isclose(k1_value*number, k2(T)))
     # float left
     k2 = float(number)*k1
-    assert (np.isclose(k1_value*number, k2.eval(T)))
+    assert (np.isclose(k1_value*number, k2(T)))
     # int right
     k2 = k1*number
-    assert (np.isclose(k1_value*number, k2.eval(T)))
+    assert (np.isclose(k1_value*number, k2(T)))
     # float right
     k2 = k1*float(number)
-    assert (np.isclose(k1_value*number, k2.eval(T)))
+    assert (np.isclose(k1_value*number, k2(T)))
 
 
 def test_product_Arrhenius_Arrhenius_scalar(capsys):
@@ -204,8 +204,8 @@ def test_evaluation_TerminationCompositeModel():
     aL = 0.2
     kt11 = Arrhenius(1, 2000, T0, name='kt11')
     kt = TerminationCompositeModel(kt11, icrit, aS, aL, 'kt')
-    assert (np.isclose(kt.eval(T0, icrit, icrit), kt11.eval(T0)/icrit**aS))
-    assert len(kt.eval(T0, np.arange(1, 1000, 1),
+    assert (np.isclose(kt(T0, icrit, icrit), kt11(T0)/icrit**aS))
+    assert len(kt(T0, np.arange(1, 1000, 1),
                np.arange(1, 1000, 1)))  # type: ignore
 
 
@@ -215,6 +215,6 @@ def test_evaluation_PropagationHalfLength():
     C = 11
     kp = Arrhenius(1e3, 2000, T0=298., name='kp(inf)')
     kpi = PropagationHalfLength(kp, C, ihalf, name='kp(i)')
-    assert (np.isclose(kpi.eval(T0, 1)/kp.eval(T0), C))
-    assert (np.isclose(kpi.eval(T0, ihalf+1)/kp.eval(T0), (C+1)/2))
-    assert len(kpi.eval(T0, np.arange(1, 101)))  # type: ignore
+    assert (np.isclose(kpi(T0, 1)/kp(T0), C))
+    assert (np.isclose(kpi(T0, ihalf+1)/kp(T0), (C+1)/2))
+    assert len(kpi(T0, np.arange(1, 101)))  # type: ignore

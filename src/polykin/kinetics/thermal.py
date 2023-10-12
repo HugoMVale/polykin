@@ -60,11 +60,8 @@ class Arrhenius(KineticCoefficientT):
         Name.
     """
 
-    k0: FloatOrArray
-    EaR: FloatOrArray
-    T0: FloatOrArray
-
-    _params = (('k0', 'EaR'), ('T0',))
+    _pnames = (('k0', 'EaR'), ('T0',))
+    _punits = ('#', 'K', 'K')
 
     def __init__(self,
                  k0: FloatOrArrayLike,
@@ -90,21 +87,38 @@ class Arrhenius(KineticCoefficientT):
         check_bounds(EaR, -np.inf, np.inf, 'EaR')
         check_bounds(T0, 0, np.inf, 'T0')
 
-        self.k0 = k0
-        self.EaR = EaR
-        self.T0 = T0
+        self.pvalues = (k0, EaR, T0)
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
-    def __repr__(self) -> str:
-        return (
-            f"name:        {self.name}\n"
-            f"symbol:      {self.symbol}\n"
-            f"unit:        {self.unit}\n"
-            f"Trange [K]:  {self.Trange}\n"
-            f"k0:          {self.k0}\n"
-            f"Ea/R [K]:    {self.EaR}\n"
-            f"T0   [K]:    {self.T0}"
-        )
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 k0: FloatOrArray,
+                 EaR: FloatOrArray,
+                 T0: FloatOrArray,
+                 ) -> FloatOrArray:
+        r"""Arrhenius equation.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+        k0 : FloatOrArray
+            Coefficient value at the reference temperature, $k_0=k(T_0)$.
+            Unit = `unit`.
+        EaR : FloatOrArray
+            Energy of activation, $E_a/R$.
+            Unit = K.
+        T0 : FloatOrArray
+            Reference temperature, $T_0$.
+            Unit = K.
+
+        Returns
+        -------
+        FloatOrArray
+            Coefficient value.
+        """
+        return k0 * np.exp(-EaR*(1/T - 1/T0))
 
     def __mul__(self, other):
         """Multipy Arrhenius coefficient(s).
@@ -126,7 +140,7 @@ class Arrhenius(KineticCoefficientT):
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
                 return Arrhenius(k0=self.A*other.A,
-                                 EaR=self.EaR + other.EaR,
+                                 EaR=self.pvalues[1] + other.pvalues[1],
                                  Tmin=np.maximum(
                                      self.Trange[0], other.Trange[0]),
                                  Tmax=np.minimum(
@@ -138,9 +152,9 @@ class Arrhenius(KineticCoefficientT):
                 raise ShapeError(
                     "Product of array-like coefficients requires identical shapes.")  # noqa: E501
         elif isinstance(other, (int, float)):
-            return Arrhenius(k0=self.k0*other,
-                             EaR=self.EaR,
-                             T0=self.T0,
+            return Arrhenius(k0=self.pvalues[0]*other,
+                             EaR=self.pvalues[1],
+                             T0=self.pvalues[2],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=self.unit,
@@ -172,7 +186,7 @@ class Arrhenius(KineticCoefficientT):
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
                 return Arrhenius(k0=self.A/other.A,
-                                 EaR=self.EaR - other.EaR,
+                                 EaR=self.pvalues[1] - other.pvalues[1],
                                  Tmin=np.maximum(
                                      self.Trange[0], other.Trange[0]),
                                  Tmax=np.minimum(
@@ -184,9 +198,9 @@ class Arrhenius(KineticCoefficientT):
                 raise ShapeError(
                     "Division of array-like coefficients requires identical shapes.")  # noqa: E501
         elif isinstance(other, (int, float)):
-            return Arrhenius(k0=self.k0/other,
-                             EaR=self.EaR,
-                             T0=self.T0,
+            return Arrhenius(k0=self.pvalues[0]/other,
+                             EaR=self.pvalues[1],
+                             T0=self.pvalues[2],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=self.unit,
@@ -197,9 +211,9 @@ class Arrhenius(KineticCoefficientT):
 
     def __rtruediv__(self, other):
         if isinstance(other, (int, float)):
-            return Arrhenius(k0=other/self.k0,
-                             EaR=-self.EaR,
-                             T0=self.T0,
+            return Arrhenius(k0=other/self.pvalues[0],
+                             EaR=-self.pvalues[1],
+                             T0=self.pvalues[2],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=f"1/{self.unit}",
@@ -225,9 +239,9 @@ class Arrhenius(KineticCoefficientT):
             Power coefficient.
         """
         if isinstance(other, (int, float)):
-            return Arrhenius(k0=self.k0**other,
-                             EaR=self.EaR*other,
-                             T0=self.T0,
+            return Arrhenius(k0=self.pvalues[0]**other,
+                             EaR=self.pvalues[1]*other,
+                             T0=self.pvalues[2],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=f"({self.unit})^{str(other)}",
@@ -243,26 +257,7 @@ class Arrhenius(KineticCoefficientT):
     @property
     def A(self) -> FloatOrArray:
         r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
-        return self.eval(np.inf)
-
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        r"""Evaluate kinetic coefficient.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Coefficient value.
-        """
-        return self.k0 * np.exp(-self.EaR*(1/T - 1/self.T0))
+        return self.__call__(np.inf)
 
 
 class Eyring(KineticCoefficientT):
@@ -301,11 +296,8 @@ class Eyring(KineticCoefficientT):
         Name.
     """
 
-    DSa: FloatOrArray
-    DHa: FloatOrArray
-    kappa: FloatOrArray
-
-    _params = (('DSa', 'DHa'), ('kappa',))
+    _pnames = (('DSa', 'DHa'), ('kappa',))
+    _punits = ('J/(mol·K)', 'J/mol', '')
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
@@ -330,37 +322,34 @@ class Eyring(KineticCoefficientT):
         check_bounds(DHa, 0, np.inf, 'DHa')
         check_bounds(kappa, 0, 1, 'kappa')
 
-        self.DSa = DSa
-        self.DHa = DHa
-        self.kappa = kappa
+        self.pvalues = (DSa, DHa, kappa)
         super().__init__((Tmin, Tmax), '1/s', symbol, name)
 
-    def __repr__(self) -> str:
-        return (
-            f"name:             {self.name}\n"
-            f"symbol:           {self.symbol}\n"
-            f"unit:             {self.unit}\n"
-            f"Trange [K]:       {self.Trange}\n"
-            f"DSa [J/(mol·K)]:  {self.DSa}\n"
-            f"DHa [J/mol]:      {self.DHa}\n"
-            f"kappa [—]:        {self.kappa}"
-        )
-
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        r"""Evaluate kinetic coefficient.
-
-        Direct evaluation at given SI conditions, without unit conversions or
-        checks.
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 DSa: FloatOrArray,
+                 DHa: FloatOrArray,
+                 kappa: FloatOrArray,
+                 ) -> FloatOrArray:
+        r"""Eyring equation.
 
         Parameters
         ----------
         T : FloatOrArray
             Temperature.
             Unit = K.
+        DSa : FloatOrArrayLike
+            Entropy of activation, $\Delta S^\ddagger$.
+            Unit = J/(mol·K).
+        DHa : FloatOrArrayLike
+            Enthalpy of activation, $\Delta H^\ddagger$.
+            Unit = J/mol.
+        kappa : FloatOrArrayLike
+            Transmission coefficient.
 
         Returns
         -------
         FloatOrArray
             Coefficient value.
         """
-        return self.kappa * kB*T/h * np.exp((self.DSa - self.DHa/T)/R)
+        return kappa * kB*T/h * np.exp((DSa - DHa/T)/R)
