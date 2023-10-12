@@ -4,9 +4,10 @@
 
 from polykin.utils import check_in_set, check_valid_range, check_bounds, \
     convert_check_temperature, eps, \
-    FloatOrArray, FloatOrArrayLike
+    FloatOrArray, FloatOrArrayLike, FloatVector
 
 import numpy as np
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
@@ -15,7 +16,7 @@ from typing import Optional, Literal, Any
 
 
 class PropertyEquation(ABC):
-    r"""_Abstract_ class for all property equaitons, $p(...)$."""
+    r"""_Abstract_ class for all property equaitons, $Y(...)$."""
 
     name: str
     unit: str
@@ -32,18 +33,17 @@ class PropertyEquation(ABC):
 
     @abstractmethod
     def __call__(self, *args) -> FloatOrArray:
-        pass
-
-    @abstractmethod
-    def eval(self, *args) -> FloatOrArray:
+        """Evaluate property equation, $Y(...)$."""
         pass
 
 
 class PropertyEquationT(PropertyEquation):
     r"""_Abstract_ temperature-dependent property equation, $p(T)$"""
 
+    pvalues: tuple[FloatOrArray, ...]
+    _pnames: tuple[tuple[str, ...], tuple[str, ...]]
+    _punits: tuple[str, ...]
     Trange: tuple[FloatOrArray, FloatOrArray]
-    _params: tuple[tuple[str, ...], tuple[str, ...]]
     _shape: Optional[tuple]
 
     def __init__(self,
@@ -81,40 +81,30 @@ class PropertyEquationT(PropertyEquation):
             Correlation value.
         """
         TK = convert_check_temperature(T, Tunit, self.Trange)
-        return self.eval(TK)
+        return self.equation(TK, *self.pvalues)
+
+    @staticmethod
+    @abstractmethod
+    def equation(T: FloatOrArray, *args) -> FloatOrArray:
+        """Property equation, $Y(T,p)$."""
+        pass
 
     def __repr__(self) -> str:
-        s1 = (
-            f"name:        {self.name}\n"
-            f"symbol:      {self.symbol}\n"
-            f"unit:        {self.unit}\n"
-            f"Trange [K]:  {self.Trange}"
+        string1 = (
+            f"name:            {self.name}\n"
+            f"symbol:          {self.symbol}\n"
+            f"unit:            {self.unit}\n"
+            f"Trange [K]:      {self.Trange}"
         )
-        s2 = ""
-        params = getattr(self, '_params')
-        if params is not None:
-            for p in params[0] + params[1]:
-                pvalue = getattr(self, p)
-                s2 += "\n" + p + ":" + " "*(12 - len(p)) + f"{pvalue}"
-        return s1 + s2
-
-    @abstractmethod
-    def eval(self, T: FloatOrArray) -> FloatOrArray:
-        """Evaluate property equation at given SI conditions, without unit
-        conversions or checks.
-
-        Parameters
-        ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
-
-        Returns
-        -------
-        FloatOrArray
-            Property value.
-        """
-        pass
+        string2 = ""
+        for pname, punits, pvalue in zip(
+                self._pnames[0] + self._pnames[1], self._punits, self.pvalues):
+            if not punits:
+                punits = '—'
+            punits = punits.replace('#', self.unit)
+            string2 += "\n" + f"{pname} [{punits}]:" + \
+                " "*(13 - len(pname+punits)) + f"{pvalue}"
+        return string1 + string2
 
     def plot(self,
              kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
@@ -195,7 +185,7 @@ class PropertyEquationT(PropertyEquation):
         # x-axis vector
         if Trange is not None:
             if Tunit_range == 'C':
-                Trange = tuple(np.asarray(Trange) + 273.15)
+                Trange = (Trange[0]+273.15, Trange[1]+273.15)
         else:
             Trange = (np.min(self.Trange[0]), np.max(self.Trange[1]))
             if Trange == (0.0, np.inf):
@@ -227,6 +217,48 @@ class PropertyEquationT(PropertyEquation):
 
         if return_objects:
             return (fig, ax)
+
+    # def fit(self,
+    #         T: FloatVector,
+    #         Y: FloatVector,
+    #         sigmaY: Optional[FloatVector] = None,
+    #         fitonly: list[str]=[],
+    #         log: bool = False,
+    #         plot: bool = True,
+    #         ):
+
+    #     # select parameters to be fitted
+    #     params = self._pnames[0]
+    #     if fitonly:
+    #         params = set(fitonly) & set(params)
+    #     args = {p: getattr(self, p) for p in params}
+
+    #     # log transform
+    #     if log:
+    #         ydata = np.log(Y)
+    #     else:
+    #         ydata = Y
+
+    #     def ffit(x, p):
+    #         for
+    #         self.eval(x)
+
+    #     solution = curve_fit(ffit,
+    #                          xdata=T,
+    #                          ydata=ydata,
+    #                          p0=p0,
+    #                          sigma=sigmaY,
+    #                          absolute_sigma=True,
+    #                          full_output=True)
+    #     if solution[4]:
+    #         popt = solution[0]
+    #         cov = solution[1]
+    #         print("Fit successful")
+    #         print(popt)
+    #         print(cov)
+    #     else:
+    #         print("Fit error: ", solution[3])
+    #     pass
 
 
 # %% Functions
