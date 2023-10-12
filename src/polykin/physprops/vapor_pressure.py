@@ -85,6 +85,26 @@ class Antoine(PropertyEquationT):
                  C: float,
                  base: float
                  ) -> FloatOrArray:
+        r"""Antoine equation.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature. Unit = K.
+        A : float
+            Parameter of equation.
+        B : float
+            Parameter of equation.
+        C : float
+            Parameter of equation.
+        base : float
+            Parameter of equation.
+
+        Returns
+        -------
+        FloatOrArray
+            Vapor pressure. Unit = Any.
+        """
         return base**(A - B/(T + C))
 
 # %% Wagner
@@ -173,6 +193,32 @@ class Wagner(PropertyEquationT):
                  Pc: float,
                  Tc: float,
                  ) -> FloatOrArray:
+        r"""Wagner equation.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature. Unit = K.
+        a : float
+            Parameter of equation.
+        b : float
+            Parameter of equation.
+        c : float
+            Parameter of equation.
+        d : float
+            Parameter of equation.
+        Tc : float
+            Critical temperature.
+            Unit = K.
+        Pc : float
+            Critical pressure.
+            Unit = Any.
+
+        Returns
+        -------
+        FloatOrArray
+            Vapor pressure. Unit = [Pc].
+        """
         Tr = T/Tc
         t = 1 - Tr
         return Pc*np.exp((a*t + b*t**1.5 + c*t**2.5 + d*t**5)/Tr)
