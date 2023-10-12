@@ -105,7 +105,7 @@ class Arrhenius(KineticCoefficientT):
             Unit = K.
         k0 : FloatOrArray
             Coefficient value at the reference temperature, $k_0=k(T_0)$.
-            Unit = `unit`.
+            Unit = Any.
         EaR : FloatOrArray
             Energy of activation, $E_a/R$.
             Unit = K.
@@ -116,7 +116,7 @@ class Arrhenius(KineticCoefficientT):
         Returns
         -------
         FloatOrArray
-            Coefficient value.
+            Coefficient value. Unit = [k0].
         """
         return k0 * np.exp(-EaR*(1/T - 1/T0))
 
@@ -350,6 +350,6 @@ class Eyring(KineticCoefficientT):
         Returns
         -------
         FloatOrArray
-            Coefficient value.
+            Coefficient value. Unit = 1/s.
         """
         return kappa * kB*T/h * np.exp((DSa - DHa/T)/R)
