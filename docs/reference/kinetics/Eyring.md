@@ -4,7 +4,6 @@
     options:
         members:
             - Eyring
-            - eyring
 
 ## Examples
 

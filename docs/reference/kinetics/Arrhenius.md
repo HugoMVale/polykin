@@ -4,7 +4,6 @@
     options:
         members:
             - Arrhenius
-            - arrhenius
 
 ## Examples
 
