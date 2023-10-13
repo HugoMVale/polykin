@@ -222,10 +222,34 @@ class PropertyEquationT(PropertyEquation):
             T: FloatVector,
             Y: FloatVector,
             sigmaY: Optional[FloatVector] = None,
-            fitonly: list[str] = [],
+            fitonly: Optional[list[str]] = None,
             logY: bool = False,
             plot: bool = True,
             ) -> dict:
+        """Fit equation to data using non-linear regression.
+
+        Parameters
+        ----------
+        T : FloatVector
+            Temperature. Unit = K.
+        Y : FloatVector
+            Property to be fitted. Unit = Any.
+        sigmaY : FloatVector | None
+            Standard deviation of Y. Unit = [Y].
+        fitonly : list[str] | None
+            List with name of parameters to be fitted. 
+        logY : bool
+            If `True`, the fit will be done in terms of log(Y).
+        plot : bool
+            If `True` a plot comparing data and fitted correlation will be
+            generated.
+
+        Returns
+        -------
+        dict
+            A dictionary of results with the following keys: 'success',
+            'parameters', 'covariance', and 'plot'.
+        """
 
         # Current parameter values
         pnames = self._pnames[0] + self._pnames[1]
