@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.physprops.dippr import \
-    DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106
+    DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106, DIPPR107
 from polykin.physprops import Antoine, Wagner
 from polykin import plotequations
 
@@ -21,7 +21,7 @@ def test_DIPPR100():
 
 def test_DIPPR101():
     "P* of water"
-    p = DIPPR101(73.649, -7258.2, -7.3037, 4.1653E-6, 2.)
+    p = DIPPR101(73.649, -7258.2, -7.3037, 4.1653E-6, 2., unit='Pa')
     assert np.isclose(p(100., 'C'), 101325., rtol=1e-3)
 
 
@@ -39,7 +39,7 @@ def test_DIPPR104():
 
 def test_DIPPR105():
     "rhoL of water"
-    p = DIPPR105(0.14395, 0.0112, 649.727, 0.05107)
+    p = DIPPR105(0.14395, 0.0112, 649.727, 0.05107, unit='kg/m³')
     assert np.isclose(p(25., 'C'), 998., rtol=1e-3)
 
 
@@ -47,6 +47,13 @@ def test_DIPPR106():
     "DHvap of water"
     p = DIPPR106(647.096, 56600000., 0.612041, -0.625697, 0.398804)
     assert np.isclose(p(273.16, 'K'), 4.498084e7, rtol=1e-6)
+
+
+def test_DIPPR107():
+    "CpG of water"
+    p = DIPPR107(33363., 26790., 2610.5, 8896., 1169., Tmin=100.,
+                 Tmax=2273., unit='J/kmol.K')
+    assert np.isclose(p(300., 'K'), 33585.904, rtol=1e-6)
 
 # %% Vapor pressure equations
 

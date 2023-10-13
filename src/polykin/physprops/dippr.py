@@ -12,7 +12,8 @@ __all__ = ['DIPPR100',
            'DIPPR102',
            'DIPPR104',
            'DIPPR105',
-           'DIPPR106']
+           'DIPPR106',
+           'DIPPR107']
 
 
 class DIPPR(PropertyEquationT):
@@ -454,3 +455,69 @@ class DIPPR106(DIPPR):
         r"""DIPPR-106 equation."""
         Tr = T/Tc
         return A*(1-Tr)**(B + Tr*(C + Tr*(D + E*Tr)))
+
+
+class DIPPR107(DIPPRP5):
+    r"""[DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)-107 equation.
+
+    This equation implements the following temperature dependence:
+
+    $$ Y=A+B\left[{\frac {C/T}{\sinh \left(C/T\right)}}\right]^2 + \\
+        D\left[{\frac {E/T}{\cosh \left(E/T\right)}}\right]^2 $$
+
+    where $A$ to $E$ are component-specific constants and $T$ is the absolute
+    temperature.
+
+    Parameters
+    ----------
+    A : float
+        Parameter of equation.
+    B : float
+        Parameter of equation.
+    C : float
+        Parameter of equation.
+    D : float
+        Parameter of equation.
+    E : float
+        Parameter of equation.
+    Tmin : float
+        Lower temperature bound.
+        Unit = K.
+    Tmax : float
+        Upper temperature bound.
+        Unit = K.
+    unit : str
+        Unit of output variable $Y$.
+    symbol : str
+        Symbol of output variable $Y$.
+    name : str
+        Name.
+    """
+
+    _punits = ('#', '#', 'K', '#', 'K')
+
+    def __init__(self,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float,
+                 Tmin: float = 0.0,
+                 Tmax: float = np.inf,
+                 unit: str = '-',
+                 symbol: str = 'Y',
+                 name: str = ''
+                 ) -> None:
+
+        super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
+
+    @staticmethod
+    def equation(T: FloatOrArray,
+                 A: float,
+                 B: float,
+                 C: float,
+                 D: float,
+                 E: float
+                 ) -> FloatOrArray:
+        r"""DIPPR-107 equation."""
+        return A + B*(C/T/np.sinh(C/T))**2 + D*(E/T/np.cosh(E/T))**2
