@@ -5,6 +5,7 @@
 from polykin.physprops.dippr import \
     DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106
 from polykin.physprops import Antoine, Wagner
+from polykin import plotequations
 
 import pytest
 import numpy as np
@@ -63,7 +64,7 @@ def test_Antoine(Pvap_water):
     assert np.isclose(Pvap_water(100., 'C'), 1.01325, rtol=2e-2)
 
 
-def test_fit_Antoine(Pvap_water):
+def test_Antoine_fit(Pvap_water):
     T = np.linspace(260, 373, 50)
     Y = Pvap_water(T)
     p = Antoine(A=1, B=1, C=1, unit='bar')
@@ -84,3 +85,11 @@ def test_Wagner():
                d=-2.128615,
                Tmin=273., Tmax=647., unit='bar')
     assert np.isclose(p(100., 'C'), 1.01325, rtol=2e-2)
+
+# %% plot
+
+
+def test_plotequations(Pvap_water):
+    for kind in ['linear', 'semilogy', 'Arrhenius']:
+        fig = plotequations([Pvap_water], kind=kind)
+    assert fig is not None
