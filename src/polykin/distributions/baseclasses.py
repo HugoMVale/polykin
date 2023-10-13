@@ -171,7 +171,7 @@ class Distribution(ABC):
         return result
 
     def plot(self,
-             kinds: Union[Kind, list[Kind]] = 'mass',
+             kind: Union[Kind, list[Kind]] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: Union[tuple[float, float], None] = None,
@@ -184,7 +184,7 @@ class Distribution(ABC):
         Parameters
         ----------
         kinds : Literal['number', 'mass', 'gpc']
-            Kind of distribution.
+            Kind(s) of distribution.
         sizeasmass : bool
             Switch size input between chain-*length* (if `False`) or molar
             *mass* (if `True`).
@@ -202,15 +202,15 @@ class Distribution(ABC):
             Matplotlib Axes object.
         """
         # Check inputs
-        kinds = self._verify_kind(kinds, accept_list=True)
+        kind = self._verify_kind(kind, accept_list=True)
         self._verify_sizeasmass(sizeasmass)
         check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
         check_in_set(cdf, {0, 1, 2}, 'cdf')
-        if isinstance(kinds, str):
-            kinds = [kinds]
+        if isinstance(kind, str):
+            kind = [kind]
 
         # x-axis scale
-        if xscale == 'auto' and set(kinds) == {'gpc'}:
+        if xscale == 'auto' and set(kind) == {'gpc'}:
             xscale = 'log'
         elif xscale == 'log':
             pass
@@ -260,15 +260,15 @@ class Distribution(ABC):
                 ax2 = axes[1]
 
         # y-values
-        for kind in kinds:
+        for mykind in kind:
             if cdf != 1:
-                y1 = self.pdf(x, kind=kind, sizeasmass=sizeasmass)
+                y1 = self.pdf(x, kind=mykind, sizeasmass=sizeasmass)
             if cdf > 0:
-                if kind == 'gpc':
-                    _kind = 'mass'
+                if mykind == 'gpc':
+                    _mykind = 'mass'
                 else:
-                    _kind = kind
-                y2 = self.cdf(x, kind=_kind, sizeasmass=sizeasmass)
+                    _mykind = mykind
+                y2 = self.cdf(x, kind=_mykind, sizeasmass=sizeasmass)
             if cdf == 1:
                 y1 = y2
             if ext_mode:
@@ -276,7 +276,7 @@ class Distribution(ABC):
                 if label == '':
                     label = '?'
             else:
-                label = kind
+                label = mykind
             ax.plot(x, y1, label=label)
             if cdf == 2:
                 ax2.plot(x, y2, linestyle='--')
@@ -858,6 +858,6 @@ def plotdists(dists: list[Distribution],
 
     # Draw plots sequentially
     for d in dists:
-        d.plot(kinds=kind, axes=fig.axes, **kwargs)
+        d.plot(kind=kind, axes=fig.axes, **kwargs)
 
     return fig
