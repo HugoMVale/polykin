@@ -4,10 +4,12 @@
 
 from polykin.physprops.dippr import \
     DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106
+from polykin.physprops import Antoine, Wagner
 
-
-# import pytest
+import pytest
 import numpy as np
+
+# %% DIPPR equations
 
 
 def test_DIPPR100():
@@ -44,3 +46,41 @@ def test_DIPPR106():
     "DHvap of water"
     p = DIPPR106(647.096, 56600000., 0.612041, -0.625697, 0.398804)
     assert np.isclose(p(273.16, 'K'), 4.498084e7, rtol=1e-6)
+
+# %% Vapor pressure equations
+
+
+@pytest.fixture
+def Pvap_water():
+    """Pvap of water
+    Parameters: https://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185&Mask=4&Type=ANTOINE&Plot=on
+    """
+    return Antoine(A=4.6543, B=1435.264, C=-64.848, Tmin=255.9, Tmax=373.,
+                   unit='bar')
+
+
+def test_Antoine(Pvap_water):
+    assert np.isclose(Pvap_water(100., 'C'), 1.01325, rtol=2e-2)
+
+
+def test_fit_Antoine(Pvap_water):
+    T = np.linspace(260, 373, 50)
+    Y = Pvap_water(T)
+    p = Antoine(A=1, B=1, C=1, unit='bar')
+    result = p.fit(T, Y, logY=True)
+    popt = result['parameters']
+    assert np.isclose(popt['A'], 4.65, rtol=1e-2)
+    assert np.isclose(popt['B'], 1435., rtol=1e-2)
+    assert np.isclose(popt['C'], -64.85, rtol=1e-2)
+
+
+def test_Wagner():
+    """Pvap of water
+    Parameters: doi: 10.5541/ijot.372148
+    """
+    p = Wagner(Tc=647.096,
+               Pc=220.64,  # bar
+               a=-7.861942, b=1.879246, c=-2.266807,
+               d=-2.128615,
+               Tmin=273., Tmax=647., unit='bar')
+    assert np.isclose(p(100., 'C'), 1.01325, rtol=2e-2)

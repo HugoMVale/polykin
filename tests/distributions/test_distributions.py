@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.distributions import \
-    Flory, Poisson, LogNormal, SchulzZimm, DataDistribution
+    Flory, Poisson, LogNormal, SchulzZimm, DataDistribution, plotdists
 
 import numpy as np
 import scipy.integrate as integrate
@@ -267,3 +267,15 @@ def test_fit_itself(dist1, dist2):
         for attr in ['DPn', 'DPw', 'DPz', 'Mn', 'Mw', 'Mz', 'PDI', 'M0']:
             assert (np.isclose(getattr(dfit, attr), getattr(d, attr),
                                rtol=rtol))
+
+
+def test_plot_method(dist1):
+    out = dist1[0].plot()
+    for kind in ['number', 'mass', 'gpc']:
+        out = dist1[0].plot(kind=kind)
+    for cdf in [0, 1, 2]:
+        out = dist1[0].plot(cdf=cdf)
+
+
+def test_plotdists(dist1):
+    plotdists(dist1, kind='gpc')

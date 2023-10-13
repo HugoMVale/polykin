@@ -53,7 +53,7 @@ def test_call(vrentas_instance):
     D1 = vrentas_instance.selfd(w1, T)
     D = vrentas_instance.mutual(w1, T)
 
-    assert (np.isclose(D1, vrentas_instance(w1, T, 'K', True)))
+    assert (np.isclose(D1, vrentas_instance([w1], T, 'K', selfd=True)[0]))
     assert (np.isclose(D, vrentas_instance(w1, T, 'K')))
     assert (np.isclose(D1, vrentas_instance(w1, 25., 'C', selfd=True)))
     assert (np.isclose(D, vrentas_instance(w1, 25., 'C')))
@@ -99,10 +99,20 @@ def test_hayduk_minhas_2():
                            )
     assert (np.isclose(result, 6.97e-10, atol=0, rtol=1e-2))
 
+
+def test_hayduk_minhas_input():
+    with pytest.raises(ValueError):
+        _ = hayduk_minhas(T=293.,
+                          method='nomethod',
+                          MA=106.17e-3,
+                          rhoA=761.,
+                          viscB=1e-3,
+                          )
+
 # %% Gas-phase
 
 
-def test_wilke_lee():
+def test_wilke_lee_air():
     "Allyl chloride in air. Example 11.3, page 589 of Reid et al."
     result = wilke_lee(T=298.,
                        P=1e5,
@@ -114,3 +124,40 @@ def test_wilke_lee():
                        TB=None
                        )
     assert (np.isclose(result, 0.10e-4, atol=0, rtol=1e-2))
+
+
+def test_wilke_lee():
+    "Allyl chloride in steam."
+    result = wilke_lee(T=298.,
+                       P=1e5,
+                       MA=76.5e-3,
+                       MB=18.0e-3,
+                       rhoA=1e3*76.5/87.5,
+                       rhoB=1000.,
+                       TA=318.3,
+                       TB=373.
+                       )
+    assert (np.isclose(result, 0.10e-4, atol=0, rtol=1e-1))
+
+
+def test_wilke_lee_input():
+    with pytest.raises(ValueError):
+        _ = wilke_lee(T=298.,
+                      P=1e5,
+                      MA=76.5e-3,
+                      MB=29.0e-3,
+                      rhoA=1e3*76.5/87.5,
+                      rhoB=None,  # issue
+                      TA=318.3,
+                      TB=300.  # issue
+                      )
+    with pytest.raises(ValueError):
+        _ = wilke_lee(T=298.,
+                      P=1e5,
+                      MA=76.5e-3,
+                      MB=29.0e-3,
+                      rhoA=1e3*76.5/87.5,
+                      rhoB=1000.,  # issue
+                      TA=318.3,
+                      TB=None  # issue
+                      )
