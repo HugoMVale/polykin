@@ -82,6 +82,16 @@ def test_Antoine_fit(Pvap_water):
     assert np.isclose(popt['C'], -64.85, rtol=1e-2)
 
 
+def test_Antoine_fit_fitonly(Pvap_water):
+    T = np.linspace(260, 373, 50)
+    Y = Pvap_water(T)
+    p = Antoine(A=1, B=1, C=0, unit='bar')
+    result = p.fit(T, Y, fitonly=['A', 'B'], logY=True)
+    popt = result['parameters']
+    assert np.isclose(popt['A'], 6.207, rtol=1e-3)
+    assert np.isclose(popt['B'], 2303., rtol=1e-3)
+
+
 def test_Wagner():
     """Pvap of water
     Parameters: doi: 10.5541/ijot.372148
