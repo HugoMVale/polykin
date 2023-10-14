@@ -26,7 +26,7 @@ m = Tait(
     name="PMMA"
     )
 
-print(m(159., 2000, Tunit='C', Punit='bar'))
+print(m.V(159., 2000, Tunit='C', Punit='bar'))
 print(m.alpha(432.15, 2e8))
 print(m.beta(432.15, 2e8))
 ```
