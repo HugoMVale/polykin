@@ -17,7 +17,7 @@ from abc import abstractmethod
 from scipy.optimize import root_scalar
 
 
-__all__ = ['Tait', 'Flory', 'HartmannHaque']
+__all__ = ['Tait', 'Flory', 'HartmannHaque', 'SanchezLacombe']
 
 # %% Parameter tables
 
@@ -655,4 +655,70 @@ class HartmannHaque(PolymerPVTEoS):
         f = p*v**5 - t**(3/2) + np.log(v)  # =0
         d1f = 5*p*v**4 + 1/v
         d2f = 20*p*v**3 - 1/v**2
+        return (f, d1f, d2f)
+
+
+class SanchezLacombe(PolymerPVTEoS):
+    r"""Sanchez-Lacombe equation of state for the specific volume of a polymer.
+
+    This EoS implements the following implicit P-V-T dependence:
+
+    $$ \frac{1}{\tilde{V}^2} + \tilde{P} + \\
+        \tilde{T}\left [ \ln\left ( 1-\frac{1}{\tilde{V}} \right ) + \\
+        \frac{1}{\tilde{V}} \right ]=0 $$
+
+    where $\tilde{V}=V/V^*$, $\tilde{P}=P/P^*$ and $\tilde{T}=T/T^*$ are,
+    respectively, the reduced volume, reduced pressure and reduced temperature.
+    $V^*$, $P^*$ and $T^*$ are reference quantities that are polymer dependent.
+
+    References:
+
+    *   Caruthers et al. Handbook of Diffusion and Thermal Properties of
+        Polymers and Polymer Solutions. AIChE, 1998.
+
+    Parameters
+    ----------
+    V0 : float
+        Reference volume, $V^*$.
+    T0 : float
+        Reference temperature, $T^*$.
+    P0 : float
+        Reference pressure, $P^*$.
+    Tmin : float
+        Lower temperature bound.
+        Unit = K.
+    Tmax : float
+        Upper temperature bound.
+        Unit = K.
+    Pmin : float
+        Lower pressure bound.
+        Unit = Pa.
+    Pmax : float
+        Upper pressure bound.
+        Unit = Pa.
+    name : str
+        Name.
+    """
+
+    @staticmethod
+    def equation(v: float, t: float, p: float) -> tuple[float, float, float]:
+        """Sanchez-Lacombe equation of state and its volume derivatives.
+
+        Parameters
+        ----------
+        v : float
+            Reduced volume.
+        t : float
+            Reduced temperature.
+        p : float
+            Reduced pressure.
+
+        Returns
+        -------
+        tuple[float, float, float]
+            Equation of state, first derivative, second derivative.
+        """
+        f = 1/v**2 + p + t*(np.log(1 - 1/v) + 1/v)
+        d1f = ((t - 2)*v + 2)/((v - 1)*v**3)
+        d2f = (-3*(t - 2)*v**2 + 2*(t - 6)*v + 6)/((v - 1)**2*v**4)
         return (f, d1f, d2f)

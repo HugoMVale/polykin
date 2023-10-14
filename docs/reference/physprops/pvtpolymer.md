@@ -4,8 +4,9 @@
     options:
         members:
             - Flory
-            - Tait
             - HartmannHaque
+            - SanchezLacombe
+            - Tait
 
 ## Examples
 

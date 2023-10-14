@@ -2,10 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.physprops.pvtpolymer import Tait, Flory, HartmannHaque
+from polykin.physprops.pvtpolymer import Tait, Flory, HartmannHaque, \
+    SanchezLacombe
 from polykin.utils import RangeError
 from polykin.physprops.pvtpolymer import load_Tait_parameters
-
 
 import pytest
 import numpy as np
@@ -148,3 +148,25 @@ def test_HartmannHaque_alpha(HartmannHaque_instance):
     m = HartmannHaque_instance
     assert np.isclose(m.alpha(335., 70e6),
                       4.3e-4, atol=0, rtol=2e-2)
+
+# %% SanchezLacombe
+
+
+@pytest.fixture
+def SanchezLacombe_instance():
+    return SanchezLacombe(
+        V0=1.0213e-3, T0=623., P0=350.4e6,
+        name="Handbook of diffusion and thermal properties.., , p. 78.")
+
+
+def SanchezLacombe_V(SanchezLacombe_instance):
+    "Handbook of diffusion and thermal properties.., , p. 85."
+    m = SanchezLacombe_instance
+    assert np.isclose(m.V(335., 70, Punit='MPa'),
+                      1.0747e-3, atol=0, rtol=2e-4)
+
+
+def test_SanchezLacombe_alpha(SanchezLacombe_instance):
+    m = SanchezLacombe_instance
+    assert np.isclose(m.alpha(335., 70e6),
+                      4.3e-4, atol=0, rtol=5e-2)
