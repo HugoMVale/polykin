@@ -21,17 +21,19 @@ __all__ = ['Tait', 'Flory', 'HartmannHaque', 'SanchezLacombe']
 
 # %% Parameter tables
 
-table_Tait_parameters: Optional[pd.DataFrame] = None
+table_parameters: dict[str, Optional[pd.DataFrame]] = {}
 
 
-def load_Tait_parameters() -> pd.DataFrame:
-    "Load table with Tait parameters."
-    global table_Tait_parameters
-    if table_Tait_parameters is None:
-        filepath = (Path(__file__).parent).joinpath('Tait_parameters.tsv')
-        table_Tait_parameters = pd.read_csv(filepath, delim_whitespace=True)
-        table_Tait_parameters.set_index("Polymer", inplace=True)
-    return table_Tait_parameters
+def load_PVT_parameters(method: str) -> pd.DataFrame:
+    "Load table with PVT parameters for a given equation."
+    global table_parameters
+    table = table_parameters.get(method, None)
+    if table is None:
+        filepath = (Path(__file__).parent).joinpath(method + '_parameters.tsv')
+        table = pd.read_csv(filepath, delim_whitespace=True)
+        table.set_index('Polymer', inplace=True)
+        table_parameters[method] = table
+    return table
 
 
 # %% PolymerPVTEquation
@@ -162,6 +164,49 @@ class PolymerPVTEquation(PropertyEquation):
         """
         pass
 
+    @classmethod
+    def from_database(cls, name: str) -> Optional[PolymerPVTEquation]:
+        r"""Construct `PolymerPVTEquation` with parameters from the database.
+
+        Parameters
+        ----------
+        name : str
+            Polymer code name.
+        """
+        table = load_PVT_parameters(method=cls.__name__)
+        try:
+            mask = table.index == name
+            parameters = table[mask].iloc[0, :].to_dict()
+        except IndexError:
+            parameters = None
+            print(
+                f"Error: '{name}' does not exist in polymer database.\n"
+                f"Valid names are: {table.index.to_list()}")
+
+        if parameters:
+            parameters['Pmin'] *= 1e6
+            parameters['Pmax'] *= 1e6
+            return cls(**parameters, name=name)
+
+    @classmethod
+    def get_database(cls) -> pd.DataFrame:
+        r"""Get database with parameters for the respective PVT equation.
+
+        | Method          | Reference                            |
+        | :-----------    | ------------------------------------ |
+        | Flory           | [2] Table 4.1.7  (p. 72-73)          |
+        | Hartmann-Haque  | [2] Table 4.1.11 (p. 85-86)          |
+        | Sanchez-Lacombe | [2] Table 4.1.9  (p. 78-79)          |
+        | Tait            | [1] Table 3B-1 (p. 41)               |
+
+        References:
+
+        1.  Danner, Ronald P., and Martin S. High. Handbook of polymer
+            solution thermodynamics. John Wiley & Sons, 2010.
+        2.  Caruthers et al. Handbook of Diffusion and Thermal Properties of
+            Polymers and Polymer Solutions. AIChE, 1998.
+        """
+        return load_PVT_parameters(method=cls.__name__)
 # %% PolymerPVTEoS
 
 
@@ -498,32 +543,6 @@ class Tait(PolymerPVTEquation):
         B = self._B(T)
         return (self._C/(P + B))/(1 - self._C*np.log(1 + P/B))
 
-    @classmethod
-    def from_database(cls, name: str) -> Optional[Tait]:
-        """Construct `Tait` with parameters from the database.
-
-        The parameters are those reported in Table 3B-1 (p. 41) of the Handbook
-        of Polymer Solution Thermodynamics.
-
-        Parameters
-        ----------
-        name : str
-            Polymer code name.
-        """
-        table = load_Tait_parameters()
-        try:
-            mask = table.index.to_series().str.contains(name, case=False)
-            parameters = table[mask].iloc[0, :].to_dict()
-        except IndexError:
-            parameters = None
-            print(
-                f"Error: '{name}' does not exist in polymer database.\n"
-                f"Valid names are: {table.index.to_list()}")
-
-        if parameters:
-            parameters['Pmin'] *= 1e6
-            parameters['Pmax'] *= 1e6
-            return cls(**parameters, name=name)
 
 # %% Flory
 
