@@ -5,7 +5,6 @@
 from polykin.physprops.pvtpolymer import Tait, Flory, HartmannHaque, \
     SanchezLacombe
 from polykin.utils import RangeError
-from polykin.physprops.pvtpolymer import load_Tait_parameters
 
 import pytest
 import numpy as np
@@ -97,7 +96,7 @@ def test_Tait_beta(tait_instance):
 
 
 def test_Tait_all_polymers_database():
-    table = load_Tait_parameters()
+    table = Tait.get_database()
     polymers = table.index.to_list()
     for polymer in polymers:
         m = Tait.from_database(polymer)
@@ -112,7 +111,7 @@ def test_Tait_all_polymers_database():
 def flory_instance():
     return Flory(
         0.9455e-3, 7396., 396e6,
-        name="Handbook of diffusion and thermal properties.., , p. 93.")
+        name="PIB, Handbook of diffusion and thermal properties.., , p. 93.")
 
 
 def test_Flory_V(flory_instance):
@@ -127,6 +126,12 @@ def test_Flory_alpha(flory_instance):
                       4.2779e-4, atol=0, rtol=2e-3)
 
 
+def test_Flory_beta():
+    "Comparison against value from Tait."
+    m = Flory(V0=0.7204e-3, T0=7717., P0=568.8e6, name="PMMA")
+    assert np.isclose(m.beta(432.15, 2e8),
+                      2.8e-10, atol=0, rtol=0.2)
+
 # %% HartmannHaque
 
 
@@ -134,11 +139,11 @@ def test_Flory_alpha(flory_instance):
 def HartmannHaque_instance():
     return HartmannHaque(
         V0=0.9935e-3, T0=1422., P0=2976e6,
-        name="Handbook of diffusion and thermal properties.., , p. 85.")
+        name="PIB, Handbook of diffusion and thermal properties.., , p. 85.")
 
 
 def test_HartmannHaque_V(HartmannHaque_instance):
-    "Handbook of diffusion and thermal properties.., , p. 85."
+    "PIB, Handbook of diffusion and thermal properties.., , p. 85."
     m = HartmannHaque_instance
     assert np.isclose(m.V(335., 70, Punit='MPa'),
                       1.0756e-3, atol=0, rtol=2e-4)
@@ -156,11 +161,11 @@ def test_HartmannHaque_alpha(HartmannHaque_instance):
 def SanchezLacombe_instance():
     return SanchezLacombe(
         V0=1.0213e-3, T0=623., P0=350.4e6,
-        name="Handbook of diffusion and thermal properties.., , p. 78.")
+        name="PIB, Handbook of diffusion and thermal properties.., , p. 78.")
 
 
 def SanchezLacombe_V(SanchezLacombe_instance):
-    "Handbook of diffusion and thermal properties.., , p. 85."
+    "PIB, Handbook of diffusion and thermal properties.., , p. 85."
     m = SanchezLacombe_instance
     assert np.isclose(m.V(335., 70, Punit='MPa'),
                       1.0747e-3, atol=0, rtol=2e-4)
