@@ -188,7 +188,6 @@ nav:
           - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
       - polykin.physprops:
           - reference/physprops/index.md
-          - Antoine: reference/physprops/Antoine.md
           - DIPPR: reference/physprops/DIPPR.md
-          - Tait: reference/physprops/Tait.md
-          - Wagner: reference/physprops/Wagner.md
+          - PVT Polymer: reference/physprops/pvtpolymer.md
+          - Vapor Pressure: reference/physprops/vapor_pressure.md
