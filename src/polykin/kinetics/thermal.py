@@ -83,9 +83,9 @@ class Arrhenius(KineticCoefficientT):
         self._shape = check_shapes([k0, EaR], [T0, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(k0, 0, np.inf, 'k0')
+        check_bounds(k0, 0., np.inf, 'k0')
         check_bounds(EaR, -np.inf, np.inf, 'EaR')
-        check_bounds(T0, 0, np.inf, 'T0')
+        check_bounds(T0, 0., np.inf, 'T0')
 
         self.pvalues = (k0, EaR, T0)
         super().__init__((Tmin, Tmax), unit, symbol, name)
@@ -119,6 +119,11 @@ class Arrhenius(KineticCoefficientT):
             Coefficient value. Unit = [k0].
         """
         return k0 * np.exp(-EaR*(1/T - 1/T0))
+
+    @property
+    def A(self) -> FloatOrArray:
+        r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
+        return self.__call__(np.inf)
 
     def __mul__(self, other):
         """Multipy Arrhenius coefficient(s).
@@ -254,11 +259,6 @@ class Arrhenius(KineticCoefficientT):
     def __rpow__(self, other):
         return NotImplemented
 
-    @property
-    def A(self) -> FloatOrArray:
-        r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
-        return self.__call__(np.inf)
-
 
 class Eyring(KineticCoefficientT):
     r"""[Eyring](https://en.wikipedia.org/wiki/Eyring_equation) kinetic rate
@@ -318,9 +318,9 @@ class Eyring(KineticCoefficientT):
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(DSa, 0, np.inf, 'DSa')
-        check_bounds(DHa, 0, np.inf, 'DHa')
-        check_bounds(kappa, 0, 1, 'kappa')
+        check_bounds(DSa, 0., np.inf, 'DSa')
+        check_bounds(DHa, 0., np.inf, 'DHa')
+        check_bounds(kappa, 0., 1., 'kappa')
 
         self.pvalues = (DSa, DHa, kappa)
         super().__init__((Tmin, Tmax), '1/s', symbol, name)
@@ -338,13 +338,13 @@ class Eyring(KineticCoefficientT):
         T : FloatOrArray
             Temperature.
             Unit = K.
-        DSa : FloatOrArrayLike
+        DSa : FloatOrArray
             Entropy of activation, $\Delta S^\ddagger$.
             Unit = J/(mol·K).
-        DHa : FloatOrArrayLike
+        DHa : FloatOrArray
             Enthalpy of activation, $\Delta H^\ddagger$.
             Unit = J/mol.
-        kappa : FloatOrArrayLike
+        kappa : FloatOrArray
             Transmission coefficient.
 
         Returns
