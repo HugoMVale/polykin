@@ -59,7 +59,7 @@ class VrentasDudaBinary():
         Units = J/mol/K.
     V1star : float
         Specific volume of solvent at 0 K.
-        Unit = L³/M
+        Unit = L³/M.
     V2star : float
         Specific volume of polymer at 0 K.
         Unit = L³/M.
