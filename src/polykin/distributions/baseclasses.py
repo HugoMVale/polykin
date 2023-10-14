@@ -183,7 +183,7 @@ class Distribution(ABC):
 
         Parameters
         ----------
-        kinds : Literal['number', 'mass', 'gpc']
+        kind : Literal['number', 'mass', 'gpc']
             Kind(s) of distribution.
         sizeasmass : bool
             Switch size input between chain-*length* (if `False`) or molar

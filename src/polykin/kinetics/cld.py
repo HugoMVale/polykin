@@ -114,9 +114,6 @@ class TerminationCompositeModel(KineticCoefficientCLD):
 
         Parameters
         ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
         i : IntOrArray
             Chain length of 1st radical.
         j : IntOrArray
@@ -245,9 +242,6 @@ class PropagationHalfLength(KineticCoefficientCLD):
 
         Parameters
         ----------
-        T : FloatOrArray
-            Temperature.
-            Unit = K.
         i : IntOrArray
             Chain length of radical.
         kp : FloatOrArray
