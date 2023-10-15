@@ -4,7 +4,7 @@
 
 from polykin.utils import check_shapes, check_bounds, convert_list_to_array, \
     FloatOrArray, FloatOrArrayLike, ShapeError
-from polykin.physprops.property_equation import PropertyEquationT
+from polykin.properties.base import PropertyEquationT
 
 import numpy as np
 from scipy.constants import h, R, Boltzmann as kB

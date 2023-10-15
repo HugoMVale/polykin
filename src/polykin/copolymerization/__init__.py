@@ -7,4 +7,4 @@ This module provides classes to analyze and fit copolymerization data.
 
 """
 
-from polykin.copolymerization.binary import *
+from .binary import *

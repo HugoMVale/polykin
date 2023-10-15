@@ -10,5 +10,5 @@ For illustration examples, please refer to the associated
 [tutorial](/polykin/tutorials/kinetic_coefficients/).
 """
 
-from polykin.kinetics.thermal import *
-from polykin.kinetics.cld import *
+from .thermal import *
+from .cld import *

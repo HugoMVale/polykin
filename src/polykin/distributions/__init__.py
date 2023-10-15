@@ -10,7 +10,7 @@ For illustration examples, please refer to the associated
 [tutorial](/polykin/tutorials/distributions).
 """
 
-from polykin.distributions.analyticaldistributions import *
-from polykin.distributions.datadistribution import *
-from polykin.distributions.baseclasses import *
-from polykin.distributions.sampledata import sample_mmd
+from .analyticaldistributions import *
+from .datadistribution import *
+from .base import *
+from .sampledata import sample_mmd

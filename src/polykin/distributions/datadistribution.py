@@ -4,9 +4,8 @@
 
 from polykin.utils import vectorize, check_subclass, check_bounds, \
     FloatVectorLike
-from polykin.distributions import Flory, Poisson, LogNormal, SchulzZimm
-from polykin.distributions.baseclasses import Kind, \
-    IndividualDistribution, MixtureDistribution,\
+from .analyticaldistributions import Flory, Poisson, LogNormal, SchulzZimm
+from .base import Kind, IndividualDistribution, MixtureDistribution, \
     AnalyticalDistribution, AnalyticalDistributionP2
 
 import numpy as np

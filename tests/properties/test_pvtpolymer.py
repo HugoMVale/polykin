@@ -2,8 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.physprops.pvtpolymer import Tait, Flory, HartmannHaque, \
-    SanchezLacombe
+from polykin.properties.pvt_polymer import \
+    Tait, Flory, HartmannHaque, SanchezLacombe
 from polykin.utils import RangeError
 
 import pytest

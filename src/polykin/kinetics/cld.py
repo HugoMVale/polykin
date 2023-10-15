@@ -5,7 +5,7 @@
 from polykin.utils import check_type, check_bounds, \
     convert_check_temperature, \
     FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray
-from polykin.kinetics.thermal import Arrhenius, Eyring
+from .thermal import Arrhenius, Eyring
 
 import numpy as np
 from abc import ABC, abstractmethod

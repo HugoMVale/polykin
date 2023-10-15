@@ -2,8 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.distributions.baseclasses import \
-    AnalyticalDistributionP1, AnalyticalDistributionP2
+from .base import AnalyticalDistributionP1, AnalyticalDistributionP2
 
 from math import exp, log, sqrt, pi
 import numpy as np

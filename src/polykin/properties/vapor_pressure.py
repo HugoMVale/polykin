@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.utils import FloatOrArray
-from polykin.physprops.property_equation import PropertyEquationT
+from .base import PropertyEquationT
 
 import numpy as np
 
