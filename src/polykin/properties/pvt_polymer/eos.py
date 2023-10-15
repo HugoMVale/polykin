@@ -281,7 +281,7 @@ class HartmannHaque(PolymerPVTEoS):
 class SanchezLacombe(PolymerPVTEoS):
     r"""Sanchez-Lacombe equation of state for the specific volume of a polymer.
 
-    This EoS implements the following implicit P-V-T dependence:
+    This EoS implements the following implicit PVT dependence:
 
     $$ \frac{1}{\tilde{V}^2} + \tilde{P} + \\
         \tilde{T}\left [ \ln\left ( 1-\frac{1}{\tilde{V}} \right ) + \\
