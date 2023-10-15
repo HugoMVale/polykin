@@ -1,5 +1,8 @@
 # polykin.properties.dippr
 
+For illustration examples, please refer to the associated
+[tutorial](/polykin/tutorials/physprop_equations).
+
 ::: polykin.properties.dippr
     options:
         members:
