@@ -1,7 +1,7 @@
 
-# polykin.diffusion
+# polykin.properties.diffusion
 
-::: polykin.diffusion.estimation_methods
+::: polykin.properties.diffusion.estimation_methods
     options:
         members:
             - wilke_chang
@@ -11,7 +11,7 @@
 Estimate the diffusion coefficient of vinyl chloride through liquid water.
 
 ```pycon exec="on" source="console"
->>> from polykin.diffusion import wilke_chang
+>>> from polykin.properties.diffusion import wilke_chang
 >>>
 >>> D = wilke_chang(
 ...     T=298.,         # temperature

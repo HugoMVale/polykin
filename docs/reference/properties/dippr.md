@@ -1,6 +1,6 @@
-# polykin.physprops.dippr
+# polykin.properties.dippr
 
-::: polykin.physprops.dippr
+::: polykin.properties.dippr
     options:
         members:
             - DIPPR100

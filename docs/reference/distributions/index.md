@@ -2,7 +2,10 @@
 
 ::: polykin.distributions
 
-::: polykin.distributions.baseclasses
+For illustration examples, please refer to the associated
+[tutorial](/polykin/tutorials/distributions).
+
+::: polykin.distributions.base
     options:
         members:
             - plotdists

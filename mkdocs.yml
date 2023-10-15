@@ -166,12 +166,6 @@ nav:
   #- API Reference: reference/polykin/ #
   - API Reference:
       - polykin.copolymerization: "reference/copolymerization.md"
-      - polykin.diffusion:
-          - reference/diffusion/index.md
-          - VrentasDudaBinary: reference/diffusion/VrentasDudaBinary.md
-          - hayduk_minhas: reference/diffusion/hayduk_minhas.md
-          - wilke_chang: reference/diffusion/wilke_chang.md
-          - wilke_lee: reference/diffusion/wilke_lee.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md
@@ -186,8 +180,14 @@ nav:
           - Eyring: reference/kinetics/Eyring.md
           - PropagationHalfLength: reference/kinetics/PropagationHalfLength.md
           - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
-      - polykin.physprops:
-          - reference/physprops/index.md
-          - DIPPR: reference/physprops/DIPPR.md
-          - PVT Polymer: reference/physprops/pvtpolymer.md
-          - Vapor Pressure: reference/physprops/vapor_pressure.md
+      - polykin.properties:
+          - reference/properties/index.md
+          - Diffusion:
+              - reference/properties/diffusion/index.md
+              - VrentasDudaBinary: reference/properties/diffusion/VrentasDudaBinary.md
+              - hayduk_minhas: reference/properties/diffusion/hayduk_minhas.md
+              - wilke_chang: reference/properties/diffusion/wilke_chang.md
+              - wilke_lee: reference/properties/diffusion/wilke_lee.md
+          - DIPPR: reference/properties/dippr.md
+          - PVT Polymer: reference/properties/pvt_polymer.md
+          - Vapor Pressure: reference/properties/vapor_pressure.md

@@ -147,7 +147,7 @@ class PolymerPVTEoS(PolymerPVTEquation):
 class Flory(PolymerPVTEoS):
     r"""Flory equation of state for the specific volume of a polymer.
 
-    This EoS implements the following implicit P-V-T dependence:
+    This EoS implements the following implicit PVT dependence:
 
     $$ \frac{\tilde{P}\tilde{V}}{\tilde{T}} = \\
       \frac{\tilde{V}^{1/3}}{\tilde{V}^{1/3}-1}-\frac{1}{\tilde{V}\tilde{T}}$$
@@ -215,7 +215,7 @@ class Flory(PolymerPVTEoS):
 class HartmannHaque(PolymerPVTEoS):
     r"""Hartmann-Haque equation of state for the specific volume of a polymer.
 
-    This EoS implements the following implicit P-V-T dependence:
+    This EoS implements the following implicit PVT dependence:
 
     $$ \tilde{P}\tilde{V}^5=\tilde{T}^{3/2}-\ln{\tilde{V}} $$
 

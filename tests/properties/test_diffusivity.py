@@ -2,9 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.diffusion.vrentasduda import VrentasDudaBinary
-from polykin.diffusion.estimation_methods import wilke_chang, hayduk_minhas, \
-    wilke_lee
+from polykin.properties.diffusion import VrentasDudaBinary, \
+    wilke_chang, hayduk_minhas, wilke_lee
 
 import numpy as np
 import pytest

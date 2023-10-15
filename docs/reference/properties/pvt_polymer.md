@@ -1,6 +1,6 @@
-# polykin.physprops.pvtpolymer
+# polykin.properties.pvt_polymer
 
-::: polykin.physprops.pvtpolymer
+::: polykin.properties.pvt_polymer
     options:
         members:
             - Flory
@@ -13,7 +13,7 @@
 Estimate the PVT properties of PMMA.
 
 ```python exec="on" source="console"
-from polykin.physprops import Flory
+from polykin.properties.pvt_polymer import Flory
 
 # Parameters from Handbook of Diffusion and Thermal Properties of Polymers
 # and Polymer Solutions, p.72. 
@@ -34,7 +34,7 @@ print(m.beta(432.15, 2e8))
 ```
 
 ```python exec="on" source="console"
-from polykin.physprops import Tait
+from polykin.properties.pvt_polymer import Tait
 
 # Parameters from Handbook Polymer Solution Thermodynamics, p.39 
 m = Tait(

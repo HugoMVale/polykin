@@ -1,6 +1,6 @@
-# polykin.diffusion
+# polykin.properties.diffusion
 
-::: polykin.diffusion.estimation_methods
+::: polykin.properties.diffusion.estimation_methods
     options:
         members:
             - hayduk_minhas
@@ -10,7 +10,7 @@
 Estimate the diffusion coefficient of vinyl chloride through liquid water.
 
 ```pycon exec="on" source="console"
->>> from polykin.diffusion import hayduk_minhas
+>>> from polykin.properties.diffusion import hayduk_minhas
 >>>
 >>> D = hayduk_minhas(
 ...     T=298.,           # temperature

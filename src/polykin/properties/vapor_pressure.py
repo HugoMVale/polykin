@@ -2,6 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
+""" This module provides correlations to evaluate the vapor pressure of pure
+components.
+"""
+
 from polykin.utils import FloatOrArray
 from .base import PropertyEquationT
 
@@ -30,8 +34,8 @@ class Antoine(PropertyEquationT):
 
     !!! hint
         The Antoine equation is limited in terms of temperature range. Wider
-        ranges can be achieved with [DIPPR101](DIPPR.md) or
-        [Wagner](vapor_pressure.md/#polykin.physprops.vapor_pressure.Wagner).
+        ranges can be achieved with [DIPPR101](dippr.md) or
+        [Wagner](vapor_pressure.md/#polykin.properties.vapor_pressure.Wagner).
 
     Parameters
     ----------

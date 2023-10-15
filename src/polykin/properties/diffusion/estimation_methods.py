@@ -2,6 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
+"""This module provides functions to estimate the binary diffusion coefficient
+in gas and liquid solutions.
+"""
+
 import numpy as np
 from typing import Literal, Optional
 from math import sqrt

@@ -14,7 +14,7 @@ __all__ = ['Tait']
 class Tait(PolymerPVTEquation):
     r"""Tait equation of state for the specific volume of a liquid.
 
-    This EoS implements the following temperature and pressure dependence:
+    This EoS implements the following explicit PVT dependence:
 
     $$\hat{V}(T,P)=\hat{V}(T,0)\left[1-C\ln\left(\frac{P}{B(T)}\right)\right]$$
 

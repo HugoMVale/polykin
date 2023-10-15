@@ -1,6 +1,6 @@
-# polykin.diffusion
+# polykin.properties.diffusion
 
-::: polykin.diffusion.estimation_methods
+::: polykin.properties.diffusion.estimation_methods
     options:
         members:
             - wilke_lee
@@ -10,7 +10,7 @@
 Estimate the diffusion coefficient of vinyl chloride through water vapor.
 
 ```pycon exec="on" source="console"
->>> from polykin.diffusion import wilke_lee
+>>> from polykin.properties.diffusion import wilke_lee
 >>>
 >>> D = wilke_lee(
 ...     T=298.,       # temperature
@@ -29,7 +29,7 @@ Estimate the diffusion coefficient of vinyl chloride through water vapor.
 Estimate the diffusion coefficient of vinyl chloride through air.
 
 ```pycon exec="on" source="console"
->>> from polykin.diffusion import wilke_lee
+>>> from polykin.properties.diffusion import wilke_lee
 >>> 
 >>> D = wilke_lee(
 ...     T=298.,       # temperature

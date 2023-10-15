@@ -1,6 +1,6 @@
-# polykin.diffusion
+# polykin.properties.diffusion
 
-::: polykin.diffusion.vrentasduda
+::: polykin.properties.diffusion.vrentasduda
     options:
         members:
             - VrentasDudaBinary
@@ -10,7 +10,7 @@
 Estimate the mutual and self-diffusion coefficient of toluene in polyvinylacetate.
 
 ```pycon exec="on" source="console"
->>> from polykin.diffusion import VrentasDudaBinary
+>>> from polykin.properties.diffusion import VrentasDudaBinary
 >>>
 >>> d = VrentasDudaBinary(
 ...     D0=4.82e-4, E=0., V1star=0.917, V2star=0.728, z=0.82,

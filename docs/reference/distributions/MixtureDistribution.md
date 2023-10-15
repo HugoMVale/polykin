@@ -1,6 +1,6 @@
 # polykin.distributions
 
-::: polykin.distributions.baseclasses
+::: polykin.distributions.base
     options:
         members:
             - MixtureDistribution
