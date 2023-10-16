@@ -55,6 +55,7 @@ plugins:
   - search
   - autolinks
   - markdown-exec
+  - table-reader
   - bibtex:
       bib_file: "docs/bibliography/bibliography.bib"
   #    csl_file: "docs/bibliography/american-chemical-society.csl"
@@ -189,5 +190,11 @@ nav:
               - wilke_chang: reference/properties/diffusion/wilke_chang.md
               - wilke_lee: reference/properties/diffusion/wilke_lee.md
           - DIPPR: reference/properties/dippr.md
-          - PVT Polymer: reference/properties/pvt_polymer.md
+          - PVT Polymer:
+              - reference/properties/pvt_polymer/index.md
+              - Flory: reference/properties/pvt_polymer/Flory.md
+              - HartmannHaque: reference/properties/pvt_polymer/HartmannHaque.md
+              - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
+              - Tait: reference/properties/pvt_polymer/Tait.md
           - Vapor Pressure: reference/properties/vapor_pressure.md
+          - Activity Coefficient Models: reference/properties/acm.md
