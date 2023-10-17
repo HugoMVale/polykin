@@ -5,6 +5,10 @@
         members:
             - Flory
 
+## Parameter databank
+
+{{ read_csv('src/polykin/properties/pvt_polymer/Flory_parameters.tsv', delim_whitespace=True) }}
+
 ## Examples
 
 Estimate the PVT properties of PMMA.
@@ -25,7 +29,18 @@ m = Flory(
     name="PMMA"
     )
 
-print(m.V(159., 2000, Tunit='C', Punit='bar'))
-print(m.alpha(432.15, 2e8))
-print(m.beta(432.15, 2e8))
+print(m.V(127., 1500, Tunit='C', Punit='bar'))
+print(m.alpha(400., 1.5e8))
+print(m.beta(400., 1.5e8))
+```
+
+```python exec="on" source="console"
+from polykin.properties.pvt_polymer import Flory
+
+# Parameters retrieved from internal databank 
+m = Flory.from_database("PMMA")
+
+print(m.V(127., 1500, Tunit='C', Punit='bar'))
+print(m.alpha(400., 1.5e8))
+print(m.beta(400., 1.5e8))
 ```

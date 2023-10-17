@@ -95,15 +95,6 @@ def test_Tait_beta(tait_instance):
     assert np.isclose(beta, 2.7765e-10, atol=atol, rtol=rtol)
 
 
-def test_Tait_all_polymers_database():
-    table = Tait.get_database()
-    polymers = table.index.to_list()
-    for polymer in polymers:
-        m = Tait.from_database(polymer)
-        assert m is not None
-        rhoP = 1/m.eval(298., 1e5)
-        assert (rhoP > 750. and rhoP < 2200.)
-
 # %% Flory
 
 
@@ -175,3 +166,14 @@ def test_SanchezLacombe_alpha(SanchezLacombe_instance):
     m = SanchezLacombe_instance
     assert np.isclose(m.alpha(335., 70e6),
                       4.3e-4, atol=0, rtol=5e-2)
+
+
+def test_databanks():
+    for method in [Tait, Flory, HartmannHaque, SanchezLacombe]:
+        table = method.get_database()
+        polymers = table.index.to_list()
+        for polymer in polymers:
+            m = method.from_database(polymer)
+            assert m is not None
+            rhoP = 1/m.eval(298., 1e5)
+            assert (rhoP > 750. and rhoP < 2200.)

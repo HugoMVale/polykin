@@ -176,16 +176,11 @@ class PolymerPVTEquation(PropertyEquation):
         try:
             mask = table.index == name
             parameters = table[mask].iloc[0, :].to_dict()
+            return cls(**parameters, name=name)
         except IndexError:
-            parameters = None
             print(
                 f"Error: '{name}' does not exist in polymer database.\n"
                 f"Valid names are: {table.index.to_list()}")
-
-        if parameters:
-            parameters['Pmin'] *= 1e6
-            parameters['Pmax'] *= 1e6
-            return cls(**parameters, name=name)
 
     @classmethod
     def get_database(cls) -> pd.DataFrame:
