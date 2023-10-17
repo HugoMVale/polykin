@@ -51,7 +51,7 @@ class PolymerPVTEoS(PolymerPVTEquation):
         solution = root_scalar(f=self.equation,
                                args=(t, p),
                                # bracket=[1.1, 1.5],
-                               x0=1.1,
+                               x0=1.05,
                                method='halley',
                                fprime=True,
                                fprime2=True)

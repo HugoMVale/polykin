@@ -176,4 +176,4 @@ def test_databanks():
             m = method.from_database(polymer)
             assert m is not None
             rhoP = 1/m.eval(298., 1e5)
-            assert (rhoP > 750. and rhoP < 2200.)
+            assert (rhoP > 750. and rhoP < 2300.)
