@@ -24,6 +24,9 @@ FloatOrArrayLike = Union[float, FloatArrayLike]
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
 
+FloatMatrix = NDArray[Shape['*, *'], Float64]
+FloatSquareMatrix = NDArray[Shape['Dim, Dim'], Float64]
+
 FloatRangeArray = NDArray[Shape['2'], Float64]
 
 # %% Maths
