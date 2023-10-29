@@ -20,7 +20,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
+python = ">=3.9,<3.13"
 mpmath = "^1.2.1"
 pydantic = "^1.10.5"
 numpy = "^1.24.2"
@@ -28,6 +28,7 @@ scipy = "^1.10.1"
 matplotlib = "^3.7.1"
 nptyping = "^2.5.0"
 pandas = "^2.1.1"
+sqlalchemy = "^2.0.22"
 
 [tool.poetry.group.dev]
 optional = true
