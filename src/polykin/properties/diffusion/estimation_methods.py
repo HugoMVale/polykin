@@ -72,7 +72,7 @@ def hayduk_minhas(T: float,
                   viscB: float,
                   ) -> float:
     r"""Hayduk-Minhas estimation method for the infinite-dilution coefficient
-    of a solute A in a liquid solvent B, $D^0_{AB}$.  
+    of a solute A in a liquid solvent B, $D^0_{AB}$.
 
     Reference:
 
