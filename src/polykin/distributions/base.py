@@ -569,7 +569,7 @@ class AnalyticalDistribution(IndividualDistribution):
     _ppf_bounds = (1e-4, 0.9999)
 
     def __init__(self,
-                 DPn: int,
+                 DPn: float,
                  M0: float,
                  name: str
                  ) -> None:
@@ -585,7 +585,7 @@ class AnalyticalDistribution(IndividualDistribution):
         return self.__DPn  # type: ignore
 
     @DPn.setter
-    def DPn(self, DPn: int):
+    def DPn(self, DPn: float):
         self.__DPn = check_bounds(DPn,
                                   self._pbounds[0][0], self._pbounds[1][0],
                                   'DPn')
@@ -654,7 +654,7 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
     _pbounds = ((2, 1.000001), (np.Inf, np.Inf))
 
     def __init__(self,
-                 DPn: int,
+                 DPn: float,
                  PDI: float,
                  M0: float,
                  name: str

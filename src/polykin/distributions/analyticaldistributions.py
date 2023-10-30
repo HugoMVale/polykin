@@ -25,7 +25,7 @@ class Flory(AnalyticalDistributionP1):
 
     Parameters
     ----------
-    DPn : int
+    DPn : float
         Number-average degree of polymerization, $DP_n$.
     M0 : float
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
@@ -35,7 +35,7 @@ class Flory(AnalyticalDistributionP1):
     _continuous = False
 
     def __init__(self,
-                 DPn: int,
+                 DPn: float,
                  M0: float = 0.1,
                  name: str = ''
                  ) -> None:
@@ -94,7 +94,7 @@ class Poisson(AnalyticalDistributionP1):
 
     Parameters
     ----------
-    DPn : int
+    DPn : float
         Number-average degree of polymerization, $DP_n$.
     M0 : float
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
@@ -105,7 +105,7 @@ class Poisson(AnalyticalDistributionP1):
     _continuous = False
 
     def __init__(self,
-                 DPn: int,
+                 DPn: float,
                  M0: float = 0.1,
                  name: str = ''
                  ) -> None:
@@ -166,7 +166,7 @@ class LogNormal(AnalyticalDistributionP2):
 
     Parameters
     ----------
-    DPn : int
+    DPn : float
         Number-average degree of polymerization, $DP_n$.
     PDI : float
         Polydispersity index, $PDI$.
@@ -181,7 +181,7 @@ class LogNormal(AnalyticalDistributionP2):
     _continuous = True
 
     def __init__(self,
-                 DPn: int,
+                 DPn: float,
                  PDI: float,
                  M0: float = 0.1,
                  name: str = ''
@@ -246,7 +246,7 @@ class SchulzZimm(AnalyticalDistributionP2):
 
     Parameters
     ----------
-    DPn : int
+    DPn : float
         Number-average degree of polymerization, $DP_n$.
     PDI : float
         Polydispersity index, $PDI$.
@@ -261,7 +261,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     _continuous = True
 
     def __init__(self,
-                 DPn: int,
+                 DPn: float,
                  PDI: float,
                  M0: float = 0.1,
                  name: str = ''
