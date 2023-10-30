@@ -135,7 +135,7 @@ class Tait(PolymerPVTEquation):
         -------
         FloatOrArray
             Specific volume.
-            Unit = m³/kg
+            Unit = m³/kg.
         """
         TC = T - 273.15
         V0 = self.A0 + self.A1*TC + self.A2*TC**2
@@ -158,7 +158,7 @@ class Tait(PolymerPVTEquation):
         -------
         FloatOrArray
             B(T).
-            Unit = Pa
+            Unit = Pa.
         """
         return self.B0*np.exp(-self.B1*(T - 273.15))
 
@@ -182,7 +182,8 @@ class Tait(PolymerPVTEquation):
         Returns
         -------
         FloatOrArray
-            alpha.
+            Thermal expansion coefficient, $\alpha$.
+            Unit = 1/K.
         """
         A0 = self.A0
         A1 = self.A1
@@ -211,7 +212,8 @@ class Tait(PolymerPVTEquation):
         Returns
         -------
         FloatOrArray
-            beta.
+            Isothermal compressibility coefficient, $\beta$.
+            Unit = 1/Pa.
         """
         B = self._B(T)
         return (self._C/(P + B))/(1 - self._C*np.log(1 + P/B))

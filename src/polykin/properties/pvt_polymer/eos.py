@@ -46,6 +46,24 @@ class PolymerPVTEoS(PolymerPVTEquation):
              T: FloatOrArray,
              P: FloatOrArray
              ) -> FloatOrArray:
+        r"""Evaluate specific volume, $\hat{V}$, at given SI conditions without
+        unit conversions or checks.
+
+        Parameters
+        ----------
+        T : FloatOrArray
+            Temperature.
+            Unit = K.
+        P : FloatOrArray
+            Pressure.
+            Unit = Pa.
+
+        Returns
+        -------
+        FloatOrArray
+            Specific volume.
+            Unit = m³/kg.
+        """
         t = T/self.T0
         p = P/self.P0
         solution = root_scalar(f=self.equation,
@@ -85,6 +103,7 @@ class PolymerPVTEoS(PolymerPVTEquation):
         -------
         FloatOrArray
             Thermal expansion coefficient, $\alpha$.
+            Unit = 1/K.
         """
         dT = 0.5
         V2 = self.eval(T + dT, P)
@@ -112,6 +131,7 @@ class PolymerPVTEoS(PolymerPVTEquation):
         -------
         FloatOrArray
             Isothermal compressibility coefficient, $\beta$.
+            Unit = 1/Pa.
         """
         dP = 1e5
         P2 = P + dP
@@ -338,7 +358,7 @@ class SanchezLacombe(PolymerPVTEoS):
         tuple[float, float, float]
             Equation of state, first derivative, second derivative.
         """
-        f = 1/v**2 + p + t*(np.log(1 - 1/v) + 1/v)
+        f = 1/v**2 + p + t*(np.log(1 - 1/v) + 1/v)  # =0
         d1f = ((t - 2)*v + 2)/((v - 1)*v**3)
         d2f = (-3*(t - 2)*v**2 + 2*(t - 6)*v + 6)/((v - 1)**2*v**4)
         return (f, d1f, d2f)

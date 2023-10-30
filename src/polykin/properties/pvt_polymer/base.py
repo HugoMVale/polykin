@@ -115,7 +115,7 @@ class PolymerPVTEquation(PropertyEquation):
         -------
         FloatOrArray
             Specific volume.
-            Unit = m³/kg
+            Unit = m³/kg.
         """
         pass
 
