@@ -16,7 +16,7 @@ from typing import Optional, Literal, Any
 
 
 class PropertyEquation(ABC):
-    r"""_Abstract_ class for all property equaitons, $Y(...)$."""
+    r"""_Abstract_ class for all property equations, $Y(...)$."""
 
     name: str
     unit: str
@@ -34,7 +34,7 @@ class PropertyEquation(ABC):
 
 
 class PropertyEquationT(PropertyEquation):
-    r"""_Abstract_ temperature-dependent property equation, $p(T)$"""
+    r"""_Abstract_ temperature-dependent property equation, $Y(T)$"""
 
     pvalues: tuple[FloatOrArray, ...]
     _pnames: tuple[tuple[str, ...], tuple[str, ...]]
