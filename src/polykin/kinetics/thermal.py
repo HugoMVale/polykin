@@ -8,7 +8,7 @@ from polykin.properties.base import PropertyEquationT
 
 import numpy as np
 from scipy.constants import h, R, Boltzmann as kB
-from typing import Union
+from typing import Optional
 
 
 __all__ = ['Arrhenius', 'Eyring']
@@ -17,7 +17,7 @@ __all__ = ['Arrhenius', 'Eyring']
 class KineticCoefficientT(PropertyEquationT):
 
     @property
-    def shape(self) -> Union[tuple[int, ...], None]:
+    def shape(self) -> Optional[tuple[int, ...]]:
         """Shape of underlying parameter array."""
         return self._shape
 
