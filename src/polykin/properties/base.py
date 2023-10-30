@@ -134,7 +134,7 @@ class PropertyEquationT(PropertyEquation):
         Returns
         -------
         tuple[Figure | None, Axes] | None
-            Figure and Axes objects if return_objects is `True`.    
+            Figure and Axes objects if return_objects is `True`.
         """
 
         # Check inputs
@@ -234,7 +234,7 @@ class PropertyEquationT(PropertyEquation):
         sigmaY : FloatVector | None
             Standard deviation of Y. Unit = [Y].
         fitonly : list[str] | None
-            List with name of parameters to be fitted. 
+            List with name of parameters to be fitted.
         logY : bool
             If `True`, the fit will be done in terms of log(Y).
         plot : bool
