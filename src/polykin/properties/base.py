@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from abc import ABC, abstractmethod
-from typing import Optional, Literal, Any
+from typing import Optional, Literal
 
 
 class PropertyEquation(ABC):
@@ -110,7 +110,7 @@ class PropertyEquationT(PropertyEquation):
              title: Optional[str] = None,
              axes: Optional[Axes] = None,
              return_objects: bool = False
-             ) -> Any:
+             ) -> Optional[tuple[Optional[Figure], Axes]]:
         """Plot quantity as a function of temperature.
 
         Parameters
@@ -296,7 +296,7 @@ class PropertyEquationT(PropertyEquation):
             # plot
             if plot:
                 kind = 'semilogy' if logY else 'linear'
-                fig, ax = self.plot(kind=kind, return_objects=True)
+                fig, ax = self.plot(kind=kind, return_objects=True)  # ok
                 ax.plot(T, Y, 'o', mfc='none')
                 result['plot'] = (fig, ax)
         else:
