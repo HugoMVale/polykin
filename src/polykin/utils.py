@@ -23,6 +23,8 @@ FloatOrArrayLike = Union[float, FloatArrayLike]
 
 FloatVector = NDArray[Shape['*'], Float64]
 FloatVectorLike = Union[list[float], FloatVector]
+FloatOrVector = Union[float, FloatVector]
+FloatOrVectorLike = Union[float, FloatVectorLike]
 
 FloatMatrix = NDArray[Shape['*, *'], Float64]
 FloatSquareMatrix = NDArray[Shape['Dim, Dim'], Float64]
