@@ -8,10 +8,10 @@ from polykin.utils import check_bounds, check_in_set, check_valid_range, \
 
 import numpy as np
 import matplotlib.pyplot as plt
-# from matplotlib.figure import Figure
+from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from scipy.constants import R as Rgas
-from typing import Literal, Optional, Any
+from typing import Literal, Optional
 from collections.abc import Iterable
 
 # %%
@@ -293,7 +293,7 @@ class VrentasDudaBinary():
              ylim: Optional[tuple[float, float]] = None,
              axes: Optional[Axes] = None,
              return_objects: bool = False
-             ) -> Any:  # Union[tuple[Union[Figure, None], Axes], None]:
+             ) -> Optional[tuple[Optional[Figure], Axes]]:
         """Plot the mutual or self-diffusion coefficient as a function of
         solvent content and temperature.
 
