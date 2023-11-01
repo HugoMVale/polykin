@@ -16,6 +16,8 @@ __all__ = ['Arrhenius', 'Eyring']
 
 class KineticCoefficientT(PropertyEquationT):
 
+    _shape: Optional[tuple]
+
     @property
     def shape(self) -> Optional[tuple[int, ...]]:
         """Shape of underlying parameter array."""
