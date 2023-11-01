@@ -227,6 +227,7 @@ def test_evaluation_TerminationCompositeModel():
     assert (np.isclose(kt(T0, icrit, icrit), kt11(T0)/icrit**aS))
     assert len(kt(T0, np.arange(1, 1000, 1),
                np.arange(1, 1000, 1)))  # type: ignore
+    assert len(kt(T0, [1, 2, 3], (1, 2, 3)))  # type: ignore
 
 
 def test_evaluation_PropagationHalfLength():
@@ -238,3 +239,5 @@ def test_evaluation_PropagationHalfLength():
     assert (np.isclose(kpi(T0, 1)/kp(T0), C))
     assert (np.isclose(kpi(T0, ihalf+1)/kp(T0), (C+1)/2))
     assert len(kpi(T0, np.arange(1, 101)))  # type: ignore
+    assert len(kpi(T0, (1, 2, 3)))  # type: ignore
+    assert len(kpi(T0, [1, 2, 3]))  # type: ignore
