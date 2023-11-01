@@ -61,6 +61,7 @@ def test_evaluation_Arrhenius():
     EaR = [2000., 4000.]
     T0 = 400
     k = Arrhenius(k0, EaR, T0, name='test')
+    assert k.shape == (2,)
     assert np.all((np.isclose(k(T0, 'K'), k0)))
     assert np.all(np.isclose(k.A, k(np.inf)))
     k = Arrhenius(k0, EaR)
@@ -86,6 +87,25 @@ def test_product_Arrhenius_number():
     # float right
     k2 = k1*float(number)
     assert (np.isclose(k1_value*number, k2(T)))
+
+
+def test_division_Arrhenius_number():
+    k1 = Arrhenius(1e2, 1e4, T0=340, Tmin=300, Tmax=380, name='k1')
+    T = 350.
+    number = 100
+    k1_value = k1(T, 'K')
+    # int left
+    k2 = number/k1
+    assert (np.isclose(number/k1_value, k2(T)))
+    # float left
+    k2 = float(number)/k1
+    assert (np.isclose(number/k1_value, k2(T)))
+    # int right
+    k2 = k1/number
+    assert (np.isclose(k1_value/number, k2(T)))
+    # float right
+    k2 = k1/float(number)
+    assert (np.isclose(k1_value/number, k2(T)))
 
 
 def test_product_Arrhenius_Arrhenius_scalar(capsys):
