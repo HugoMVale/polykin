@@ -80,7 +80,7 @@ plugins:
             # show_category_heading: true
             show_source: true
             members_order: alphabetical
-            docstring_style: "numpy"
+            docstring_style: numpy
             show_root_toc_entry: false
             show_bases: false
             separate_signature: true
@@ -159,14 +159,17 @@ nav:
   #     - quickstart.md
   - Tutorials:
       - "tutorials/index.md"
-      # - Copolymerization: "tutorials/copolymerization.ipynb"
+      - Copolymerization: "tutorials/copolymerization.ipynb"
       - Diffusion Coefficients: "tutorials/diffusion_coefficients.ipynb"
       - Distributions: "tutorials/distributions.ipynb"
       - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
       - Physical Property Equations: "tutorials/physprop_equations.ipynb"
   #- API Reference: reference/polykin/ #
   - API Reference:
-      - polykin.copolymerization: "reference/copolymerization.md"
+      - polykin.copolymerization:
+          - reference/copolymerization/index.md
+          - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
+          - TerminalCopoModel: reference/copolymerization/TerminalCopoModel.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md
@@ -197,4 +200,4 @@ nav:
               - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
               - Tait: reference/properties/pvt_polymer/Tait.md
           - Vapor Pressure: reference/properties/vapor_pressure.md
-          - Activity Coefficient Models: reference/properties/acm.md
+          #- Activity Coefficient Models: reference/properties/acm.md
