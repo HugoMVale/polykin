@@ -121,6 +121,8 @@ def test_TerminalCopoModel_drift():
 
 
 def test_TerminalCopoModel_plot():
-    model = TerminalCopoModel(0.5, 0.5, "Monomer1", "Monomer2", "Model1")
-    result = model.plot(M=1, f0=0.2, title="Test Plot", return_objects=True)
+    model = TerminalCopoModel(0.5, 0.5, "Monomer1", "Monomer2", "MyModel")
+    result = model.plot(M=1, f0=0.2, return_objects=True)
+    assert len(result) == 2
+    result = model.plot(M=1, return_objects=True)
     assert len(result) == 2
