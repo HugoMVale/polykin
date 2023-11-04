@@ -44,8 +44,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
     $$ k_t(i,i)=\begin{cases}
     k_t(1,1)i^{-\alpha_S}& \text{if } i \leq i_{crit} \\
     k_t(1,1)i_{crit}^{-(\alpha_S-\alpha_L)}i^{-\alpha_L} & \text{if }i>i_{crit}
-    \end{cases}
-    $$
+    \end{cases} $$
 
     where $k_t(1,1)$ is the temperature-dependent termination rate coefficient
     between two monomeric radicals, $i_{crit}$ is the critical chain length,
@@ -182,8 +181,10 @@ class PropagationHalfLength(KineticCoefficientCLD):
     This model implements the chain-length dependence proposed by
     [Smith et al. (2005)](https://doi.org/10.1016/j.eurpolymj.2004.09.002):
 
-    $$ k_p(i) = k_p \left[ 1+ (C - 1)\exp{\left (-\frac{\ln 2}{i_{1/2}} (i-1) \
-    \right )} \right] $$
+    $$
+    k_p(i) = k_p \left[ 1+ (C - 1)\exp{\left (-\frac{\ln 2}{i_{1/2}} (i-1)
+             \right )} \right]
+    $$
 
     where $k_p=k_p(\infty)$ is the long-chain value of the propagation rate
     coefficient, $C\ge 1$ is the ratio $k_p(1)/k_p$ and $(i_{1/2}+1)$ is the
@@ -197,7 +198,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
         Ratio of the propagation coefficients of a monomeric radical and a
         long-chain radical, $C$.
     ihalf : float
-        Half-length, $i_{i/2}$.
+        Half-length, $i_{1/2}$.
     name : str
         Name.
     """

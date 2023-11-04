@@ -37,9 +37,9 @@ class InstantaneousCopoData():
     Parameters
     ----------
     M1 : str
-        Name of monomer 1.
+        Name of M1.
     M2 : str
-        Name of monomer 2.
+        Name of M2.
     f1 : FloatVectorLike
         Vector of monomer molar composition, $f_1$.
     F1 : FloatVectorLike
@@ -160,13 +160,13 @@ class TerminalCopoModel(CopoModel):
     Parameters
     ----------
     r1 : float
-        Reactivity ratio of monomer 1.
+        Reactivity ratio of M1.
     r2 : float
-        Reactivity ratio of monomer 2.
+        Reactivity ratio of M2.
     M1 : str
-        Name of monomer 1.
+        Name of M1.
     M2 : str
-        Name of monomer 2.
+        Name of M2.
     name : str
         Name.
     """
@@ -230,7 +230,7 @@ class TerminalCopoModel(CopoModel):
         -------
         float | None
             If an azeotrope exists, it returns its composition in terms of the
-            molar fraction of monomer 1.
+            molar fraction of M1.
         """
         r1 = self.r1
         r2 = self.r2
@@ -251,13 +251,13 @@ class TerminalCopoModel(CopoModel):
         $$ F_1=\frac{r_1 f_1^2 + f_1 f_2}{r_1 f_1^2 + 2 f_1 f_2 + r_2 f_2^2} $$
 
         where $F_1$ and $f_1$ are, respectively, the instantaneous copolymer
-        and comonomer composition of monomer 1, and $r_1$ and $r_2$ are the
+        and comonomer composition of M1, and $r_1$ and $r_2$ are the
         reactivity ratios.
 
         Parameters
         ----------
         f1 : FloatOrArrayLike
-            Molar fraction of monomer 1.
+            Molar fraction of M1.
 
         Returns
         -------
@@ -283,17 +283,17 @@ class TerminalCopoModel(CopoModel):
         $$ F_1=\frac{r_1 f_1^2 + f_1 f_2}{r_1 f_1^2 + 2 f_1 f_2 + r_2 f_2^2} $$
 
         where $F_1$ and $f_1$ are, respectively, the instantaneous copolymer
-        and comonomer composition of monomer 1, and $r_1$ and $r_2$ are the
+        and comonomer composition of M1, and $r_1$ and $r_2$ are the
         reactivity ratios (usually assumed composition independent).
 
         Parameters
         ----------
         f1 : FloatOrArray
-            Molar fraction of monomer 1.
+            Molar fraction of M1.
         r1 : float
-            Reactivity ratio of monomer 1.
+            Reactivity ratio of M1.
         r2 : float
-            Reactivity ratio of monomer 2.
+            Reactivity ratio of M2.
 
         Returns
         -------
@@ -313,23 +313,26 @@ class TerminalCopoModel(CopoModel):
         In a closed binary system, the drift in monomer composition is given by
         the solution of the following differential equation:
 
-        $$ \frac{\textup{d} f_1}{\textup{d}x}=\frac{f_1 - F_1}{1-x} $$
+        $$
+        \frac{\textup{d} f_1}{\textup{d}x} =
+        \frac{f_1 - F_1(f_1, r_1, r_2)}{1 - x}
+        $$
 
         with initial condition $f_1(0)=f_{1,0}$, where $f_1$ and $F_1$ are,
         respectively, the instantaneous comonomer and copolymer composition of
-        monomer 1, and $x$ is the total molar monomer conversion.
+        M1, and $x$ is the total molar monomer conversion.
 
         Parameters
         ----------
         f10 : FloatOrVectorLike
-            Initial molar fraction of monomer 1, $f_{1,0}=f_1(0)$.
+            Initial molar fraction of M1, $f_{1,0}=f_1(0)$.
         x : FloatOrVectorLike
             Total molar monomer conversion.
 
         Returns
         -------
         FloatVector
-            Monomer fraction of monomer 1 at a given conversion, $f_1(x)$.
+            Monomer fraction of M1 at a given conversion, $f_1(x)$.
         """
         if isinstance(f10, (int, float)):
             f10 = [f10]
@@ -371,7 +374,7 @@ class TerminalCopoModel(CopoModel):
         M : Literal[1, 2]
             Index of the monomer to be used in input argument `f0` and in
             output results. Specifically, if `M=i`, then `f0` stands for
-            $f_{0,i}$ and plots will be generated in terms of $f_i$ and $F_i$.
+            $f_{i,0}$ and plots will be generated in terms of $f_i$ and $F_i$.
         f0 : FloatOrVectorLike | None
             Initial monomer composition. If `None`, a plot of $F_i(f_i)$ will
             be generated. If values are given, a plot of monomer composition

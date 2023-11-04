@@ -28,8 +28,9 @@ class VrentasDudaBinary():
     The solvent self-diffusion coefficient is given by
     [Vrentas & Duda (1977)](https://doi.org/10.1002/pol.1977.180150302):
 
-    $$ D_1 = D_0 e^{\left(-\frac{E}{RT}\right)} \\
-        \exp\left[-\frac{\gamma (w_1\hat{V}_1^* + w_2 \xi \hat{V}_2^*)}{w_1 K_{11}(K_{21}-T_{g1}+T) + w_2 K_{12}(K_{22}-T_{g2}+T)}\right] $$
+    $$ D_1 = D_0 e^{\left(-\frac{E}{RT}\right)}
+       \exp\left[-\frac{\gamma (w_1\hat{V}_1^* + w_2 \xi \hat{V}_2^*)}
+       {w_1 K_{11}(K_{21}-T_{g1}+T) + w_2 K_{12}(K_{22}-T_{g2}+T)}\right] $$
 
     and the mutual diffusion coefficient is given by:
 

@@ -20,9 +20,10 @@ class Tait(PolymerPVTEquation):
 
     with:
 
-    $$ \hat{V}(T,0) = A_0 + A_1(T - 273.15) + A_2(T - 273.15)^2 $$
-
-    $$ B(T) = B_0\exp\left [-B_1(T - 273.15)\right] $$
+    $$ \begin{gather*}
+    \hat{V}(T,0) = A_0 + A_1(T - 273.15) + A_2(T - 273.15)^2 \\
+    B(T) = B_0\exp\left [-B_1(T - 273.15)\right]
+    \end{gather*} $$
 
     where $A_i$ and $B_i$ are constant parameters, $T$ is the absolute
     temperature, and $P$ is the pressure.

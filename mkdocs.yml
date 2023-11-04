@@ -20,7 +20,7 @@ theme:
   features:
     - search.highlight
     - search.suggest
-    - navigation.instant
+    # - navigation.instant
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.indexes
@@ -120,20 +120,20 @@ markdown_extensions:
       permalink: "¤"
 
 # MathJax
-extra_javascript:
-  - javascripts/mathjax.js
-  - https://polyfill.io/v3/polyfill.min.js?features=es6
-  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+# extra_javascript:
+#   - javascripts/mathjax.js
+#   - https://polyfill.io/v3/polyfill.min.js?features=es6
+#   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
 # KaTeX
-# extra_javascript:
-#   - javascripts/katex.js
-#   - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
-#   - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
+extra_javascript:
+  - javascripts/katex.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
 
 extra_css:
   - css/mkdocstrings.css
-#  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
+  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
 
 # Customization
 extra:
@@ -200,4 +200,9 @@ nav:
               - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
               - Tait: reference/properties/pvt_polymer/Tait.md
           - Vapor Pressure: reference/properties/vapor_pressure.md
+          - Vaporization Enthalpy:
+              #- reference/properties/vaporization_enthalpy/index.md
+              - hvap_pitzer: reference/properties/vaporization_enthalpy/hvap_pitzer.md
+              - hvapb_vetere: reference/properties/vaporization_enthalpy/hvapb_vetere.md
+              - hvap_watson: reference/properties/vaporization_enthalpy/hvap_watson.md
           #- Activity Coefficient Models: reference/properties/acm.md

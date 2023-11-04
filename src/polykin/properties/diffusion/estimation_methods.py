@@ -22,11 +22,11 @@ def wilke_chang(T: float,
                 viscB: float,
                 phi: float = 1.0
                 ) -> float:
-    r"""Wilke-Chang estimation method for the infinite-dilution coefficient of
-    a solute A in a liquid solvent B, $D^0_{AB}$.
+    r"""Estimate the infinite-dilution coefficient of a solute A in a liquid
+    solvent B, $D^0_{AB}$, using the Wilke-Chang method.
 
     $$
-    D^0_{AB} = 5.9\times 10^{-17} \\
+    D^0_{AB} = 5.9\times 10^{-17}
         \frac{(\phi M_B)^{1/2} T}{\eta_B (M_A/\rho_A)^{0.6}}
     $$
 
@@ -71,8 +71,8 @@ def hayduk_minhas(T: float,
                   rhoA: float,
                   viscB: float,
                   ) -> float:
-    r"""Hayduk-Minhas estimation method for the infinite-dilution coefficient
-    of a solute A in a liquid solvent B, $D^0_{AB}$.
+    r"""Estimate the infinite-dilution coefficient of a solute A in a liquid
+    solvent B, $D^0_{AB}$, using the Hayduk-Minhas method.
 
     Reference:
 
@@ -121,8 +121,8 @@ def wilke_lee(T: float,
               TA: float,
               TB: Optional[float]
               ) -> float:
-    r"""Wilke-Lee estimation method for the mutual diffusion coefficient of a
-    binary gas mixture, $D_{AB}$.
+    r"""Estimate the mutual diffusion coefficient of a binary gas mixture,
+    $D_{AB}$, using the Wilke-Lee method.
 
     !!! note
         If air is one of the components of the mixture, arguments `TB` and

@@ -30,8 +30,10 @@ class Arrhenius(KineticCoefficientT):
 
     This class implements the following temperature dependence:
 
-    $$ k(T)=k_0\exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0} \\
-        \right)\right] $$
+    $$
+    k(T)=k_0
+    \exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0}\right)\right]
+    $$
 
     where $T_0$ is a convenient reference temperature, $E_a$ is the activation
     energy, and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
@@ -268,9 +270,11 @@ class Eyring(KineticCoefficientT):
 
     This class implements the following temperature dependence:
 
-    $$ k(T)=\dfrac{\kappa k_B T}{h} \\
-        \exp\left(\frac{\Delta S^\ddagger}{R}\right) \\
-        \exp\left(-\frac{\Delta H^\ddagger}{R T}\right)$$
+    $$
+    k(T) = \dfrac{\kappa k_B T}{h}
+           \exp\left(\frac{\Delta S^\ddagger}{R}\right)
+           \exp\left(-\frac{\Delta H^\ddagger}{R T}\right)
+    $$
 
     where $\kappa$ is the transmission coefficient, $\Delta S^\ddagger$ is
     the entropy of activation, and $\Delta H^\ddagger$ is the enthalpy of

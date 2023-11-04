@@ -464,7 +464,7 @@ class DIPPR107(DIPPRP5):
 
     This equation implements the following temperature dependence:
 
-    $$ Y=A+B\left[{\frac {C/T}{\sinh \left(C/T\right)}}\right]^2 + \\
+    $$ Y = A + B\left[{\frac {C/T}{\sinh \left(C/T\right)}}\right]^2 +
         D\left[{\frac {E/T}{\cosh \left(E/T\right)}}\right]^2 $$
 
     where $A$ to $E$ are component-specific constants and $T$ is the absolute

@@ -133,11 +133,16 @@ class Distribution(ABC):
             ) -> FloatOrArray:
         r"""Evaluate the cumulative distribution function:
 
-        $$ F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\lambda_m} $$
+        $$
+        F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\sum_{k=1}^{\infty}k^m\,p(k)}
+        $$
 
         or
 
-        $$ F(s) = \frac{\int_{0}^{s}x^m\,p(x)\mathrm{d}x}{\lambda_m} $$
+        $$
+        F(s) = \frac{\int_{0}^{s}x^m\,p(x)\mathrm{d}x}
+               {\int_{0}^{\infty}x^m\,p(x)\mathrm{d}x}
+        $$
 
         where $m$ is the order (0: number, 1: mass).
 

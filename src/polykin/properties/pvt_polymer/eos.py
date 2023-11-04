@@ -169,7 +169,7 @@ class Flory(PolymerPVTEoS):
 
     This EoS implements the following implicit PVT dependence:
 
-    $$ \frac{\tilde{P}\tilde{V}}{\tilde{T}} = \\
+    $$ \frac{\tilde{P}\tilde{V}}{\tilde{T}} =
       \frac{\tilde{V}^{1/3}}{\tilde{V}^{1/3}-1}-\frac{1}{\tilde{V}\tilde{T}}$$
 
     where $\tilde{V}=V/V^*$, $\tilde{P}=P/P^*$ and $\tilde{T}=T/T^*$ are,
@@ -303,8 +303,8 @@ class SanchezLacombe(PolymerPVTEoS):
 
     This EoS implements the following implicit PVT dependence:
 
-    $$ \frac{1}{\tilde{V}^2} + \tilde{P} + \\
-        \tilde{T}\left [ \ln\left ( 1-\frac{1}{\tilde{V}} \right ) + \\
+    $$ \frac{1}{\tilde{V}^2} + \tilde{P} +
+        \tilde{T}\left [ \ln\left ( 1-\frac{1}{\tilde{V}} \right ) +
         \frac{1}{\tilde{V}} \right ]=0 $$
 
     where $\tilde{V}=V/V^*$, $\tilde{P}=P/P^*$ and $\tilde{T}=T/T^*$ are,
