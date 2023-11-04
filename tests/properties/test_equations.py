@@ -4,7 +4,9 @@
 
 from polykin.properties.dippr import \
     DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106, DIPPR107
-from polykin.properties import Antoine, Wagner
+from polykin.properties.vapor_pressure import Antoine, Wagner
+from polykin.properties.vaporization_enthalpy import \
+    hvap_pitzer, hvapb_vetere, hvap_watson, hvapb_kistiakowsky_vetere
 from polykin import plotequations
 
 import pytest
@@ -110,3 +112,42 @@ def test_plotequations(Pvap_water):
     for kind in ['linear', 'semilogy', 'Arrhenius']:
         fig = plotequations([Pvap_water], kind=kind)
     assert fig is not None
+
+# %% Hvap equations
+
+
+def test_hvap_pitzer():
+    "Propionaldehyde. Example 7-6, page 220."
+    hvap = hvap_pitzer(T=321., Tc=496., w=0.313)
+    assert np.isclose(hvap, 28981, rtol=1e-4)
+
+
+def test_hvapb_vetere():
+    "Propionaldehyde. Example 7-8, page 227."
+    hvap = hvapb_vetere(Tb=321., Tc=496., Pc=47.6e5)
+    assert np.isclose(hvap, 29144, rtol=1e-3)
+
+
+def test_hvap_watson():
+    "Hvap water."
+    hvap = hvap_watson(hvap1=2256, T1=373., T2=273., Tc=647.,)
+    assert np.isclose(hvap, 2500., rtol=5e-2)
+
+
+def test_hvapb_kistiakowsky_vetere():
+    "Several examples. data from Reid-Prausnitz-Poling and NIST."
+    # Propionaldehyde. Example 7-9, page 231.
+    hvap = hvapb_kistiakowsky_vetere(Tb=321., M=58.08e-3, kind='polar')
+    assert np.isclose(hvap, 28710, rtol=1e-3)
+    # ethanol
+    hvap = hvapb_kistiakowsky_vetere(Tb=351.5, M=46.1e-3, kind='acid_alcohol')
+    assert np.isclose(hvap, 42300, rtol=10e-2)
+    # pentane
+    hvap = hvapb_kistiakowsky_vetere(Tb=309.2, M=72.1e-3, kind='hydrocarbon')
+    assert np.isclose(hvap, 26500, rtol=3e-2)
+    # methyl acetate
+    hvap = hvapb_kistiakowsky_vetere(Tb=330.0, M=74.1-3, kind='ester')
+    assert np.isclose(hvap, 30300, rtol=10e-2)
+    # pentane
+    hvap = hvapb_kistiakowsky_vetere(Tb=309.2, M=72.1e-3, kind='any')
+    assert np.isclose(hvap, 26500, rtol=10e-2)
