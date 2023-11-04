@@ -40,7 +40,6 @@ class PropertyEquationT(PropertyEquation):
     _pnames: tuple[tuple[str, ...], tuple[str, ...]]
     _punits: tuple[str, ...]
     Trange: tuple[FloatOrArray, FloatOrArray]
-    _shape: Optional[tuple]
 
     def __init__(self,
                  Trange: tuple[FloatOrArray, FloatOrArray],
@@ -54,7 +53,6 @@ class PropertyEquationT(PropertyEquation):
         check_bounds(Trange[1], 0, np.inf, 'Tmax')
         check_bounds(Trange[1]-Trange[0], eps, np.inf, 'Tmax-Tmin')
         self.Trange = Trange
-        self._shape = None
         super().__init__(unit, symbol, name)
 
     def __call__(self,
