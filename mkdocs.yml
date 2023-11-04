@@ -205,4 +205,5 @@ nav:
               - hvap_pitzer: reference/properties/vaporization_enthalpy/hvap_pitzer.md
               - hvapb_vetere: reference/properties/vaporization_enthalpy/hvapb_vetere.md
               - hvap_watson: reference/properties/vaporization_enthalpy/hvap_watson.md
+              - hvapb_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/hvapb_kistiakowsky_vetere.md
           #- Activity Coefficient Models: reference/properties/acm.md
