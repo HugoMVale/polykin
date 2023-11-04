@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "polykin"
-version = "0.3.0"
+version = "0.3.1"
 description = "A polymerization kinetics library."
 authors = ["HugoMVale <57530119+HugoMVale@users.noreply.github.com>"]
 license = "MIT"
@@ -23,12 +23,12 @@ classifiers = [
 python = ">=3.9,<3.13"
 mpmath = "^1.2.1"
 pydantic = "^1.10.5"
-numpy = "^1.24.2"
+numpy = "^1.23.5"
 scipy = "^1.10.1"
 matplotlib = "^3.7.1"
 nptyping = "^2.5.0"
-pandas = "^2.1.1"
-sqlalchemy = "^2.0.22"
+pandas = ">=1.5.3"
+# sqlalchemy = "^2.0.22"
 
 [tool.poetry.group.dev]
 optional = true

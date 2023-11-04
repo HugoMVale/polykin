@@ -21,4 +21,4 @@ Using any of these subpackages requires an explicit import. For example,
 """
 from polykin.properties.base import plotequations
 
-__version__ = "0.2.0"
+__version__ = "0.3.1"
