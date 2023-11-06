@@ -2,8 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.utils import vectorize, check_subclass, check_bounds, \
-    FloatVectorLike
+from polykin.types import FloatVectorLike
+from polykin.utils import vectorize, check_subclass, check_bounds
 from .analyticaldistributions import Flory, Poisson, LogNormal, SchulzZimm
 from .base import Kind, IndividualDistribution, MixtureDistribution, \
     AnalyticalDistribution, AnalyticalDistributionP2

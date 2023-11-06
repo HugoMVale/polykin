@@ -2,19 +2,19 @@
 #
 # Copyright Hugo Vale 2023
 
+from polykin.types import FloatOrArrayLike, FloatOrArray, FloatRangeArray, \
+    IntOrArray
 from polykin.utils import check_bounds, check_type, check_in_set, \
-    check_valid_range, custom_error, add_dicts, vectorize, \
-    FloatOrArrayLike, FloatOrArray, IntOrArray, FloatRangeArray
+    check_valid_range, custom_error, add_dicts, vectorize
 
 from math import log10
 import numpy as np
-from numpy import ndarray
 import mpmath
 from scipy import integrate
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
-from typing import Literal, Union
+from typing import Literal, Union, Optional
 from abc import ABC, abstractmethod
 import functools
 
@@ -775,7 +775,7 @@ class MixtureDistribution(Distribution):
         return result
 
     @property
-    def _molefrac(self) -> ndarray:
+    def _molefrac(self) -> np.ndarray:
         """Mole fraction of each individual distribution."""
         xn = np.empty(len(self.components))
         for i, (d, w) in enumerate(self.__iter__().items()):
@@ -827,7 +827,7 @@ class MixtureDistribution(Distribution):
 
 def plotdists(dists: list[Distribution],
               kind: Kind,
-              title: Union[str, None] = None,
+              title: Optional[str] = None,
               **kwargs
               ) -> Figure:
     """Plot a list of distributions in a joint plot.

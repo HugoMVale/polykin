@@ -4,7 +4,7 @@
 
 """This modules implements the most commonly used DIPPR equations."""
 
-from polykin.utils import FloatOrArray
+from polykin.types import FloatOrArray
 from .base import PropertyEquationT
 
 import numpy as np

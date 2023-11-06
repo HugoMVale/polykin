@@ -4,9 +4,9 @@
 
 from __future__ import annotations
 
+from polykin.types import FloatOrArray, FloatOrArrayLike
 from polykin.utils import check_bounds, convert_check_temperature, \
-    convert_check_pressure, \
-    FloatOrArray, FloatOrArrayLike, eps
+    convert_check_pressure, eps
 from ..base import PropertyEquation
 
 import numpy as np

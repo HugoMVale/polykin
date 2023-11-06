@@ -2,9 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
+from polykin.types import FloatOrArray, FloatOrArrayLike
 from polykin.utils import check_bounds, check_in_set, check_valid_range, \
-    convert_check_temperature, \
-    FloatOrArray, FloatOrArrayLike
+    convert_check_temperature
 
 import numpy as np
 import matplotlib.pyplot as plt

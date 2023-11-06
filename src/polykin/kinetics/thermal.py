@@ -2,8 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
+from polykin.types import FloatOrArray, FloatOrArrayLike
 from polykin.utils import check_shapes, check_bounds, convert_list_to_array, \
-    FloatOrArray, FloatOrArrayLike, ShapeError
+    ShapeError
 from polykin.properties.base import PropertyEquationT
 
 import numpy as np

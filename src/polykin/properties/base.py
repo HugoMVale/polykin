@@ -2,9 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
+from polykin.types import FloatOrArray, FloatOrArrayLike, FloatVector
 from polykin.utils import check_in_set, check_valid_range, check_bounds, \
-    convert_check_temperature, eps, \
-    FloatOrArray, FloatOrArrayLike, FloatVector
+    convert_check_temperature, eps
 
 import numpy as np
 from scipy.optimize import curve_fit

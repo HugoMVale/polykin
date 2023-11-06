@@ -6,7 +6,7 @@
 of pure components.
 """
 
-from polykin.utils import FloatOrArray
+from polykin.types import FloatOrArray
 
 import numpy as np
 from scipy.constants import R

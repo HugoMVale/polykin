@@ -2,9 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
+from polykin.types import FloatOrArray, FloatOrArrayLike, \
+    IntOrArrayLike, IntOrArray
 from polykin.utils import check_type, check_bounds, \
-    convert_check_temperature, \
-    FloatOrArray, FloatOrArrayLike, IntOrArrayLike, IntOrArray
+    convert_check_temperature
 from .thermal import Arrhenius, Eyring
 
 import numpy as np

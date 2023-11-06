@@ -2,7 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.utils import check_bounds, FloatOrArray
+from polykin.types import FloatOrArray
+from polykin.utils import check_bounds
 from .base import PolymerPVTEquation
 
 import numpy as np

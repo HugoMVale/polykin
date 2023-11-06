@@ -2,9 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.utils import FloatVector, FloatVectorLike, FloatOrVectorLike, \
-    FloatOrArray, FloatOrArrayLike, \
-    ShapeError, eps
+from polykin.types import FloatVector, FloatVectorLike, FloatOrVectorLike, \
+    FloatOrArray, FloatOrArrayLike
+from polykin.utils import ShapeError, eps
 from polykin import utils
 
 from dataclasses import dataclass
