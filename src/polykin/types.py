@@ -6,7 +6,6 @@
 from typing import Union, Any
 from nptyping import NDArray, Shape, Int32, Float64
 
-
 IntArray = NDArray[Any, Int32]
 IntArrayLike = Union[list[int], IntArray]
 IntOrArray = Union[int, IntArray]
