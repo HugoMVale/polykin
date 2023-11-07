@@ -207,3 +207,4 @@ nav:
               - hvap_watson: reference/properties/vaporization_enthalpy/hvap_watson.md
               - hvapb_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/hvapb_kistiakowsky_vetere.md
           #- Activity Coefficient Models: reference/properties/acm.md
+          - polykin.types: reference/types.md
