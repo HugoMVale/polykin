@@ -12,8 +12,11 @@ import numpy as np
 from scipy.constants import R
 from typing import Optional, Literal
 
-__all__ = ['hvap_pitzer', 'hvapb_vetere', 'hvap_watson',
-           'hvapb_kistiakowsky_vetere']
+__all__ = ['hvap_pitzer',
+           'hvapb_vetere',
+           'hvap_watson',
+           'hvapb_kistiakowsky_vetere'
+           ]
 
 
 def hvap_pitzer(T: FloatOrArray,
@@ -31,6 +34,11 @@ def hvap_pitzer(T: FloatOrArray,
     temperature, and $\omega$ is the acentric factor. The equation is valid in
     the range $0.6<T_r<1$.
 
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
+
     Parameters
     ----------
     T : FloatOrArray
@@ -39,11 +47,6 @@ def hvap_pitzer(T: FloatOrArray,
         Critical temperature. Unit = K.
     w : float
         Acentric factor.
-
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
 
     Returns
     -------
@@ -71,6 +74,11 @@ def hvapb_vetere(Tb: float,
     $T_b$ is the normal boiling temperature, and $T_{br}=T_b/T_c$ is the
     reduced normal boiling temperature.
 
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
+
     Parameters
     ----------
     Tb : float
@@ -79,11 +87,6 @@ def hvapb_vetere(Tb: float,
         Critical temperature. Unit = K.
     Pc : float
         Critical pressure. Unit = Pa.
-
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
 
     Returns
     -------
@@ -108,6 +111,11 @@ def hvap_watson(hvap1: float,
 
     where $T_{r,i}=T_i/T_c$.
 
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
+
     Parameters
     ----------
     hvap1 : float
@@ -119,11 +127,6 @@ def hvap_watson(hvap1: float,
         Unit = K.
     Tc : float
         Critical temperature. Unit = K.
-
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
 
     Returns
     -------
@@ -148,6 +151,11 @@ def hvapb_kistiakowsky_vetere(
     and $\Delta S_{vb}(...)$ is the entropy of vaporization, given by one of
     five empirical correlations depending on the kind of compound (see
     Parameter description).
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 657. 1986.
 
     Parameters
     ----------

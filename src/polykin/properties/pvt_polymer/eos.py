@@ -11,7 +11,10 @@ from abc import abstractmethod
 from scipy.optimize import root_scalar
 
 
-__all__ = ['Flory', 'HartmannHaque', 'SanchezLacombe']
+__all__ = ['Flory',
+           'HartmannHaque',
+           'SanchezLacombe'
+           ]
 
 # %% PolymerPVTEoS
 

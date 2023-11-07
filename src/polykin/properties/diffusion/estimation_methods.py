@@ -10,7 +10,10 @@ import numpy as np
 from typing import Literal, Optional
 from math import sqrt
 
-__all__ = ['wilke_chang', 'hayduk_minhas', 'wilke_lee']
+__all__ = ['wilke_chang',
+           'hayduk_minhas',
+           'wilke_lee'
+           ]
 
 # %% Liquid phase: infinite-dilution
 
