@@ -2,9 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.dippr import \
+from polykin.properties.equations.dippr import \
     DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106, DIPPR107
-from polykin.properties.vapor_pressure import Antoine, Wagner
+from polykin.properties.equations.vapor_pressure import Antoine, Wagner
 from polykin import plotequations
 
 import pytest

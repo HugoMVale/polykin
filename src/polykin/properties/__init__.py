@@ -8,6 +8,5 @@ estimate physical properties often used in polymer reactor models.
 """
 
 from .diffusion import *
-from .dippr import *
+from .equations import *
 from .pvt_polymer import *
-from .vapor_pressure import *

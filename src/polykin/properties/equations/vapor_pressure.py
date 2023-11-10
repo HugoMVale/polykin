@@ -2,8 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-""" This module provides correlations to evaluate the vapor pressure of pure
-components.
+""" This module implements commonly used equations to evaluate the vapor
+pressure of pure components.
 """
 
 from polykin.types import FloatOrArray
