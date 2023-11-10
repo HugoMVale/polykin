@@ -7,7 +7,7 @@
 
 ## Examples
 
-Estimate the vaporization enthalpy of butdiene at the normal boiling temperature.
+Estimate the vaporization enthalpy of butadiene at the normal boiling temperature.
 
 ```python exec="on" source="console"
 from polykin.properties.vaporization_enthalpy import DHVL_kistiakowsky_vetere

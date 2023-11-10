@@ -201,9 +201,12 @@ nav:
               - Tait: reference/properties/pvt_polymer/Tait.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
+              - DHVL_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/DHVL_kistiakowsky_vetere.md
               - DHVL_pitzer: reference/properties/vaporization_enthalpy/DHVL_pitzer.md
               - DHVL_vetere: reference/properties/vaporization_enthalpy/DHVL_vetere.md
               - DHVL_watson: reference/properties/vaporization_enthalpy/DHVL_watson.md
-              - DHVL_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/DHVL_kistiakowsky_vetere.md
+          - Viscosity:
+              - MUV_lucas: reference/properties/viscosity/MUV_lucas.md
+              - MUVMX_lucas: reference/properties/viscosity/MUVMX_lucas.md
           #- Activity Coefficient Models: reference/properties/acm.md
       - polykin.types: reference/types.md

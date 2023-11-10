@@ -33,8 +33,9 @@ class Antoine(PropertyEquationT):
 
     !!! hint
         The Antoine equation is limited in terms of temperature range. Wider
-        ranges can be achieved with [DIPPR101](dippr.md) or
-        [Wagner](vapor_pressure.md/#polykin.properties.vapor_pressure.Wagner).
+        ranges can be achieved with
+        [DIPPR101](./#polykin.properties.equations.dippr.DIPPR101) or
+        [Wagner](./#polykin.properties.equations.vapor_pressure.Wagner).
 
     Parameters
     ----------

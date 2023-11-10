@@ -37,7 +37,7 @@ def DHVL_pitzer(T: FloatOrArray,
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 220.
 
     Parameters
     ----------
@@ -77,7 +77,7 @@ def DHVL_vetere(Tb: float,
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 227.
 
     Parameters
     ----------
@@ -114,7 +114,7 @@ def DHVL_watson(hvap1: float,
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 228.
 
     Parameters
     ----------
@@ -155,7 +155,7 @@ def DHVL_kistiakowsky_vetere(
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 231.
 
     Parameters
     ----------
