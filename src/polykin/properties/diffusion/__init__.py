@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 """
-This module provides methods to calculate mutual and self-diffusion
+This module implements methods to calculate mutual and self-diffusion
 coefficients in binary liquid and gas mixtures.
 """
 

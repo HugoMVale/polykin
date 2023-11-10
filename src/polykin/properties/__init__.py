@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 """
-This module provides means to evaluate physical property equations and
+This module implements methods to evaluate physical property equations and
 estimate physical properties often used in polymer reactor models.
 """
 

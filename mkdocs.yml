@@ -186,20 +186,19 @@ nav:
           - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
       - polykin.properties:
           - reference/properties/index.md
+          - Equations: reference/properties/equations/index.md
           - Diffusion:
               - reference/properties/diffusion/index.md
               - VrentasDudaBinary: reference/properties/diffusion/VrentasDudaBinary.md
               - DL_hayduk_minhas: reference/properties/diffusion/DL_hayduk_minhas.md
               - DL_wilke_chang: reference/properties/diffusion/DL_wilke_chang.md
               - DV_wilke_lee: reference/properties/diffusion/DV_wilke_lee.md
-          - DIPPR: reference/properties/dippr.md
           - PVT Polymer:
               - reference/properties/pvt_polymer/index.md
               - Flory: reference/properties/pvt_polymer/Flory.md
               - HartmannHaque: reference/properties/pvt_polymer/HartmannHaque.md
               - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
               - Tait: reference/properties/pvt_polymer/Tait.md
-          - Vapor Pressure: reference/properties/vapor_pressure.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
               - DHVL_pitzer: reference/properties/vaporization_enthalpy/DHVL_pitzer.md

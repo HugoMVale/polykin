@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-"""This modules implements the most commonly used DIPPR equations."""
+# This modules implements the most commonly used DIPPR equations.
 
 from polykin.types import FloatOrArray
 from .base import PropertyEquationT

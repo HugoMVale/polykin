@@ -14,9 +14,8 @@ Using any of these subpackages requires an explicit import. For example,
 
 * copolymerization = copolymerization models
 * distributions    = chain-length distributions
-* diffusion        = diffusion models
 * kinetics         = kinetic coefficients
-* physprops        = physical property equations
+* properties       = physical property methods and models
 
 """
 from polykin.properties.equations import plotequations
