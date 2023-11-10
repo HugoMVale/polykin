@@ -10,21 +10,21 @@ import numpy as np
 from typing import Literal, Optional
 from math import sqrt
 
-__all__ = ['wilke_chang',
-           'hayduk_minhas',
-           'wilke_lee'
+__all__ = ['DL_wilke_chang',
+           'DL_hayduk_minhas',
+           'DV_wilke_lee'
            ]
 
 # %% Liquid phase: infinite-dilution
 
 
-def wilke_chang(T: float,
-                MA: float,
-                MB: float,
-                rhoA: float,
-                viscB: float,
-                phi: float = 1.0
-                ) -> float:
+def DL_wilke_chang(T: float,
+                   MA: float,
+                   MB: float,
+                   rhoA: float,
+                   viscB: float,
+                   phi: float = 1.0
+                   ) -> float:
     r"""Estimate the infinite-dilution coefficient of a solute A in a liquid
     solvent B, $D^0_{AB}$, using the Wilke-Chang method.
 
@@ -33,14 +33,14 @@ def wilke_chang(T: float,
         \frac{(\phi M_B)^{1/2} T}{\eta_B (M_A/\rho_A)^{0.6}}
     $$
 
-    where the meaning of all symbol is as described below in the parameters
+    where the meaning of all symbols is as described below in the parameters
     section. The numerical factor has been adjusted to convert the equation to
     SI units.
 
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 598.
 
     Parameters
     ----------
@@ -68,19 +68,19 @@ def wilke_chang(T: float,
     return 7.4e-12*sqrt(phi*MB*1e3)*T/((viscB*1e3)*(1e6*MA/rhoA)**0.6)
 
 
-def hayduk_minhas(T: float,
-                  method: Literal['paraffin', 'aqueous'],
-                  MA: float,
-                  rhoA: float,
-                  viscB: float,
-                  ) -> float:
+def DL_hayduk_minhas(T: float,
+                     method: Literal['paraffin', 'aqueous'],
+                     MA: float,
+                     rhoA: float,
+                     viscB: float,
+                     ) -> float:
     r"""Estimate the infinite-dilution coefficient of a solute A in a liquid
     solvent B, $D^0_{AB}$, using the Hayduk-Minhas method.
 
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 602.
 
     Parameters
     ----------
@@ -115,15 +115,15 @@ def hayduk_minhas(T: float,
 # %% Gas-phase: binary diffusion coefficient
 
 
-def wilke_lee(T: float,
-              P: float,
-              MA: float,
-              MB: float,
-              rhoA: float,
-              rhoB: Optional[float],
-              TA: float,
-              TB: Optional[float]
-              ) -> float:
+def DV_wilke_lee(T: float,
+                 P: float,
+                 MA: float,
+                 MB: float,
+                 rhoA: float,
+                 rhoB: Optional[float],
+                 TA: float,
+                 TB: Optional[float]
+                 ) -> float:
     r"""Estimate the mutual diffusion coefficient of a binary gas mixture,
     $D_{AB}$, using the Wilke-Lee method.
 
@@ -134,7 +134,7 @@ def wilke_lee(T: float,
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 587.
 
     Parameters
     ----------
@@ -194,6 +194,5 @@ def wilke_lee(T: float,
     H = 3.89411
     omegaD = A/Ts**B + C/np.exp(D*Ts) + E/np.exp(F*Ts) + G/np.exp(H*Ts)
 
-    DAB = 1e-7*(3.03 - 0.98/sqrt(MAB))*T**1.5 / \
-        ((P*1e-5)*sqrt(MAB)*sAB**2*omegaD)
+    DAB = 1e-2*(3.03 - 0.98/sqrt(MAB))*T**1.5 / (P*sqrt(MAB)*sAB**2*omegaD)
     return DAB

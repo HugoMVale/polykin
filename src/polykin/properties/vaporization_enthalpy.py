@@ -12,14 +12,14 @@ import numpy as np
 from scipy.constants import R
 from typing import Optional, Literal
 
-__all__ = ['hvap_pitzer',
-           'hvapb_vetere',
-           'hvap_watson',
-           'hvapb_kistiakowsky_vetere'
+__all__ = ['DHVL_pitzer',
+           'DHVL_vetere',
+           'DHVL_watson',
+           'DHVL_kistiakowsky_vetere'
            ]
 
 
-def hvap_pitzer(T: FloatOrArray,
+def DHVL_pitzer(T: FloatOrArray,
                 Tc: float,
                 w: float
                 ) -> FloatOrArray:
@@ -57,10 +57,10 @@ def hvap_pitzer(T: FloatOrArray,
     return R*Tc*(7.08*(1 - Tr)**0.354 + 10.95*w*(1 - Tr)**0.456)
 
 
-def hvapb_vetere(Tb: float,
-                 Tc: float,
-                 Pc: float,
-                 ) -> float:
+def DHVL_vetere(Tb: float,
+                Tc: float,
+                Pc: float,
+                ) -> float:
     r"""Estimate the enthalpy of vaporization of a pure compound at the normal
     boiling point, $\Delta H_{vb}$, using the Vetere method.
 
@@ -98,7 +98,7 @@ def hvapb_vetere(Tb: float,
         / (0.37691 - 0.37306*Tbr + 0.15075/(Pc/1e5)/Tbr**2)
 
 
-def hvap_watson(hvap1: float,
+def DHVL_watson(hvap1: float,
                 T1: float,
                 T2: float,
                 Tc: float
@@ -136,7 +136,7 @@ def hvap_watson(hvap1: float,
     return hvap1*((1 - T2/Tc)/(1 - T1/Tc))**0.38
 
 
-def hvapb_kistiakowsky_vetere(
+def DHVL_kistiakowsky_vetere(
         Tb: float,
         M: Optional[float] = None,
         kind: Literal['any', 'acid_alcohol', 'ester',

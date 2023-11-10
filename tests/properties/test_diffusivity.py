@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.properties.diffusion import VrentasDudaBinary, \
-    wilke_chang, hayduk_minhas, wilke_lee
+    DL_wilke_chang, DL_hayduk_minhas, DV_wilke_lee
 
 import numpy as np
 import pytest
@@ -67,96 +67,96 @@ def test_plot(vrentas_instance):
 
 def test_wilke_chang():
     "Ethylbenze in water. Example 11.5, page 599 of Reid et al."
-    result = wilke_chang(T=293.,
-                         MA=106.17e-3,
-                         MB=18.0e-3,
-                         rhoA=761.,
-                         viscB=1e-3,
-                         phi=2.6
-                         )
+    result = DL_wilke_chang(T=293.,
+                            MA=106.17e-3,
+                            MB=18.0e-3,
+                            rhoA=761.,
+                            viscB=1e-3,
+                            phi=2.6
+                            )
     assert (np.isclose(result, 0.77e-9, atol=0, rtol=1e-2))
 
 
 def test_hayduk_minhas_1():
     "Hexane in hexane."
-    result = hayduk_minhas(T=298.15,
-                           method='paraffin',
-                           MA=86.2e-3,
-                           rhoA=613.,
-                           viscB=0.298e-3,
-                           )
+    result = DL_hayduk_minhas(T=298.15,
+                              method='paraffin',
+                              MA=86.2e-3,
+                              rhoA=613.,
+                              viscB=0.298e-3,
+                              )
     assert (np.isclose(result, 4.2e-9, atol=0, rtol=3e-2))
 
 
 def test_hayduk_minhas_2():
     "Ethylbenze in water"
-    result = hayduk_minhas(T=293.,
-                           method='aqueous',
-                           MA=106.17e-3,
-                           rhoA=761.,
-                           viscB=1e-3,
-                           )
+    result = DL_hayduk_minhas(T=293.,
+                              method='aqueous',
+                              MA=106.17e-3,
+                              rhoA=761.,
+                              viscB=1e-3,
+                              )
     assert (np.isclose(result, 6.97e-10, atol=0, rtol=1e-2))
 
 
 def test_hayduk_minhas_input():
     with pytest.raises(ValueError):
-        _ = hayduk_minhas(T=293.,
-                          method='nomethod',
-                          MA=106.17e-3,
-                          rhoA=761.,
-                          viscB=1e-3,
-                          )
+        _ = DL_hayduk_minhas(T=293.,
+                             method='nomethod',
+                             MA=106.17e-3,
+                             rhoA=761.,
+                             viscB=1e-3,
+                             )
 
 # %% Gas-phase
 
 
 def test_wilke_lee_air():
     "Allyl chloride in air. Example 11.3, page 589 of Reid et al."
-    result = wilke_lee(T=298.,
-                       P=1e5,
-                       MA=76.5e-3,
-                       MB=29.0e-3,
-                       rhoA=1e3*76.5/87.5,
-                       rhoB=None,
-                       TA=318.3,
-                       TB=None
-                       )
+    result = DV_wilke_lee(T=298.,
+                          P=1e5,
+                          MA=76.5e-3,
+                          MB=29.0e-3,
+                          rhoA=1e3*76.5/87.5,
+                          rhoB=None,
+                          TA=318.3,
+                          TB=None
+                          )
     assert (np.isclose(result, 0.10e-4, atol=0, rtol=1e-2))
 
 
 def test_wilke_lee():
     "Allyl chloride in steam."
-    result = wilke_lee(T=298.,
-                       P=1e5,
-                       MA=76.5e-3,
-                       MB=18.0e-3,
-                       rhoA=1e3*76.5/87.5,
-                       rhoB=1000.,
-                       TA=318.3,
-                       TB=373.
-                       )
+    result = DV_wilke_lee(T=298.,
+                          P=1e5,
+                          MA=76.5e-3,
+                          MB=18.0e-3,
+                          rhoA=1e3*76.5/87.5,
+                          rhoB=1000.,
+                          TA=318.3,
+                          TB=373.
+                          )
     assert (np.isclose(result, 0.10e-4, atol=0, rtol=1e-1))
 
 
 def test_wilke_lee_input():
     with pytest.raises(ValueError):
-        _ = wilke_lee(T=298.,
-                      P=1e5,
-                      MA=76.5e-3,
-                      MB=29.0e-3,
-                      rhoA=1e3*76.5/87.5,
-                      rhoB=None,  # issue
-                      TA=318.3,
-                      TB=300.  # issue
-                      )
+        _ = DV_wilke_lee(T=298.,
+                         P=1e5,
+                         MA=76.5e-3,
+                         MB=29.0e-3,
+                         rhoA=1e3*76.5/87.5,
+                         rhoB=None,  # issue
+                         TA=318.3,
+                         TB=300.  # issue
+                         )
     with pytest.raises(ValueError):
-        _ = wilke_lee(T=298.,
-                      P=1e5,
-                      MA=76.5e-3,
-                      MB=29.0e-3,
-                      rhoA=1e3*76.5/87.5,
-                      rhoB=1000.,  # issue
-                      TA=318.3,
-                      TB=None  # issue
-                      )
+        _ = DV_wilke_lee(T=298.,
+                         P=1e5,
+                         MA=76.5e-3,
+                         MB=29.0e-3,
+                         rhoA=1e3*76.5/87.5,
+                         rhoB=1000.,  # issue
+                         TA=318.3,
+                         TB=None  # issue
+                         )

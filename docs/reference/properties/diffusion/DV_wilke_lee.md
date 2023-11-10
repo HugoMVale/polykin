@@ -3,16 +3,16 @@
 ::: polykin.properties.diffusion.estimation_methods
     options:
         members:
-            - wilke_lee
+            - DV_wilke_lee
 
 ## Examples
 
 Estimate the diffusion coefficient of vinyl chloride through water vapor.
 
 ```python exec="on" source="console"
-from polykin.properties.diffusion import wilke_lee
+from polykin.properties.diffusion import DV_wilke_lee
 
-D = wilke_lee(
+D = DV_wilke_lee(
     T=298.,       # temperature
     P=1e5,        # pressure
     MA=62.5e-3,   # molar mass of vinyl chloride
@@ -29,9 +29,9 @@ print(D)
 Estimate the diffusion coefficient of vinyl chloride through air.
 
 ```python exec="on" source="console"
-from polykin.properties.diffusion import wilke_lee
+from polykin.properties.diffusion import DV_wilke_lee
 
-D = wilke_lee(
+D = DV_wilke_lee(
     T=298.,       # temperature
     P=1e5,        # pressure
     MA=62.5e-3,   # molar mass of vinyl chloride

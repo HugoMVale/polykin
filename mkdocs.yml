@@ -189,9 +189,9 @@ nav:
           - Diffusion:
               - reference/properties/diffusion/index.md
               - VrentasDudaBinary: reference/properties/diffusion/VrentasDudaBinary.md
-              - hayduk_minhas: reference/properties/diffusion/hayduk_minhas.md
-              - wilke_chang: reference/properties/diffusion/wilke_chang.md
-              - wilke_lee: reference/properties/diffusion/wilke_lee.md
+              - DL_hayduk_minhas: reference/properties/diffusion/DL_hayduk_minhas.md
+              - DL_wilke_chang: reference/properties/diffusion/DL_wilke_chang.md
+              - DV_wilke_lee: reference/properties/diffusion/DV_wilke_lee.md
           - DIPPR: reference/properties/dippr.md
           - PVT Polymer:
               - reference/properties/pvt_polymer/index.md
@@ -202,9 +202,9 @@ nav:
           - Vapor Pressure: reference/properties/vapor_pressure.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
-              - hvap_pitzer: reference/properties/vaporization_enthalpy/hvap_pitzer.md
-              - hvapb_vetere: reference/properties/vaporization_enthalpy/hvapb_vetere.md
-              - hvap_watson: reference/properties/vaporization_enthalpy/hvap_watson.md
-              - hvapb_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/hvapb_kistiakowsky_vetere.md
+              - DHVL_pitzer: reference/properties/vaporization_enthalpy/DHVL_pitzer.md
+              - DHVL_vetere: reference/properties/vaporization_enthalpy/DHVL_vetere.md
+              - DHVL_watson: reference/properties/vaporization_enthalpy/DHVL_watson.md
+              - DHVL_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/DHVL_kistiakowsky_vetere.md
           #- Activity Coefficient Models: reference/properties/acm.md
-          - polykin.types: reference/types.md
+      - polykin.types: reference/types.md
