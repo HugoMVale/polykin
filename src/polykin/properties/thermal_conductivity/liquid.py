@@ -33,7 +33,7 @@ def KLMX2_li(w: FloatVector,
 
     Parameters
     ----------
-    x : FloatVector
+    w : FloatVector
         Mass fractions of all components. Unit = Any.
     k : FloatVector
         Thermal conductivities of all components. Unit = Any.
