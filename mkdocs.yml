@@ -199,7 +199,7 @@ nav:
               - HartmannHaque: reference/properties/pvt_polymer/HartmannHaque.md
               - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
               - Tait: reference/properties/pvt_polymer/Tait.md
-          - Thermcal Conductivity:
+          - Thermal Conductivity:
               - KLMX2_li: reference/properties/thermal_conductivity/KLMX2_li.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
