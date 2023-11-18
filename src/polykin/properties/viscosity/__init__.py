@@ -3,8 +3,8 @@
 # Copyright Hugo Vale 2023
 
 """
-This module implements methods to estimate the viscosity of pure gases and gas
-mixtures.
+This module implements methods to estimate the viscosity of pure gases, gas
+mixtures, and liquid mixtures.
 """
 
 from .vapor import *
