@@ -208,5 +208,7 @@ nav:
           - Viscosity:
               - MUV_lucas: reference/properties/viscosity/MUV_lucas.md
               - MUVMX_lucas: reference/properties/viscosity/MUVMX_lucas.md
+              - MUVMX2_herning: reference/properties/viscosity/MUVMX2_herning.md
+              - MUVPC_jossi: reference/properties/viscosity/MUVPC_jossi.md
           #- Activity Coefficient Models: reference/properties/acm.md
       - polykin.types: reference/types.md

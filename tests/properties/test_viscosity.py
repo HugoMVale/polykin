@@ -20,13 +20,12 @@ def test_MUVMX2_herning():
 
 def test_MUVPC_jossi():
     "Example 9-11, p. 425"
-    visc0 = 120e-7
     Tc = 408.2
     Pc = 36.5e5
     dr = 263/243.8
     M = 58.12e-3
-    visc = MUVPC_jossi(visc0, dr, Tc, Pc, M)
-    assert np.isclose(visc, 273e-7, rtol=1e-2)
+    visc_pc = MUVPC_jossi(dr, Tc, Pc, M)
+    assert np.isclose(visc_pc, (273-120)*1e-7, rtol=2e-2)
 
 
 def test_MUV_lucas():

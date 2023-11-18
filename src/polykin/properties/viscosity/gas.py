@@ -27,7 +27,7 @@ def MUVMX2_herning(y: FloatVector,
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 410.
 
     Parameters
     ----------
@@ -48,8 +48,7 @@ def MUVMX2_herning(y: FloatVector,
     return np.sum(a, dtype=np.float64)
 
 
-def MUVPC_jossi(visc0: float,
-                dr: float,
+def MUVPC_jossi(dr: float,
                 Tc: float,
                 Pc: float,
                 M: float
@@ -67,12 +66,10 @@ def MUVPC_jossi(visc0: float,
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 657. 1986.
+    4th edition, 1986, p. 424.
 
     Parameters
     ----------
-    visc0 : float
-        Low-pressure gas viscosity, $\eta^\circ$. Unit = Pa.s.
     dr : float
         Reduced gas density, $\rho_r$.
     Tc : float
@@ -85,12 +82,12 @@ def MUVPC_jossi(visc0: float,
     Returns
     -------
     float
-        Dense gas viscosity, $\eta$. Unit = Pa.s.
+        Residual viscosity, $\eta - \eta_0$. Unit = Pa.s.
     """
     a = 1.0230 + 0.23364*dr + 0.58533*dr**2 - 0.40758*dr**3 + 0.093324*dr**4
     # 1e7*(1/((1e3)**3 * (1/101325)**4))**(1/6)
     xi = 6.872969367e8*(Tc/(M**3 * Pc**4))**(1/6)
-    return visc0 + (a**4 - 1)/xi
+    return (a**4 - 1)/xi
 
 
 def MUV_lucas(T: float,
