@@ -41,7 +41,7 @@ def MUVMX2_herning(y: FloatVector,
     Returns
     -------
     float
-        Mixture viscosity, $\eta_m$. Unit = [mu].
+        Mixture viscosity, $\eta_m$. Unit = [visc].
     """
     a = y*np.sqrt(M)
     a *= visc/np.sum(a)

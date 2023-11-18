@@ -206,6 +206,7 @@ nav:
               - DHVL_vetere: reference/properties/vaporization_enthalpy/DHVL_vetere.md
               - DHVL_watson: reference/properties/vaporization_enthalpy/DHVL_watson.md
           - Viscosity:
+              - MULMX2_perry: reference/properties/viscosity/MULMX2_perry.md
               - MUV_lucas: reference/properties/viscosity/MUV_lucas.md
               - MUVMX_lucas: reference/properties/viscosity/MUVMX_lucas.md
               - MUVMX2_herning: reference/properties/viscosity/MUVMX2_herning.md

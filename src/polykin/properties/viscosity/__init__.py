@@ -7,4 +7,5 @@ This module implements methods to estimate the viscosity of pure gases and gas
 mixtures.
 """
 
-from .gas import *
+from .vapor import *
+from .liquid import *

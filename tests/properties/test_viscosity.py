@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.properties.viscosity import MUVMX2_herning, MUVPC_jossi, \
-    MUV_lucas, MUVMX_lucas
+    MUV_lucas, MUVMX_lucas, MULMX2_perry
 
 import numpy as np
 
@@ -52,3 +52,12 @@ def test_MUVMX_lucas():
                       Tc=405.5, Pc=113.5e5, Zc=0.244, mu=1.47)
     visc_mix = MUVMX_lucas(T, P, y, M, Tc, Pc, Zc, mu)
     assert np.isclose(visc1, visc_mix)
+
+
+def test_MULMX2_perry():
+    x = np.array([0.5, 0.5])
+    visc = np.array([1., 10])
+    visc_mix = MULMX2_perry(x, visc, True)
+    assert np.isclose(visc_mix, 5., atol=2.)
+    visc_mix = MULMX2_perry(x, visc, False)
+    assert np.isclose(visc_mix, 5., atol=2.)
