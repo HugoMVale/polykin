@@ -7,7 +7,7 @@
 
 ## Examples
 
-Estimate the viscosity of a 50 mol% ethylene/1-butene mixture at 120°C and 1 bar.
+Estimate the viscosity of a 50 mol% ethylene/1-butene gas mixture at 120°C and 1 bar.
 
 ```python exec="on" source="console"
 from polykin.properties.viscosity import MUVMX2_herning

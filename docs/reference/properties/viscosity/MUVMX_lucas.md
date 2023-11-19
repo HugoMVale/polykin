@@ -7,7 +7,7 @@
 
 ## Examples
 
-Estimate the viscosity of a 60 mol% ethylene/N₂ mixture at 350 K and 10 bar.
+Estimate the viscosity of a 60 mol% ethylene/N₂ gas mixture at 350 K and 10 bar.
 
 ```python exec="on" source="console"
 from polykin.properties.viscosity import MUVMX_lucas

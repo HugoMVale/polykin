@@ -7,7 +7,7 @@
 
 ## Examples
 
-Estimate the viscosity of a 50 mol% styrene/toluene mixture at 20°C.
+Estimate the viscosity of a 50 mol% styrene/toluene liquid mixture at 20°C.
 
 ```python exec="on" source="console"
 from polykin.properties.viscosity import MULMX2_perry
