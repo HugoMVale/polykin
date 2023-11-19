@@ -14,7 +14,7 @@ def KLMX2_li(w: FloatVector,
              rho: FloatVector,
              ) -> float:
     r"""Calculate the thermal conductivity of a liquid mixture from the
-    thermal conductivities of pure components using the Li mixing rule.
+    thermal conductivities of the pure components using the Li mixing rule.
 
     $$ k_m = \sum_i \sum_j \phi_i \phi_j k_{ij} $$
 

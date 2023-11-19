@@ -14,10 +14,10 @@ from polykin.properties.thermal_conductivity import KLMX2_li
 import numpy as np
 
 w = np.array([0.5, 0.5])
-k = np.array([0.172, 0.124])    # W/(m.K), from literature
+k = np.array([0.172, 0.124])    # W/(m·K), from literature
 rho = np.array([0.909, 0.681])  # kg/L
 
 KL = KLMX2_li(w=w, k=k, rho=rho)
 
-print(KL, "W/(m.K)")
+print(KL, "W/(m·K)")
 ```

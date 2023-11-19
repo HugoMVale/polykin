@@ -4,8 +4,8 @@
 
 """
 This module implements methods to estimate the thermal conductivity of pure
-gases and gas mixtures.
+gases, gas mixtures, and liquid mixtures.
 """
 
-# from .vapor import *
+from .vapor import *
 from .liquid import *
