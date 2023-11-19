@@ -1,7 +1,7 @@
 
 # polykin.properties.diffusion
 
-::: polykin.properties.diffusion.estimation_methods
+::: polykin.properties.diffusion
     options:
         members:
             - DL_wilke_chang
