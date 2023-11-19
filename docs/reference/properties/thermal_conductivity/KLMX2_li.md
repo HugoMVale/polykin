@@ -7,7 +7,7 @@
 
 ## Examples
 
-Estimate the viscosity of a 50 wt% styrene/isoprene mixture at 20°C.
+Estimate the viscosity of a 50 wt% styrene/isoprene liquid mixture at 20°C.
 
 ```python exec="on" source="console"
 from polykin.properties.thermal_conductivity import KLMX2_li

@@ -16,7 +16,8 @@ Vc = 130.4 # cm3/mol
 V = 2.8e3  # cm3/mol, @ 350K, 10 bar
 rhor = Vc/V
 
-k_residual = KVPC_stiel_thodos(rhor=rhor, M=28.05e-3, Tc=282.4, Pc=50.4e5, Zc=0.280)
+k_residual = KVPC_stiel_thodos(rhor=rhor, M=28.05e-3,
+                               Tc=282.4, Pc=50.4e5, Zc=0.280)
 
 print(k_residual, "W/(m·K)")
 ```

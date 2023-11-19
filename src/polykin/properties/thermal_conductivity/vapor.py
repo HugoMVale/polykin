@@ -2,10 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
+from polykin.types import FloatVector
+
 import numpy as np
 from scipy.constants import R, N_A
 
-__all__ = ['KVPC_stiel_thodos']
+__all__ = ['KVPC_stiel_thodos',
+           'KVMX2_herning']
 
 
 def KVPC_stiel_thodos(rhor: float,
@@ -61,3 +64,39 @@ def KVPC_stiel_thodos(rhor: float,
         raise ValueError("Invalid `rhor` input. Valid range: `rhor` < 2.8.")
 
     return a/(gamma * Zc**5)
+
+
+def KVMX2_herning(y: FloatVector,
+                  k: FloatVector,
+                  M: FloatVector
+                  ) -> float:
+    r"""Calculate the thermal conductivity of a gas mixture from the thermal
+    conductivities of the pure components using the mixing rule of Wassilijewa,
+    with the simplification of Herning and Zipperer.
+
+    $$ k_m = \frac{\sum _i y_i M_i^{1/2} k_i}{\sum _i y_i M_i^{1/2}} $$
+
+    where the meaning of the parameters is as defined below.
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 1986, pp. 410, 531.
+
+    Parameters
+    ----------
+    y : FloatVector
+        Mole fractions of all components. Unit = Any.
+    k : FloatVector
+        Thermal conductivities of all components, $\k$. Unit = Any.
+    M : FloatVector
+        Molar masses of all components. Unit = Any.
+
+    Returns
+    -------
+    float
+        Mixture thermal conductivity, $k_m$. Unit = [k].
+    """
+    a = y*np.sqrt(M)
+    a *= k/np.sum(a)
+    return np.sum(a, dtype=np.float64)
