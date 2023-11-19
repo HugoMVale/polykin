@@ -43,7 +43,7 @@ def KLMX2_li(w: FloatVector,
     Returns
     -------
     float
-        Mixture thermal conductivity, $\k_m$. Unit = [k].
+        Mixture thermal conductivity, $k_m$. Unit = [k].
     """
 
     phi = w/rho
