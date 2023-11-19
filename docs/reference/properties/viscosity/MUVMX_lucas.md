@@ -18,9 +18,9 @@ M = np.array([28.e-3, 28.e-3])
 Tc = np.array([282.4, 126.2])
 Pc = np.array([50.4e5, 33.9e5])
 Zc = np.array([0.280, 0.290])
-mu = np.array([0., 0.])
+dm = np.array([0., 0.])
 
-MU = MUVMX_lucas(T=350., P=10e5, y=y, M=M, Tc=Tc, Pc=Pc, Zc=Zc, mu=mu)
+mu_mix = MUVMX_lucas(T=350., P=10e5, y=y, M=M, Tc=Tc, Pc=Pc, Zc=Zc, dm=dm)
 
-print(MU, "Pa.s")
+print(mu_mix, "Pa.s")
 ```

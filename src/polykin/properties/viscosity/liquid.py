@@ -10,7 +10,7 @@ __all__ = ['MULMX2_perry']
 
 
 def MULMX2_perry(x: FloatVector,
-                 visc: FloatVector,
+                 mu: FloatVector,
                  hydrocarbons: bool = False,
                  ) -> float:
     r"""Calculate the viscosity of a liquid mixture from the viscosities of the
@@ -18,11 +18,11 @@ def MULMX2_perry(x: FloatVector,
 
     For hydrocarbon mixtures:
 
-    $$ \eta_m = \left ( \sum_i x_i \eta_i^{1/3} \right )^3 $$
+    $$ \mu_m = \left ( \sum_i x_i \mu_i^{1/3} \right )^3 $$
 
     and for nonhydrocarbon mixtures:
 
-    $$ \eta_m = \sum_i x_i \ln{\eta_i} $$
+    $$ \mu_m = \sum_i x_i \ln{\mu_i} $$
 
     where the meaning of the parameters is as defined below.
 
@@ -35,8 +35,8 @@ def MULMX2_perry(x: FloatVector,
     ----------
     x : FloatVector
         Mole fractions of all components. Unit = Any.
-    visc : FloatVector
-        Viscosities of all components, $\eta$. Unit = Any.
+    mu : FloatVector
+        Viscosities of all components, $\mu$. Unit = Any.
     hydrocarbons : bool
         Method selection. `True` for hydrocarbon mixtures, `False` for
         nonhydrocarbon mixtures.
@@ -44,10 +44,10 @@ def MULMX2_perry(x: FloatVector,
     Returns
     -------
     float
-        Mixture viscosity, $\eta_m$. Unit = [visc].
+        Mixture viscosity, $\mu_m$. Unit = [mu].
     """
     if hydrocarbons:
-        result = np.dot(x, np.cbrt(visc))**3
+        result = np.dot(x, np.cbrt(mu))**3
     else:
-        result = np.exp(np.dot(x, np.log(visc)))
+        result = np.exp(np.dot(x, np.log(mu)))
     return result

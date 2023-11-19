@@ -15,8 +15,9 @@ import numpy as np
 
 y = np.array([0.5, 0.5])
 M = np.array([28.e-3, 56.e-3])
-visc = np.array([130e-7, 100e-7]) # from literature
-MU = MUVMX2_herning(y, visc, M)
+mu = np.array([130e-7, 100e-7]) # from literature
 
-print(MU, "Pa.s")
+mu_mix = MUVMX2_herning(y, mu, M)
+
+print(mu_mix, "Pa.s")
 ```

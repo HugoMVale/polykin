@@ -14,13 +14,13 @@ __all__ = ['MUVMX2_herning',
 
 
 def MUVMX2_herning(y: FloatVector,
-                   visc: FloatVector,
+                   mu: FloatVector,
                    M: FloatVector
                    ) -> float:
     r"""Calculate the viscosity of a gas mixture from the viscosities of the
     pure components using the mixing rule of Herning and Zipperer.
 
-    $$ \eta _m = \frac{\sum _i y_i M_i^{1/2} \eta_i}{\sum _i y_i M_i^{1/2}} $$
+    $$ \mu_m = \frac{\sum _i y_i M_i^{1/2} \mu_i}{\sum _i y_i M_i^{1/2}} $$
 
     where the meaning of the parameters is as defined below.
 
@@ -33,35 +33,36 @@ def MUVMX2_herning(y: FloatVector,
     ----------
     y : FloatVector
         Mole fractions of all components. Unit = Any.
-    visc : FloatVector
-        Viscosities of all components, $\eta$. Unit = Any.
+    mu : FloatVector
+        Viscosities of all components, $\mu$. Unit = Any.
     M : FloatVector
         Molar masses of all components. Unit = Any.
 
     Returns
     -------
     float
-        Mixture viscosity, $\eta_m$. Unit = [visc].
+        Mixture viscosity, $\mu_m$. Unit = [mu].
     """
     a = y*np.sqrt(M)
-    a *= visc/np.sum(a)
+    a *= mu/np.sum(a)
     return np.sum(a, dtype=np.float64)
 
 
-def MUVPC_jossi(dr: float,
+def MUVPC_jossi(rhor: float,
+                M: float,
                 Tc: float,
-                Pc: float,
-                M: float
+                Pc: float
                 ) -> float:
     r"""Calculate the effect of pressure (or density) on gas viscosity using
-    the method of Jossi, Stiel and Thodos for non-polar gases.
+    the method of Jossi, Stiel and Thodos for nonpolar gases.
 
-    $$ \left[(\eta -\eta^\circ)\xi + 1\right]^{1/4} = 1.0230 + 0.23364\rho_r
+    $$ \left[(\mu -\mu^\circ)\xi + 1\right]^{1/4} = 1.0230 + 0.23364\rho_r
        + 0.58533\rho_r^2 - 0.40758\rho_r^3 + 0.093324\rho_r^4 $$
 
-    where $\eta$ is the dense gas viscosity, $\eta^\circ$ is the is the
+    where $\mu$ is the dense gas viscosity, $\mu^\circ$ is the is the
     low-pressure viscosity, $\xi$ is a group of constants, and
-    $\rho_r = \rho / \rho_c = V_c / V$.
+    $\rho_r = \rho / \rho_c = V_c / V$ is the reduced gas density. This
+    equation is valid in the range $0.1 < \rho_r < 3.0$.
 
     Reference:
 
@@ -70,21 +71,22 @@ def MUVPC_jossi(dr: float,
 
     Parameters
     ----------
-    dr : float
+    rhor : float
         Reduced gas density, $\rho_r$.
+    M : float
+        Molar mass. Unit = kg/mol.
     Tc : float
         Critical temperature. Unit = K.
     Pc : float
         Critical pressure. Unit = Pa.
-    M : float
-        Molar mass. Unit = kg/mol.
 
     Returns
     -------
     float
-        Residual viscosity, $\eta - \eta_0$. Unit = Pa.s.
+        Residual viscosity, $(\mu - \mu_0)$. Unit = Pa.s.
     """
-    a = 1.0230 + 0.23364*dr + 0.58533*dr**2 - 0.40758*dr**3 + 0.093324*dr**4
+    a = 1.0230 + 0.23364*rhor + 0.58533*rhor**2 - 0.40758*rhor**3 \
+        + 0.093324*rhor**4
     # 1e7*(1/((1e3)**3 * (1/101325)**4))**(1/6)
     xi = 6.872969367e8*(Tc/(M**3 * Pc**4))**(1/6)
     return (a**4 - 1)/xi
@@ -96,7 +98,7 @@ def MUV_lucas(T: float,
               Tc: float,
               Pc: float,
               Zc: float,
-              mu: float
+              dm: float
               ) -> float:
     r"""Calculate the viscosity of a pure gas at a given pressure using the
     method of Lucas.
@@ -120,19 +122,19 @@ def MUV_lucas(T: float,
         Critical pressure. Unit = Pa.
     Zc : float
         Critical compressibility factor.
-    mu : float
+    dm : float
         Dipole moment. Unit = debye.
 
     Returns
     -------
     float
-        Gas viscosity, $\eta$. Unit = Pa.s.
+        Gas viscosity, $\mu$. Unit = Pa.s.
     """
     Tr = T/Tc
     Pr = P/Pc
-    FP0 = _MUV_lucas_FP0(Tr, Tc, Pc, Zc, mu)
-    eta = _MUV_lucas_eta(Tr, Pr, M, Tc, Pc, FP0)  # type: ignore
-    return eta
+    FP0 = _MUV_lucas_FP0(Tr, Tc, Pc, Zc, dm)
+    mu = _MUV_lucas_mu(Tr, Pr, M, Tc, Pc, FP0)  # type: ignore
+    return mu
 
 
 def MUVMX_lucas(T: float,
@@ -142,7 +144,7 @@ def MUVMX_lucas(T: float,
                 Tc: FloatVector,
                 Pc: FloatVector,
                 Zc: FloatVector,
-                mu: FloatVector
+                dm: FloatVector
                 ) -> float:
     r"""Calculate the viscosity of a gas mixture at a given pressure using the
     method of Lucas.
@@ -168,30 +170,30 @@ def MUVMX_lucas(T: float,
         Critical pressures of all components. Unit = Pa.
     Zc : FloatVector
         Critical compressibility factors of all components.
-    mu : FloatVector
+    dm : FloatVector
         Dipole moments of all components. Unit = debye.
 
     Returns
     -------
     float
-        Gas mixture viscosity, $\eta_m$. Unit = Pa.s.
+        Gas mixture viscosity, $\mu_m$. Unit = Pa.s.
     """
     Tc_mix = np.dot(y, Tc)
     M_mix = np.dot(y, M)
     Pc_mix = R*Tc_mix*np.dot(y, Zc)/np.dot(y, R*Tc*Zc/Pc)
-    FP0_mix = np.dot(y, _MUV_lucas_FP0(T/Tc, Tc, Pc, Zc, mu))
-    eta = _MUV_lucas_eta(
+    FP0_mix = np.dot(y, _MUV_lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
+    mu = _MUV_lucas_mu(
         T/Tc_mix, P/Pc_mix, M_mix, Tc_mix, Pc_mix, FP0_mix)
-    return eta
+    return mu
 
 
-def _MUV_lucas_eta(Tr: float,
-                   Pr: float,
-                   M: float,
-                   Tc: float,
-                   Pc: float,
-                   FP0: float
-                   ) -> float:
+def _MUV_lucas_mu(Tr: float,
+                  Pr: float,
+                  M: float,
+                  Tc: float,
+                  Pc: float,
+                  FP0: float
+                  ) -> float:
     """Calculate the viscosity of a pure gas or gas mixture at a given pressure
     using the method of Lucas.
     """
@@ -241,29 +243,30 @@ def _MUV_lucas_FP0(Tr: FloatOrArray,
                    Tc: FloatOrArray,
                    Pc: FloatOrArray,
                    Zc: FloatOrArray,
-                   mu: FloatOrArray
+                   dm: FloatOrArray
                    ) -> FloatOrArray:
     "Compute FP0 for Lucas method of estimating gas viscosity."
-    mur = 52.46 * mu**2 * (Pc / 1e5) / Tc**2
-    FP0 = np.where(mur <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
-    FP0 = np.where(mur >= 0.075, FP0 * np.abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
+    dmr = 52.46 * dm**2 * (Pc / 1e5) / Tc**2
+    FP0 = np.where(dmr <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
+    FP0 = np.where(dmr >= 0.075, FP0 * np.abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
     FP0 += 1.0
     return FP0
+
 
 # @np.vectorize
 # def _visc_gas_lucas_FP0(T: float,
 #                         Tc: float,
 #                         Pc: float,
 #                         Zc: float,
-#                         mu: float
+#                         dm: float
 #                         ) -> float:
 #     "Compute FP0 for Lucas method of gas viscosity estimation."
-#     mur = 52.46*mu**2*(Pc/1e5)/Tc**2
-#     if mur <= 0.022:
+#     dmr = 52.46*dm**2*(Pc/1e5)/Tc**2
+#     if dmr <= 0.022:
 #         FP0 = 1.
 #     else:
 #         FP0 = 30.55*(0.292 - Zc)**1.72
-#         if mur >= 0.075:
+#         if dmr >= 0.075:
 #             FP0 *= np.abs(0.96 + 0.1*(T/Tc - 0.7))
 #         FP0 += 1.
 #     return FP0

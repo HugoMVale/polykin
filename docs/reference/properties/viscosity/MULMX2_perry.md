@@ -14,8 +14,8 @@ from polykin.properties.viscosity import MULMX2_perry
 import numpy as np
 
 x = np.array([0.5, 0.5])
-visc = np.array([0.76, 0.59]) # cP, from literature
-MU = MULMX2_perry(x, visc)
+mu = np.array([0.76, 0.59]) # cP, from literature
+mu_mix = MULMX2_perry(x, mu)
 
-print(MU, "cP")
+print(mu_mix, "cP")
 ```

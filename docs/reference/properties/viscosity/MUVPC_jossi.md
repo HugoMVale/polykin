@@ -14,8 +14,9 @@ from polykin.properties.viscosity import MUVPC_jossi
 
 Vc = 130.4 # cm3/mol
 V = 2.8e3  # cm3/mol, @ 350K, 10 bar
-dr = Vc/V
-MUPC = MUVPC_jossi(dr=dr, Tc=282.4, Pc=50.4e5, M=28.05e-3)
+rhor = Vc/V
 
-print(MUPC, "Pa.s")
+mu_residual = MUVPC_jossi(rhor=rhor, Tc=282.4, Pc=50.4e5, M=28.05e-3)
+
+print(mu_residual, "Pa.s")
 ```
