@@ -8,4 +8,5 @@ coefficients in binary liquid and gas mixtures.
 """
 
 from .vrentasduda import *
-from .estimation_methods import *
+from .vapor import *
+from .liquid import *
