@@ -351,7 +351,7 @@ def convert_check_temperature(
         Temperature in K.
     """
 
-    if isinstance(T, list):
+    if isinstance(T, (list, tuple)):
         T = np.array(T, dtype=np.float64)
 
     if Tunit == 'K':
@@ -391,7 +391,7 @@ def convert_check_pressure(
         Pressure in Pa.
     """
 
-    if isinstance(P, list):
+    if isinstance(P, (list, tuple)):
         P = np.array(P, dtype=np.float64)
 
     if Punit == 'Pa':
