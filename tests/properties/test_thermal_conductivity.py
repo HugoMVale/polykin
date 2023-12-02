@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.properties.thermal_conductivity import KLMX2_li, \
-    KVPC_stiel_thodos, KVMX2_herning
+    KVPC_stiel_thodos, KVMX2_wassilijewa
 import numpy as np
 
 
@@ -32,7 +32,7 @@ def test_KVPC_stiel_thodos():
     assert np.isclose(kpc, 1.78e-2, rtol=1e-2)
 
 
-def test_KVMX2_herning():
+def test_KVMX2_wassilijewa():
     "Example 10-5, p. 534, Reid-Prausnitz-Poling"
     y1 = 0.25
     M1 = 78.114
@@ -40,5 +40,5 @@ def test_KVMX2_herning():
     y = np.array([y1, 1 - y1])
     k = np.array([1.66e-2, 2.14e-2])
     M = np.array([M1, M2])
-    k_mix = KVMX2_herning(y, k, M)
+    k_mix = KVMX2_wassilijewa(y, k, M)
     assert np.isclose(k_mix, 1.92e-2, rtol=5e-2)

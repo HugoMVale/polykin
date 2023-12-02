@@ -169,7 +169,8 @@ nav:
       - polykin.copolymerization:
           - reference/copolymerization/index.md
           - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
-          - TerminalCopoModel: reference/copolymerization/TerminalCopoModel.md
+          - PenultimateModel: reference/copolymerization/PenultimateModel.md
+          - TerminalModel: reference/copolymerization/TerminalModel.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md
@@ -201,7 +202,7 @@ nav:
               - Tait: reference/properties/pvt_polymer/Tait.md
           - Thermal Conductivity:
               - KLMX2_li: reference/properties/thermal_conductivity/KLMX2_li.md
-              - KVMX2_herning: reference/properties/thermal_conductivity/KVMX2_herning.md
+              - KVMX2_wassilijewa: reference/properties/thermal_conductivity/KVMX2_wassilijewa.md
               - KVPC_stiel_thodos: reference/properties/thermal_conductivity/KVPC_stiel_thodos.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md

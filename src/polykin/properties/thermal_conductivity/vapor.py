@@ -8,9 +8,10 @@ import numpy as np
 from scipy.constants import R, N_A
 
 __all__ = ['KVPC_stiel_thodos',
-           'KVMX2_herning']
+           'KVMX2_wassilijewa']
 
 
+@np.vectorize
 def KVPC_stiel_thodos(rhor: float,
                       M: float,
                       Tc: float,
@@ -66,10 +67,10 @@ def KVPC_stiel_thodos(rhor: float,
     return a/(gamma * Zc**5)
 
 
-def KVMX2_herning(y: FloatVector,
-                  k: FloatVector,
-                  M: FloatVector
-                  ) -> float:
+def KVMX2_wassilijewa(y: FloatVector,
+                      k: FloatVector,
+                      M: FloatVector
+                      ) -> float:
     r"""Calculate the thermal conductivity of a gas mixture from the thermal
     conductivities of the pure components using the mixing rule of Wassilijewa,
     with the simplification of Herning and Zipperer.
@@ -88,7 +89,7 @@ def KVMX2_herning(y: FloatVector,
     y : FloatVector
         Mole fractions of all components. Unit = Any.
     k : FloatVector
-        Thermal conductivities of all components, $\k$. Unit = Any.
+        Thermal conductivities of all components. Unit = Any.
     M : FloatVector
         Molar masses of all components. Unit = Any.
 
