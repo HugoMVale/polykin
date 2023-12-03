@@ -8,26 +8,27 @@ import numpy as np
 from scipy.constants import R, N_A
 
 __all__ = ['KVPC_stiel_thodos',
+           'KVMXPC_stiel_thodos',
            'KVMX2_wassilijewa']
 
 
-@np.vectorize
-def KVPC_stiel_thodos(rhor: float,
+def KVPC_stiel_thodos(V: float,
                       M: float,
                       Tc: float,
                       Pc: float,
                       Zc: float
                       ) -> float:
-    r"""Calculate the effect of pressure (or density) on gas thermal
-    conductivity using the method of Stiel and Thodos for nonpolar gases.
+    r"""Calculate the effect of pressure (or density) on the thermal
+    conductivity of pure gases using the method of Stiel and Thodos for
+    nonpolar gases.
 
-    $$ \left( k-k_0 \right) \Gamma Z_c^5 = f(\rho_r) $$
+    $$ \left( k-k^{\circ} \right) \Gamma Z_c^5 = f(\rho_r) $$
 
     where $k$ is the dense gas thermal conductivity, $k^\circ$ is the
     low-pressure thermal conductivtiy, $\Gamma$ is a group of constants, $Z_c$
-    is the critical compressibility factor, and
-    $\rho_r = \rho / \rho_c = V_c / V$ is the reduced gas density. This
-    equation is valid in the range $0 \leq \rho_r < 2.8$.
+    is the critical compressibility factor, and $\rho_r = V_c / V$ is the
+    reduced gas density. This equation is valid in the range
+    $0 \leq \rho_r < 2.8$.
 
     Reference:
 
@@ -36,8 +37,8 @@ def KVPC_stiel_thodos(rhor: float,
 
     Parameters
     ----------
-    rhor : float
-        Reduced gas density, $\rho_r$.
+    V : float
+        Gas molar volume. Unit = m³/mol.
     M : float
         Molar mass. Unit = kg/mol.
     Tc : float
@@ -50,10 +51,12 @@ def KVPC_stiel_thodos(rhor: float,
     Returns
     -------
     float
-        Residual thermal conductivity, $(k - k_0)$. Unit = W/(m·K).
+        Residual thermal conductivity, $(k - k^{\circ})$. Unit = W/(m·K).
     """
 
     gamma = ((Tc * M**3 * N_A**2)/(R**5 * Pc**4))**(1/6)
+    Vc = Zc*R*Tc/Pc
+    rhor = Vc/V
 
     if rhor < 0.5:
         a = 1.22e-2*(np.exp(0.535*rhor) - 1)
@@ -65,6 +68,72 @@ def KVPC_stiel_thodos(rhor: float,
         raise ValueError("Invalid `rhor` input. Valid range: `rhor` < 2.8.")
 
     return a/(gamma * Zc**5)
+
+
+def KVMXPC_stiel_thodos(V: float,
+                        y: FloatVector,
+                        M: FloatVector,
+                        Tc: FloatVector,
+                        Pc: FloatVector,
+                        Zc: FloatVector,
+                        w: FloatVector
+                        ) -> float:
+    r"""Calculate the effect of pressure (or density) on the thermal
+    conductivity of gas mixtures using the method of Stiel and Thodos for
+    nonpolar gases, combined with the mixing rules of Yorizane.
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+    4th edition, 1986, p. 536.
+
+    Parameters
+    ----------
+    V : float
+        Gas molar volume. Unit = m³/mol.
+    y : FloatVector
+        Mole fractions of all components. Unit = mol/mol.
+    M : FloatVector
+        Molar masses of all components. Unit = kg/mol.
+    Tc : FloatVector
+        Critical temperatures of all components. Unit = K.
+    Pc : FloatVector
+        Critical pressures of all components. Unit = Pa.
+    Zc : FloatVector
+        Critical compressibility factors of all components.
+    w : FloatVector
+        Acentric factors of all components.
+
+    Returns
+    -------
+    float
+        Residual thermal conductivity, $(k - k^{\circ})$. Unit = W/(m·K).
+    """
+
+    Vc = Zc*R*Tc/Pc
+
+    N = len(y)
+    Vc_mix = 0.
+    Tc_mix = 0.
+    for i in range(N):
+        for j in range(N):
+            if i == j:
+                vc = Vc[i]
+                tc = Tc[i]
+            else:
+                vc = (1/8)*(Vc[i]**(1/3) + Vc[j]**(1/3))**3
+                tc = np.sqrt(Tc[i]*Tc[j])
+            term = y[i]*y[j]*vc
+            Vc_mix += term
+            Tc_mix += term*tc
+    Tc_mix /= Vc_mix
+
+    w_mix = np.dot(y, w)
+    Zc_mix = 0.291 - 0.08*w_mix
+    Pc_mix = Zc_mix*R*Tc_mix/Vc_mix
+    M_mix = np.dot(y, M)
+
+    return KVPC_stiel_thodos(V, M_mix, Tc_mix, Pc_mix, Zc_mix)
 
 
 def KVMX2_wassilijewa(y: FloatVector,

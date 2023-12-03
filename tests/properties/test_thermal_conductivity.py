@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.properties.thermal_conductivity import KLMX2_li, \
-    KVPC_stiel_thodos, KVMX2_wassilijewa
+    KVPC_stiel_thodos, KVMXPC_stiel_thodos, KVMX2_wassilijewa
 import numpy as np
 
 
@@ -24,12 +24,25 @@ def test_KVPC_stiel_thodos():
     "Example 10-3, p. 521, Reid-Prausnitz-Poling"
     Tc = 309.6
     Pc = 72.4e5
-    Vc = 97.4  # cm3/mol
     Zc = 0.274
     M = 44.013e-3
-    rhor = Vc/144
-    kpc = KVPC_stiel_thodos(rhor, M, Tc, Pc, Zc)
+    V = 144e-6
+    kpc = KVPC_stiel_thodos(V, M, Tc, Pc, Zc)
     assert np.isclose(kpc, 1.78e-2, rtol=1e-2)
+
+
+def test_KVMXPC_stiel_thodos():
+    "Example 10-6, p. 537, Reid-Prausnitz-Poling"
+    y1 = 0.755
+    V = 159e-6
+    y = np.array([y1, 1 - y1])
+    Zc = np.array([0.288, 0.274])
+    Pc = np.array([46.0e5, 73.8e5])
+    Tc = np.array([190.4, 304.1])
+    M = np.array([16.043e-3, 44.010e-3])
+    w = np.array([0.011, 0.239])
+    kpc = KVMXPC_stiel_thodos(V, y, M, Tc, Pc, Zc, w)
+    assert np.isclose(kpc, 1.50e-2, rtol=1e-2)
 
 
 def test_KVMX2_wassilijewa():
