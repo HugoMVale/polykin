@@ -83,7 +83,7 @@ def MUVPC_jossi(rhor: float,
     Returns
     -------
     float
-        Residual viscosity, $(\mu - \mu_0)$. Unit = Pa.s.
+        Residual viscosity, $(\mu - \mu^\circ)$. Unit = Pa.s.
     """
     a = 1.0230 + 0.23364*rhor + 0.58533*rhor**2 - 0.40758*rhor**3 \
         + 0.093324*rhor**4
