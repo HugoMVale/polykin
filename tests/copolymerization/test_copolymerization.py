@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.copolymerization import InstantaneousCopoData, TerminalCopoModel
+from polykin.copolymerization import InstantaneousCopoData, TerminalModel
 from polykin.utils import RangeError, ShapeError
 
 import pytest
@@ -98,22 +98,22 @@ def test_copo_data_representation(valid_copo_data):
 
 
 def test_TerminalCopoModel_azeo():
-    m = TerminalCopoModel(1.2, 0.3)
+    m = TerminalModel(1.2, 0.3)
     assert m.azeo is None
-    m = TerminalCopoModel(0.1, 0.1)
+    m = TerminalModel(0.1, 0.1)
     assert np.isclose(m.azeo, 0.5)
 
 
 def test_TerminalCopoModel_F1():
-    m = TerminalCopoModel(0.1, 0.1)
+    m = TerminalModel(0.1, 0.1)
     f1azeo = m.azeo
     assert np.isclose(m.F1(f1azeo), f1azeo)
-    m = TerminalCopoModel(1., 1.)
+    m = TerminalModel(1., 1.)
     assert np.all(np.isclose(m.F1([0.3, 0.7]), [0.3, 0.7]))
 
 
 def test_TerminalCopoModel_drift():
-    m = TerminalCopoModel(0.1, 0.1)
+    m = TerminalModel(0.1, 0.1)
     f1azeo = m.azeo
     f10 = [0.1, f1azeo, 0.9]
     f1_x = m.drift(f10, x=0.999)
@@ -121,7 +121,7 @@ def test_TerminalCopoModel_drift():
 
 
 def test_TerminalCopoModel_plot():
-    model = TerminalCopoModel(0.5, 0.5, "Monomer1", "Monomer2", "MyModel")
+    model = TerminalModel(0.5, 0.5, "Monomer1", "Monomer2", "MyModel")
     result = model.plot(M=1, f0=0.2, return_objects=True)
     assert len(result) == 2
     result = model.plot(M=1, return_objects=True)
