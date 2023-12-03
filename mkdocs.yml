@@ -164,6 +164,7 @@ nav:
       - Distributions: "tutorials/distributions.ipynb"
       - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
       - Physical Property Equations: "tutorials/physprop_equations.ipynb"
+      - Thermal Conductivity: "tutorials/thermal_conductivity.ipynb"
   #- API Reference: reference/polykin/ #
   - API Reference:
       - polykin.copolymerization:
