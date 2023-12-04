@@ -15,6 +15,7 @@ import numpy as np
 
 x = np.array([0.5, 0.5])
 mu = np.array([0.76, 0.59]) # cP, from literature
+
 mu_mix = MULMX2_perry(x, mu)
 
 print(mu_mix, "cP")
