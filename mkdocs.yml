@@ -205,6 +205,7 @@ nav:
               - KLMX2_li: reference/properties/thermal_conductivity/KLMX2_li.md
               - KVMX2_wassilijewa: reference/properties/thermal_conductivity/KVMX2_wassilijewa.md
               - KVPC_stiel_thodos: reference/properties/thermal_conductivity/KVPC_stiel_thodos.md
+              - KVMXPC_stiel_thodos: reference/properties/thermal_conductivity/KVMXPC_stiel_thodos.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
               - DHVL_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/DHVL_kistiakowsky_vetere.md
