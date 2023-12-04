@@ -20,7 +20,7 @@ def KVPC_stiel_thodos(V: float,
                       ) -> float:
     r"""Calculate the effect of pressure (or density) on the thermal
     conductivity of pure gases using the method of Stiel and Thodos for
-    nonpolar gases.
+    nonpolar components.
 
     $$ \left( k-k^{\circ} \right) \Gamma Z_c^5 = f(\rho_r) $$
 
@@ -80,7 +80,7 @@ def KVMXPC_stiel_thodos(V: float,
                         ) -> float:
     r"""Calculate the effect of pressure (or density) on the thermal
     conductivity of gas mixtures using the method of Stiel and Thodos for
-    nonpolar gases, combined with the mixing rules of Yorizane.
+    nonpolar components, combined with the mixing rules of Yorizane.
 
     Reference:
 
@@ -112,9 +112,11 @@ def KVMXPC_stiel_thodos(V: float,
 
     Vc = Zc*R*Tc/Pc
 
-    N = len(y)
+    # The loop can be simplified because
+    # sum_i sum_j y_i y_j V_{ij} = sum_i y_i^2 V_{ii} + 2 sum_i sum_{j>i} y_i y_j V_ij
     Vc_mix = 0.
     Tc_mix = 0.
+    N = len(y)
     for i in range(N):
         for j in range(N):
             if i == j:
