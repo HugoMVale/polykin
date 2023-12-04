@@ -22,7 +22,7 @@ def MULMX2_perry(x: FloatVector,
 
     and for nonhydrocarbon mixtures:
 
-    $$ \mu_m = \sum_i x_i \ln{\mu_i} $$
+    $$ \ln{\mu_m} = \sum_i x_i \ln{\mu_i} $$
 
     where the meaning of the parameters is as defined below.
 
