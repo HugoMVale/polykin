@@ -12,6 +12,8 @@ __all__ = ['MUVMX2_herning',
            'MUV_lucas',
            'MUVMX_lucas']
 
+# %% Mixing rules
+
 
 def MUVMX2_herning(y: FloatVector,
                    mu: FloatVector,
@@ -46,6 +48,8 @@ def MUVMX2_herning(y: FloatVector,
     a = y*np.sqrt(M)
     a *= mu/np.sum(a)
     return np.sum(a, dtype=np.float64)
+
+# %% Pressure correction
 
 
 def MUVPC_jossi(rhor: float,
@@ -91,6 +95,8 @@ def MUVPC_jossi(rhor: float,
     xi = 6.872969367e8*(Tc/(M**3 * Pc**4))**(1/6)
     return (a**4 - 1)/xi
 
+
+# %% Estimation methods
 
 def MUV_lucas(T: float,
               P: float,

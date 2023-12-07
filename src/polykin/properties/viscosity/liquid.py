@@ -8,6 +8,8 @@ import numpy as np
 
 __all__ = ['MULMX2_perry']
 
+# %% Mixing rules
+
 
 def MULMX2_perry(x: FloatVector,
                  mu: FloatVector,

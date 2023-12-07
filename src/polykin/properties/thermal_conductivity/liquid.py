@@ -8,6 +8,8 @@ import numpy as np
 
 __all__ = ['KLMX2_li']
 
+# %% Mixing rules
+
 
 def KLMX2_li(w: FloatVector,
              k: FloatVector,

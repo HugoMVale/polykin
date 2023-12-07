@@ -11,6 +11,8 @@ __all__ = ['KVPC_stiel_thodos',
            'KVMXPC_stiel_thodos',
            'KVMX2_wassilijewa']
 
+# %% Pressure correction
+
 
 def KVPC_stiel_thodos(V: float,
                       M: float,
@@ -112,7 +114,7 @@ def KVMXPC_stiel_thodos(V: float,
 
     Vc = Zc*R*Tc/Pc
 
-    # The loop can be simplified because
+    # The loop could be simplified because
     # sum_i sum_j y_i y_j V_{ij} = sum_i y_i^2 V_{ii} + 2 sum_i sum_{j>i} y_i y_j V_ij
     Vc_mix = 0.
     Tc_mix = 0.
@@ -136,6 +138,8 @@ def KVMXPC_stiel_thodos(V: float,
     M_mix = np.dot(y, M)
 
     return KVPC_stiel_thodos(V, M_mix, Tc_mix, Pc_mix, Zc_mix)
+
+# %% Mixing rules
 
 
 def KVMX2_wassilijewa(y: FloatVector,
