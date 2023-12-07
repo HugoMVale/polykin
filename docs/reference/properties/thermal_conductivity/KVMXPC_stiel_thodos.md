@@ -14,7 +14,7 @@ at 350 K and 100 bar.
 from polykin.properties.thermal_conductivity import KVMXPC_stiel_thodos
 import numpy as np
 
-V = 1.8e-4  # m³/mol, @ 350K, 100 bar TO BE UPDATED
+V = 1.12e-4  # m³/mol, with Peng-Robinson
 
 y = np.array([0.5, 0.5])
 Zc = np.array([0.280, 0.274])
