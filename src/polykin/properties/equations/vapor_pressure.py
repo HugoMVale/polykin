@@ -94,7 +94,8 @@ class Antoine(PropertyEquationT):
         Parameters
         ----------
         T : FloatOrArray
-            Temperature. Unit = K.
+            Temperature.
+            Unit = K.
         A : float
             Parameter of equation.
         B : float
@@ -211,12 +212,12 @@ class Wagner(PropertyEquationT):
             Parameter of equation.
         d : float
             Parameter of equation.
-        Tc : float
-            Critical temperature.
-            Unit = K.
         Pc : float
             Critical pressure.
             Unit = Any.
+        Tc : float
+            Critical temperature.
+            Unit = K.
 
         Returns
         -------
