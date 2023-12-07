@@ -3,7 +3,7 @@
 ::: polykin.properties.equations
 
 For illustration examples, please refer to the associated
-[tutorial](/polykin/tutorials/physprop_equations).
+[tutorial](../../../tutorials/physprop_equations).
 
 ::: polykin.properties.equations.vapor_pressure
     options:
