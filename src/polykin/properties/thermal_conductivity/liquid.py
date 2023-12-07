@@ -28,6 +28,12 @@ def KLMX2_li(w: FloatVector,
 
     where the meaning of the parameters is as defined below.
 
+    !!! note
+
+        In this equation, the units of mass fraction $w_i$ and density $\rho_i$
+        are arbitrary, as they cancel out when considering the ratio of the
+        numerator to the denominator.
+
     Reference:
 
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
