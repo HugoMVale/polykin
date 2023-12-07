@@ -5,10 +5,12 @@
 from polykin.properties.equations.dippr import \
     DIPPR100, DIPPR101, DIPPR102, DIPPR104, DIPPR105, DIPPR106, DIPPR107
 from polykin.properties.equations.vapor_pressure import Antoine, Wagner
+from polykin.properties.equations.viscosity import Yaws
 from polykin import plotequations
 
 import pytest
 import numpy as np
+import math
 
 # %% DIPPR equations
 
@@ -102,6 +104,16 @@ def test_Wagner():
                d=-2.128615,
                Tmin=273., Tmax=647., unit='bar')
     assert np.isclose(p(100., 'C'), 1.01325, rtol=2e-2)
+
+# %% Viscosity
+
+
+def test_Yaws():
+    """Viscosity of styrene."""
+    mu = Yaws(A=-2.717, B=9.461e2, C=-3.173e-3, D=1.683e-6, base=math.e,
+              Tmin=243., Tmax=633., unit='cP')
+    assert np.isclose(mu(25, 'C'), 0.71, rtol=2e-2)
+
 
 # %% plot
 

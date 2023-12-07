@@ -9,4 +9,5 @@ physical properties of pure components.
 
 from .dippr import *
 from .vapor_pressure import *
+from .viscosity import *
 from .base import plotequations
