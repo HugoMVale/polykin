@@ -25,3 +25,8 @@ For illustration examples, please refer to the associated
     options:
         members:
             - Wagner
+
+::: polykin.properties.equations.viscosity
+    options:
+        members:
+            - Yaws
