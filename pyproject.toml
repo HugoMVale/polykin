@@ -53,6 +53,7 @@ mkdocs-bibtex = "^2.11.0"
 markdown-exec = "^1.6.0"
 mkdocs-gallery = "^0.7.8"
 mkdocs-table-reader-plugin = "^2.0.3"
+mkdocs-autorefs = "^0.5.0"
 
 [build-system]
 requires = ["poetry-core"]
