@@ -54,6 +54,7 @@ watch:
 plugins:
   - search
   - autolinks
+  #- autorefs
   - markdown-exec
   - table-reader
   - bibtex:
@@ -165,6 +166,7 @@ nav:
       - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
       - Physical Property Equations: "tutorials/physprop_equations.ipynb"
       - Thermal Conductivity: "tutorials/thermal_conductivity.ipynb"
+      # - Viscosity: "tutorials/viscosity.ipynb"
   #- API Reference: reference/polykin/ #
   - API Reference:
       - polykin.copolymerization:
@@ -202,6 +204,7 @@ nav:
               - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
               - Tait: reference/properties/pvt_polymer/Tait.md
           - Thermal Conductivity:
+              - reference/properties/thermal_conductivity/index.md
               - KLMX2_li: reference/properties/thermal_conductivity/KLMX2_li.md
               - KVMX2_wassilijewa: reference/properties/thermal_conductivity/KVMX2_wassilijewa.md
               - KVPC_stiel_thodos: reference/properties/thermal_conductivity/KVPC_stiel_thodos.md
