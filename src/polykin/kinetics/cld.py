@@ -270,7 +270,6 @@ class PropagationHalfLength(KineticCoefficientCLD):
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 
-
         Parameters
         ----------
         T : FloatOrArrayLike
