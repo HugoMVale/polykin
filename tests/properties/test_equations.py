@@ -10,7 +10,6 @@ from polykin import plotequations
 
 import pytest
 import numpy as np
-import math
 
 # %% DIPPR equations
 
@@ -110,7 +109,7 @@ def test_Wagner():
 
 def test_Yaws():
     """Viscosity of styrene."""
-    mu = Yaws(A=-2.717, B=9.461e2, C=-3.173e-3, D=1.683e-6, base=math.e,
+    mu = Yaws(A=-2.717, B=9.461e2, C=-3.173e-3, D=1.683e-6, base='e',
               Tmin=243., Tmax=633., unit='cP')
     assert np.isclose(mu(25, 'C'), 0.71, rtol=2e-2)
 

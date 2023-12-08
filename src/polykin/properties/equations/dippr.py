@@ -28,8 +28,6 @@ class DIPPR(PropertyEquationT):
 class DIPPRP4(DIPPR):
     """_Abstract_ class for DIPPR equations with 4 parameters (A-D)."""
 
-    _pnames = (('A', 'B', 'C', 'D'), ())
-
     def __init__(self,
                  A: float,
                  B: float,
@@ -42,14 +40,12 @@ class DIPPRP4(DIPPR):
                  name
                  ) -> None:
 
-        self.pvalues = (A, B, C, D)
+        self.p = {'A': A, 'B': B, 'C': C, 'D': D}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
 
 class DIPPRP5(DIPPR):
     """_Abstract_ class for DIPPR equations with 5 parameters (A-E)."""
-
-    _pnames = (('A', 'B', 'C', 'D', 'E'), ())
 
     def __init__(self,
                  A: float,
@@ -64,7 +60,7 @@ class DIPPRP5(DIPPR):
                  name
                  ) -> None:
 
-        self.pvalues = (A, B, C, D, E)
+        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'E': E}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
 
@@ -104,7 +100,8 @@ class DIPPR100(DIPPRP5):
         Name.
     """
 
-    _punits = ('#', '#/K', '#/K²', '#/K³', '#/K⁴')
+    _pinfo = {'A': ('#', True), 'B': ('#/K', True), 'C': ('#/K²', True),
+              'D': ('#/K³', True), 'E': ('#/K⁴', True)}
 
     def __init__(self,
                  A: float = 0.,
@@ -168,8 +165,8 @@ class DIPPR101(DIPPRP5):
     name : str
         Name.
     """
-
-    _punits = ('', 'K', '', '', '')
+    _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('', True),
+              'D': ('', True), 'E': ('', True)}
 
     def __init__(self,
                  A: float,
@@ -232,7 +229,8 @@ class DIPPR102(DIPPRP4):
         Name.
     """
 
-    _punits = ('', '', 'K', 'K²')
+    _pinfo = {'A': ('#', True), 'B': ('', True), 'C': ('K', True),
+              'D': ('K²', True)}
 
     def __init__(self,
                  A: float,
@@ -295,7 +293,8 @@ class DIPPR104(DIPPRP5):
         Name.
     """
 
-    _punits = ('#', '#/K', '#/K³', '#/K⁸', '#/K⁹')
+    _pinfo = {'A': ('#', True), 'B': ('#·K', True), 'C': ('#·K³', True),
+              'D': ('#·K⁸', True), 'E': ('#·K⁹', True)}
 
     def __init__(self,
                  A: float,
@@ -358,7 +357,8 @@ class DIPPR105(DIPPRP4):
         Name.
     """
 
-    _punits = ('#', '', 'K', '')
+    _pinfo = {'A': ('#', True), 'B': ('', True), 'C': ('K', True),
+              'D': ('', True)}
 
     def __init__(self,
                  A: float,
@@ -425,8 +425,8 @@ class DIPPR106(DIPPR):
         Name.
     """
 
-    _pnames = (('A', 'B', 'C', 'D', 'E'), ('Tc',))
-    _punits = ('#', '', '', '', '')
+    _pinfo = {'A': ('#', True), 'B': ('', True), 'C': ('', True),
+              'D': ('', True), 'E': ('', True), 'Tc': ('K', False)}
 
     def __init__(self,
                  Tc: float,
@@ -442,7 +442,7 @@ class DIPPR106(DIPPR):
                  name: str = ''
                  ) -> None:
 
-        self.pvalues = (A, B, C, D, E, Tc)
+        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'E': E, 'Tc': Tc}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
@@ -496,7 +496,8 @@ class DIPPR107(DIPPRP5):
         Name.
     """
 
-    _punits = ('#', '#', 'K', '#', 'K')
+    _pinfo = {'A': ('#', True), 'B': ('#', True), 'C': ('K', True),
+              'D': ('#', True), 'E': ('K', True)}
 
     def __init__(self,
                  A: float,

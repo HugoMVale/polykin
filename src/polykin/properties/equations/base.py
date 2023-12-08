@@ -11,8 +11,8 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
-from abc import ABC, abstractmethod
-from typing import Optional, Literal
+from abc import ABC, abstractmethod, abstractproperty
+from typing import Optional, Literal, Any
 
 
 class PropertyEquation(ABC):
@@ -36,9 +36,8 @@ class PropertyEquation(ABC):
 class PropertyEquationT(PropertyEquation):
     r"""_Abstract_ temperature-dependent property equation, $Y(T)$"""
 
-    pvalues: tuple[FloatOrArray, ...]
-    _pnames: tuple[tuple[str, ...], tuple[str, ...]]
-    _punits: tuple[str, ...]
+    _pinfo: dict[str, tuple[str, bool]]
+    p: dict[str, Any]
     Trange: tuple[FloatOrArray, FloatOrArray]
 
     def __init__(self,
@@ -76,7 +75,7 @@ class PropertyEquationT(PropertyEquation):
             Correlation value.
         """
         TK = convert_check_temperature(T, Tunit, self.Trange)
-        return self.equation(TK, *self.pvalues)
+        return self.equation(TK, **self.p)
 
     @staticmethod
     @abstractmethod
@@ -92,8 +91,8 @@ class PropertyEquationT(PropertyEquation):
             f"Trange [K]:      {self.Trange}"
         )
         string2 = ""
-        for pname, punits, pvalue in zip(
-                self._pnames[0] + self._pnames[1], self._punits, self.pvalues):
+        for pname, pvalue in self.p.items():
+            punits = self._pinfo[pname][0]
             if not punits:
                 punits = '—'
             punits = punits.replace('#', self.unit)
@@ -247,11 +246,10 @@ class PropertyEquationT(PropertyEquation):
         """
 
         # Current parameter values
-        pnames = self._pnames[0] + self._pnames[1]
-        pdict = {pname: pvalue for pname, pvalue in zip(pnames, self.pvalues)}
+        pdict = self.p.copy()
 
         # Select parameters to be fitted
-        pnames_fit = self._pnames[0]
+        pnames_fit = [name for name, info in self._pinfo.items() if info[1]]
         if fitonly:
             pnames_fit = set(fitonly) & set(pnames_fit)
         p0 = [pdict[pname] for pname in pnames_fit]
@@ -288,7 +286,7 @@ class PropertyEquationT(PropertyEquation):
             self.Trange = (min(T), max(T))
             for pname, pvalue in zip(pnames_fit, popt):
                 pdict[pname] = pvalue
-            self.pvalues = tuple(pdict.values())
+            self._pvalues = tuple(pdict.values())
             result['parameters'] = pdict
 
             # plot

@@ -9,6 +9,7 @@ from polykin.types import FloatOrArray
 from .base import PropertyEquationT
 
 import numpy as np
+from typing import Literal
 
 __all__ = ['Yaws']
 
@@ -38,7 +39,7 @@ class Yaws(PropertyEquationT):
         Parameter of equation.
         Unit = K⁻².
     base : float
-        Base of logarithm, usually equal to $10$ or $e$.
+        Base of logarithm, either $10$ or $e$.
     Tmin : float
         Lower temperature bound.
         Unit = K.
@@ -53,15 +54,15 @@ class Yaws(PropertyEquationT):
         Name.
     """
 
-    _pnames = (('A', 'B', 'C', 'D'), ('base',))
-    _punits = ('', 'K', 'K⁻¹', 'K⁻²', '')
+    _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K⁻¹', True),
+              'D': ('K⁻²', True), 'base': ('', False)}
 
     def __init__(self,
                  A: float,
                  B: float,
                  C: float = 0.,
                  D: float = 0.,
-                 base: float = 10.,
+                 base: Literal['e', '10'] = '10',
                  Tmin: float = 0.,
                  Tmax: float = np.inf,
                  unit: str = 'Pa·s',
@@ -70,7 +71,7 @@ class Yaws(PropertyEquationT):
                  ) -> None:
         """Construct `Yaws` with the given parameters."""
 
-        self.pvalues = (A, B, C, D, base)
+        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'base': base}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
@@ -79,7 +80,7 @@ class Yaws(PropertyEquationT):
                  B: float,
                  C: float,
                  D: float,
-                 base: float
+                 base: Literal['e', '10']
                  ) -> FloatOrArray:
         r"""Yaws equation.
 
@@ -106,4 +107,10 @@ class Yaws(PropertyEquationT):
         FloatOrArray
             Viscosity. Unit = Any.
         """
-        return base**(A + B/T + C*T + D*T**2)
+        x = A + B/T + C*T + D*T**2
+        if base == '10':
+            return 10**x
+        elif base == 'e':
+            return np.exp(x)
+        else:
+            raise ValueError("Invalid `base`.")

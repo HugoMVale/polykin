@@ -65,8 +65,7 @@ class Arrhenius(KineticCoefficientT):
         Name.
     """
 
-    _pnames = (('k0', 'EaR'), ('T0',))
-    _punits = ('#', 'K', 'K')
+    _pinfo = {'k0': ('#', True), 'EaR': ('K', True), 'T0': ('K', False)}
 
     def __init__(self,
                  k0: FloatOrArrayLike,
@@ -92,7 +91,7 @@ class Arrhenius(KineticCoefficientT):
         check_bounds(EaR, -np.inf, np.inf, 'EaR')
         check_bounds(T0, 0., np.inf, 'T0')
 
-        self.pvalues = (k0, EaR, T0)
+        self.p = {'k0': k0, 'EaR': EaR, 'T0': T0}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
@@ -150,7 +149,7 @@ class Arrhenius(KineticCoefficientT):
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
                 return Arrhenius(k0=self.A*other.A,
-                                 EaR=self.pvalues[1] + other.pvalues[1],
+                                 EaR=self.p['EaR'] + other.p['EaR'],
                                  Tmin=np.maximum(
                                      self.Trange[0], other.Trange[0]),
                                  Tmax=np.minimum(
@@ -162,9 +161,9 @@ class Arrhenius(KineticCoefficientT):
                 raise ShapeError(
                     "Product of array-like coefficients requires identical shapes.")  # noqa: E501
         elif isinstance(other, (int, float)):
-            return Arrhenius(k0=self.pvalues[0]*other,
-                             EaR=self.pvalues[1],
-                             T0=self.pvalues[2],
+            return Arrhenius(k0=self.p['k0']*other,
+                             EaR=self.p['EaR'],
+                             T0=self.p['T0'],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=self.unit,
@@ -196,7 +195,7 @@ class Arrhenius(KineticCoefficientT):
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
                 return Arrhenius(k0=self.A/other.A,
-                                 EaR=self.pvalues[1] - other.pvalues[1],
+                                 EaR=self.p['EaR'] - other.p['EaR'],
                                  Tmin=np.maximum(
                                      self.Trange[0], other.Trange[0]),
                                  Tmax=np.minimum(
@@ -208,9 +207,9 @@ class Arrhenius(KineticCoefficientT):
                 raise ShapeError(
                     "Division of array-like coefficients requires identical shapes.")  # noqa: E501
         elif isinstance(other, (int, float)):
-            return Arrhenius(k0=self.pvalues[0]/other,
-                             EaR=self.pvalues[1],
-                             T0=self.pvalues[2],
+            return Arrhenius(k0=self.p['k0']/other,
+                             EaR=self.p['EaR'],
+                             T0=self.p['T0'],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=self.unit,
@@ -221,9 +220,9 @@ class Arrhenius(KineticCoefficientT):
 
     def __rtruediv__(self, other):
         if isinstance(other, (int, float)):
-            return Arrhenius(k0=other/self.pvalues[0],
-                             EaR=-self.pvalues[1],
-                             T0=self.pvalues[2],
+            return Arrhenius(k0=other/self.p['k0'],
+                             EaR=-self.p['EaR'],
+                             T0=self.p['T0'],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=f"1/{self.unit}",
@@ -249,9 +248,9 @@ class Arrhenius(KineticCoefficientT):
             Power coefficient.
         """
         if isinstance(other, (int, float)):
-            return Arrhenius(k0=self.pvalues[0]**other,
-                             EaR=self.pvalues[1]*other,
-                             T0=self.pvalues[2],
+            return Arrhenius(k0=self.p['k0']**other,
+                             EaR=self.p['EaR']*other,
+                             T0=self.p['T0'],
                              Tmin=self.Trange[0],
                              Tmax=self.Trange[1],
                              unit=f"({self.unit})^{str(other)}",
@@ -303,8 +302,8 @@ class Eyring(KineticCoefficientT):
         Name.
     """
 
-    _pnames = (('DSa', 'DHa'), ('kappa',))
-    _punits = ('J/(mol·K)', 'J/mol', '')
+    _pinfo = {'DSa': ('J/(mol·K)', True),
+              'DHa': ('J/mol', True), 'kappa': ('', False)}
 
     def __init__(self,
                  DSa: FloatOrArrayLike,
@@ -329,7 +328,7 @@ class Eyring(KineticCoefficientT):
         check_bounds(DHa, 0., np.inf, 'DHa')
         check_bounds(kappa, 0., 1., 'kappa')
 
-        self.pvalues = (DSa, DHa, kappa)
+        self.p = {'DSa': DSa, 'DHa': DHa, 'kappa': kappa}
         super().__init__((Tmin, Tmax), '1/s', symbol, name)
 
     @staticmethod

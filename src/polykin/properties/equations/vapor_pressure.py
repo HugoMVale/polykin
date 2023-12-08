@@ -9,6 +9,7 @@ from polykin.types import FloatOrArray
 from .base import PropertyEquationT
 
 import numpy as np
+from typing import Literal
 
 __all__ = ['Antoine', 'Wagner']
 
@@ -47,8 +48,8 @@ class Antoine(PropertyEquationT):
     C : float
         Parameter of equation.
         Unit = K.
-    base : float
-        Base of logarithm, usually equal to $10$ or $e$.
+    base : Literal['e', '10']
+        Base of logarithm, either $10$ or $e$.
     Tmin : float
         Lower temperature bound.
         Unit = K.
@@ -63,14 +64,14 @@ class Antoine(PropertyEquationT):
         Name.
     """
 
-    _pnames = (('A', 'B', 'C'), ('base',))
-    _punits = ('', 'K', 'K', '')
+    _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K', True),
+              'base': ('', False)}
 
     def __init__(self,
                  A: float,
                  B: float,
                  C: float = 0.,
-                 base: float = 10.,
+                 base: Literal['e', '10'] = '10',
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = 'Pa',
@@ -79,7 +80,7 @@ class Antoine(PropertyEquationT):
                  ) -> None:
         """Construct `Antoine` with the given parameters."""
 
-        self.pvalues = (A, B, C, base)
+        self.p = {'A': A, 'B': B, 'C': C, 'base': base}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
@@ -87,7 +88,7 @@ class Antoine(PropertyEquationT):
                  A: float,
                  B: float,
                  C: float,
-                 base: float
+                 base: Literal['e', '10']
                  ) -> FloatOrArray:
         r"""Antoine equation.
 
@@ -102,7 +103,7 @@ class Antoine(PropertyEquationT):
             Parameter of equation.
         C : float
             Parameter of equation.
-        base : float
+        base: Literal['e', '10']
             Parameter of equation.
 
         Returns
@@ -110,7 +111,13 @@ class Antoine(PropertyEquationT):
         FloatOrArray
             Vapor pressure. Unit = Any.
         """
-        return base**(A - B/(T + C))
+        x = A - B/(T + C)
+        if base == '10':
+            return 10**x
+        elif base == 'e':
+            return np.exp(x)
+        else:
+            raise ValueError("Invalid `base`.")
 
 # %% Wagner
 
@@ -168,8 +175,8 @@ class Wagner(PropertyEquationT):
         Name.
     """
 
-    _pnames = (('a', 'b', 'c', 'd'), ('Pc', 'Tc',))
-    _punits = ('', '', '', '', '#', 'K')
+    _pinfo = {'a': ('', True), 'b': ('', True), 'c': ('', True),
+              'd': ('', True), 'Pc': ('#', False), 'Tc': ('K', False)}
 
     def __init__(self,
                  a: float,
@@ -186,7 +193,7 @@ class Wagner(PropertyEquationT):
                  ) -> None:
         """Construct `Wagner` with the given parameters."""
 
-        self.pvalues = (a, b, c, d, Pc, Tc)
+        self.p = {'a': a, 'b': b, 'c': c, 'd': d, 'Pc': Pc, 'Tc': Tc}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
