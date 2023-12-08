@@ -285,8 +285,7 @@ class PropertyEquationT(PropertyEquation):
             # Update attributes
             self.Trange = (min(T), max(T))
             for pname, pvalue in zip(pnames_fit, popt):
-                pdict[pname] = pvalue
-            self._pvalues = tuple(pdict.values())
+                self.p[pname] = pvalue
             result['parameters'] = pdict
 
             # plot
