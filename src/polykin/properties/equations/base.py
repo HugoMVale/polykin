@@ -146,16 +146,17 @@ class PropertyEquationT(PropertyEquation):
         # Plot objects
         if axes is None:
             fig, ax = plt.subplots()
-            self.fig = fig
             if title is None:
                 title = self.name
             if title:
                 fig.suptitle(title)
+            label = None
         else:
             fig = None
             ax = axes
+            label = self.name
 
-        # Plot labels
+        # Units and xlabel
         Tunit_range = Tunit
         if kind == 'Arrhenius':
             Tunit = 'K'
@@ -163,15 +164,18 @@ class PropertyEquationT(PropertyEquation):
         if Tunit == 'C':
             Tsymbol = '°' + Tunit
 
-        xlabel = fr"$T$ [{Tsymbol}]"
-        ylabel = fr"${self.symbol}$ [{self.unit}]"
-        label = None
-        if fig is None:
-            label = ylabel
-            ylabel = "$y(T)$"
         if kind == 'Arrhenius':
             xlabel = r"$1/T$ [" + Tsymbol + r"$^{-1}$]"
-            ylabel = r"$\ln$" + ylabel
+        else:
+            xlabel = fr"$T$ [{Tsymbol}]"
+
+        # ylabel
+        ylabel = fr"${self.symbol}$ [{self.unit}]"
+        if axes is not None:
+            ylabel0 = ax.get_ylabel()
+            if ylabel0 and ylabel not in ylabel0:
+                ylabel = ylabel0 + ", " + ylabel
+
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.grid(True)
