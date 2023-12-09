@@ -5,12 +5,15 @@
 from polykin.types import FloatVector, FloatOrArray
 
 import numpy as np
+from math import sqrt
 from scipy.constants import R
 
 __all__ = ['MUVMX2_herning',
            'MUVPC_jossi',
+           'MUMXPC_dean_stiel',
            'MUV_lucas',
-           'MUVMX_lucas']
+           'MUVMX_lucas'
+           ]
 
 # %% Mixing rules
 
@@ -94,6 +97,29 @@ def MUVPC_jossi(rhor: float,
     # 1e7*(1/((1e3)**3 * (1/101325)**4))**(1/6)
     xi = 6.872969367e8*(Tc/(M**3 * Pc**4))**(1/6)
     return (a**4 - 1)/xi
+
+
+def MUMXPC_dean_stiel(V: float,
+                      y: FloatVector,
+                      M: FloatVector,
+                      Tc: FloatVector,
+                      Pc: FloatVector,
+                      Zc: FloatVector,
+                      ) -> float:
+
+    M_mix = np.dot(y, M)
+    Tc_mix = np.dot(y, Tc)
+    Zc_mix = np.dot(y, Zc)
+    Vc = Zc*R*Tc/Pc
+    Vc_mix = np.dot(y, Vc)
+    Pc_mix = Zc_mix*R*Tc_mix/Vc_mix
+
+    rhor = Vc_mix/V
+    # xi = 1e3*Tc_mix**(1/6)/(sqrt(M_mix*1e3)*(Pc_mix/101325)**(2/3))
+    xi = 6.87e4*Tc_mix**(1/6)/(sqrt(M_mix)*(Pc_mix)**(2/3))
+    a = 10.8e-5*(np.exp(1.439*rhor) - np.exp(-1.111*rhor**1.858))
+
+    return a/xi
 
 
 # %% Estimation methods

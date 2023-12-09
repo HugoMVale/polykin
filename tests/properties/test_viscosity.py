@@ -2,10 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.viscosity import MUVMX2_herning, MUVPC_jossi, \
-    MUV_lucas, MUVMX_lucas, MULMX2_perry
+from polykin.properties.viscosity import MUVMX2_herning, MULMX2_perry, \
+    MUVPC_jossi, MUMXPC_dean_stiel, \
+    MUV_lucas, MUVMX_lucas
 
 import numpy as np
+from scipy.constants import R
 
 
 def test_MUVMX2_herning():
@@ -25,7 +27,31 @@ def test_MUVPC_jossi():
     rhor = 263/243.8
     M = 58.12e-3
     mu_pc = MUVPC_jossi(rhor, M, Tc, Pc)
-    assert np.isclose(mu_pc, (273-120)*1e-7, rtol=2e-2)
+    assert np.isclose(mu_pc, 1.53e-5, rtol=2e-2)
+
+
+def test_MUMXPC_dean_stiel_1():
+    "Example 9-11, p. 425"
+    y = np.array([1.])
+    M = np.array([58.12e-3])
+    Tc = np.array([408.2])
+    Pc = np.array([36.5e5])
+    Zc = Pc*263e-6/(R*Tc)
+    V = 243.8e-6
+    mu_pc = MUMXPC_dean_stiel(V, y, M, Tc, Pc, Zc)
+    assert np.isclose(mu_pc, 1.53e-5, rtol=0.1)
+
+
+def test_MUMXPC_dean_stiel_2():
+    "Example 23, p. 2-363, Perry's"
+    y = np.array([0.6, 0.4])
+    M = np.array([16.04e-3, 44.10e-3])
+    Tc = np.array([-110.4, 96.7]) + 273.15
+    Pc = np.array([4.593e6, 4.246e6])
+    Zc = np.array([0.288, 0.281])
+    V = 1/3.55e3
+    mu_pc = MUMXPC_dean_stiel(V, y, M, Tc, Pc, Zc)
+    assert np.isclose(mu_pc, 3.7e-6, rtol=0.1)
 
 
 def test_MUV_lucas():
