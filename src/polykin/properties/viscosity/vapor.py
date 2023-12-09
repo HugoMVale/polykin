@@ -8,9 +8,9 @@ import numpy as np
 from math import sqrt
 from scipy.constants import R
 
-__all__ = ['MUVMX2_herning',
+__all__ = ['MUVMX2_herning_zipperer',
            'MUVPC_jossi',
-           'MUMXPC_dean_stiel',
+           'MUVMXPC_dean_stiel',
            'MUV_lucas',
            'MUVMX_lucas'
            ]
@@ -18,16 +18,23 @@ __all__ = ['MUVMX2_herning',
 # %% Mixing rules
 
 
-def MUVMX2_herning(y: FloatVector,
-                   mu: FloatVector,
-                   M: FloatVector
-                   ) -> float:
+def MUVMX2_herning_zipperer(y: FloatVector,
+                            mu: FloatVector,
+                            M: FloatVector
+                            ) -> float:
     r"""Calculate the viscosity of a gas mixture from the viscosities of the
-    pure components using the mixing rule of Herning and Zipperer.
+    pure components using the mixing rule Wilke with the approximation of
+    Herning and Zipperer.
 
     $$ \mu_m = \frac{\sum _i y_i M_i^{1/2} \mu_i}{\sum _i y_i M_i^{1/2}} $$
 
     where the meaning of the parameters is as defined below.
+
+    !!! note
+
+        In this equation, the units of mole fraction $y_i$ and molar mass
+        $M_i$ are arbitrary, as they cancel out when considering the ratio of
+        the numerator to the denominator.
 
     Reference:
 
@@ -90,7 +97,7 @@ def MUVPC_jossi(rhor: float,
     Returns
     -------
     float
-        Residual viscosity, $(\mu - \mu^\circ)$. Unit = Pa.s.
+        Residual viscosity, $(\mu - \mu^\circ)$. Unit = Pa·s.
     """
     a = 1.0230 + 0.23364*rhor + 0.58533*rhor**2 - 0.40758*rhor**3 \
         + 0.093324*rhor**4
@@ -99,14 +106,43 @@ def MUVPC_jossi(rhor: float,
     return (a**4 - 1)/xi
 
 
-def MUMXPC_dean_stiel(V: float,
-                      y: FloatVector,
-                      M: FloatVector,
-                      Tc: FloatVector,
-                      Pc: FloatVector,
-                      Zc: FloatVector,
-                      ) -> float:
+def MUVMXPC_dean_stiel(V: float,
+                       y: FloatVector,
+                       M: FloatVector,
+                       Tc: FloatVector,
+                       Pc: FloatVector,
+                       Zc: FloatVector,
+                       ) -> float:
+    r"""Calculate the effect of pressure (or density) on the viscosity of
+    gas mixtures using the method of Dean and Stiel for nonpolar components.
 
+    Reference:
+
+    * Dean, D., and Stiel, L. "The viscosity of nonpolar gas mixtures at
+    moderate and high pressures." AIChE Journal 11.3 (1965): 526-532.
+
+    Parameters
+    ----------
+    V : float
+        Gas molar volume. Unit = m³/mol.
+    y : FloatVector
+        Mole fractions of all components. Unit = mol/mol.
+    M : FloatVector
+        Molar masses of all components. Unit = kg/mol.
+    Tc : FloatVector
+        Critical temperatures of all components. Unit = K.
+    Pc : FloatVector
+        Critical pressures of all components. Unit = Pa.
+    Zc : FloatVector
+        Critical compressibility factors of all components.
+
+    Returns
+    -------
+    float
+        Residual viscosity, $(\mu_m - \mu_m^\circ)$. Unit = Pa·s.
+    """
+
+    # Mixing rules recommended in paper
     M_mix = np.dot(y, M)
     Tc_mix = np.dot(y, Tc)
     Zc_mix = np.dot(y, Zc)
@@ -132,8 +168,8 @@ def MUV_lucas(T: float,
               Zc: float,
               dm: float
               ) -> float:
-    r"""Calculate the viscosity of a pure gas at a given pressure using the
-    method of Lucas.
+    r"""Calculate the viscosity of a pure gas at a given temperature and
+    pressure using the method of Lucas.
 
     Reference:
 
@@ -160,7 +196,7 @@ def MUV_lucas(T: float,
     Returns
     -------
     float
-        Gas viscosity, $\mu$. Unit = Pa.s.
+        Gas viscosity, $\mu$. Unit = Pa·s.
     """
     Tr = T/Tc
     Pr = P/Pc
@@ -178,8 +214,8 @@ def MUVMX_lucas(T: float,
                 Zc: FloatVector,
                 dm: FloatVector
                 ) -> float:
-    r"""Calculate the viscosity of a gas mixture at a given pressure using the
-    method of Lucas.
+    r"""Calculate the viscosity of a gas mixture at a given temperature and
+    pressure using the method of Lucas.
 
     Reference:
 
@@ -208,7 +244,7 @@ def MUVMX_lucas(T: float,
     Returns
     -------
     float
-        Gas mixture viscosity, $\mu_m$. Unit = Pa.s.
+        Gas mixture viscosity, $\mu_m$. Unit = Pa·s.
     """
     Tc_mix = np.dot(y, Tc)
     M_mix = np.dot(y, M)
@@ -226,8 +262,8 @@ def _MUV_lucas_mu(Tr: float,
                   Pc: float,
                   FP0: float
                   ) -> float:
-    """Calculate the viscosity of a pure gas or gas mixture at a given pressure
-    using the method of Lucas.
+    """Calculate the viscosity of a pure gas or gas mixture at a given
+    temperature and pressure using the method of Lucas.
     """
     # Z1
     Z1 = (0.807*Tr**0.618 - 0.357*np.exp(-0.449*Tr) +

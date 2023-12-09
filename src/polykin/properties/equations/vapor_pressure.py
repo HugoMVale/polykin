@@ -49,7 +49,7 @@ class Antoine(PropertyEquationT):
         Parameter of equation.
         Unit = K.
     base : Literal['e', '10']
-        Base of logarithm, either $10$ or $e$.
+        Base of logarithm, either $e$ or $10$.
     Tmin : float
         Lower temperature bound.
         Unit = K.

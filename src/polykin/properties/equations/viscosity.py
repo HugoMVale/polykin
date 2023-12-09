@@ -39,7 +39,7 @@ class Yaws(PropertyEquationT):
         Parameter of equation.
         Unit = K⁻².
     base : float
-        Base of logarithm, either $10$ or $e$.
+        Base of logarithm, either $e$ or $10$.
     Tmin : float
         Lower temperature bound.
         Unit = K.

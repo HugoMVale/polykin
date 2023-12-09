@@ -109,7 +109,7 @@ def KVMXPC_stiel_thodos(V: float,
     Returns
     -------
     float
-        Residual thermal conductivity, $(k - k^{\circ})$. Unit = W/(m·K).
+        Residual thermal conductivity, $(k_m - k_m^{\circ})$. Unit = W/(m·K).
     """
 
     Vc = Zc*R*Tc/Pc
@@ -153,6 +153,12 @@ def KVMX2_wassilijewa(y: FloatVector,
     $$ k_m = \frac{\sum _i y_i M_i^{1/2} k_i}{\sum _i y_i M_i^{1/2}} $$
 
     where the meaning of the parameters is as defined below.
+
+    !!! note
+
+        In this equation, the units of mole fraction $y_i$ and molar mass
+        $M_i$ are arbitrary, as they cancel out when considering the ratio of
+        the numerator to the denominator.
 
     Reference:
 

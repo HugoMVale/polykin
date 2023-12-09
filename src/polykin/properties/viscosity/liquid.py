@@ -36,7 +36,7 @@ def MULMX2_perry(x: FloatVector,
     Parameters
     ----------
     x : FloatVector
-        Mole fractions of all components. Unit = Any.
+        Mole fractions of all components. Unit = mol/mol.
     mu : FloatVector
         Viscosities of all components, $\mu$. Unit = Any.
     hydrocarbons : bool
