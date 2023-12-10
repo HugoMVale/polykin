@@ -2,137 +2,23 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatVectorLike, FloatOrVectorLike, \
+from polykin.types import FloatVector, FloatOrVectorLike, \
     FloatOrArray, FloatOrArrayLike
-from polykin.utils import ShapeError, eps
+from polykin.utils import eps
 from polykin import utils
 from polykin.kinetics import Arrhenius
 
-from dataclasses import dataclass
-from operator import itemgetter
 import numpy as np
-from typing import Union, Optional, Literal, Any
-from scipy.stats import linregress
-from scipy.stats.distributions import t
-from scipy.optimize import curve_fit, root_scalar
-from scipy import odr
+from typing import Optional, Literal
+from scipy.optimize import root_scalar
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
-import matplotlib.transforms as transforms
-from matplotlib.patches import Ellipse, Patch
 from matplotlib.figure import Figure
 from matplotlib.axes._axes import Axes
 from abc import ABC, abstractmethod
 
-__all__ = ['InstantaneousCopoData',
-           'CopoFitResult',
-           'TerminalModel',
+__all__ = ['TerminalModel',
            'PenultimateModel']
-
-# %% Dataclasses
-
-
-@dataclass(frozen=True)
-class InstantaneousCopoData():
-    r"""Binary instantaneous copolymerization dataclass.
-
-    Container for binary instantaneous copolymerization data, $F_1$ vs $f_1$,
-    as usually obtained from low-conversion experiments.
-
-    Parameters
-    ----------
-    M1 : str
-        Name of M1.
-    M2 : str
-        Name of M2.
-    f1 : FloatVectorLike
-        Vector of monomer molar composition, $f_1$.
-    F1 : FloatVectorLike
-        Vector of copolymer molar composition, $F_1$.
-    sigma_f: float | FloatVectorLike
-        Absolute standard deviation of $f_i$
-        ($\sigma_{f_1} \equiv \sigma_{f_2}$).
-    sigma_F: float | FloatVectorLike
-        Absolute standard deviation of $F_i$
-        ($\sigma_{F_1} \equiv \sigma_{F_2}$).
-    name: str
-        Name of dataset.
-    reference: str
-        Reference of dataset.
-
-    """
-    M1: str
-    M2: str
-    f1: FloatVectorLike
-    F1: FloatVectorLike
-    sigma_f: FloatOrVectorLike = 1e-3
-    sigma_F: FloatOrVectorLike = 5e-2
-    name: str = ''
-    reference: str = ''
-
-    def __post_init__(self):
-        if not self.M1 or not self.M2 or self.M1.lower() == self.M2.lower():
-            raise ValueError(
-                "`M1` and `M2` must be non-empty and different.")
-        for attr in ['f1', 'F1', 'sigma_f', 'sigma_F']:
-            x = getattr(self, attr)
-            if isinstance(x, list):
-                x = np.array(x, dtype=np.float64)
-                object.__setattr__(self, attr, x)
-            utils.check_bounds(x, 0., 1., attr)
-        if len(self.f1) != len(self.F1):
-            raise ShapeError(
-                "`f1` and `F1` must be vectors of the same length.")
-        for attr in ['sigma_f', 'sigma_F']:
-            x = getattr(self, attr)
-            if isinstance(x, np.ndarray) and (len(x) != len(self.f1)):
-                raise ShapeError(
-                    f"`{attr}` must have the same length as `f1` and `F1`.")
-
-    def __repr__(self):
-        return (
-            f"M1:        {self.M1}\n"
-            f"M2:        {self.M2}\n"
-            f"f1:        {self.f1}\n"
-            f"F1:        {self.F1}\n"
-            f"sigma_f:   {self.sigma_f}\n"
-            f"sigma_F:   {self.sigma_F}\n"
-            f"name:      {self.name}\n"
-            f"reference: {self.reference}"
-        )
-
-
-@dataclass(frozen=True)
-class CopoFitResult():
-    """Something"""
-    M1: str
-    M2: str
-    r1: Optional[float] = None
-    r2: Optional[float] = None
-    sigma_r1: Optional[float] = None
-    sigma_r2: Optional[float] = None
-    error95_r1: Optional[float] = None
-    error95_r2: Optional[float] = None
-    cov: Optional[Any] = None
-    method: str = ''
-
-    def __repr__(self):
-        s1 = \
-            f"method:     {self.method}\n" \
-            f"M1:         {self.M1}\n" \
-            f"M2:         {self.M2}\n" \
-            f"r1:         {self.r1:.2E}\n" \
-            f"r2:         {self.r2:.2E}\n"
-        if self.sigma_r1 is not None:
-            s2 = \
-                f"sigma_r1:   {self.sigma_r1:.2E}\n" \
-                f"sigma_r2:   {self.sigma_r2:.2E}\n" \
-                f"error95_r1: {self.error95_r1:.2E}\n" \
-                f"error95_r2: {self.error95_r2:.2E}\n" \
-                f"cov:        {self.cov}\n"
-        else:
-            s2 = ""
-        return s1 + s2
 
 # %% Models
 
@@ -159,17 +45,29 @@ class CopoModel(ABC):
 
         self.name = name
 
+    # def __repr__(self) -> str:
+    #     string1 = (
+    #         f"name: {self.name}\n"
+    #         f"M1:   {self.M1}\n"
+    #         f"M2:   {self.M2}"
+    #     )
+    #     string2 = ""
+    #     for pname in self._pnames:
+    #         string2 += "\n" + f"{pname}:" + " " * \
+    #             (5 - len(pname)) + f"{getattr(self, pname)}"
+    #     return string1 + string2
+
     def __repr__(self) -> str:
-        string1 = (
-            f"name: {self.name}\n"
-            f"M1:   {self.M1}\n"
-            f"M2:   {self.M2}"
-        )
-        string2 = ""
-        for pname in self._pnames:
-            string2 += "\n" + f"{pname}:" + " " * \
-                (5 - len(pname)) + f"{getattr(self, pname)}"
-        return string1 + string2
+        items = []
+        for pname in ('name', 'M1', 'M2') + self._pnames:
+            pstr = str(getattr(self, pname))
+            rows = pstr.split("\n")
+            if len(rows) == 1:
+                item = f"{pname}:" + " "*(5 - len(pname)) + pstr
+            else:
+                item = "\n  ".join([pname + ":"] + rows)
+            items.append(item)
+        return "\n".join(items)
 
     @staticmethod
     def equation_F1(f1: FloatOrArray,
@@ -183,18 +81,20 @@ class CopoModel(ABC):
 
         $$ F_1=\frac{r_1 f_1^2 + f_1 f_2}{r_1 f_1^2 + 2 f_1 f_2 + r_2 f_2^2} $$
 
-        where $F_1$ and $f_1$ are, respectively, the instantaneous copolymer
-        and comonomer composition of M1, and $r_1$ and $r_2$ are the
-        reactivity ratios (usually assumed composition independent).
+        where $F_i$ and $f_i$ are, respectively, the instantaneous copolymer
+        and comonomer composition of monomer $i$, and $r_i$ are the
+        reactivity ratios. Although the equation is written using terminal
+        model notation, it is equally applicable in the frame of the
+        penultimate model if $r_i \rightarrow \bar{r}_i$.
 
         Parameters
         ----------
         f1 : FloatOrArray
             Molar fraction of M1.
         r1 : FloatOrArray
-            Reactivity ratio of M1.
+            Reactivity ratio of M1, $r_1$ or $\bar{r}_1$.
         r2 : FloatOrArray
-            Reactivity ratio of M2.
+            Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
 
         Returns
         -------
@@ -213,21 +113,33 @@ class CopoModel(ABC):
                     ) -> FloatOrArray:
         r"""Average propagation rate coefficient equation.
 
+        For a binary system, the instantaneous average propagation rate
+        coefficient is related to the instantaneous comonomer composition by:
+
         $$ \bar{k}_p = \frac{r_1 f_1^2 + r_2 f_2^2 + 2f_1 f_2}
            {(r_1 f_1/k_{11}) + (r_2 f_2/k_{22})} $$
+
+        where $f_i$ is the instantaneous comonomer composition of monomer $i$,
+        $r_i$ are the reactivity ratios, and $k_{ii}$ are the homo-propagation
+        rate coefficients. Although the equation is written using terminal
+        model notation, it is equally applicable in the frame of the
+        penultimate model if $r_i \rightarrow \bar{r}_i$ and
+        $k_{ii} \rightarrow \bar{k}_{ii}$.
 
         Parameters
         ----------
         f1 : FloatOrArray
             Molar fraction of M1.
         r1 : float
-            Reactivity ratio of M1.
+            Reactivity ratio of M1, $r_1$ or $\bar{r}_1$.
         r2 : float
-            Reactivity ratio of M2.
+            Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
         k11 : float
-            Propagation rate coefficient of M1. Unit = L/(mol·s)
+            Propagation rate coefficient of M1, $k_{11}$ or $\bar{k}_{11}$.
+            Unit = L/(mol·s)
         k22 : float
-            Propagation rate coefficient of M2. Unit = L/(mol·s)
+            Propagation rate coefficient of M2, $k_{22}$ or $\bar{k}_{22}$.
+            Unit = L/(mol·s)
 
         Returns
         -------
@@ -238,15 +150,15 @@ class CopoModel(ABC):
         return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
 
     @abstractmethod
-    def _ri(self, f1: FloatOrArray) -> tuple[FloatOrArray, FloatOrArray]:
+    def ri(self, f1: FloatOrArray) -> tuple[FloatOrArray, FloatOrArray]:
         pass
 
     @abstractmethod
-    def _kii(self,
-             f1: FloatOrArray,
-             T: float,
-             Tunit,
-             ) -> tuple[FloatOrArray, FloatOrArray]:
+    def kii(self,
+            f1: FloatOrArray,
+            T: float,
+            Tunit,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
         pass
 
     def F1(self,
@@ -265,10 +177,10 @@ class CopoModel(ABC):
             Instantaneous copolymer composition, $F_1$.
         """
 
-        if isinstance(f1, list):
+        if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
         utils.check_bounds(f1, 0., 1., 'f1')
-        return self.equation_F1(f1, *self._ri(f1))
+        return self.equation_F1(f1, *self.ri(f1))
 
     def kp(self,
            f1: FloatOrArrayLike,
@@ -293,10 +205,10 @@ class CopoModel(ABC):
             Average propagation rate coefficient. Unit = L/(mol·s)
         """
 
-        if isinstance(f1, list):
+        if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
         utils.check_bounds(f1, 0., 1., 'f1')
-        return self.equation_kp(f1, *self._ri(f1), *self._kii(f1, T, Tunit))
+        return self.equation_kp(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
     @property
     def azeo(self) -> Optional[float]:
@@ -309,8 +221,14 @@ class CopoModel(ABC):
             $f_1$.
         """
 
+        # Check if system is trivial
+        ri_check = np.array(self.ri(0.1) + self.ri(0.9))
+        if (np.all(np.isclose(ri_check, 1., atol=1e-2))):
+            print("Warning: Trivial system with r1~r2~1.")
+            return None
+
         def fzero(f1):
-            return self.equation_F1(f1, *self._ri(f1)) - f1
+            return self.equation_F1(f1, *self.ri(f1)) - f1
 
         try:
             solution = root_scalar(f=fzero,
@@ -359,8 +277,8 @@ class CopoModel(ABC):
         if isinstance(x, (int, float)):
             x = [x]
 
-        def df1dx(x_, f1_):
-            return (f1_ - self.equation_F1(f1_, *self._ri(f1_)))/(1 - x_ + eps)
+        def df1dx(x, f1):
+            return (f1 - self.equation_F1(f1, *self.ri(f1)))/(1 - x + eps)
 
         sol = solve_ivp(df1dx,
                         (0, max(x)),
@@ -401,10 +319,10 @@ class CopoModel(ABC):
         M : Literal[1, 2]
             Index of the monomer to be used in input argument `f0` and in
             output results. Specifically, if `M=i`, then `f0` stands for
-            $f_{i,0}$ and plots will be generated in terms of $f_i$ and $F_i$.
+            $f_i(0)$ and plots will be generated in terms of $f_i$ and $F_i$.
         f0 : FloatOrVectorLike | None
-            Initial monomer composition, as required for a monomer composition
-            drift $f_i(x)$ plot.
+            Initial monomer composition, $f_i(0)$, as required for a monomer
+            composition drift plot.
         T : float | None
             Temperature. Unit = `Tunit`.
         Tunit : Literal['C', 'K']
@@ -605,16 +523,14 @@ class TerminalModel(CopoModel):
             result = None
         return result
 
-    def _ri(self,
-            f1: FloatOrArray
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+    def ri(self, _) -> tuple[FloatOrArray, FloatOrArray]:
         return (self.r1, self.r2)
 
-    def _kii(self,
-             f1: FloatOrArray,
-             T: float,
-             Tunit,
-             ) -> tuple[FloatOrArray, FloatOrArray]:
+    def kii(self,
+            _,
+            T: float,
+            Tunit,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
         if self.k11 is None or self.k22 is None:
             raise ValueError(
                 "To use this feature, `k11` and `k22` cannot be `None`.")
@@ -718,9 +634,31 @@ class PenultimateModel(CopoModel):
         self.k222 = k222
         super().__init__(M1, M2, name)
 
-    def _ri(self,
+    def ri(self,
             f1: FloatOrArray
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+           ) -> tuple[FloatOrArray, FloatOrArray]:
+        r"""Average reactivity ratios.
+
+        In the penultimate model, the average reactivity ratios depend on the
+        instantaneous comonomer composition according to:
+
+        $$ \begin{aligned}
+           \bar{r}_1 &= r_{21}\frac{f_1 r_{11} + f_2}{f_1 r_{21} + f_2} \\
+           \bar{r}_2 &= r_{12}\frac{f_2 r_{22} + f_1}{f_2 r_{12} + f_1}
+        \end{aligned} $$
+
+        where $r_{ij}$ are the monomer reactivity ratios.
+
+        Parameters
+        ----------
+        f1 : FloatOrArray
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, FloatOrArray]
+            Tuple of average reactivity ratios, ($\bar{r}_1$, $\bar{r}_2$).
+        """
         f2 = 1. - f1
         r11 = self.r11
         r12 = self.r12
@@ -730,11 +668,40 @@ class PenultimateModel(CopoModel):
         r2 = r12*(f2*r22 + f1)/(f2*r12 + f1)
         return (r1, r2)
 
-    def _kii(self,
-             f1: FloatOrArray,
-             T: float,
-             Tunit,
-             ) -> tuple[FloatOrArray, FloatOrArray]:
+    def kii(self,
+            f1: FloatOrArray,
+            T: float,
+            Tunit,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
+        r"""Average homo-propagation rate coefficients.
+
+        In the penultimate model, the average reactivity ratios depend on the
+        instantaneous comonomer composition according to:
+
+        $$ \begin{aligned}
+        \bar{k}_{11} = k_{111} \frac{f_1 r_{11} + f_2}{f_1 r_{11} + f_2/s_1} \\
+        \bar{k}_{22} = k_{222} \frac{f_2 r_{22} + f_1}{f_2 r_{22} + f_1/s_2}
+        \end{aligned} $$
+
+        where $r_{ij}$ are the monomer reactivity ratios, $s_i$ are the radical
+        reactivity ratios, and $k_{iii}$ are the homo-propagation rate
+        coefficients.
+
+        Parameters
+        ----------
+        f1 : FloatOrArray
+            Molar fraction of M1.
+        T : float
+            Temperature. Unit = `Tunit`.
+        Tunit : Literal['C', 'K']
+            Temperature unit.
+
+        Returns
+        -------
+        tuple[FloatOrArray, FloatOrArray]
+            Tuple of average propagation rate coefficients,
+            ($\bar{k}_{11}$, $\bar{k}_{22}$).
+        """
         if self.k111 is None or self.k222 is None:
             raise ValueError(
                 "To use this feature, `k111` and `k222` cannot be `None`.")
@@ -748,253 +715,3 @@ class PenultimateModel(CopoModel):
         k11 = k111*(f1*r11 + f2)/(f1*r11 + f2/s1)
         k22 = k222*(f2*r22 + f1)/(f2*r22 + f1/s2)
         return (k11, k22)
-
-
-# %% Analysis
-
-
-class CopoAnalysis():
-
-    def __init__(self,
-                 data: Union[InstantaneousCopoData, list[InstantaneousCopoData]],
-                 M1: Union[str, None] = None,
-                 M2: Union[str, None] = None
-                 ) -> None:
-
-        # Recast data input as list and check content
-        if not isinstance(data, list):
-            data = [data]
-        self.data = utils.check_type(data, InstantaneousCopoData, 'data',
-                                     check_inside=True)
-
-        # Define M1, M2
-        if M1 and M2:
-            if M1.lower() != M2.lower():
-                self.M1 = M1
-                self.M2 = M2
-            else:
-                raise ValueError(
-                    f"M1='{M1}' and M2='{M2}' must be different monomers.")
-        elif not (M1 or M2):
-            self.M1 = data[0].M1
-            self.M2 = data[0].M2
-        else:
-            raise ValueError(
-                "`M1` and `M2` must be both defined or both undefined.")
-
-        # Check monomer consistency in datasets
-        valid_monomers = {self.M1, self.M2}
-        for ds in self.data:
-            ds_monomers = {ds.M1, ds.M2}
-            if valid_monomers != ds_monomers:
-                raise ValueError(
-                    f"Monomers defined in dataset `{ds.name}` are invalid: {ds_monomers}!={valid_monomers}")
-
-        self._data_fit = {}
-
-    def plot(self,
-             M: Literal[1, 2] = 1,
-             title: Union[str, None] = None,
-             axes: Union[Axes, None] = None,
-             show: Literal['data', 'fit', 'all'] = 'all'
-             ) -> Union[Figure, None]:
-
-        if axes is None:
-            fig, ax = plt.subplots()
-            if title is None:
-                title = f"Mayo plot {self.M1}(1)-{self.M2}(2)"
-            if title:
-                fig.suptitle(title)
-        else:
-            ax = axes
-            fig = None
-
-        if M == 1:
-            Mx = self.M1
-        elif M == 2:
-            Mx = self.M2
-        else:
-            raise ValueError("Monomer index `M` must be 1 or 2.")
-
-        ax.set_xlabel(fr"$f_{M}$")
-        ax.set_ylabel(fr"$F_{M}$")
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
-
-        ax.plot((0, 1), (0, 1), color='black', linewidth=0.5, label=None)
-
-        if show in {'data', 'all'}:
-            for ds in self.data:
-                x = ds.f1
-                y = ds.F1
-                if Mx == ds.M2:
-                    x[:] = 1 - x
-                    y[:] = 1 - y
-                ax.scatter(x, y, label=ds.name)
-        if show in {'fit', 'all'}:
-            x = np.linspace(0, 1, 100
-                            )
-            pass
-
-        ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
-
-        return fig
-
-    def fit(self,
-            method: Literal['FR', 'NLLS', 'ODR'] = 'NLLS',
-            alpha: float = 0.05,
-            plot: bool = True
-            ) -> CopoFitResult:
-
-        method_names = {'FR': 'Finemann-Ross',
-                        'NLLS': 'Non-linear least squares',
-                        'ODR': 'Orthogonal distance regression'}
-
-        # Concatenate all datasets and save to cache
-        if not self._data_fit:
-            f1 = np.array([])
-            F1 = np.array([])
-            sigma_f = np.array([])
-            sigma_F = np.array([])
-            for ds in self.data:
-                ds_f1 = ds.f1
-                ds_F1 = ds.F1
-                npoints = len(ds_f1)
-                if ds.M1 == self.M2 and ds.M2 == self.M1:
-                    ds_f1 = 1 - ds_f1
-                    ds_F1 = 1 - ds_F1
-                f1 = np.concatenate([f1, ds_f1])
-                F1 = np.concatenate([F1, ds_F1])
-                if isinstance(ds.sigma_f, float):
-                    ds_sigma_f = np.full(npoints, ds.sigma_f)
-                else:
-                    ds_sigma_f = ds.sigma_f
-                if isinstance(ds.sigma_F, float):
-                    ds_sigma_F = np.full(npoints, ds.sigma_F)
-                else:
-                    ds_sigma_F = ds.sigma_F
-                sigma_f = np.concatenate([sigma_f, ds_sigma_f])
-                sigma_F = np.concatenate([sigma_F, ds_sigma_F])
-
-            # Remove invalid f, F values
-            idx_valid = np.logical_and.reduce((f1 > 0, f1 < 1, F1 > 0, F1 < 1))
-            f1 = f1[idx_valid]
-            F1 = F1[idx_valid]
-            sigma_f = sigma_f[idx_valid]
-            sigma_F = sigma_F[idx_valid]
-
-            # Store in cache
-            self._data_fit.update({'f1': f1,
-                                   'F1': F1,
-                                   'sigma_f': sigma_f,
-                                   'sigma_F': sigma_F})
-        else:
-            f1, F1, sigma_f, sigma_F = \
-                itemgetter('f1', 'F1', 'sigma_f', 'sigma_F')(self._data_fit)
-
-        # Finemann-Ross (either for itself or as initial guess for other methods)
-        x, y = f1/(1 - f1), F1/(1 - F1)
-        x, y = -y/x**2, (y - 1)/x
-        solution = linregress(x, y)
-        _r1, _r2 = solution.intercept, solution.slope  # type: ignore
-
-        r1 = None
-        r2 = None
-        sigma_r1 = None
-        sigma_r2 = None
-        cov = None
-        error95_r1 = None
-        error95_r2 = None
-
-        if method == 'FR':
-            r1 = _r1
-            r2 = _r2
-
-        elif method == 'NLLS':
-            solution = curve_fit(F1_inst,
-                                 xdata=f1,
-                                 ydata=F1,
-                                 p0=(_r1, _r2),
-                                 sigma=sigma_F,
-                                 absolute_sigma=True,
-                                 bounds=(0, np.inf),
-                                 full_output=True)
-            if solution[4]:
-                r1, r2 = solution[0]
-                cov = solution[1]
-                # This next part is to be checked
-                sigma_r1, sigma_r2 = np.sqrt(np.diag(cov))
-                tval = t.ppf(1 - alpha/2, max(0, f1.size - cov.shape[0]))
-                error95_r1 = sigma_r1*tval
-                error95_r2 = sigma_r2*tval
-            else:
-                print("Fit error: ", solution[3])
-
-        elif method == 'ODR':
-            odr_Model = odr.Model(lambda beta, x: F1_inst(x, *beta))
-            odr_Data = odr.RealData(x=f1, y=F1, sx=sigma_f, sy=sigma_F)
-            odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=(_r1, _r2))
-            solution = odr_ODR.run()
-            r1, r2 = solution.beta
-            cov = np.array(solution.cov_beta)  # !!! not sure
-            # This next part is to be checked + finished
-            sigma_r1, sigma_r2 = solution.sd_beta
-            error95_r1 = sigma_r1
-            error95_r2 = sigma_r2
-
-        else:
-            utils.check_in_set(method, set(method_names.keys()), 'method')
-
-        # Pack results into object
-        result = CopoFitResult(M1=self.M1,
-                               M2=self.M2,
-                               r1=r1,
-                               r2=r2,
-                               sigma_r1=sigma_r1,
-                               sigma_r2=sigma_r2,
-                               error95_r1=error95_r1,
-                               error95_r2=error95_r2,
-                               cov=cov,
-                               method=method_names[method])
-        if r1 is not None and r2 is not None and cov is not None:
-            draw_jcr(r1, r2, cov, alpha)
-        return result
-
-
-def draw_jcr(r1: float,
-             r2: float,
-             cov: np.ndarray,
-             alpha: float = 0.05):
-
-    fig, ax = plt.subplots()
-    ax.set_xlabel(r"$r_1$")
-    ax.set_ylabel(r"$r_2$")
-    ax.scatter(r1, r2, c='black', s=5)
-    confidence_ellipse((r1, r2), cov, ax)
-    return
-
-
-def confidence_ellipse(center: tuple[float, float],
-                       cov: np.ndarray,
-                       ax: plt.Axes,
-                       nstd: float = 1.96
-                       ) -> Patch:
-
-    pearson = cov[0, 1]/np.sqrt(cov[0, 0]*cov[1, 1])
-    radius_x = np.sqrt(1 + pearson)
-    radius_y = np.sqrt(1 - pearson)
-    scale_x, scale_y = np.sqrt(np.diag(cov))*nstd
-
-    ellipse = Ellipse((0, 0),
-                      width=2*radius_x,
-                      height=2*radius_y,
-                      facecolor='none',
-                      edgecolor='black')
-
-    transf = transforms.Affine2D() \
-        .rotate_deg(45) \
-        .scale(scale_x, scale_y) \
-        .translate(*center)
-
-    ellipse.set_transform(transf + ax.transData)
-    return ax.add_patch(ellipse)
