@@ -1,6 +1,6 @@
 # polykin.copolymerization
 
-::: polykin.copolymerization.binary
+::: polykin.copolymerization.models
     options:
         members:
             - TerminalModel
