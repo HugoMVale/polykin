@@ -75,8 +75,8 @@ def MUVPC_jossi(rhor: float,
 
     where $\mu$ is the dense gas viscosity, $\mu^\circ$ is the is the
     low-pressure viscosity, $\xi$ is a group of constants, and
-    $\rho_r = \rho / \rho_c = V_c / V$ is the reduced gas density. This
-    equation is valid in the range $0.1 < \rho_r < 3.0$.
+    $\rho_r = V_c / V$ is the reduced gas density. This equation is valid in
+    the range $0.1 < \rho_r < 3.0$.
 
     Reference:
 
@@ -115,6 +115,13 @@ def MUVMXPC_dean_stiel(V: float,
                        ) -> float:
     r"""Calculate the effect of pressure (or density) on the viscosity of
     gas mixtures using the method of Dean and Stiel for nonpolar components.
+
+    $$ (\mu_m -\mu_m^\circ)\xi = f(\rho_r) $$
+
+    where $\mu_m$ is the dense gas mixture viscosity, $\mu_m^\circ$ is the
+    low-pressure gas mixture viscosity, $\xi$ is a group of constants, and
+    $\rho_r = V_c / V$ is the reduced gas density. This
+    equation is valid in the range $0 \le \rho_r < 2.5$.
 
     Reference:
 
