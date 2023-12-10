@@ -121,7 +121,7 @@ class Distribution(ABC):
         self._verify_sizeasmass(sizeasmass)
         order = self.kind_order[self._verify_kind(kind)]
         # Convert list to ndarray
-        if isinstance(size, list):
+        if isinstance(size, (list, tuple)):
             size = np.asarray(size)
         # Math is done by the corresponding subclass method
         return self._pdf(size, order, sizeasmass)
@@ -169,7 +169,7 @@ class Distribution(ABC):
         order = self.kind_order[kind]
         self._verify_sizeasmass(sizeasmass)
         # Convert list to ndarray
-        if isinstance(size, list):
+        if isinstance(size, (list, tuple)):
             size = np.asarray(size)
         # Math is done by the corresponding subclass method
         result = self._cdf(size, order, sizeasmass)
@@ -181,9 +181,10 @@ class Distribution(ABC):
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: Union[tuple[float, float], None] = None,
              cdf: Literal[0, 1, 2] = 0,
-             title: Union[str, None] = None,
-             axes: Union[list[Axes], None] = None
-             ) -> None:
+             title: Optional[str] = None,
+             axes: Optional[list[Axes]] = None,
+             return_objects: bool = False
+             ) -> Optional[tuple[Optional[Figure], list[Axes]]]:
         """Plot the chain-length distribution.
 
         Parameters
@@ -201,10 +202,18 @@ class Distribution(ABC):
             y-axis where cdf is displayed. If `0` the cdf is not displayed; if
             `1` the cdf is displayed on the primary y-axis; if `2` the cdf is
             displayed on the secondary axis.
-        title: str | None
-            Title
+        title : str | None
+            Title of plot. If `None`, the object name will be used.
         axes : list[Axes] | None
             Matplotlib Axes object.
+        return_objects : bool
+            If `True`, the Figure and Axes objects are returned (for saving or
+            further manipulations).
+
+        Returns
+        -------
+        tuple[Figure | None, list[Axes]] | None
+            Figure and Axes objects if return_objects is `True`.
         """
         # Check inputs
         kind = self._verify_kind(kind, accept_list=True)
@@ -249,10 +258,10 @@ class Distribution(ABC):
             label_x = "Chain length"
 
         # Create axis if none is provided
+        ax2 = None
         if axes is None:
             ext_mode = False
             fig, ax = plt.subplots(1, 1)
-            self.fig = fig
             if title is None:
                 title = f"Distribution: {self.name}"
             fig.suptitle(title)
@@ -260,6 +269,7 @@ class Distribution(ABC):
                 ax2 = ax.twinx()
         else:
             ext_mode = True
+            fig = None
             ax = axes[0]
             if cdf == 2:
                 ax2 = axes[1]
@@ -308,7 +318,8 @@ class Distribution(ABC):
         ax.grid(True)
         ax.legend(bbox_to_anchor=bbox_to_anchor, loc="upper left")
 
-        return None
+        if return_objects:
+            return (fig, [ax, ax2])
 
     @classmethod
     def _verify_kind(cls, kind, accept_list=False):
