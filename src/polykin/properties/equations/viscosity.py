@@ -6,6 +6,7 @@
 # pure components.
 
 from polykin.types import FloatOrArray
+from polykin.utils import check_in_set
 from .base import PropertyEquationT
 
 import numpy as np
@@ -70,6 +71,8 @@ class Yaws(PropertyEquationT):
                  name: str = ''
                  ) -> None:
         """Construct `Yaws` with the given parameters."""
+
+        check_in_set(base, {'e', '10'}, 'base')
 
         self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'base': base}
         super().__init__((Tmin, Tmax), unit, symbol, name)
