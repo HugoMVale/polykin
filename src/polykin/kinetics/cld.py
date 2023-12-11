@@ -5,7 +5,7 @@
 from polykin.types import FloatOrArray, FloatOrArrayLike, \
     IntOrArrayLike, IntOrArray
 from polykin.utils import check_type, check_bounds, \
-    convert_check_temperature
+    convert_check_temperature, custom_repr
 from .thermal import Arrhenius, Eyring
 
 import numpy as np
@@ -94,13 +94,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         self.name = name
 
     def __repr__(self) -> str:
-        return (
-            f"name:      {self.name}\n"
-            f"icrit:     {self.icrit}\n"
-            f"aS:        {self.aS}\n"
-            f"aL:        {self.aL}\n"
-            "- kt11 -\n" + self.kt11.__repr__()
-        )
+        return custom_repr(self, ('name', 'icrit', 'aS', 'aL', 'kt11'))
 
     @staticmethod
     def equation(i: IntOrArray,
@@ -227,12 +221,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
         self.name = name
 
     def __repr__(self) -> str:
-        return (
-            f"name:      {self.name}\n"
-            f"C:         {self.C}\n"
-            f"ihalf:     {self.ihalf}\n"
-            "- kp -\n" + self.kp.__repr__()
-        )
+        return custom_repr(self, ('name', 'C', 'ihalf', 'kp'))
 
     @staticmethod
     def equation(i: IntOrArray,
