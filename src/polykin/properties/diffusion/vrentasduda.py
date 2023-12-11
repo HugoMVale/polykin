@@ -355,11 +355,11 @@ class VrentasDudaBinary():
             ax.semilogy(w1, y, label=f"{Ti}{Tsymbol}")
         if ylim:
             ax.set_ylim(*ylim)
-        ax.set_xlabel(r"$w_1$" + " [kg/kg]")
+        ax.set_xlabel("$w_1$ [kg/kg]")
         if selfd:
-            Dsymbol = r"$D_1$"
+            Dsymbol = "$D_1$"
         else:
-            Dsymbol = r"$D$"
+            Dsymbol = "$D$"
         ax.set_ylabel(Dsymbol + f" [{self.unit}]")
         ax.grid(True)
         ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
