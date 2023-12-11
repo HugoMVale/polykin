@@ -4,7 +4,10 @@
 
 from polykin.properties.thermal_conductivity import KLMX2_li, \
     KVPC_stiel_thodos, KVMXPC_stiel_thodos, KVMX2_wassilijewa
+
 import numpy as np
+from scipy.constants import R
+import pytest
 
 
 def test_KLMX2_li():
@@ -29,6 +32,18 @@ def test_KVPC_stiel_thodos():
     V = 144e-6
     kpc = KVPC_stiel_thodos(V, M, Tc, Pc, Zc)
     assert np.isclose(kpc, 1.78e-2, rtol=1e-2)
+
+
+def test_KVPC_stiel_thodos_continuity():
+    Tc = 1.
+    Pc = 1.
+    Zc = 1/R
+    M = 1.
+    dV = 0.001
+    for V in [0.5, 2.]:
+        k1 = KVPC_stiel_thodos(V-dV, M, Tc, Pc, Zc)
+        k2 = KVPC_stiel_thodos(V+dV, M, Tc, Pc, Zc)
+        assert np.isclose(k1, k2, rtol=2e-2)
 
 
 def test_KVMXPC_stiel_thodos():

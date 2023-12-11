@@ -6,6 +6,7 @@ from polykin.properties.vaporization_enthalpy import \
     DHVL_pitzer, DHVL_vetere, DHVL_watson, DHVL_kistiakowsky_vetere
 
 import numpy as np
+import pytest
 
 
 def test_hvap_pitzer():
@@ -43,3 +44,8 @@ def test_hvapb_kistiakowsky_vetere():
     # pentane
     hvap = DHVL_kistiakowsky_vetere(Tb=309.2, M=72.1e-3, kind='any')
     assert np.isclose(hvap, 26500, rtol=10e-2)
+    # exceptions
+    with pytest.raises(ValueError):
+        _ = DHVL_kistiakowsky_vetere(Tb=309.2, M=72.1e-3, kind='something')
+    with pytest.raises(ValueError):
+        _ = DHVL_kistiakowsky_vetere(Tb=309.2, kind='ester')
