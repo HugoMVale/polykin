@@ -220,7 +220,7 @@ class PropertyEquationT(PropertyEquation):
             T: FloatVector,
             Y: FloatVector,
             sigmaY: Optional[FloatVector] = None,
-            fitonly: Optional[list[str]] = None,
+            fit_only: Optional[list[str]] = None,
             logY: bool = False,
             plot: bool = True,
             ) -> dict:
@@ -234,7 +234,7 @@ class PropertyEquationT(PropertyEquation):
             Property to be fitted. Unit = Any.
         sigmaY : FloatVector | None
             Standard deviation of Y. Unit = [Y].
-        fitonly : list[str] | None
+        fit_only : list[str] | None
             List with name of parameters to be fitted.
         logY : bool
             If `True`, the fit will be done in terms of log(Y).
@@ -254,8 +254,8 @@ class PropertyEquationT(PropertyEquation):
 
         # Select parameters to be fitted
         pnames_fit = [name for name, info in self._pinfo.items() if info[1]]
-        if fitonly:
-            pnames_fit = set(fitonly) & set(pnames_fit)
+        if fit_only:
+            pnames_fit = set(fit_only) & set(pnames_fit)
         p0 = [pdict[pname] for pname in pnames_fit]
 
         # Fit function
@@ -340,7 +340,7 @@ def plotequations(eqs: list[PropertyEquationT],
     fig.suptitle(title)
 
     # Draw plots sequentially
-    for item in eqs:
-        item.plot(kind=kind, axes=ax, **kwargs)
+    for eq in eqs:
+        eq.plot(kind=kind, axes=ax, **kwargs)
 
     return fig
