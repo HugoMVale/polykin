@@ -59,8 +59,16 @@ def test_call(vrentas_instance):
 
 
 def test_plot(vrentas_instance):
-    out = vrentas_instance.plot(T=25., return_objects=True)
-    assert len(out) == 2
+    out1 = vrentas_instance.plot(T=25., Tunit='C', return_objects=True)
+    assert len(out1) == 2
+    out2 = vrentas_instance.plot(T=50., Tunit='C', selfd=True,
+                                 w1range=(0., 0.5),
+                                 ylim=(1e-12, 1e-8),
+                                 axes=out1[1],
+                                 return_objects=True)
+    assert len(out2) == 2
+    assert out1[1] is out2[1]
+
 
 # %% Infinite dilution eqquations
 

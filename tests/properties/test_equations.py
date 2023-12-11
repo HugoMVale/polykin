@@ -68,6 +68,11 @@ def Pvap_water():
                    unit='bar')
 
 
+def test_PropertyEquationT_repr(Pvap_water):
+    out = Pvap_water.__repr__()
+    assert out.startswith('name')
+
+
 def test_Antoine(Pvap_water):
     assert np.isclose(Pvap_water(100., 'C'), 1.01325, rtol=2e-2)
 
@@ -87,7 +92,7 @@ def test_Antoine_fit_fitonly(Pvap_water):
     T = np.linspace(260, 373, 50)
     Y = Pvap_water(T)
     p = Antoine(A=1, B=1, C=0, unit='bar')
-    result = p.fit(T, Y, fitonly=['A', 'B'], logY=True)
+    result = p.fit(T, Y, fit_only=['A', 'B'], logY=True)
     popt = result['parameters']
     assert np.isclose(popt['A'], 6.207, rtol=1e-3)
     assert np.isclose(popt['B'], 2303., rtol=1e-3)
@@ -114,7 +119,17 @@ def test_Yaws():
     assert np.isclose(mu(25, 'C'), 0.71, rtol=2e-2)
 
 
-# %% plot
+def test_Antoine_Yaws_():
+    "Input validation"
+    p = (123., 678.)
+    T = 300.
+    for Equation in [Antoine, Yaws]:
+        y1 = Equation(*p, base='e')
+        y2 = Equation(*p, base='10')
+        assert np.isclose(np.log(y1(T)), np.log10(y2(T)), rtol=2e-2)
+        with pytest.raises(ValueError):
+            _ = Equation(A=1., B=1., base='something')
+# %% Plot
 
 
 def test_plotequations(Pvap_water):
