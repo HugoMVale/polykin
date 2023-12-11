@@ -410,3 +410,35 @@ def convert_check_pressure(
         print(f"Warning: `P` input is outside validity range {Prange}.")
 
     return Pa
+
+
+def custom_repr(obj,
+                attr_names: Union[list[str], tuple[str, ...]],
+                nspaces: int = 5
+                ) -> str:
+    """Generate custom repr string.
+
+    Parameters
+    ----------
+    obj : 
+        Object.
+    attr_names : list[str]
+        Class atributes.
+    nspaces : int
+        Number of white spaces.
+
+    Returns
+    -------
+    str
+        Formated repr string.
+    """
+    items = []
+    for pname in attr_names:
+        pstr = str(getattr(obj, pname))
+        rows = pstr.split("\n")
+        if len(rows) == 1:
+            item = f"{pname}:" + " "*(nspaces - len(pname)) + pstr
+        else:
+            item = "\n  ".join([pname + ":"] + rows)
+        items.append(item)
+    return "\n".join(items)
