@@ -198,11 +198,9 @@ class PropertyEquationT(PropertyEquation):
         else:
             TK = np.linspace(*Trange, 100)
             y = self.__call__(TK, 'K')
-            TC = TK - 273.15
+            T = TK
             if Tunit == 'C':
-                T = TC
-            else:
-                T = TK
+                T -= 273.15
             if kind == 'linear':
                 ax.plot(T, y, label=label)
             elif kind == 'semilogy':
