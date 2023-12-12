@@ -114,7 +114,7 @@ def test_Wagner():
 
 def test_Yaws():
     """Viscosity of styrene."""
-    mu = Yaws(A=-2.717, B=9.461e2, C=-3.173e-3, D=1.683e-6, base='e',
+    mu = Yaws(A=-2.717, B=9.461e2, C=-3.173e-3, D=1.683e-6, base10=False,
               Tmin=243., Tmax=633., unit='cP')
     assert np.isclose(mu(25, 'C'), 0.71, rtol=2e-2)
 
@@ -124,11 +124,9 @@ def test_Antoine_Yaws_():
     p = (123., 678.)
     T = 300.
     for Equation in [Antoine, Yaws]:
-        y1 = Equation(*p, base='e')
-        y2 = Equation(*p, base='10')
+        y1 = Equation(*p, base10=False)
+        y2 = Equation(*p, base10=True)
         assert np.isclose(np.log(y1(T)), np.log10(y2(T)), rtol=2e-2)
-        with pytest.raises(ValueError):
-            _ = Equation(A=1., B=1., base='something')
 # %% Plot
 
 

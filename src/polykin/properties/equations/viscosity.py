@@ -6,11 +6,9 @@
 # pure components.
 
 from polykin.types import FloatOrArray
-from polykin.utils import check_in_set
 from .base import PropertyEquationT
 
 import numpy as np
-from typing import Literal
 
 __all__ = ['Yaws']
 
@@ -39,8 +37,8 @@ class Yaws(PropertyEquationT):
     D : float
         Parameter of equation.
         Unit = K⁻².
-    base : float
-        Base of logarithm, either $e$ or $10$.
+    base10 : bool
+        If `True` base of logarithm is `10`, otherwise it is $e$.
     Tmin : float
         Lower temperature bound.
         Unit = K.
@@ -56,14 +54,14 @@ class Yaws(PropertyEquationT):
     """
 
     _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K⁻¹', True),
-              'D': ('K⁻²', True), 'base': ('', False)}
+              'D': ('K⁻²', True), 'base10': ('', False)}
 
     def __init__(self,
                  A: float,
                  B: float,
                  C: float = 0.,
                  D: float = 0.,
-                 base: Literal['e', '10'] = '10',
+                 base10: bool = True,
                  Tmin: float = 0.,
                  Tmax: float = np.inf,
                  unit: str = 'Pa·s',
@@ -72,9 +70,7 @@ class Yaws(PropertyEquationT):
                  ) -> None:
         """Construct `Yaws` with the given parameters."""
 
-        check_in_set(base, {'e', '10'}, 'base')
-
-        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'base': base}
+        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'base10': base10}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
@@ -83,7 +79,7 @@ class Yaws(PropertyEquationT):
                  B: float,
                  C: float,
                  D: float,
-                 base: Literal['e', '10']
+                 base10: bool
                  ) -> FloatOrArray:
         r"""Yaws equation.
 
@@ -102,8 +98,8 @@ class Yaws(PropertyEquationT):
         D : float
             Parameter of equation.
             Unit = K⁻².
-        base : float
-            Base of logarithm, usually equal to $10$ or $e$.
+        base10 : bool
+            If `True` base of logarithm is `10`, otherwise it is $e$.
 
         Returns
         -------
@@ -111,9 +107,7 @@ class Yaws(PropertyEquationT):
             Viscosity. Unit = Any.
         """
         x = A + B/T + C*T + D*T**2
-        if base == '10':
+        if base10:
             return 10**x
-        elif base == 'e':
-            return np.exp(x)
         else:
-            raise ValueError("Invalid `base`.")
+            return np.exp(x)

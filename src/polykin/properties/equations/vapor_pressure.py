@@ -6,11 +6,9 @@
 # pressure of pure components.
 
 from polykin.types import FloatOrArray
-from polykin.utils import check_in_set
 from .base import PropertyEquationT
 
 import numpy as np
-from typing import Literal
 
 __all__ = ['Antoine', 'Wagner']
 
@@ -49,8 +47,8 @@ class Antoine(PropertyEquationT):
     C : float
         Parameter of equation.
         Unit = K.
-    base : Literal['e', '10']
-        Base of logarithm, either $e$ or $10$.
+    base10 : bool
+        If `True` base of logarithm is `10`, otherwise it is $e$.
     Tmin : float
         Lower temperature bound.
         Unit = K.
@@ -66,13 +64,13 @@ class Antoine(PropertyEquationT):
     """
 
     _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K', True),
-              'base': ('', False)}
+              'base10': ('', False)}
 
     def __init__(self,
                  A: float,
                  B: float,
                  C: float = 0.,
-                 base: Literal['e', '10'] = '10',
+                 base10: bool = True,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = 'Pa',
@@ -81,9 +79,7 @@ class Antoine(PropertyEquationT):
                  ) -> None:
         """Construct `Antoine` with the given parameters."""
 
-        check_in_set(base, {'e', '10'}, 'base')
-
-        self.p = {'A': A, 'B': B, 'C': C, 'base': base}
+        self.p = {'A': A, 'B': B, 'C': C, 'base10': base10}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
@@ -91,7 +87,7 @@ class Antoine(PropertyEquationT):
                  A: float,
                  B: float,
                  C: float,
-                 base: Literal['e', '10']
+                 base10: bool
                  ) -> FloatOrArray:
         r"""Antoine equation.
 
@@ -106,8 +102,8 @@ class Antoine(PropertyEquationT):
             Parameter of equation.
         C : float
             Parameter of equation.
-        base: Literal['e', '10']
-            Parameter of equation.
+        base10 : bool
+            If `True` base of logarithm is `10`, otherwise it is $e$.
 
         Returns
         -------
@@ -115,12 +111,10 @@ class Antoine(PropertyEquationT):
             Vapor pressure. Unit = Any.
         """
         x = A - B/(T + C)
-        if base == '10':
+        if base10:
             return 10**x
-        elif base == 'e':
-            return np.exp(x)
         else:
-            raise ValueError("Invalid `base`.")
+            return np.exp(x)
 
 # %% Wagner
 
