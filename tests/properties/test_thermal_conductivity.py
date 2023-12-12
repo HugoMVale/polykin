@@ -40,10 +40,12 @@ def test_KVPC_stiel_thodos_continuity():
     Zc = 1/R
     M = 1.
     dV = 0.001
-    for V in [0.5, 2.]:
+    for V in [1/0.5, 1/2.]:
         k1 = KVPC_stiel_thodos(V-dV, M, Tc, Pc, Zc)
         k2 = KVPC_stiel_thodos(V+dV, M, Tc, Pc, Zc)
         assert np.isclose(k1, k2, rtol=2e-2)
+    with pytest.raises(ValueError):
+        _ = KVPC_stiel_thodos(1/2.81, M, Tc, Pc, Zc)
 
 
 def test_KVMXPC_stiel_thodos():
