@@ -58,11 +58,11 @@ def test_MUV_lucas():
     mu = MUV_lucas(T=420., P=300e5, M=17.03e-3,
                    Tc=405.5, Pc=113.5e5, Zc=0.244, dm=1.47)
     assert np.isclose(mu, 601e-7, rtol=1e-2)
-    mu1 = MUV_lucas(T=299, P=299e5, M=100e-3,
-                    Tc=300., Pc=300, Zc=0.28, dm=1.)
-    mu2 = MUV_lucas(T=301, P=301e5, M=100e-3,
-                    Tc=300., Pc=300, Zc=0.28, dm=1.)
-    assert np.isclose(mu1, mu2, rtol=2e-2)
+    mu1 = MUV_lucas(T=299.9, P=299.9e5, M=100e-3,
+                    Tc=300., Pc=300e5, Zc=0.28, dm=1.)
+    mu2 = MUV_lucas(T=300.1, P=300.1e5, M=100e-3,
+                    Tc=300., Pc=300e5, Zc=0.28, dm=1.)
+    assert np.isclose(mu1, mu2, rtol=1e-2)
 
 
 def test_MUVMX_lucas():
