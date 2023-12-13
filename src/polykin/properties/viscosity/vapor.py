@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.types import FloatVector, FloatOrArray
+from polykin.properties.pvt import pseudocritical_properties
 
 import numpy as np
 from math import sqrt
@@ -151,11 +152,7 @@ def MUVMXPC_dean_stiel(V: float,
 
     # Mixing rules recommended in paper
     M_mix = np.dot(y, M)
-    Tc_mix = np.dot(y, Tc)
-    Zc_mix = np.dot(y, Zc)
-    Vc = Zc*R*Tc/Pc
-    Vc_mix = np.dot(y, Vc)
-    Pc_mix = Zc_mix*R*Tc_mix/Vc_mix
+    Tc_mix, Pc_mix, Vc_mix, _, _ = pseudocritical_properties(y, Tc, Pc, Zc)
 
     rhor = Vc_mix/V
     # xi = 1e3*Tc_mix**(1/6)/(sqrt(M_mix*1e3)*(Pc_mix/101325)**(2/3))
