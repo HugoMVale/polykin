@@ -172,6 +172,7 @@ nav:
       - polykin.copolymerization:
           - reference/copolymerization/index.md
           - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
+          - ImplicitPenultimateModel: reference/copolymerization/ImplicitPenultimateModel.md
           - PenultimateModel: reference/copolymerization/PenultimateModel.md
           - TerminalModel: reference/copolymerization/TerminalModel.md
       - polykin.distributions:
@@ -197,6 +198,9 @@ nav:
               - DL_hayduk_minhas: reference/properties/diffusion/DL_hayduk_minhas.md
               - DL_wilke_chang: reference/properties/diffusion/DL_wilke_chang.md
               - DV_wilke_lee: reference/properties/diffusion/DV_wilke_lee.md
+          - PVT:
+              - Z_virial: reference/properties/pvt/Z_virial.md
+              - pseudocritical_properties: reference/properties/pvt/pseudocritical_properties.md
           - PVT Polymer:
               - reference/properties/pvt_polymer/index.md
               - Flory: reference/properties/pvt_polymer/Flory.md
