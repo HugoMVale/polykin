@@ -9,3 +9,4 @@ and mixtures.
 
 # from .tait import *
 from .gas import *
+from .eos3 import *
