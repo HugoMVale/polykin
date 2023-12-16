@@ -15,5 +15,5 @@ from polykin.properties.vaporization_enthalpy import DHVL_watson
 
 DHVL = DHVL_watson(hvap1=22.9, T1=258., T2=273.15+50, Tc=425.)
 
-print(f"{DHVL/1e3:.1f} kJ/mol")
+print(f"{DHVL:.1f} kJ/mol")
 ```
