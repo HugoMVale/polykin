@@ -7,7 +7,7 @@
 
 ## Examples
 
-Estimate the viscosity of a 50 wt% styrene/isoprene liquid mixture at 20°C.
+Estimate the thermal conductivity of a 50 wt% styrene/isoprene liquid mixture at 20°C.
 
 ```python exec="on" source="console"
 from polykin.properties.thermal_conductivity import KLMX2_li
@@ -19,5 +19,5 @@ rho = np.array([0.909, 0.681])  # kg/L
 
 k_mix = KLMX2_li(w, k, rho)
 
-print(k_mix, "W/(m·K)")
+print(f"{k_mix:.2e} W/(m·K)")
 ```

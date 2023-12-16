@@ -25,5 +25,5 @@ w = np.array([0.089, 0.144])
 
 k_residual = KVMXPC_stiel_thodos(V, y, M, Tc, Pc, Zc, w)
 
-print(k_residual, "W/(m·K)")
+print(f"{k_residual:.2e} W/(m·K)")
 ```

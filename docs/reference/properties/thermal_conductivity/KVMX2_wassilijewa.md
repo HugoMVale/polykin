@@ -20,5 +20,5 @@ M = np.array([104.15, 106.17])   # g/mol
 
 k_mix = KVMX2_wassilijewa(y, k, M)
 
-print(k_mix, "W/(m·K)")
+print(f"{k_mix:.2e} W/(m·K)")
 ```
