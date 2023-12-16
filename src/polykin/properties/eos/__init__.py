@@ -7,6 +7,7 @@ This module implements methods to evaluate the PVT behavior of pure substances
 and mixtures.
 """
 
-# from .tait import *
+from .base import *
 from .gas import *
-from .eos3 import *
+from .virial import *
+from .cubic import *

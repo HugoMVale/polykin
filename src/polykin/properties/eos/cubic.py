@@ -4,17 +4,18 @@
 
 from polykin.types import FloatVector, FloatSquareMatrix
 from polykin.utils import eps
+from .base import EoS
 
 import numpy as np
+from numpy import exp, sqrt, log
 from scipy.constants import R
-from abc import ABC, abstractmethod
 from typing import Optional, Literal
-from math import sqrt
 
-__all__ = ['Z_cubic']
+__all__ = ['Cubic']
 
 
-# class EoS(ABC):
+class Cubic(EoS):
+    pass
 
 #     T: float
 #     P: float
@@ -87,29 +88,37 @@ __all__ = ['Z_cubic']
 
 # class Soave(CubicEoS):
 #     pass
+# %% EoS
+
+def departures(T, DA, DS, Z):
+    DU = DA + T*DS
+    DH = DA + T*DS + R*T*(Z - 1)
+    DG = DA + R*T*(Z - 1.)
+    return (DU, DH, DG)
+
+# Cubic
 
 
-def Z_cubic_root(U: float,
-                 W: float,
+def Z_cubic_root(zu: float,
+                 zw: float,
                  A: float,
                  B: float
-                 ) -> tuple[float, float]:
+                 ) -> FloatVector:
     c3 = 1.
-    c2 = -(1. + B - U*B)
-    c1 = (A + W*B**2 - U*B - U*B**2)
-    c0 = -(A*B + W*B**2 + W*B**3)
+    c2 = -(1. + B - zu*B)
+    c1 = (A + zw*B**2 - zu*B - zu*B**2)
+    c0 = -(A*B + zw*B**2 + zw*B**3)
 
     coeffs = (c3, c2, c1, c0)
     roots = np.roots(coeffs)
     roots = [x.real for x in roots if abs(x.imag) < eps]
 
-    Z1 = min(roots)
+    Z = []
+    Z.append(min(roots))
     if len(roots) > 1:
-        Z2 = max(roots)
-    else:
-        Z2 = np.nan
+        Z.append(max(roots))
 
-    return (Z1, Z2)
+    return np.array(Z)
 
 
 def Z_cubic(T: float,
@@ -118,28 +127,28 @@ def Z_cubic(T: float,
             Tc: FloatVector,
             Pc: FloatVector,
             w: Optional[FloatVector] = None,
-            k=None,
+            k: Optional[FloatSquareMatrix] = None,
             method: Literal['RK', 'SRK', 'PR'] = 'SRK'):
 
     Tr = T/Tc
     if method == "RK":
-        U = 1.
-        W = 0.
+        zu = 1.
+        zw = 0.
         b = 0.08664
-        a = 0.42748/np.sqrt(Tr)
+        a = 0.42748/sqrt(Tr)
         fw = 1
     elif method == "SRK" and w is not None:
-        U = 1.
-        W = 0.
+        zu = 1.
+        zw = 0.
         b = 0.08664
         fw = 0.48 + 1.574*w - 0.176*w**2
-        a = 0.42748*(1 + fw*(1 - np.sqrt(Tr)))**2
+        a = 0.42748*(1 + fw*(1 - sqrt(Tr)))**2
     elif method == "PR" and w is not None:
-        U = 2.
-        W = -1.
+        zu = 2.
+        zw = -1.
         b = 0.07780
         fw = 0.37464 + 1.54226*w - 0.26992*w**2
-        a = 0.45724*(1 + fw*(1 - np.sqrt(Tr)))**2
+        a = 0.45724*(1 + fw*(1 - sqrt(Tr)))**2
     else:
         raise ValueError(f"Invalid method: `{method}`.")
 
@@ -152,7 +161,18 @@ def Z_cubic(T: float,
     # Z
     A = a_m*P/(R*T)**2
     B = b_m*P/(R*T)
-    Z = Z_cubic_root(U, W, A, B)
+    Z = Z_cubic_root(zu, zw, A, B)
+
+    # Departures
+    dadT = 1.  # todo
+    P0 = 1  # fix!!!!
+    d = sqrt(zu**2 - 4*zw)
+    t1 = b_m*d
+    t2 = log((2*Z + B*(zu - d))/(2*Z + B*(zu + d)))
+    t3 = R*log((Z - B)*P0/P)
+    DA = a_m/t1*t2 - T*t3
+    DS = t3 - dadT/t1*t2
+    (DU, DH, DG) = departures(T, DA, DS, Z)
 
     return Z
 
@@ -197,7 +217,7 @@ def mixing_rules_cubic(y: FloatVector,
     """
 
     if k is None:
-        a_m = (np.dot(y, np.sqrt(a)))**2
+        a_m = (np.dot(y, sqrt(a)))**2
     else:
         # k += k.T
         # np.fill_diagonal(k, 1.)
@@ -212,3 +232,15 @@ def mixing_rules_cubic(y: FloatVector,
     b_m = np.dot(y, b)
 
     return (a_m, b_m)
+
+
+# # %%
+# T = 398.15
+# P = 100e5
+# Tc = np.array([364.9])
+# Pc = np.array([46.0e5])
+# w = np.array([0.144])
+# y = np.array([1.])
+# Z = Z_cubic(T, P, y, Tc, Pc, w)
+
+# %%

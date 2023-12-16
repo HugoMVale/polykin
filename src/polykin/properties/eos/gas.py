@@ -2,67 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatOrArray
+from polykin.types import FloatVector, FloatSquareMatrix
 
 import numpy as np
 from scipy.constants import R
 from typing import Optional
 
-__all__ = ['Z_virial',
-           'pseudocritical_properties']
-
-# %% Virial equation
-
-
-def Z_virial(T: FloatOrArray,
-             P: FloatOrArray,
-             Tc: float,
-             Pc: float,
-             w: float) -> FloatOrArray:
-    r"""Calculate the compressibility factor of a nonpolar gas using the virial
-    equation truncated to include only the second virial coefficient.
-
-    $$ \begin{gathered}
-        Z = 1 + \frac{B P}{R T} \\
-        \frac{B P_c}{R T_c} = B^{(0)}(T_r) + \omega B^{(1)}(T_r)
-    \end{gathered} $$
-
-    where the meaning of the parameters is as defined below. The equation is
-    valid only up to moderate pressures, such that $Z T_r/P_r > 0.5$.
-
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 40.
-
-    Parameters
-    ----------
-    T : FloatOrArray
-        Temperature. Unit = K.
-    P : FloatOrArray
-        Pressure. Unit = Pa.
-    Tc : float
-        Critical temperature. Unit = K.
-    Pc : float
-        Critical pressure. Unit = Pa.
-    w : float
-        Acentric factor.
-
-    Returns
-    -------
-    FloatOrArray
-        Compressibility factor.
-    """
-    Tr = T/Tc
-    Pr = P/Pc
-    B0 = 0.083 - 0.422/Tr**1.6
-    B1 = 0.139 - 0.172/Tr**4.2
-    b = B0 + w*B1
-    Z = 1 + Pr*b/Tr
-    Vri = Tr*Z/Pr
-    if (Vri < 0.5):
-        print(f"Warning: Vri = {Vri:.2f} < 0.5.")
-    return Z
+__all__ = ['pseudocritical_properties']
 
 # %% Pseudocritical properties
 
