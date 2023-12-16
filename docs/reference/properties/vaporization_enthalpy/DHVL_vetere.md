@@ -14,5 +14,5 @@ from polykin.properties.vaporization_enthalpy import DHVL_vetere
 
 DHVL = DHVL_vetere(Tb=259.8, Tc=425., Pc=51.5e5)
 
-print(DHVL/1e3, "kJ/mol")
+print(f"{DHVL/1e3:.1f} kJ/mol")
 ```

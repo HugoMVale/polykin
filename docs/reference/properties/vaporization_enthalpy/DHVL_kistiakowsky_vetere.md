@@ -14,5 +14,5 @@ from polykin.properties.vaporization_enthalpy import DHVL_kistiakowsky_vetere
 
 DHVL = DHVL_kistiakowsky_vetere(Tb=268.6, M=54.1e-3, kind='hydrocarbon')
 
-print(DHVL/1e3, "kJ/mol")
+print(f"{DHVL/1e3:.1f} kJ/mol")
 ```
