@@ -152,8 +152,6 @@ def KVMX2_wassilijewa(y: FloatVector,
 
     $$ k_m = \frac{\sum _i y_i M_i^{1/2} k_i}{\sum _i y_i M_i^{1/2}} $$
 
-    where the meaning of the parameters is as defined below.
-
     !!! note
 
         In this equation, the units of mole fraction $y_i$ and molar mass
