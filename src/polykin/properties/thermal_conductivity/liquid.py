@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.types import FloatVector
+from polykin.properties import quadratic_mixing_rule
 
 import numpy as np
 
@@ -18,15 +19,11 @@ def KLMX2_li(w: FloatVector,
     r"""Calculate the thermal conductivity of a liquid mixture from the
     thermal conductivities of the pure components using the Li mixing rule.
 
-    $$ k_m = \sum_i \sum_j \phi_i \phi_j k_{ij} $$
-
-    with:
-
-    $$ k_{ij} = \frac{2}{\frac{1}{k_i} + \frac{1}{k_j}} $$
-
-    $$ \phi_i = \frac{\frac{w_i}{\rho_i}}{\sum_j \frac{w_j}{\rho_j}} $$
-
-    where the meaning of the parameters is as defined below.
+    $$ \begin{aligned}
+        k_m &= \sum_i \sum_j \phi_i \phi_j k_{ij} \\
+        k_{ij} &= \frac{2}{\frac{1}{k_i} + \frac{1}{k_j}} \\
+       \phi_i &= \frac{\frac{w_i}{\rho_i}}{\sum_j \frac{w_j}{\rho_j}}
+    \end{aligned} $$
 
     !!! note
 
@@ -56,10 +53,5 @@ def KLMX2_li(w: FloatVector,
 
     phi = w/rho
     phi /= phi.sum()
-
-    # result = 0.
-    # for i in range(len(phi)):
-    #     for j in range(len(phi)):
-    #         result += phi[i]*phi[j]*2/(1/k[i] + 1/k[j])
-
-    return np.sum(np.outer(phi, phi) * 2 / (1/k + 1/k[:, np.newaxis]))
+    K = 2 / (1/k + 1/k[:, np.newaxis])
+    return quadratic_mixing_rule(phi, K)
