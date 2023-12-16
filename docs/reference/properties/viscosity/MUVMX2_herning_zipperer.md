@@ -19,5 +19,5 @@ M = np.array([28.e-3, 56.e-3])  # kg/mol
 
 mu_mix = MUVMX2_herning_zipperer(y, mu, M)
 
-print(mu_mix, "Pa·s")
+print(f"{mu_mix:.2e} Pa·s")
 ```

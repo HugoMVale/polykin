@@ -22,5 +22,5 @@ dm = np.array([0., 0.])
 
 mu_mix = MUVMX_lucas(T=350., P=10e5, y=y, M=M, Tc=Tc, Pc=Pc, Zc=Zc, dm=dm)
 
-print(mu_mix, "Pa·s")
+print(f"{mu_mix:.2e} Pa·s")
 ```

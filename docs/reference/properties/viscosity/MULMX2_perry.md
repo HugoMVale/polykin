@@ -18,5 +18,5 @@ mu = np.array([0.76, 0.59]) # cP, from literature
 
 mu_mix = MULMX2_perry(x, mu)
 
-print(mu_mix, "cP")
+print(f"{mu_mix:.2f} cP")
 ```

@@ -18,5 +18,5 @@ rhor = Vc/V
 
 mu_residual = MUVPC_jossi(rhor=rhor, Tc=282.4, Pc=50.4e5, M=28.05e-3)
 
-print(mu_residual, "Pa·s")
+print(f"{mu_residual:.2e} Pa·s")
 ```

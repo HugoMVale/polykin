@@ -24,5 +24,5 @@ Zc = np.array([0.280, 0.274])
 
 mu_residual = MUVMXPC_dean_stiel(V, y, M, Tc, Pc, Zc)
 
-print(mu_residual, "Pa·s")
+print(f"{mu_residual:.2e} Pa·s")
 ```
