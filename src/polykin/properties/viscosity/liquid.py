@@ -26,8 +26,6 @@ def MULMX2_perry(x: FloatVector,
 
     $$ \ln{\mu_m} = \sum_i x_i \ln{\mu_i} $$
 
-    where the meaning of the parameters is as defined below.
-
     Reference:
 
     * Perry, R. H., D. W. Green, and J. Maloney. Perrys Chemical Engineers
