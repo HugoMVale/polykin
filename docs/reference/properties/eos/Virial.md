@@ -3,7 +3,7 @@
 ::: polykin.properties.eos
     options:
         members:
-            - Virial2
+            - Virial
             - B_pure
             - B_mixture
 

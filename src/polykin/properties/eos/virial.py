@@ -12,14 +12,14 @@ from numpy import sqrt, exp, log
 from scipy.constants import R
 import functools
 
-__all__ = ['Virial2',
+__all__ = ['Virial',
            'B_pure',
            'B_mixture']
 
 # %% Virial equation
 
 
-class Virial2(EoS):
+class Virial(EoS):
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -42,10 +42,54 @@ class Virial2(EoS):
         self.w = w
 
     def Z(self, T, P, y):
+        r"""Calculate the compressibility factor of the fluid.
+
+        $$ Z = 1 + \frac{B_m P}{R T} $$
+
+        where $Z$ is the compressibility factor, $P$ is the pressure, $T$ is
+        the temperature, $B_m=B_m(T,y)$ is the mixture second virial
+        coefficient, and $y$ is the mole fraction vector.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Compressibility factor of the gas and/or liquid phases.
+        """
         Bm = self.Bm(T, y)
         return 1. + Bm*P/(R*T)
 
     def P(self, T, V, y):
+        r"""Calculate the equilibrium pressure of the fluid.
+
+        $$ P = \frac{R T}{V - B_m} $$
+
+        where $P$ is the pressure, $T$ is the temperature, $V$ is the molar
+        volume, $B_m=B_m(T,y)$ is the mixture second virial coefficient, and
+        $y$ is the vector of mole fractions.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        V : float
+            Molar volume. Unit = m³/mol.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Compressibility factor of the gas and/or liquid phases.
+        """
         Bm = self.Bm(T, y)
         return R*T/(V - Bm)
 
@@ -75,7 +119,7 @@ class Virial2(EoS):
     def Bij(self,
             T: float,
             ) -> FloatSquareMatrix:
-        r"""Calculate matrix of interaction virial coefficients.
+        r"""Calculate the matrix of interaction virial coefficients.
 
         Parameters
         ----------

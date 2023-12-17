@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.eos import IdealGas, Virial2
+from polykin.properties.eos import IdealGas, Virial
 
 import pytest
 import numpy as np
@@ -39,7 +39,7 @@ def test_IdealGas(ideal_gas, air_parameters):
 def test_air(air_parameters, ideal_gas):
     p = air_parameters['p']
     state = air_parameters['state']
-    for EOS in [Virial2]:
+    for EOS in [Virial]:
         eos = EOS(**p)
         assert np.isclose(ideal_gas.Z(**state), eos.Z(**state), rtol=1e-2)
         assert np.isclose(ideal_gas.V(**state), eos.V(**state), rtol=1e-2)
@@ -49,7 +49,7 @@ def test_air(air_parameters, ideal_gas):
 
 def test_Virial2_Z():
     "Example 3-1, p. 35"
-    eos = Virial2(Tc=[385.0], Pc=[41.4e5], Zc=[0.28], w=[0.204])
+    eos = Virial(Tc=[385.0], Pc=[41.4e5], Zc=[0.28], w=[0.204])
     state = (366.5, 20.67e5, np.array([1.]))
     assert np.isclose(eos.Z(*state), 0.75, rtol=0.1)
     assert np.isclose(eos.V(*state), 1097e-6, rtol=0.1)
@@ -57,14 +57,14 @@ def test_Virial2_Z():
 
 def test_Virial2_B():
     "Example 3-2, p. 41"
-    eos = Virial2(Tc=[571.], Pc=[32.7e5], Zc=[0.28], w=[0.385])
+    eos = Virial(Tc=[571.], Pc=[32.7e5], Zc=[0.28], w=[0.385])
     assert np.isclose(eos.Bm(273.15+120., np.array([1.])), -1580e-6, rtol=0.2)
 
 
 def test_Virial2_Bij():
     "Example 4-1, p. 81"
-    eos = Virial2(Tc=[190.6, 425.2], Pc=[46.0e5, 38.e5],
-                  Zc=[0.288, 0.274], w=[0.012, 0.199])
+    eos = Virial(Tc=[190.6, 425.2], Pc=[46.0e5, 38.e5],
+                 Zc=[0.288, 0.274], w=[0.012, 0.199])
     T = 443.
     y = np.array([0.5, 0.5])
     assert np.isclose(eos.Bm(T, y), -107e-6, rtol=0.05)
