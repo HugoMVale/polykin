@@ -36,6 +36,7 @@ optional = true
 pytest = "^7.2.0"
 pytest-cov = "^4.0.0"
 pytest-xdist = "^3.1.0"
+numba = "^0.58.1"
 
 [tool.poetry.group.docs]
 optional = true
