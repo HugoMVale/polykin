@@ -8,18 +8,18 @@ from .base import EoS
 from ..mixing_rules import quadratic_mixing_rule
 
 import numpy as np
-from numpy import sqrt, exp
+from numpy import sqrt, exp, log
 from scipy.constants import R
 import functools
 
-__all__ = ['Virial',
-           'B_vanness_abbott',
-           'B_matrix']
+__all__ = ['Virial2',
+           'B_pure',
+           'B_mixture']
 
 # %% Virial equation
 
 
-class Virial(EoS):
+class Virial2(EoS):
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -55,7 +55,7 @@ class Virial(EoS):
            ) -> float:
         r"""Calculate the second virial coefficient for the mixture.
 
-        $$ B_m = sum_i sum_j y_i y_j B_{i,j} $$
+        $$ B_m = \sum_i \sum_j y_i y_j B_{i,j} $$
 
         Parameters
         ----------
@@ -75,7 +75,20 @@ class Virial(EoS):
     def Bij(self,
             T: float,
             ) -> FloatSquareMatrix:
-        return B_matrix(T, self.Tc, self.Pc, self.Zc, self.w)
+        r"""Calculate matrix of interaction virial coefficients.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+
+        Returns
+        -------
+        FloatSquareMatrix
+            Matrix of interaction virial coefficients, $B_{ij}$.
+            Unit = m³/mol.
+        """
+        return B_mixture(T, self.Tc, self.Pc, self.Zc, self.w)
 
     def phi(self,
             T: float,
@@ -86,17 +99,17 @@ class Virial(EoS):
         B = self.Bij(T)
         return exp((2*np.dot(B, y) - Bm)*P/(R*T))
 
-    def DAS(self, T, P, y):
-        pass
-
+    def Ares(self, T, V, y):
+        B = self.Bm(T, y)
+        return R*T*log(V/(V - B))
 
 # %% Second virial coefficient
 
 
-def B_vanness_abbott(T: FloatOrArray,
-                     Tc: float,
-                     Pc: float,
-                     w: float) -> FloatOrArray:
+def B_pure(T: FloatOrArray,
+           Tc: float,
+           Pc: float,
+           w: float) -> FloatOrArray:
     r"""Estimate the second virial coefficient for a nonpolar or slightly polar
     gas.
 
@@ -133,12 +146,12 @@ def B_vanness_abbott(T: FloatOrArray,
     return R*Tc/Pc*(B0 + w*B1)
 
 
-def B_matrix(T: float,
-             Tc: FloatVector,
-             Pc: FloatVector,
-             Zc: FloatVector,
-             w: FloatVector,
-             ) -> FloatSquareMatrix:
+def B_mixture(T: float,
+              Tc: FloatVector,
+              Pc: FloatVector,
+              Zc: FloatVector,
+              w: FloatVector,
+              ) -> FloatSquareMatrix:
     r"""Calculate matrix of interaction virial coefficients using the mixing
     rules of Prausnitz.
 
@@ -167,15 +180,11 @@ def B_matrix(T: float,
     """
     N = Tc.size
     Vc = Zc*R*Tc/Pc
-    B = np.zeros((N, N), dtype=np.float64)
+    B = np.empty((N, N), dtype=np.float64)
     for i in range(N):
-        for j in range(N):
+        for j in range(i, N):
             if i == j:
-                Tcm = Tc[i]
-                Pcm = Pc[i]
-                Zcm = Zc[i]
-                Vcm = Vc[i]
-                wm = w[i]
+                B[i, j] = B_pure(T, Tc[i],  Pc[i], w[i])
             else:
                 Vcm = (Vc[i]**(1/3) + Vc[j]**(1/3))**3 / 8
                 km = 1. - sqrt(Vc[i]*Vc[j])/Vcm
@@ -183,5 +192,6 @@ def B_matrix(T: float,
                 Zcm = (Zc[i] + Zc[j])/2
                 wm = (w[i] + w[j])/2
                 Pcm = Zcm*R*Tcm/Vcm
-            B[i, j] = B_vanness_abbott(T, Tcm, Pcm, wm)
+                B[i, j] = B_pure(T, Tcm, Pcm, wm)
+                B[j, i] = B[i, j]
     return B
