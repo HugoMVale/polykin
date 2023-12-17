@@ -20,5 +20,5 @@ class IdealGas(EoS):
     def phi(self, T, P, y):
         return 1.
 
-    def Ares(self, T, V, y):
+    def Ares(self, T, Vt, n):
         return 0.

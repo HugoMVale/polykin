@@ -15,56 +15,12 @@ __all__ = ['Cubic']
 
 
 class Cubic(EoS):
-    pass
 
-#     T: float
-#     P: float
-#     x: FloatVector
+    def Z(self, T, P, y):
+        return 1.
 
-#     @abstractmethod
-#     def DA(self) -> FloatOrArray:
-#         """Helmholtz energy departure."""
-#         pass
-
-#     @abstractmethod
-#     def DS(self) -> FloatOrArray:
-#         """Entropy departure."""
-#         pass
-
-#     @abstractmethod
-#     def Z(self) -> FloatOrArray:
-#         """Compressibility factor."""
-#         pass
-
-#     def DG(self) -> FloatOrArray:
-#         """Gibbs energy departure."""
-#         DA = self.DA()
-#         Z = self.Z()
-#         T = self.T
-#         return DA + R*T*(Z - 1)
-
-#     def DH(self) -> FloatOrArray:
-#         """Enthalpy departure."""
-#         DA = self.DA()
-#         DS = self.DS()
-#         Z = self.Z()
-#         T = self.T
-#         return DA + T*DS + R*T*(Z - 1)
-
-#     def DU(self) -> FloatOrArray:
-#         """Internal energy departure."""
-#         DA = self.DA()
-#         DS = self.DS()
-#         T = self.T
-#         return DA + T*DS
-
-
-# class CubicEoS(EoS):
-#     u: float
-#     w: float
-
-#     def fw(w: float) -> float:
-#         return 1.
+    def P(self, T, V, y):
+        return 0  # R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
 
 #     def DA(self) -> FloatOrArray:
 #         a = 1
@@ -88,15 +44,6 @@ class Cubic(EoS):
 
 # class Soave(CubicEoS):
 #     pass
-# %% EoS
-
-def departures(T, DA, DS, Z):
-    DU = DA + T*DS
-    DH = DA + T*DS + R*T*(Z - 1)
-    DG = DA + R*T*(Z - 1.)
-    return (DU, DH, DG)
-
-# Cubic
 
 
 def Z_cubic_root(zu: float,
@@ -156,7 +103,7 @@ def Z_cubic(T: float,
     a *= (R*Tc)**2 / Pc
 
     # Mixing rules
-    a_m, b_m = mixing_rules_cubic(y, a, b, k)
+    a_m, b_m = cubic_mixing_rules(y, a, b, k)
 
     # Z
     A = a_m*P/(R*T)**2
@@ -177,7 +124,7 @@ def Z_cubic(T: float,
     return Z
 
 
-def mixing_rules_cubic(y: FloatVector,
+def cubic_mixing_rules(y: FloatVector,
                        a: FloatVector,
                        b: FloatVector,
                        k: Optional[FloatSquareMatrix] = None
@@ -235,6 +182,7 @@ def mixing_rules_cubic(y: FloatVector,
 
 
 # # %%
+
 # T = 398.15
 # P = 100e5
 # Tc = np.array([364.9])
@@ -242,5 +190,3 @@ def mixing_rules_cubic(y: FloatVector,
 # w = np.array([0.144])
 # y = np.array([1.])
 # Z = Z_cubic(T, P, y, Tc, Pc, w)
-
-# %%

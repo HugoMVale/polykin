@@ -99,7 +99,7 @@ class Virial(EoS):
            ) -> float:
         r"""Calculate the second virial coefficient for the mixture.
 
-        $$ B_m = \sum_i \sum_j y_i y_j B_{i,j} $$
+        $$ B_m = \sum_i \sum_j y_i y_j B_{ij} $$
 
         Parameters
         ----------
@@ -139,13 +139,38 @@ class Virial(EoS):
             P: float,
             y: FloatVector
             ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in the gas
+        phase.
+
+        $$ \ln \phi_i = \left(2\sum_j {y_jB_{ij}} -B_m \right)\frac{P}{RT} $$
+
+        where $\phi_i$ is the fugacity coefficient, $P$ is the pressure, $T$
+        is the temperature, $B$ is the second virial coefficient, and $y_i$ is
+        the mole fraction in the gas phase.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Fugacity coefficients of all components.
+        """
         Bm = self.Bm(T, y)
         B = self.Bij(T)
         return exp((2*np.dot(B, y) - Bm)*P/(R*T))
 
-    def Ares(self, T, V, y):
-        B = self.Bm(T, y)
-        return R*T*log(V/(V - B))
+    def Ares(self, T, Vt, n):
+        nt = n.sum()
+        y = n/nt
+        Bm = self.Bm(T, y)
+        return nt*R*T*log(Vt/(Vt - nt*Bm))
 
 # %% Second virial coefficient
 

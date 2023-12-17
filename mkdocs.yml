@@ -201,8 +201,7 @@ nav:
           - Equations of State:
               - IdealGas: reference/properties/eos/IdealGas.md
               - Virial: reference/properties/eos/Virial.md
-
-          #             - Cubic: reference/properties/eos/Cubic.md
+              - Cubic: reference/properties/eos/Cubic.md
           - PVT Polymer:
               - reference/properties/pvt_polymer/index.md
               - Flory: reference/properties/pvt_polymer/Flory.md
