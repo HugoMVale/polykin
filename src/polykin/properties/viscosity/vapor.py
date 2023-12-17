@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.types import FloatVector, FloatOrArray
-from polykin.properties.eos import pseudocritical_properties
+from polykin.properties.mixing_rules import pseudocritical_properties
 
 import numpy as np
 from math import sqrt
