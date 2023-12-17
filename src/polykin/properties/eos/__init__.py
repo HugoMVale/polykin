@@ -8,6 +8,6 @@ and mixtures.
 """
 
 from .base import *
-from .gas import *
+from .idealgas import *
 from .virial import *
 from .cubic import *
