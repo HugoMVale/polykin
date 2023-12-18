@@ -2,11 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray, FloatOrArrayLike, FloatVector
+from polykin.types import FloatOrArray, FloatOrArrayLike, \
+    FloatVector, FloatVectorLike
 from polykin.utils import check_in_set, check_valid_range, check_bounds, \
     convert_check_temperature, eps
 
 import numpy as np
+from numpy import log
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -215,9 +217,9 @@ class PropertyEquationT(PropertyEquation):
             return (fig, ax)
 
     def fit(self,
-            T: FloatVector,
-            Y: FloatVector,
-            sigmaY: Optional[FloatVector] = None,
+            T: FloatVectorLike,
+            Y: FloatVectorLike,
+            sigmaY: Optional[FloatVectorLike] = None,
             fit_only: Optional[list[str]] = None,
             logY: bool = False,
             plot: bool = True,
@@ -262,12 +264,12 @@ class PropertyEquationT(PropertyEquation):
                 pdict[pname] = pvalue
             Yfit = self.equation(T=x, **pdict)
             if logY:
-                Yfit = np.log(Yfit)
+                Yfit = log(Yfit)
             return Yfit
 
         solution = curve_fit(ffit,
                              xdata=T,
-                             ydata=np.log(Y) if logY else Y,
+                             ydata=log(Y) if logY else Y,
                              p0=p0,
                              sigma=sigmaY,
                              absolute_sigma=True,

@@ -78,7 +78,7 @@ def test_Antoine(Pvap_water):
 
 
 def test_Antoine_fit(Pvap_water):
-    T = np.linspace(260, 373, 50)
+    T = np.linspace(260., 373., 50)
     Y = Pvap_water(T)
     p = Antoine(A=1, B=1, C=1, unit='bar')
     result = p.fit(T, Y, logY=True)
@@ -89,8 +89,8 @@ def test_Antoine_fit(Pvap_water):
 
 
 def test_Antoine_fit_fitonly(Pvap_water):
-    T = np.linspace(260, 373, 50)
-    Y = Pvap_water(T)
+    T = np.linspace(260., 373., 50).tolist()
+    Y = Pvap_water(T).tolist()
     p = Antoine(A=1, B=1, C=0, unit='bar')
     result = p.fit(T, Y, fit_only=['A', 'B'], logY=True)
     popt = result['parameters']
