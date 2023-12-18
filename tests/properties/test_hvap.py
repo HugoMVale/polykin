@@ -10,13 +10,13 @@ import pytest
 
 
 def test_hvap_pitzer():
-    "Propionaldehyde. Example 7-6, page 220."
+    "Propionaldehyde. Example 7-6, page 220, Reid-Prausnitz-Poling."
     hvap = DHVL_pitzer(T=321., Tc=496., w=0.313)
     assert np.isclose(hvap, 28981, rtol=1e-4)
 
 
 def test_hvapb_vetere():
-    "Propionaldehyde. Example 7-8, page 227."
+    "Propionaldehyde. Example 7-8, page 227, Reid-Prausnitz-Poling."
     hvap = DHVL_vetere(Tb=321., Tc=496., Pc=47.6e5)
     assert np.isclose(hvap, 29144, rtol=1e-3)
 
@@ -28,7 +28,7 @@ def test_hvap_watson():
 
 
 def test_hvapb_kistiakowsky_vetere():
-    "Several examples. data from Reid-Prausnitz-Poling and NIST."
+    "Several examples. Data from Reid-Prausnitz-Poling and NIST."
     # Propionaldehyde. Example 7-9, page 231.
     hvap = DHVL_kistiakowsky_vetere(Tb=321., M=58.08e-3, kind='polar')
     assert np.isclose(hvap, 28710, rtol=1e-3)

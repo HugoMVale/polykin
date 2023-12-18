@@ -11,7 +11,7 @@ from scipy.constants import R
 
 
 def test_MUVMX2_herning_zipperer():
-    "Example 9-6, p. 411"
+    "Example 9-6, p. 411, Reid-Prausnitz-Poling."
     y2 = 0.303
     y = np.array([1-y2, y2])
     mu = np.array([109.4, 72.74])
@@ -21,7 +21,7 @@ def test_MUVMX2_herning_zipperer():
 
 
 def test_MUVPC_jossi():
-    "Example 9-11, p. 425"
+    "Example 9-11, p. 425, Reid-Prausnitz-Poling."
     Tc = 408.2
     Pc = 36.5e5
     rhor = 263/243.8
@@ -31,7 +31,7 @@ def test_MUVPC_jossi():
 
 
 def test_MUVMXPC_dean_stiel_1():
-    "Example 9-11, p. 425"
+    "Example 9-11, p. 425, Reid-Prausnitz-Poling."
     y = np.array([1.])
     M = np.array([58.12e-3])
     Tc = np.array([408.2])

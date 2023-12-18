@@ -48,7 +48,7 @@ def test_air(air_parameters, ideal_gas):
 
 
 def test_Virial2_Z():
-    "Example 3-1, p. 35"
+    "Example 3-1, p. 35, Reid-Prausnitz-Poling."
     eos = Virial(Tc=[385.0], Pc=[41.4e5], Zc=[0.28], w=[0.204])
     state = (366.5, 20.67e5, np.array([1.]))
     assert np.isclose(eos.Z(*state), 0.75, rtol=0.1)
@@ -56,13 +56,13 @@ def test_Virial2_Z():
 
 
 def test_Virial2_B():
-    "Example 3-2, p. 41"
+    "Example 3-2, p. 41, Reid-Prausnitz-Poling."
     eos = Virial(Tc=[571.], Pc=[32.7e5], Zc=[0.28], w=[0.385])
     assert np.isclose(eos.Bm(273.15+120., np.array([1.])), -1580e-6, rtol=0.2)
 
 
 def test_Virial2_Bij():
-    "Example 4-1, p. 81"
+    "Example 4-1, p. 81, Reid-Prausnitz-Poling."
     eos = Virial(Tc=[190.6, 425.2], Pc=[46.0e5, 38.e5],
                  Zc=[0.288, 0.274], w=[0.012, 0.199])
     T = 443.
