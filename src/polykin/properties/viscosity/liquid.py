@@ -4,7 +4,7 @@
 
 from polykin.types import FloatVector
 
-import numpy as np
+from numpy import exp, log, cbrt, dot
 
 __all__ = ['MULMX2_perry']
 
@@ -47,7 +47,7 @@ def MULMX2_perry(x: FloatVector,
         Mixture viscosity, $\mu_m$. Unit = [mu].
     """
     if hydrocarbons:
-        result = np.dot(x, np.cbrt(mu))**3
+        result = dot(x, cbrt(mu))**3
     else:
-        result = np.exp(np.dot(x, np.log(mu)))
+        result = exp(dot(x, log(mu)))
     return result
