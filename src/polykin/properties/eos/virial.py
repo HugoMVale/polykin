@@ -5,10 +5,10 @@
 from polykin.types import FloatVector, FloatVectorLike, FloatOrArray, \
     FloatSquareMatrix
 from .base import EoS
-from ..mixing_rules import quadratic_mixing_rule
+from ..mixing_rules import quadratic_mixing
 
 import numpy as np
-from numpy import sqrt, exp, log
+from numpy import sqrt, exp, log, dot
 from scipy.constants import R
 import functools
 
@@ -20,6 +20,11 @@ __all__ = ['Virial',
 
 
 class Virial(EoS):
+
+    Tc: FloatVector
+    Pc: FloatVector
+    Zc: FloatVector
+    w: FloatVector
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -50,6 +55,11 @@ class Virial(EoS):
         the temperature, $B_m=B_m(T,y)$ is the mixture second virial
         coefficient, and $y$ is the mole fraction vector.
 
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 37.
+
         Parameters
         ----------
         T : float
@@ -67,12 +77,12 @@ class Virial(EoS):
         Bm = self.Bm(T, y)
         return 1. + Bm*P/(R*T)
 
-    def P(self, T, V, y):
+    def P(self, T, v, y):
         r"""Calculate the equilibrium pressure of the fluid.
 
-        $$ P = \frac{R T}{V - B_m} $$
+        $$ P = \frac{R T}{v - B_m} $$
 
-        where $P$ is the pressure, $T$ is the temperature, $V$ is the molar
+        where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
         volume, $B_m=B_m(T,y)$ is the mixture second virial coefficient, and
         $y$ is the vector of mole fractions.
 
@@ -80,7 +90,7 @@ class Virial(EoS):
         ----------
         T : float
             Temperature. Unit = K.
-        V : float
+        v : float
             Molar volume. Unit = m³/mol.
         y : FloatVector
             Mole fractions of all components. Unit = mol/mol.
@@ -88,10 +98,10 @@ class Virial(EoS):
         Returns
         -------
         FloatVector
-            Compressibility factor of the gas and/or liquid phases.
+             Pressure. Unit = Pa.
         """
         Bm = self.Bm(T, y)
-        return R*T/(V - Bm)
+        return R*T/(v - Bm)
 
     def Bm(self,
            T: float,
@@ -100,6 +110,11 @@ class Virial(EoS):
         r"""Calculate the second virial coefficient for the mixture.
 
         $$ B_m = \sum_i \sum_j y_i y_j B_{ij} $$
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 82.
 
         Parameters
         ----------
@@ -113,13 +128,16 @@ class Virial(EoS):
         float
             Mixture second virial coefficient, $B_m$. Unit = m³/mol.
         """
-        return quadratic_mixing_rule(y, self.Bij(T))
+        return quadratic_mixing(y, self.Bij(T))
 
     @functools.cache
     def Bij(self,
             T: float,
             ) -> FloatSquareMatrix:
         r"""Calculate the matrix of interaction virial coefficients.
+
+        The calculation is handled by
+        [`B_mixture`](.#polykin.properties.eos.B_mixture).
 
         Parameters
         ----------
@@ -148,6 +166,11 @@ class Virial(EoS):
         is the temperature, $B$ is the second virial coefficient, and $y_i$ is
         the mole fraction in the gas phase.
 
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 145.
+
         Parameters
         ----------
         T : float
@@ -164,13 +187,13 @@ class Virial(EoS):
         """
         Bm = self.Bm(T, y)
         B = self.Bij(T)
-        return exp((2*np.dot(B, y) - Bm)*P/(R*T))
+        return exp((2*dot(B, y) - Bm)*P/(R*T))
 
-    def Ares(self, T, Vt, n):
+    def Ares(self, T, V, n):
         nt = n.sum()
         y = n/nt
         Bm = self.Bm(T, y)
-        return nt*R*T*log(Vt/(Vt - nt*Bm))
+        return nt*R*T*log(V/(V - nt*Bm))
 
 # %% Second virial coefficient
 
@@ -223,6 +246,9 @@ def B_mixture(T: float,
               ) -> FloatSquareMatrix:
     r"""Calculate matrix of interaction virial coefficients using the mixing
     rules of Prausnitz.
+
+    The calculation of the individual coefficients is handled by
+    [`B_pure`](.#polykin.properties.eos.B_pure).
 
     Reference:
 

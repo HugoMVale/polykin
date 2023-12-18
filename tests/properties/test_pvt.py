@@ -42,8 +42,8 @@ def test_air(air_parameters, ideal_gas):
     for EOS in [Virial]:
         eos = EOS(**p)
         assert np.isclose(ideal_gas.Z(**state), eos.Z(**state), rtol=1e-2)
-        assert np.isclose(ideal_gas.V(**state), eos.V(**state), rtol=1e-2)
-        assert np.isclose(eos.P(state['T'], eos.V(
+        assert np.isclose(ideal_gas.V(**state), eos.v(**state), rtol=1e-2)
+        assert np.isclose(eos.P(state['T'], eos.v(
             **state), state['y']), state['P'], rtol=1e-2)  # type: ignore
 
 
@@ -52,7 +52,7 @@ def test_Virial2_Z():
     eos = Virial(Tc=[385.0], Pc=[41.4e5], Zc=[0.28], w=[0.204])
     state = (366.5, 20.67e5, np.array([1.]))
     assert np.isclose(eos.Z(*state), 0.75, rtol=0.1)
-    assert np.isclose(eos.V(*state), 1097e-6, rtol=0.1)
+    assert np.isclose(eos.v(*state), 1097e-6, rtol=0.1)
 
 
 def test_Virial2_B():
