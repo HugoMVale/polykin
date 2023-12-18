@@ -2,70 +2,203 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatSquareMatrix
+from polykin.types import FloatVector, FloatVectorLike, FloatSquareMatrix
 from polykin.utils import eps
+from ..mixing_rules import geometric_interaction_mixing
 from .base import EoS
 
 import numpy as np
-from numpy import exp, sqrt, log
+from numpy import sqrt, log, dot
 from scipy.constants import R
 from typing import Optional, Literal
+from abc import abstractmethod
 
-__all__ = ['Cubic']
+__all__ = ['Cubic',
+           'RedlichKwong',
+           'Soave',
+           'PengRobinson']
 
 
 class Cubic(EoS):
 
+    Tc: FloatVector
+    Pc: FloatVector
+    w: FloatVector
+    k: Optional[FloatSquareMatrix]
+    _u: float
+    _w: float
+    _a: float
+    _b: float
+
+    def __init__(self,
+                 Tc: FloatVectorLike,
+                 Pc: FloatVectorLike,
+                 w: FloatVectorLike,
+                 k: Optional[FloatSquareMatrix] = None
+                 ) -> None:
+
+        if isinstance(Tc, (list, tuple)):
+            Tc = np.array(Tc, dtype=np.float64)
+        if isinstance(Pc, (list, tuple)):
+            Pc = np.array(Pc, dtype=np.float64)
+        if isinstance(w, (list, tuple)):
+            w = np.array(w, dtype=np.float64)
+
+        self.Tc = Tc
+        self.Pc = Pc
+        self.w = w
+        self.k = k
+        self.b = self._b*R*Tc/Pc
+
     def Z(self, T, P, y):
-        return 1.
+        A = self.am(T, y)*P/(R*T)**2
+        B = self.bm(y)*P/(R*T)
+        return Z_cubic_root(self._u, self._w, A, B)
 
     def P(self, T, V, y):
-        return 0  # R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
+        r"""Calculate the equilibrium pressure of the fluid.
 
-#     def DA(self) -> FloatOrArray:
-#         a = 1
-#         b = 1
-#         u = self.u
-#         w = self.w
-#         B = 1
-#         d = sqrt(u**2 - 4*w)
-#         Z = self.Z()
-#         T = self.T
-#         V = 1
-#         V0 = 1
-#         out = a/(b*d)*np.log((2*Z + B*(u - d))/(2*Z + B*(u + d))) - \
-#             R*T*np.log(1 - B/Z) - R*T*np.log(V/V0)
-#         return
+        $$ P = \frac{RT}{V - b_m} -\frac{a_m}{V^2 + u V b_m + w b_m^2} $$
+
+        where $P$ is the pressure, $T$ is the temperature, $V$ is the molar
+        volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
+        $y$ is the vector of mole fractions.
+
+        | Equation      | $u$ | $w$ |
+        |---------------|:---:|:---:|
+        | Redlich-Kwong |  1  |  0  |
+        | Soave         |  1  |  0  |
+        | Peng-Robinson | 2   | -1  |
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 42-43.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        V : float
+            Molar volume. Unit = m³/mol.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Pressure. Unit = Pa.
+        """
+        am = 1
+        bm = 1
+        u = self._u
+        w = self._w
+        return R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
+
+    def am(self,
+           T: float,
+           y: FloatVector) -> float:
+        r"""Calculate mixture attractive parameter from the corresponding
+        pure-component parameters.
+
+        $$ a_m = \sum_i \sum_j y_i y_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) $$
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 82.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Mixture attractive parameter, $a_m$. Unit = J·m³.
+        """
+        return geometric_interaction_mixing(y, self.a(T), self.k)
+
+    def bm(self,
+           y: FloatVector
+           ) -> float:
+        r"""Calculate mixture repulsive parameter from the corresponding
+        pure-component parameters.
+
+        $$ b_m = \sum_i y_i b_i $$
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 82.
+
+        Parameters
+        ----------
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Mixture repulsive parameter, $b_m$. Unit = m³.
+        """
+        return dot(y, self.b)
+
+    @abstractmethod
+    def a(self, T: float) -> FloatVector:
+        pass
 
 
-# class RedlichKwong(CubicEoS):
-#     pass
+class RedlichKwong(Cubic):
+
+    _u = 1.
+    _w = 0.
+    _b = 0.08664
+
+    def a(self, T: float) -> FloatVector:
+        Tc = self.Tc
+        Pc = self.Pc
+        Tr = T/Tc
+        a = (R*Tc)**2 / Pc
+        a *= 0.42748/sqrt(Tr)
+        return a
 
 
-# class Soave(CubicEoS):
-#     pass
+class Soave(Cubic):
+
+    _u = 1.
+    _w = 0.
+    _b = 0.08664
+
+    def a(self, T: float) -> FloatVector:
+        Tc = self.Tc
+        Pc = self.Pc
+        w = self.w
+        Tr = T/Tc
+        fw = 0.48 + 1.574*w - 0.176*w**2
+        a = (R*Tc)**2 / Pc
+        a *= 0.42748*(1 + fw*(1 - sqrt(Tr)))**2
+        return a
 
 
-def Z_cubic_root(zu: float,
-                 zw: float,
-                 A: float,
-                 B: float
-                 ) -> FloatVector:
-    c3 = 1.
-    c2 = -(1. + B - zu*B)
-    c1 = (A + zw*B**2 - zu*B - zu*B**2)
-    c0 = -(A*B + zw*B**2 + zw*B**3)
+class PengRobinson(Cubic):
 
-    coeffs = (c3, c2, c1, c0)
-    roots = np.roots(coeffs)
-    roots = [x.real for x in roots if abs(x.imag) < eps]
+    _u = 2.
+    _w = -1.
+    _b = 0.07780
 
-    Z = []
-    Z.append(min(roots))
-    if len(roots) > 1:
-        Z.append(max(roots))
-
-    return np.array(Z)
+    def a(self, T: float) -> FloatVector:
+        Tc = self.Tc
+        Pc = self.Pc
+        w = self.w
+        Tr = T/Tc
+        fw = 0.37464 + 1.54226*w - 0.26992*w**2
+        a = (R*Tc)**2 / Pc
+        a *= 0.45724*(1 + fw*(1 - sqrt(Tr)))**2
+        return a
 
 
 def Z_cubic(T: float,
@@ -124,62 +257,26 @@ def Z_cubic(T: float,
     return Z
 
 
-def cubic_mixing_rules(y: FloatVector,
-                       a: FloatVector,
-                       b: FloatVector,
-                       k: Optional[FloatSquareMatrix] = None
-                       ) -> tuple[float, float]:
-    r"""Mixing rules for Redlich-Kwong-type equations of state.
+def Z_cubic_root(zu: float,
+                 zw: float,
+                 A: float,
+                 B: float
+                 ) -> FloatVector:
+    c3 = 1.
+    c2 = -(1. + B - zu*B)
+    c1 = (A + zw*B**2 - zu*B - zu*B**2)
+    c0 = -(A*B + zw*B**2 + zw*B**3)
 
-    The mixing rules for all two-parameter cubic equations of state are:
+    coeffs = (c3, c2, c1, c0)
+    roots = np.roots(coeffs)
+    roots = [x.real for x in roots if abs(x.imag) < eps]
 
-    $$ \begin{aligned}
-        a_{m} &= \sum_i \sum_j y_i y_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) \\
-        b_{m} &= \sum_i y_i b_i
-    \end{aligned} $$
+    Z = []
+    Z.append(min(roots))
+    if len(roots) > 1:
+        Z.append(max(roots))
 
-    where $a_i$ and $b_i$ are the pure-component parameters, and $\bar{k}_{ij}$
-    are the optional binary interaction coefficients.
-
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 82.
-
-    Parameters
-    ----------
-    y : FloatVector
-        Mole fractions of all components. Unit = mol/mol.
-    a : FloatVector
-        Interaction parameter for all components. Unit = J·m³.
-    b : FloatVector
-        Excluded volume parameter for all components. Unit = m³.
-    k : FloatSquareMatrix | None
-        Binary interaction parameter matrix.
-
-    Returns
-    -------
-    tuple[float, float]
-        Tuple with mixture parameters, ($a_m, b_m$). Unit = (J·m³, m³).
-    """
-
-    if k is None:
-        a_m = (np.dot(y, sqrt(a)))**2
-    else:
-        # k += k.T
-        # np.fill_diagonal(k, 1.)
-        # a_m = np.sum(np.outer(y, y) * np.sqrt(np.outer(a, a))
-        #              * (1. - k), dtype=np.float64)
-        a_m = 0.
-        N = len(y)
-        for i in range(N):
-            for j in range(N):
-                a_m += y[i]*y[j]*sqrt(a[i]*a[j])*(1. - k[i, j])
-
-    b_m = np.dot(y, b)
-
-    return (a_m, b_m)
-
+    return np.array(Z)
 
 # # %%
 

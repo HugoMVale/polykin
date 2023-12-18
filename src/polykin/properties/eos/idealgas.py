@@ -14,11 +14,11 @@ class IdealGas(EoS):
     def Z(self, T, P, y):
         return 1.
 
-    def P(self, T, V, y):
-        return R*T/V
+    def P(self, T, v, y):
+        return R*T/v
 
     def phi(self, T, P, y):
         return 1.
 
-    def Ares(self, T, Vt, n):
+    def Ares(self, T, V, n):
         return 0.

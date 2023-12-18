@@ -16,15 +16,15 @@ class EoS(ABC):
 
     P0 = 1e5  # Pa
 
-    def V(self,
+    def v(self,
           T: float,
           P: float,
           y: FloatVector) -> FloatVector:
         r"""Calculate the molar volumes of the coexisting phases a fluid.
 
-        $$ V = \frac{Z R T}{P} $$
+        $$ v = \frac{Z R T}{P} $$
 
-        where $V$ is the molar volue, $Z$ is the compressibility factor,
+        where $v$ is the molar volue, $Z$ is the compressibility factor,
         $T$ is the temperature, $P$ is the pressure, and $y$ is the mole
         fraction vector.
 
@@ -49,10 +49,10 @@ class EoS(ABC):
         r"""Calculate the compressibility factors of the coexisting phases a
         fluid.
 
-        $$ Z = \frac{P V}{R T} $$
+        $$ Z = \frac{P v}{R T} $$
 
         where $Z$ is the compressibility factor, $P$ is the pressure, $T$ is
-        the temperature, $V$ is the molar volume, and $y$ is the mole fraction
+        the temperature, $v$ is the molar volume, and $y$ is the mole fraction
         vector.
 
         Parameters
@@ -72,12 +72,12 @@ class EoS(ABC):
         pass
 
     @abstractmethod
-    def P(self, T: float, V: float, y: FloatVector) -> float:
+    def P(self, T: float, v: float, y: FloatVector) -> float:
         r"""Calculate the equilibrium pressure of the fluid.
 
-        $$ P = \frac{Z R T}{V} $$
+        $$ P = \frac{Z R T}{v} $$
 
-        where $P$ is the pressure, $T$ is the temperature, $V$ is the molar
+        where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
         volume, $Z$ is the compressibility factor, and $y$ is the vector of
         mole fractions.
 
@@ -85,7 +85,7 @@ class EoS(ABC):
         ----------
         T : float
             Temperature. Unit = K.
-        V : float
+        v : float
             Molar volume. Unit = m³/mol.
         y : FloatVector
             Mole fractions of all components. Unit = mol/mol.
@@ -93,7 +93,7 @@ class EoS(ABC):
         Returns
         -------
         FloatVector
-            Compressibility factor of the gas and/or liquid phases.
+            Pressure. Unit = Pa.
         """
         pass
 
@@ -102,9 +102,9 @@ class EoS(ABC):
         r"""Calculate the fugacity coefficients of all components in the gas
         phase.
 
-        $$ \phi_i = \frac{f_i^V}{y_i P} $$
+        $$ \phi_i = \frac{f_i}{y_i P} $$
 
-        where $\phi_i$ is the fugacity coefficient, $f_i^V$ is the fugacity in
+        where $\phi_i$ is the fugacity coefficient, $f_i$ is the fugacity in
         the vapor phase, $P$ is the pressure, and $y_i$ is the mole fraction in
         the gas phase.
 
@@ -125,7 +125,7 @@ class EoS(ABC):
         pass
 
     @abstractmethod
-    def Ares(self, T: float, Vt: float, n: FloatVector) -> FloatVector:
+    def Ares(self, T: float, V: float, n: FloatVector) -> FloatVector:
         r"""Calculate the residual Helmholtz energy.
 
         $$ A-A^\circ=
@@ -138,7 +138,7 @@ class EoS(ABC):
         ----------
         T : float
             Temperature. Unit = K.
-        Vt : float
+        V : float
             Volume. Unit = m³.
         n : FloatVector
             Mole amounts of all components. Unit = mol.
