@@ -5,6 +5,7 @@
 from polykin.types import FloatVector
 
 import numpy as np
+from numpy import exp, sqrt, dot
 from scipy.constants import R, N_A
 
 __all__ = ['KVPC_stiel_thodos',
@@ -14,7 +15,7 @@ __all__ = ['KVPC_stiel_thodos',
 # %% Pressure correction
 
 
-def KVPC_stiel_thodos(V: float,
+def KVPC_stiel_thodos(v: float,
                       M: float,
                       Tc: float,
                       Pc: float,
@@ -28,7 +29,7 @@ def KVPC_stiel_thodos(V: float,
 
     where $k$ is the dense gas thermal conductivity, $k^\circ$ is the
     low-pressure thermal conductivtiy, $\Gamma$ is a group of constants, $Z_c$
-    is the critical compressibility factor, and $\rho_r = V_c / V$ is the
+    is the critical compressibility factor, and $\rho_r = v_c / v$ is the
     reduced gas density. This equation is valid in the range
     $0 \leq \rho_r < 2.8$.
 
@@ -39,7 +40,7 @@ def KVPC_stiel_thodos(V: float,
 
     Parameters
     ----------
-    V : float
+    v : float
         Gas molar volume. Unit = m³/mol.
     M : float
         Molar mass. Unit = kg/mol.
@@ -57,22 +58,22 @@ def KVPC_stiel_thodos(V: float,
     """
 
     gamma = ((Tc * M**3 * N_A**2)/(R**5 * Pc**4))**(1/6)
-    Vc = Zc*R*Tc/Pc
-    rhor = Vc/V
+    vc = Zc*R*Tc/Pc
+    rhor = vc/v
 
     if rhor < 0.5:
-        a = 1.22e-2*(np.exp(0.535*rhor) - 1)
+        a = 1.22e-2*(exp(0.535*rhor) - 1)
     elif rhor < 2.0:
-        a = 1.14e-2*(np.exp(0.67*rhor) - 1.069)
+        a = 1.14e-2*(exp(0.67*rhor) - 1.069)
     elif rhor < 2.8:
-        a = 2.60e-3*(np.exp(1.155*rhor) + 2.016)
+        a = 2.60e-3*(exp(1.155*rhor) + 2.016)
     else:
         raise ValueError("Invalid `rhor` input. Valid range: `rhor` < 2.8.")
 
     return a/(gamma * Zc**5)
 
 
-def KVMXPC_stiel_thodos(V: float,
+def KVMXPC_stiel_thodos(v: float,
                         y: FloatVector,
                         M: FloatVector,
                         Tc: FloatVector,
@@ -91,7 +92,7 @@ def KVMXPC_stiel_thodos(V: float,
 
     Parameters
     ----------
-    V : float
+    v : float
         Gas molar volume. Unit = m³/mol.
     y : FloatVector
         Mole fractions of all components. Unit = mol/mol.
@@ -112,32 +113,32 @@ def KVMXPC_stiel_thodos(V: float,
         Residual thermal conductivity, $(k_m - k_m^{\circ})$. Unit = W/(m·K).
     """
 
-    Vc = Zc*R*Tc/Pc
+    vc = Zc*R*Tc/Pc
 
     # The loop could be simplified because
     # sum_i sum_j y_i y_j V_{ij} = sum_i y_i^2 V_{ii} + 2 sum_i sum_{j>i} y_i y_j V_ij
-    Vc_mix = 0.
+    vc_mix = 0.
     Tc_mix = 0.
     N = len(y)
     for i in range(N):
         for j in range(N):
             if i == j:
-                vc = Vc[i]
-                tc = Tc[i]
+                vc_ = vc[i]
+                Tc_ = Tc[i]
             else:
-                vc = (1/8)*(Vc[i]**(1/3) + Vc[j]**(1/3))**3
-                tc = np.sqrt(Tc[i]*Tc[j])
-            term = y[i]*y[j]*vc
-            Vc_mix += term
-            Tc_mix += term*tc
-    Tc_mix /= Vc_mix
+                vc_ = (1/8)*(vc[i]**(1/3) + vc[j]**(1/3))**3
+                Tc_ = sqrt(Tc[i]*Tc[j])
+            vc_term = y[i]*y[j]*vc_
+            vc_mix += vc_term
+            Tc_mix += vc_term*Tc_
+    Tc_mix /= vc_mix
 
-    w_mix = np.dot(y, w)
+    w_mix = dot(y, w)
     Zc_mix = 0.291 - 0.08*w_mix
-    Pc_mix = Zc_mix*R*Tc_mix/Vc_mix
-    M_mix = np.dot(y, M)
+    Pc_mix = Zc_mix*R*Tc_mix/vc_mix
+    M_mix = dot(y, M)
 
-    return KVPC_stiel_thodos(V, M_mix, Tc_mix, Pc_mix, Zc_mix)
+    return KVPC_stiel_thodos(v, M_mix, Tc_mix, Pc_mix, Zc_mix)
 
 # %% Mixing rules
 
@@ -177,6 +178,6 @@ def KVMX2_wassilijewa(y: FloatVector,
     float
         Mixture thermal conductivity, $k_m$. Unit = [k].
     """
-    a = y*np.sqrt(M)
-    a *= k/np.sum(a)
+    a = y*sqrt(M)
+    a *= k/a.sum()
     return np.sum(a, dtype=np.float64)
