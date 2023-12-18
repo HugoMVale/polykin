@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.types import FloatVector
-from polykin.properties import quadratic_mixing_rule
+from polykin.properties import quadratic_mixing
 
 import numpy as np
 
@@ -54,4 +54,4 @@ def KLMX2_li(w: FloatVector,
     phi = w/rho
     phi /= phi.sum()
     K = 2 / (1/k + 1/k[:, np.newaxis])
-    return quadratic_mixing_rule(phi, K)
+    return quadratic_mixing(phi, K)
