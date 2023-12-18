@@ -8,7 +8,7 @@ of pure components.
 
 from polykin.types import FloatOrArray
 
-import numpy as np
+from numpy import log, log10
 from scipy.constants import R
 from typing import Optional, Literal
 
@@ -94,7 +94,7 @@ def DHVL_vetere(Tb: float,
         Vaporization enthalpy at the normal boiling point. Unit = J/mol.
     """
     Tbr = Tb/Tc
-    return R*Tc*Tbr*(0.4343*np.log(Pc/1e5) - 0.69431 + 0.89584*Tbr) \
+    return R*Tc*Tbr*(0.4343*log(Pc/1e5) - 0.69431 + 0.89584*Tbr) \
         / (0.37691 - 0.37306*Tbr + 0.15075/(Pc/1e5)/Tbr**2)
 
 
@@ -174,7 +174,7 @@ def DHVL_kistiakowsky_vetere(
     """
 
     if kind == 'any':
-        DSvb = 30.6 + R*np.log(Tb)
+        DSvb = 30.6 + R*log(Tb)
         return DSvb*Tb
 
     if M is not None:
@@ -183,15 +183,15 @@ def DHVL_kistiakowsky_vetere(
         raise ValueError("`M` can't be `None` with selected compound kind.")
 
     if kind == 'hydrocarbon':
-        DSvb = 58.20 + 13.7*np.log10(M) + 6.49/M*(Tb - (263*M)**0.581)**1.037
+        DSvb = 58.20 + 13.7*log10(M) + 6.49/M*(Tb - (263*M)**0.581)**1.037
     elif kind == 'polar' or kind == 'ester':
         DSvb = 44.367 + 15.33 * \
-            np.log10(Tb) + 0.39137*Tb/M + 4.330e-3/M*Tb**2 - 5.627e-6/M*Tb**3
+            log10(Tb) + 0.39137*Tb/M + 4.330e-3/M*Tb**2 - 5.627e-6/M*Tb**3
         if kind == 'ester':
             DSvb *= 1.03
     elif kind == 'acid_alcohol':
         DSvb = 81.119 + 13.083 * \
-            np.log10(Tb) - 25.769*Tb/M + 0.146528/M*Tb**2 - 2.1362e-4/M*Tb**3
+            log10(Tb) - 25.769*Tb/M + 0.146528/M*Tb**2 - 2.1362e-4/M*Tb**3
     else:
         raise ValueError("Invalid compound `kind`.")
     return DSvb*Tb
