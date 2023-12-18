@@ -8,6 +8,7 @@ from polykin.types import FloatOrArray
 from .base import PropertyEquationT
 
 import numpy as np
+from numpy import exp, log, sinh, cosh
 
 __all__ = ['DIPPR100',
            'DIPPR101',
@@ -192,7 +193,7 @@ class DIPPR101(DIPPRP5):
                  E: float
                  ) -> FloatOrArray:
         r"""DIPPR-101 equation."""
-        return np.exp(A + B/T + C*np.log(T) + D*T**E)
+        return exp(A + B/T + C*log(T) + D*T**E)
 
 
 class DIPPR102(DIPPRP4):
@@ -523,4 +524,4 @@ class DIPPR107(DIPPRP5):
                  E: float
                  ) -> FloatOrArray:
         r"""DIPPR-107 equation."""
-        return A + B*(C/T/np.sinh(C/T))**2 + D*(E/T/np.cosh(E/T))**2
+        return A + B*(C/T/sinh(C/T))**2 + D*(E/T/cosh(E/T))**2
