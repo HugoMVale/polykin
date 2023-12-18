@@ -157,7 +157,7 @@ class Poisson(AnalyticalDistributionP1):
 class LogNormal(AnalyticalDistributionP2):
     r"""Log-normal chain-length distribution.
 
-    The Log-normal _number_ probability density function is given by:
+    The log-normal _number_ probability density function is given by:
 
     $$ p(x) = \frac{1}{x \sigma \sqrt{2 \pi}}
     \exp\left (- \frac{(\ln{x}-\mu)^2}{2\sigma^2} \right ) $$
