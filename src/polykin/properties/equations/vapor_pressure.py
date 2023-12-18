@@ -9,6 +9,7 @@ from polykin.types import FloatOrArray
 from .base import PropertyEquationT
 
 import numpy as np
+from numpy import exp
 
 __all__ = ['Antoine', 'Wagner']
 
@@ -114,7 +115,7 @@ class Antoine(PropertyEquationT):
         if base10:
             return 10**x
         else:
-            return np.exp(x)
+            return exp(x)
 
 # %% Wagner
 
@@ -230,4 +231,4 @@ class Wagner(PropertyEquationT):
         """
         Tr = T/Tc
         t = 1 - Tr
-        return Pc*np.exp((a*t + b*t**1.5 + c*t**2.5 + d*t**5)/Tr)
+        return Pc*exp((a*t + b*t**1.5 + c*t**2.5 + d*t**5)/Tr)
