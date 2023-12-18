@@ -6,7 +6,7 @@ from polykin.types import FloatVector, FloatOrArray
 from polykin.properties.mixing_rules import pseudocritical_properties
 
 import numpy as np
-from math import sqrt
+from numpy import abs, exp, sqrt, dot
 from scipy.constants import R
 
 __all__ = ['MUVMX2_herning_zipperer',
@@ -54,7 +54,7 @@ def MUVMX2_herning_zipperer(y: FloatVector,
     float
         Mixture viscosity, $\mu_m$. Unit = [mu].
     """
-    a = y*np.sqrt(M)
+    a = y*sqrt(M)
     a *= mu/np.sum(a)
     return np.sum(a, dtype=np.float64)
 
@@ -74,7 +74,7 @@ def MUVPC_jossi(rhor: float,
 
     where $\mu$ is the dense gas viscosity, $\mu^\circ$ is the is the
     low-pressure viscosity, $\xi$ is a group of constants, and
-    $\rho_r = V_c / V$ is the reduced gas density. This equation is valid in
+    $\rho_r = v_c / v$ is the reduced gas density. This equation is valid in
     the range $0.1 < \rho_r < 3.0$.
 
     Reference:
@@ -105,7 +105,7 @@ def MUVPC_jossi(rhor: float,
     return (a**4 - 1)/xi
 
 
-def MUVMXPC_dean_stiel(V: float,
+def MUVMXPC_dean_stiel(v: float,
                        y: FloatVector,
                        M: FloatVector,
                        Tc: FloatVector,
@@ -119,7 +119,7 @@ def MUVMXPC_dean_stiel(V: float,
 
     where $\mu_m$ is the dense gas mixture viscosity, $\mu_m^\circ$ is the
     low-pressure gas mixture viscosity, $\xi$ is a group of constants, and
-    $\rho_r = V_c / V$ is the reduced gas density. This
+    $\rho_r = v_c / v$ is the reduced gas density. This
     equation is valid in the range $0 \le \rho_r < 2.5$.
 
     Reference:
@@ -129,7 +129,7 @@ def MUVMXPC_dean_stiel(V: float,
 
     Parameters
     ----------
-    V : float
+    v : float
         Gas molar volume. Unit = m³/mol.
     y : FloatVector
         Mole fractions of all components. Unit = mol/mol.
@@ -149,13 +149,13 @@ def MUVMXPC_dean_stiel(V: float,
     """
 
     # Mixing rules recommended in paper
-    M_mix = np.dot(y, M)
-    Tc_mix, Pc_mix, Vc_mix, _, _ = pseudocritical_properties(y, Tc, Pc, Zc)
+    M_mix = dot(y, M)
+    Tc_mix, Pc_mix, vc_mix, _, _ = pseudocritical_properties(y, Tc, Pc, Zc)
 
-    rhor = Vc_mix/V
+    rhor = vc_mix/v
     # xi = 1e3*Tc_mix**(1/6)/(sqrt(M_mix*1e3)*(Pc_mix/101325)**(2/3))
     xi = 6.87e4*Tc_mix**(1/6)/(sqrt(M_mix)*(Pc_mix)**(2/3))
-    a = 10.8e-5*(np.exp(1.439*rhor) - np.exp(-1.111*rhor**1.858))
+    a = 10.8e-5*(exp(1.439*rhor) - exp(-1.111*rhor**1.858))
 
     return a/xi
 
@@ -248,10 +248,10 @@ def MUVMX_lucas(T: float,
     float
         Gas mixture viscosity, $\mu_m$. Unit = Pa·s.
     """
-    Tc_mix = np.dot(y, Tc)
-    M_mix = np.dot(y, M)
-    Pc_mix = R*Tc_mix*np.dot(y, Zc)/np.dot(y, R*Tc*Zc/Pc)
-    FP0_mix = np.dot(y, _MUV_lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
+    Tc_mix = dot(y, Tc)
+    M_mix = dot(y, M)
+    Pc_mix = R*Tc_mix*dot(y, Zc)/dot(y, R*Tc*Zc/Pc)
+    FP0_mix = dot(y, _MUV_lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
     mu = _MUV_lucas_mu(
         T/Tc_mix, P/Pc_mix, M_mix, Tc_mix, Pc_mix, FP0_mix)
     return mu
@@ -268,8 +268,8 @@ def _MUV_lucas_mu(Tr: float,
     temperature and pressure using the method of Lucas.
     """
     # Z1
-    Z1 = (0.807*Tr**0.618 - 0.357*np.exp(-0.449*Tr) +
-          0.340*np.exp(-4.058*Tr) + 0.018)*FP0
+    Z1 = (0.807*Tr**0.618 - 0.357*exp(-0.449*Tr) +
+          0.340*exp(-4.058*Tr) + 0.018)*FP0
 
     # Z2
     if Tr <= 1. and Pr < 1.:
@@ -291,12 +291,12 @@ def _MUV_lucas_mu(Tr: float,
         f1 = 0.9425
         f2 = -0.1853
         zeta = 0.4489
-        a = a1/Tr*np.exp(a2*Tr**gamma)
+        a = a1/Tr*exp(a2*Tr**gamma)
         b = a*(b1*Tr - b2)
-        c = c1/Tr*np.exp(c2*Tr**delta)
-        d = d1/Tr*np.exp(d2*Tr**epsilon)
+        c = c1/Tr*exp(c2*Tr**delta)
+        d = d1/Tr*exp(d2*Tr**epsilon)
         e = 1.3088
-        f = f1*np.exp(f2*Tr**zeta)
+        f = f1*exp(f2*Tr**zeta)
         Z2 = Z1*(1 + a*Pr**e/(b*Pr**f + 1/(1. + c*Pr**d)))
 
     # FP
@@ -318,7 +318,7 @@ def _MUV_lucas_FP0(Tr: FloatOrArray,
     "Compute FP0 for Lucas method of estimating gas viscosity."
     dmr = 52.46 * dm**2 * (Pc / 1e5) / Tc**2
     FP0 = np.where(dmr <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
-    FP0 = np.where(dmr >= 0.075, FP0 * np.abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
+    FP0 = np.where(dmr >= 0.075, FP0*abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
     FP0 += 1.0
     return FP0
 
@@ -337,6 +337,6 @@ def _MUV_lucas_FP0(Tr: FloatOrArray,
 #     else:
 #         FP0 = 30.55*(0.292 - Zc)**1.72
 #         if dmr >= 0.075:
-#             FP0 *= np.abs(0.96 + 0.1*(T/Tc - 0.7))
+#             FP0 *= abs(0.96 + 0.1*(T/Tc - 0.7))
 #         FP0 += 1.
 #     return FP0
