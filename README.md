@@ -7,13 +7,47 @@
 PolyKin is an open-source polymerization kinetics library for Python. It is still at an early
 development stage, but the following modules can already be used:
 
-- [x] copolymerization
-- [ ] database
-- [x] distributions
-- [x] kinetics
-- [x] properties
-- [ ] thermodynamics
-- [ ] models
+- Copolymerization
+  - [ ] Implicit penultimate model
+  - [x] Penultimate model
+  - [x] Terminal model
+- Equations of state
+  - [ ] Cubic (Redlich-Kwong, Soave, Peng-Robinson)
+  - [ ] Ideal gas
+  - [ ] Virial equation 
+- [ ] Database
+- Distributions
+  - [x] Flory
+  - [ ] Gold
+  - [x] Log-normal
+  - [x] Poison
+  - [x] Schulz-Zimm
+- Kinetics
+  - [x] Arrhenius
+  - [x] Eyring
+  - [x] Propagation half-length
+  - [x] Termination composite model
+- [ ] Models 
+- Physical property correlations
+  - [x] Antoine
+  - [x] DIPPR
+  - [x] Wagner
+  - [x] Yaws
+- Transport properties (estimation methods, mixing rules, etc.)
+  - Diffusivity 
+    - [x] Binary gas mixtures
+    - [x] Binary liquid mixtures
+    - [x] Binary polymer solutions
+    - [ ] Multicomponent polymer solutions  
+  - Thermal conductivity
+    - [x] Gases
+    - [x] Liquids
+    - [ ] Polymer solutions
+  - Viscosity
+    - [x] Gases
+    - [x] Liquids
+    - [ ] Polymer solutions
+
 
 ## Documentation
 
@@ -21,7 +55,7 @@ Please refer to the package [homepage](https://hugomvale.github.io/polykin/).
 
 ## Tutorials
 
-The main features of PolyKin are explained and illustrated through a series of [tutorials](https://hugomvale.github.io/polykin/tutorials/distributions/) based on Jupyter [notebooks](https://github.com/HugoMVale/polykin/tree/main/docs/tutorials),
+The main features of PolyKin are explained and illustrated through a series of [tutorials](https://hugomvale.github.io/polykin/tutorials/) based on Jupyter [notebooks](https://github.com/HugoMVale/polykin/tree/main/docs/tutorials),
 which can be launched online via Binder.
 
 <p align="center">
