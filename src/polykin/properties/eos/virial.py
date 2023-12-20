@@ -4,7 +4,7 @@
 
 from polykin.types import FloatVector, FloatVectorLike, FloatOrArray, \
     FloatSquareMatrix
-from .base import EoS
+from .base import GasEoS
 from ..mixing_rules import quadratic_mixing
 
 import numpy as np
@@ -19,7 +19,39 @@ __all__ = ['Virial',
 # %% Virial equation
 
 
-class Virial(EoS):
+class Virial(GasEoS):
+    r"""Virial equation of state truncated to the second coefficient.
+
+    This EOS is based on the following $P(v,T)$ relationship:
+
+    $$ P = \frac{R T}{v - B_m} $$
+
+    where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
+    volume, $B_m$ is the mixture second virial coefficient. The parameter
+    $B_m=B_m(T,y)$ is estimated based on the critical properties of the pure
+    components and the mixture composition $y$.
+
+    !!! important
+
+        This equation is an improvement over the ideal gas model, but it
+        should only be used up to moderate pressures such that $v/v_c > 2$.
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+
+    Parameters
+    ----------
+    Tc : FloatVector
+        Critical temperatures of all components. Unit = K.
+    Pc : FloatVector
+        Critical pressures of all components. Unit = Pa.
+    Zc : FloatVector
+        Critical compressibility factors of all components.
+    w : FloatVector
+        Acentric factors of all components.
+    """
 
     Tc: FloatVector
     Pc: FloatVector
@@ -32,6 +64,8 @@ class Virial(EoS):
                  Zc: FloatVectorLike,
                  w: FloatVectorLike
                  ) -> None:
+        """Construct `Virial` with the given parameters."""
+
         if isinstance(Tc, (list, tuple)):
             Tc = np.array(Tc, dtype=np.float64)
         if isinstance(Pc, (list, tuple)):
@@ -52,8 +86,8 @@ class Virial(EoS):
         $$ Z = 1 + \frac{B_m P}{R T} $$
 
         where $Z$ is the compressibility factor, $P$ is the pressure, $T$ is
-        the temperature, $B_m=B_m(T,y)$ is the mixture second virial
-        coefficient, and $y$ is the mole fraction vector.
+        the temperature, and $B_m=B_m(T,y)$ is the mixture second virial
+        coefficient.
 
         Reference:
 
@@ -72,19 +106,13 @@ class Virial(EoS):
         Returns
         -------
         FloatVector
-            Compressibility factor of the gas and/or liquid phases.
+            Compressibility factor of the fluid.
         """
         Bm = self.Bm(T, y)
         return 1. + Bm*P/(R*T)
 
     def P(self, T, v, y):
-        r"""Calculate the equilibrium pressure of the fluid.
-
-        $$ P = \frac{R T}{v - B_m} $$
-
-        where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
-        volume, $B_m=B_m(T,y)$ is the mixture second virial coefficient, and
-        $y$ is the vector of mole fractions.
+        r"""Calculate the pressure of the fluid.
 
         Parameters
         ----------
@@ -107,7 +135,7 @@ class Virial(EoS):
            T: float,
            y: FloatVector
            ) -> float:
-        r"""Calculate the second virial coefficient for the mixture.
+        r"""Calculate the second virial coefficient of the mixture.
 
         $$ B_m = \sum_i \sum_j y_i y_j B_{ij} $$
 
@@ -163,8 +191,9 @@ class Virial(EoS):
         $$ \ln \phi_i = \left(2\sum_j {y_jB_{ij}} -B_m \right)\frac{P}{RT} $$
 
         where $\phi_i$ is the fugacity coefficient, $P$ is the pressure, $T$
-        is the temperature, $B$ is the second virial coefficient, and $y_i$ is
-        the mole fraction in the gas phase.
+        is the temperature, $B_{ij}$ is the matrix of interaction virial
+        coefficients, $B_m$ is the second virial coefficient of the mixture,
+        and $y_i$ is the mole fraction in the gas phase.
 
         Reference:
 
@@ -189,11 +218,11 @@ class Virial(EoS):
         B = self.Bij(T)
         return exp((2*dot(B, y) - Bm)*P/(R*T))
 
-    def Ares(self, T, V, n):
+    def DA(self, n, T, V, V0):
         nt = n.sum()
         y = n/nt
         Bm = self.Bm(T, y)
-        return nt*R*T*log(V/(V - nt*Bm))
+        return nt*R*T*log(V/(V - nt*Bm)) - R*T*log(V/V0)
 
 # %% Second virial coefficient
 
@@ -202,7 +231,7 @@ def B_pure(T: FloatOrArray,
            Tc: float,
            Pc: float,
            w: float) -> FloatOrArray:
-    r"""Estimate the second virial coefficient for a nonpolar or slightly polar
+    r"""Estimate the second virial coefficient of a nonpolar or slightly polar
     gas.
 
     $$ \frac{B P_c}{R T_c} = B^{(0)}(T_r) + \omega B^{(1)}(T_r) $$
@@ -244,8 +273,18 @@ def B_mixture(T: float,
               Zc: FloatVector,
               w: FloatVector,
               ) -> FloatSquareMatrix:
-    r"""Calculate matrix of interaction virial coefficients using the mixing
-    rules of Prausnitz.
+    r"""Calculate the matrix of interaction virial coefficients using the
+    mixing rules of Prausnitz.
+
+    $$ \begin{aligned}
+        B_{ij} &= B(T,T_{cij},P_{cij},\omega_{ij}) \\
+        v_{cij} &= \frac{(v_{ci}^{1/3}+v_{cj}^{1/3})^3}{8} \\
+        k_{ij} &= 1 -\frac{\sqrt{v_{ci}v_{cj}}}{v_{cij}} \\
+        T_{cij} &= \sqrt{T_{ci}T_{cj}}(1-k_{ij}) \\
+        Z_{cij} &= \frac{Z_{ci}+Z_{cj}}{2} \\
+        \omega_{ij} &= \frac{\omega_{i}+\omega_{j}}{2} \\
+        P_{cij} &= \frac{Z_{cij} R T_{cij}}{v_{cij}}
+    \end{aligned} $$
 
     The calculation of the individual coefficients is handled by
     [`B_pure`](.#polykin.properties.eos.B_pure).

@@ -3,8 +3,7 @@
 ::: polykin.properties.eos
     options:
         members:
-            - Cubic
-            - cubic_mixing_rules
+            - PengRobinson
 
 ## Examples
 

@@ -11,41 +11,54 @@ from abc import ABC, abstractmethod
 
 __all__ = ['EoS']
 
+# %%
+
 
 class EoS(ABC):
+    pass
+
+
+# %%
+class GasOrLiquidEoS(EoS):
 
     P0 = 1e5  # Pa
 
-    def v(self,
+    @abstractmethod
+    def P(self,
           T: float,
-          P: float,
-          y: FloatVector) -> FloatVector:
-        r"""Calculate the molar volumes of the coexisting phases a fluid.
+          v: float,
+          y: FloatVector
+          ) -> float:
+        r"""Calculate the pressure of the fluid.
 
-        $$ v = \frac{Z R T}{P} $$
+        $$ P = P(T,v,y) $$
 
-        where $v$ is the molar volue, $Z$ is the compressibility factor,
-        $T$ is the temperature, $P$ is the pressure, and $y$ is the mole
+        where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
+        volume, $Z$ is the compressibility factor, and $y$ is is the mole
         fraction vector.
 
         Parameters
         ----------
         T : float
             Temperature. Unit = K.
-        P : float
-            Pressure. Unit = Pa.
+        v : float
+            Molar volume. Unit = m³/mol.
         y : FloatVector
             Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Molar volume of the gas and/or liquid phases. Unit = m³/mol.
+            Pressure. Unit = Pa.
         """
-        return self.Z(T, P, y)*R*T/P
+        pass
 
     @abstractmethod
-    def Z(self, T: float, P: float, y: FloatVector) -> FloatVector:
+    def Z(self,
+          T: float,
+          P: float,
+          y: FloatVector
+          ) -> FloatVector:
         r"""Calculate the compressibility factors of the coexisting phases a
         fluid.
 
@@ -72,33 +85,11 @@ class EoS(ABC):
         pass
 
     @abstractmethod
-    def P(self, T: float, v: float, y: FloatVector) -> float:
-        r"""Calculate the equilibrium pressure of the fluid.
-
-        $$ P = \frac{Z R T}{v} $$
-
-        where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
-        volume, $Z$ is the compressibility factor, and $y$ is the vector of
-        mole fractions.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        v : float
-            Molar volume. Unit = m³/mol.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Pressure. Unit = Pa.
-        """
-        pass
-
-    @abstractmethod
-    def phi(self, T: float, P: float, y: FloatVector) -> FloatVector:
+    def phi(self,
+            T: float,
+            P: float,
+            y: FloatVector
+            ) -> FloatVector:
         r"""Calculate the fugacity coefficients of all components in the gas
         phase.
 
@@ -125,7 +116,12 @@ class EoS(ABC):
         pass
 
     @abstractmethod
-    def Ares(self, T: float, V: float, n: FloatVector) -> FloatVector:
+    def DA(self,
+           n: FloatVector,
+           T: float,
+           V: float,
+           V0: float
+           ) -> float:
         r"""Calculate the residual Helmholtz energy.
 
         $$ A-A^\circ=
@@ -136,30 +132,59 @@ class EoS(ABC):
 
         Parameters
         ----------
+        n : FloatVector
+            Mole amounts of all components. Unit = mol.
         T : float
             Temperature. Unit = K.
         V : float
             Volume. Unit = m³.
-        n : FloatVector
-            Mole amounts of all components. Unit = mol.
+        V0 : float
+            Reference volume. Unit = m³.
 
         Returns
         -------
         FloatVector
             Helmholtz energy departure, $A - A^\circ$. Unit = J/mol.
         """
-        # TO BE updated
         pass
+
+    def v(self,
+          T: float,
+          P: float,
+          y: FloatVector) -> FloatVector:
+        r"""Calculate the molar volumes of the coexisting phases a fluid.
+
+        $$ v = \frac{Z R T}{P} $$
+
+        where $v$ is the molar volume, $Z$ is the compressibility factor,
+        $T$ is the temperature, $P$ is the pressure, and $y$ is the mole
+        fraction vector.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Molar volume of the gas and/or liquid phases. Unit = m³/mol.
+        """
+        return self.Z(T, P, y)*R*T/P
 
     def departures(self, T, P, y):
         Z = self.Z(T, P, y)
         V = Z*R*T/P
         V0 = R*T/self.P0
-        Ares = self.Ares(T, V, y)
+        Ares = self.DA(T, V, y)
         Aig = R*T*log(V/V0)
         DA = Ares + Aig
         dT = 0.1
-        Ares_plus = self.Ares(T + dT, V, y)
+        Ares_plus = self.DA(T + dT, V, y)
         DS = (Ares_plus - Ares)/dT + Aig/T
         DU = DA + T*DS
         DH = DA + T*DS + R*T*(Z - 1.)
@@ -171,3 +196,43 @@ class EoS(ABC):
             'S': DS,
             'U': DU}
         return result
+
+
+class GasEoS(GasOrLiquidEoS):
+
+    def v(self,
+          T: float,
+          P: float,
+          y: FloatVector) -> float:
+        r"""Calculate the molar volume the fluid.
+
+        $$ v = \frac{Z R T}{P} $$
+
+        where $v$ is the molar volue, $Z$ is the compressibility factor,
+        $T$ is the temperature, $P$ is the pressure, and $y$ is the mole
+        fraction vector.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Molar volume of the fluid. Unit = m³/mol.
+        """
+        return self.Z(T, P, y)*R*T/P
+
+    @abstractmethod
+    def Z(self, T: float, P: float, y: FloatVector) -> float:
+        """Calculate the compressibility factor of the fluid."""
+        pass
+
+
+class GasAndLiquidEoS(GasOrLiquidEoS):
+    pass

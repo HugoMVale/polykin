@@ -5,12 +5,12 @@
 from polykin.types import FloatVector, FloatVectorLike, FloatSquareMatrix
 from polykin.utils import eps
 from ..mixing_rules import geometric_interaction_mixing
-from .base import EoS
+from .base import GasAndLiquidEoS
 
 import numpy as np
-from numpy import sqrt, log, dot
+from numpy import sqrt, dot
 from scipy.constants import R
-from typing import Optional, Literal
+from typing import Optional
 from abc import abstractmethod
 
 __all__ = ['Cubic',
@@ -19,11 +19,10 @@ __all__ = ['Cubic',
            'PengRobinson']
 
 
-class Cubic(EoS):
+class Cubic(GasAndLiquidEoS):
 
     Tc: FloatVector
     Pc: FloatVector
-    w: FloatVector
     k: Optional[FloatSquareMatrix]
     _u: float
     _w: float
@@ -33,22 +32,22 @@ class Cubic(EoS):
     def __init__(self,
                  Tc: FloatVectorLike,
                  Pc: FloatVectorLike,
-                 w: FloatVectorLike,
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
+        """Construct `Cubic` with the given parameters."""
 
         if isinstance(Tc, (list, tuple)):
             Tc = np.array(Tc, dtype=np.float64)
         if isinstance(Pc, (list, tuple)):
             Pc = np.array(Pc, dtype=np.float64)
-        if isinstance(w, (list, tuple)):
-            w = np.array(w, dtype=np.float64)
 
         self.Tc = Tc
         self.Pc = Pc
-        self.w = w
         self.k = k
-        self.b = self._b*R*Tc/Pc
+        self._set_b()
+
+    def _set_b(self) -> None:
+        self.b = self._b*R*self.Tc/self.Pc
 
     def Z(self, T, P, y):
         A = self.am(T, y)*P/(R*T)**2
@@ -56,24 +55,7 @@ class Cubic(EoS):
         return Z_cubic_root(self._u, self._w, A, B)
 
     def P(self, T, V, y):
-        r"""Calculate the equilibrium pressure of the fluid.
-
-        $$ P = \frac{RT}{V - b_m} -\frac{a_m}{V^2 + u V b_m + w b_m^2} $$
-
-        where $P$ is the pressure, $T$ is the temperature, $V$ is the molar
-        volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
-        $y$ is the vector of mole fractions.
-
-        | Equation      | $u$ | $w$ |
-        |---------------|:---:|:---:|
-        | Redlich-Kwong |  1  |  0  |
-        | Soave         |  1  |  0  |
-        | Peng-Robinson | 2   | -1  |
-
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 42-43.
+        r"""Calculate the pressure of the fluid.
 
         Parameters
         ----------
@@ -89,8 +71,8 @@ class Cubic(EoS):
         FloatVector
             Pressure. Unit = Pa.
         """
-        am = 1
-        bm = 1
+        am = self.am(T, y)
+        bm = self.bm(y)
         u = self._u
         w = self._w
         return R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
@@ -98,7 +80,7 @@ class Cubic(EoS):
     def am(self,
            T: float,
            y: FloatVector) -> float:
-        r"""Calculate mixture attractive parameter from the corresponding
+        r"""Calculate the mixture attractive parameter from the corresponding
         pure-component parameters.
 
         $$ a_m = \sum_i \sum_j y_i y_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) $$
@@ -125,7 +107,7 @@ class Cubic(EoS):
     def bm(self,
            y: FloatVector
            ) -> float:
-        r"""Calculate mixture repulsive parameter from the corresponding
+        r"""Calculate the mixture repulsive parameter from the corresponding
         pure-component parameters.
 
         $$ b_m = \sum_i y_i b_i $$
@@ -153,12 +135,76 @@ class Cubic(EoS):
 
 
 class RedlichKwong(Cubic):
+    r"""[Redlich-Kwong](https://en.wikipedia.org/wiki/Redlich%E2%80%93Kwong_equation_of_state)
+    equation of state.
+
+    This EOS is based on the following $P(v,T)$ relationship:
+
+    $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v (v + b_m)} $$
+
+    where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
+    volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
+    $y$ is the vector of mole fractions.
+
+    For a single component, the parameters $a$ and $b$ are given by:
+
+    \begin{aligned}
+    a &= 0.42748 \frac{R^2 T_{c}^2}{P_{c}} T_{r}^{-1/2} \\
+    b &= 0.08664\frac{R T_{c}}{P_{c}}
+    \end{aligned}
+
+    where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
+    and $T_r = T/T_c$ is the reduced temperature.
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+
+    Parameters
+    ----------
+    Tc : FloatVector
+        Critical temperatures of all components. Unit = K.
+    Pc : FloatVector
+        Critical pressures of all components. Unit = Pa.
+    k : FloatSquareMatrix | None
+        Binary interaction parameter matrix.
+    """
 
     _u = 1.
     _w = 0.
     _b = 0.08664
 
+    def __init__(self,
+                 Tc: FloatVectorLike,
+                 Pc: FloatVectorLike,
+                 k: Optional[FloatSquareMatrix] = None
+                 ) -> None:
+        """Construct `RedlichKwong` with the given parameters."""
+
+        super().__init__(Tc, Pc, k)
+
     def a(self, T: float) -> FloatVector:
+        r"""Calculate the attractive parameters of the pure-components that
+        make up the mixture.
+
+        $$ a_i = 0.42748 \frac{R^2 T_{ci}^2}{P_{ci}} T_{ri}^{-1/2} $$
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 43.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+
+        Returns
+        -------
+        FloatVector
+            Attractive parameters of all components, $a_i$. Unit = J·m³.
+        """
         Tc = self.Tc
         Pc = self.Pc
         Tr = T/Tc
@@ -168,12 +214,87 @@ class RedlichKwong(Cubic):
 
 
 class Soave(Cubic):
+    r"""[Soave](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Soave_modification_of_Redlich%E2%80%93Kwong)
+    equation of state.
 
+    This EOS is based on the following $P(v,T)$ relationship:
+
+    $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v (v + b_m)} $$
+
+    where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
+    volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
+    $y$ is the vector of mole fractions.
+
+    For a single component, the parameters $a$ and $b$ are given by:
+
+    \begin{aligned}
+    a &= 0.42748 \frac{R^2 T_{c}^2}{P_{c}} [1 + f_\omega(1 - T_{r}^{1/2})]^2 \\
+    f_\omega &= 0.48 + 1.574\omega - 0.176\omega^2 \\
+    b &= 0.08664\frac{R T_{c}}{P_{c}}
+    \end{aligned}
+
+    where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
+    and $T_r = T/T_c$ is the reduced temperature.
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+
+    Parameters
+    ----------
+    Tc : FloatVector
+        Critical temperatures of all components. Unit = K.
+    Pc : FloatVector
+        Critical pressures of all components. Unit = Pa.
+    w : FloatVector
+        Acentric factors of all components.
+    k : FloatSquareMatrix | None
+        Binary interaction parameter matrix.
+    """
+    w: FloatVector
     _u = 1.
     _w = 0.
     _b = 0.08664
 
+    def __init__(self,
+                 Tc: FloatVectorLike,
+                 Pc: FloatVectorLike,
+                 w: FloatVectorLike,
+                 k: Optional[FloatSquareMatrix] = None
+                 ) -> None:
+        """Construct `Soave` with the given parameters."""
+
+        if isinstance(w, (list, tuple)):
+            w = np.array(w, dtype=np.float64)
+
+        self.w = w
+        super().__init__(Tc, Pc, k)
+
     def a(self, T: float) -> FloatVector:
+        r"""Calculate the attractive parameters of the pure-components that
+        make up the mixture.
+
+        \begin{aligned}
+        a_i &= 0.42748 \frac{R^2 T_{ci}^2}{P_{ci}} [1 + f_\omega(1 - T_{ri}^{1/2})]^2 \\
+        f_\omega &= 0.48 + 1.574\omega - 0.176\omega^2
+        \end{aligned}
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 43.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+
+        Returns
+        -------
+        FloatVector
+            Attractive parameters of all components, $a_i$. Unit = J·m³.
+        """
         Tc = self.Tc
         Pc = self.Pc
         w = self.w
@@ -185,12 +306,87 @@ class Soave(Cubic):
 
 
 class PengRobinson(Cubic):
+    r"""[Peng-Robinson](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Peng%E2%80%93Robinson_equation_of_state)
+    equation of state.
 
+    This EOS is based on the following $P(v,T)$ relationship:
+
+    $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v^2 + 2 v b_m - b_m^2} $$
+
+    where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
+    volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
+    $y$ is the vector of mole fractions.
+
+    For a single component, the parameters $a$ and $b$ are given by:
+
+    \begin{aligned}
+    a &= 0.45724 \frac{R^2 T_{c}^2}{P_{c}} [1 + f_\omega(1 - T_{r}^{1/2})]^2 \\
+    f_\omega &= 0.37464 + 1.54226\omega - 0.26992\omega^2 \\
+    b &= 0.07780\frac{R T_{c}}{P_{c}}
+    \end{aligned}
+
+    where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
+    and $T_r = T/T_c$ is the reduced temperature.
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+
+    Parameters
+    ----------
+    Tc : FloatVector
+        Critical temperatures of all components. Unit = K.
+    Pc : FloatVector
+        Critical pressures of all components. Unit = Pa.
+    w : FloatVector
+        Acentric factors of all components.
+    k : FloatSquareMatrix | None
+        Binary interaction parameter matrix.
+    """
+    w: FloatVector
     _u = 2.
     _w = -1.
     _b = 0.07780
 
+    def __init__(self,
+                 Tc: FloatVectorLike,
+                 Pc: FloatVectorLike,
+                 w: FloatVectorLike,
+                 k: Optional[FloatSquareMatrix] = None
+                 ) -> None:
+        """Construct `PengRobinson` with the given parameters."""
+
+        if isinstance(w, (list, tuple)):
+            w = np.array(w, dtype=np.float64)
+
+        self.w = w
+        super().__init__(Tc, Pc, k)
+
     def a(self, T: float) -> FloatVector:
+        r"""Calculate the attractive parameters of the pure-components that
+        make up the mixture.
+
+        \begin{aligned}
+        a_i &= 0.45724 \frac{R^2 T_{ci}^2}{P_{ci}} [1 + f_\omega(1 - T_{ri}^{1/2})]^2 \\
+        f_\omega &= 0.37464 + 1.54226\omega - 0.26992\omega^2
+        \end{aligned}
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 43.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+
+        Returns
+        -------
+        FloatVector
+            Attractive parameters of all components, $a_i$. Unit = J·m³.
+        """
         Tc = self.Tc
         Pc = self.Pc
         w = self.w
@@ -200,72 +396,29 @@ class PengRobinson(Cubic):
         a *= 0.45724*(1 + fw*(1 - sqrt(Tr)))**2
         return a
 
-
-def Z_cubic(T: float,
-            P: float,
-            y: FloatVector,
-            Tc: FloatVector,
-            Pc: FloatVector,
-            w: Optional[FloatVector] = None,
-            k: Optional[FloatSquareMatrix] = None,
-            method: Literal['RK', 'SRK', 'PR'] = 'SRK'):
-
-    Tr = T/Tc
-    if method == "RK":
-        zu = 1.
-        zw = 0.
-        b = 0.08664
-        a = 0.42748/sqrt(Tr)
-        fw = 1
-    elif method == "SRK" and w is not None:
-        zu = 1.
-        zw = 0.
-        b = 0.08664
-        fw = 0.48 + 1.574*w - 0.176*w**2
-        a = 0.42748*(1 + fw*(1 - sqrt(Tr)))**2
-    elif method == "PR" and w is not None:
-        zu = 2.
-        zw = -1.
-        b = 0.07780
-        fw = 0.37464 + 1.54226*w - 0.26992*w**2
-        a = 0.45724*(1 + fw*(1 - sqrt(Tr)))**2
-    else:
-        raise ValueError(f"Invalid method: `{method}`.")
-
-    b = b*R*Tc/Pc
-    a *= (R*Tc)**2 / Pc
-
-    # Mixing rules
-    a_m, b_m = cubic_mixing_rules(y, a, b, k)
-
-    # Z
-    A = a_m*P/(R*T)**2
-    B = b_m*P/(R*T)
-    Z = Z_cubic_root(zu, zw, A, B)
+# %%
 
     # Departures
-    dadT = 1.  # todo
-    P0 = 1  # fix!!!!
-    d = sqrt(zu**2 - 4*zw)
-    t1 = b_m*d
-    t2 = log((2*Z + B*(zu - d))/(2*Z + B*(zu + d)))
-    t3 = R*log((Z - B)*P0/P)
-    DA = a_m/t1*t2 - T*t3
-    DS = t3 - dadT/t1*t2
-    (DU, DH, DG) = departures(T, DA, DS, Z)
-
-    return Z
+    # dadT = 1.  # todo
+    # P0 = 1  # fix!!!!
+    # d = sqrt(zu**2 - 4*zw)
+    # t1 = b_m*d
+    # t2 = log((2*Z + B*(zu - d))/(2*Z + B*(zu + d)))
+    # t3 = R*log((Z - B)*P0/P)
+    # DA = a_m/t1*t2 - T*t3
+    # DS = t3 - dadT/t1*t2
+    # (DU, DH, DG) = departures(T, DA, DS, Z)
 
 
-def Z_cubic_root(zu: float,
-                 zw: float,
+def Z_cubic_root(u: float,
+                 w: float,
                  A: float,
                  B: float
                  ) -> FloatVector:
     c3 = 1.
-    c2 = -(1. + B - zu*B)
-    c1 = (A + zw*B**2 - zu*B - zu*B**2)
-    c0 = -(A*B + zw*B**2 + zw*B**3)
+    c2 = -(1. + B - u*B)
+    c1 = (A + w*B**2 - u*B - u*B**2)
+    c0 = -(A*B + w*B**2 + w*B**3)
 
     coeffs = (c3, c2, c1, c0)
     roots = np.roots(coeffs)
@@ -277,13 +430,3 @@ def Z_cubic_root(zu: float,
         Z.append(max(roots))
 
     return np.array(Z)
-
-# # %%
-
-# T = 398.15
-# P = 100e5
-# Tc = np.array([364.9])
-# Pc = np.array([46.0e5])
-# w = np.array([0.144])
-# y = np.array([1.])
-# Z = Z_cubic(T, P, y, Tc, Pc, w)

@@ -200,8 +200,10 @@ nav:
               - DV_wilke_lee: reference/properties/diffusion/DV_wilke_lee.md
           - Equations of State:
               - IdealGas: reference/properties/eos/IdealGas.md
+              - PengRobinson: reference/properties/eos/PengRobinson.md
+              - RedlichKwong: reference/properties/eos/RedlichKwong.md
+              - Soave: reference/properties/eos/Soave.md
               - Virial: reference/properties/eos/Virial.md
-              - Cubic: reference/properties/eos/Cubic.md
           - PVT Polymer:
               - reference/properties/pvt_polymer/index.md
               - Flory: reference/properties/pvt_polymer/Flory.md

@@ -3,8 +3,7 @@
 # Copyright Hugo Vale 2023
 
 """
-This module implements methods to evaluate the PVT behavior of pure substances
-and mixtures.
+This module implements equations of state (EOS) for gas and liquid mixtures.
 """
 
 from .base import *
