@@ -188,7 +188,9 @@ class Virial(GasEoS):
         r"""Calculate the fugacity coefficients of all components in the gas
         phase.
 
-        $$ \ln \phi_i = \left(2\sum_j {y_jB_{ij}} -B_m \right)\frac{P}{RT} $$
+        $$
+        \ln \hat{\phi}_i = \left(2\sum_j {y_jB_{ij}} -B_m \right)\frac{P}{RT}
+        $$
 
         where $\phi_i$ is the fugacity coefficient, $P$ is the pressure, $T$
         is the temperature, $B_{ij}$ is the matrix of interaction virial

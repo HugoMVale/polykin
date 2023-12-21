@@ -2,7 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.eos import IdealGas, Virial, RedlichKwong
+from polykin.properties.eos import IdealGas, Virial, \
+    RedlichKwong, Soave, PengRobinson
 
 import pytest
 import numpy as np
@@ -83,6 +84,8 @@ def test_Virial_phi():
     T = 273.15 + 50.
     P = 25e3
     assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-3))
+    assert all(isclose(eos.fv(T, P, y), np.array(
+        [0.987, 0.983])*P/2, rtol=1e-3))
 
 
 def test_Virial_isopropanol():
@@ -124,35 +127,35 @@ def test_ammonia_Virial_RK():
     y = np.array([1.])
     assert isclose(ideal.P(T, v), 27.53e5, rtol=1e-3)
     assert isclose(rk.P(T, v, y), 23.84e5, rtol=1e-3)
+    assert isclose(rk.b, 25.91e-6, rtol=1e-3)
     assert isclose(virial.P(T, v, y), 23.76e5, rtol=1e-3)
 
 
-# def test_Z_cubic():
-#     "Example 3-3, p. 46"
-#     y = np.array([1.])
-#     Tc = np.array([408.2])
-#     Pc = np.array([36.5e5])
-#     w = np.array([0.183])
-#     kwargs = {'T': 300., 'y': y, 'Tc': Tc, 'Pc': Pc, 'w': w}
-#     Z = Z_cubic(**kwargs, P=3.706e5, method='SRK')
-#     assert all(isclose(Z, (0.01687, 0.9057), rtol=0.01))
-#     Z = Z_cubic(**kwargs, P=3.683e5, method='PR')
-#     assert all(isclose(Z, (0.01479, 0.9015), rtol=0.01))
-#     Z = Z_cubic(**kwargs, P=3.706e5, method='RK')
-#     assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
+def test_Z_cubic():
+    "Example 3-3, p. 46, Reid-Prausnitz-Poling."
+    Tc = [408.2]
+    Pc = [36.5e5]
+    w = [0.183]
+    state = {'T': 300., 'y': np.array([1.])}
+    eos = Soave(Tc, Pc, w)
+    Z = eos.Z(**state, P=3.706e5)
+    assert all(isclose(Z, (0.01687, 0.9057), rtol=1e-3))
+    eos = PengRobinson(Tc, Pc, w)
+    Z = eos.Z(**state, P=3.683e5)
+    assert all(isclose(Z, (0.01479, 0.9015), rtol=1e-3))
+    eos = RedlichKwong(Tc, Pc)
+    Z = eos.Z(**state, P=3.706e5)
+    assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
 
 
-# def test_Z_cubic_interaction():
-#     y = np.array([0.5, 0.5])         # mol/mol
-#     Tc = np.array([282.4, 126.2])    # K
-#     Pc = np.array([50.4e5, 33.9e5])  # Pa
-#     w = np.array([0.089, 0.039])
-#     k = np.array([[0., 0.080], [0., 0.]])  # Reid, p. 83
-#     T = 350.
-#     P = 100e5
-#     kwargs = {'T': T, 'P': P, 'y': y, 'Tc': Tc, 'Pc': Pc, 'w': w}
-#     Z1 = Z_cubic(**kwargs, k=k, method='PR')
-#     Z2 = Z_cubic(**kwargs, k=None, method='PR')
-#     assert isclose(Z1, Z2, rtol=0.01)
-#     V = Z1*R*T/P
-#     assert (isclose(V, 2.61e-4, rtol=0.01))
+def test_Z_cubic_interaction():
+    Tc = [282.4, 126.2]
+    Pc = [50.4e5, 33.9e5]
+    w = [0.089, 0.039]
+    k = np.array([[0., 0.080], [0., 0.]])  # Reid, p. 83
+    T = 350.
+    P = 100e5
+    y = np.array([0.5, 0.5])
+    eos1 = PengRobinson(Tc, Pc, w, k=None)
+    eos2 = PengRobinson(Tc, Pc, w, k=k)
+    assert isclose(eos1.Z(T, P, y), eos2.Z(T, P, y), rtol=0.01)

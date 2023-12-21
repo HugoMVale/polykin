@@ -12,6 +12,7 @@ from numpy import sqrt, dot
 from scipy.constants import R
 from typing import Optional
 from abc import abstractmethod
+import functools
 
 __all__ = ['Cubic',
            'RedlichKwong',
@@ -26,8 +27,8 @@ class Cubic(GasAndLiquidEoS):
     k: Optional[FloatSquareMatrix]
     _u: float
     _w: float
-    _a: float
-    _b: float
+    _Ωa: float
+    _Ωb: float
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -44,38 +45,35 @@ class Cubic(GasAndLiquidEoS):
         self.Tc = Tc
         self.Pc = Pc
         self.k = k
-        self._set_b()
 
-    def _set_b(self) -> None:
-        self.b = self._b*R*self.Tc/self.Pc
-
-    def Z(self, T, P, y):
-        A = self.am(T, y)*P/(R*T)**2
-        B = self.bm(y)*P/(R*T)
-        return Z_cubic_root(self._u, self._w, A, B)
-
-    def P(self, T, V, y):
-        r"""Calculate the pressure of the fluid.
+    @functools.cache
+    def a(self, T: float) -> FloatVector:
+        r"""Calculate the attractive parameters of the pure-components that
+        make up the mixture.
 
         Parameters
         ----------
         T : float
             Temperature. Unit = K.
-        V : float
-            Molar volume. Unit = m³/mol.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Pressure. Unit = Pa.
+            Attractive parameters of all components, $a_i$. Unit = J·m³.
         """
-        am = self.am(T, y)
-        bm = self.bm(y)
-        u = self._u
-        w = self._w
-        return R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
+        return self._Ωa * (R*self.Tc)**2 / self.Pc * self._alpha(T)
+
+    @functools.cached_property
+    def b(self) -> FloatVector:
+        r"""Calculate the repulsive parameters of the pure-components that
+        make up the mixture.
+
+        Returns
+        -------
+        FloatVector
+            Repulsive parameters of all components, $b_i$. Unit = m³/mol.
+        """
+        return self._Ωb*R*self.Tc/self.Pc
 
     def am(self,
            T: float,
@@ -125,12 +123,40 @@ class Cubic(GasAndLiquidEoS):
         Returns
         -------
         float
-            Mixture repulsive parameter, $b_m$. Unit = m³.
+            Mixture repulsive parameter, $b_m$. Unit = m³/mol.
         """
         return dot(y, self.b)
 
+    def P(self, T, V, y):
+        r"""Calculate the pressure of the fluid.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        V : float
+            Molar volume. Unit = m³/mol.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Pressure. Unit = Pa.
+        """
+        am = self.am(T, y)
+        bm = self.bm(y)
+        u = self._u
+        w = self._w
+        return R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
+
+    def Z(self, T, P, y):
+        A = self.am(T, y)*P/(R*T)**2
+        B = self.bm(y)*P/(R*T)
+        return Z_cubic_root(self._u, self._w, A, B)
+
     @abstractmethod
-    def a(self, T: float) -> FloatVector:
+    def _alpha(self, T: float) -> FloatVector:
         pass
 
     def DA(self):
@@ -179,7 +205,8 @@ class RedlichKwong(Cubic):
 
     _u = 1.
     _w = 0.
-    _b = 0.08664
+    _Ωa = 0.42748
+    _Ωb = 0.08664
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -190,33 +217,8 @@ class RedlichKwong(Cubic):
 
         super().__init__(Tc, Pc, k)
 
-    def a(self, T: float) -> FloatVector:
-        r"""Calculate the attractive parameters of the pure-components that
-        make up the mixture.
-
-        $$ a_i = 0.42748 \frac{R^2 T_{ci}^2}{P_{ci}} T_{ri}^{-1/2} $$
-
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 43.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-
-        Returns
-        -------
-        FloatVector
-            Attractive parameters of all components, $a_i$. Unit = J·m³.
-        """
-        Tc = self.Tc
-        Pc = self.Pc
-        Tr = T/Tc
-        a = (R*Tc)**2 / Pc
-        a *= 0.42748/sqrt(Tr)
-        return a
+    def _alpha(self, T: float) -> FloatVector:
+        return sqrt(self.Tc/T)
 
 
 class Soave(Cubic):
@@ -261,7 +263,8 @@ class Soave(Cubic):
     w: FloatVector
     _u = 1.
     _w = 0.
-    _b = 0.08664
+    _Ωa = 0.42748
+    _Ωb = 0.08664
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -277,38 +280,11 @@ class Soave(Cubic):
         self.w = w
         super().__init__(Tc, Pc, k)
 
-    def a(self, T: float) -> FloatVector:
-        r"""Calculate the attractive parameters of the pure-components that
-        make up the mixture.
-
-        \begin{aligned}
-        a_i &= 0.42748 \frac{R^2 T_{ci}^2}{P_{ci}} [1 + f_\omega(1 - T_{ri}^{1/2})]^2 \\
-        f_\omega &= 0.48 + 1.574\omega - 0.176\omega^2
-        \end{aligned}
-
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 43.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-
-        Returns
-        -------
-        FloatVector
-            Attractive parameters of all components, $a_i$. Unit = J·m³.
-        """
-        Tc = self.Tc
-        Pc = self.Pc
+    def _alpha(self, T: float) -> FloatVector:
         w = self.w
-        Tr = T/Tc
+        Tr = T/self.Tc
         fw = 0.48 + 1.574*w - 0.176*w**2
-        a = (R*Tc)**2 / Pc
-        a *= 0.42748*(1 + fw*(1 - sqrt(Tr)))**2
-        return a
+        return (1 + fw*(1 - sqrt(Tr)))**2
 
 
 class PengRobinson(Cubic):
@@ -353,7 +329,8 @@ class PengRobinson(Cubic):
     w: FloatVector
     _u = 2.
     _w = -1.
-    _b = 0.07780
+    _Ωa = 0.45724
+    _Ωb = 0.07780
 
     def __init__(self,
                  Tc: FloatVectorLike,
@@ -369,38 +346,11 @@ class PengRobinson(Cubic):
         self.w = w
         super().__init__(Tc, Pc, k)
 
-    def a(self, T: float) -> FloatVector:
-        r"""Calculate the attractive parameters of the pure-components that
-        make up the mixture.
-
-        \begin{aligned}
-        a_i &= 0.45724 \frac{R^2 T_{ci}^2}{P_{ci}} [1 + f_\omega(1 - T_{ri}^{1/2})]^2 \\
-        f_\omega &= 0.37464 + 1.54226\omega - 0.26992\omega^2
-        \end{aligned}
-
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 43.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-
-        Returns
-        -------
-        FloatVector
-            Attractive parameters of all components, $a_i$. Unit = J·m³.
-        """
-        Tc = self.Tc
-        Pc = self.Pc
+    def _alpha(self, T: float) -> FloatVector:
         w = self.w
-        Tr = T/Tc
+        Tr = T/self.Tc
         fw = 0.37464 + 1.54226*w - 0.26992*w**2
-        a = (R*Tc)**2 / Pc
-        a *= 0.45724*(1 + fw*(1 - sqrt(Tr)))**2
-        return a
+        return (1 + fw*(1 - sqrt(Tr)))**2
 
 # %%
 
