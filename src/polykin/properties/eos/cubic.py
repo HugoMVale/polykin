@@ -133,6 +133,12 @@ class Cubic(GasAndLiquidEoS):
     def a(self, T: float) -> FloatVector:
         pass
 
+    def DA(self):
+        pass
+
+    def phi(self):
+        pass
+
 
 class RedlichKwong(Cubic):
     r"""[Redlich-Kwong](https://en.wikipedia.org/wiki/Redlich%E2%80%93Kwong_equation_of_state)

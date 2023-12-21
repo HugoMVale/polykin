@@ -13,8 +13,8 @@ development stage, but the following modules can already be used:
   - [x] Terminal model
 - Equations of state
   - [ ] Cubic (Redlich-Kwong, Soave, Peng-Robinson)
-  - [ ] Ideal gas
-  - [ ] Virial equation 
+  - [x] Ideal gas
+  - [x] Virial equation
 - [ ] Database
 - Distributions
   - [x] Flory
@@ -27,14 +27,14 @@ development stage, but the following modules can already be used:
   - [x] Eyring
   - [x] Propagation half-length
   - [x] Termination composite model
-- [ ] Models 
+- [ ] Models
 - Physical property correlations
   - [x] Antoine
   - [x] DIPPR
   - [x] Wagner
   - [x] Yaws
 - Transport properties (estimation methods, mixing rules, etc.)
-  - Diffusivity 
+  - Diffusivity
     - [x] Binary gas mixtures
     - [x] Binary liquid mixtures
     - [x] Binary polymer solutions
@@ -47,7 +47,6 @@ development stage, but the following modules can already be used:
     - [x] Gases
     - [x] Liquids
     - [ ] Polymer solutions
-
 
 ## Documentation
 
