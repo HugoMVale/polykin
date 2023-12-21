@@ -313,19 +313,19 @@ def B_mixture(T: float,
         Matrix of interaction virial coefficients $B_{ij}$. Unit = m³/mol.
     """
     N = Tc.size
-    Vc = Zc*R*Tc/Pc
+    vc = Zc*R*Tc/Pc
     B = np.empty((N, N), dtype=np.float64)
     for i in range(N):
         for j in range(i, N):
             if i == j:
                 B[i, j] = B_pure(T, Tc[i],  Pc[i], w[i])
             else:
-                Vcm = (Vc[i]**(1/3) + Vc[j]**(1/3))**3 / 8
-                km = 1. - sqrt(Vc[i]*Vc[j])/Vcm
+                vcm = (vc[i]**(1/3) + vc[j]**(1/3))**3 / 8
+                km = 1. - sqrt(vc[i]*vc[j])/vcm
                 Tcm = sqrt(Tc[i]*Tc[j])*(1. - km)
                 Zcm = (Zc[i] + Zc[j])/2
                 wm = (w[i] + w[j])/2
-                Pcm = Zcm*R*Tcm/Vcm
+                Pcm = Zcm*R*Tcm/vcm
                 B[i, j] = B_pure(T, Tcm, Pcm, wm)
                 B[j, i] = B[i, j]
     return B
