@@ -9,6 +9,7 @@ from polykin.utils import check_type, check_bounds, \
 from .thermal import Arrhenius, Eyring
 
 import numpy as np
+from numpy import exp, log, sqrt
 from abc import ABC, abstractmethod
 from typing import Union, Literal
 
@@ -133,7 +134,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
                             kt11*i**(-aS),
                             kt11*icrit**(-aS+aL)*i**(-aL))
 
-        return np.sqrt(ktii(i)*ktii(j))
+        return sqrt(ktii(i)*ktii(j))
 
     def __call__(self,
                  T: FloatOrArrayLike,
@@ -249,7 +250,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
             Coefficient value.
         """
 
-        return kp*(1 + (C - 1)*np.exp(-np.log(2)*(i - 1)/ihalf))
+        return kp*(1 + (C - 1)*exp(-log(2)*(i - 1)/ihalf))
 
     def __call__(self,
                  T: FloatOrArrayLike,

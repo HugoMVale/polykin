@@ -8,6 +8,7 @@ from polykin.utils import check_shapes, check_bounds, convert_list_to_array, \
 from polykin.properties.equations.base import PropertyEquationT
 
 import numpy as np
+from numpy import exp
 from scipy.constants import h, R, Boltzmann as kB
 from typing import Optional
 
@@ -122,7 +123,7 @@ class Arrhenius(KineticCoefficientT):
         FloatOrArray
             Coefficient value. Unit = [k0].
         """
-        return k0 * np.exp(-EaR*(1/T - 1/T0))
+        return k0 * exp(-EaR*(1/T - 1/T0))
 
     @property
     def A(self) -> FloatOrArray:
@@ -358,4 +359,4 @@ class Eyring(KineticCoefficientT):
         FloatOrArray
             Coefficient value. Unit = 1/s.
         """
-        return kappa * kB*T/h * np.exp((DSa - DHa/T)/R)
+        return kappa * kB*T/h * exp((DSa - DHa/T)/R)
