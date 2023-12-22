@@ -8,7 +8,10 @@ from ..mixing_rules import geometric_interaction_mixing
 from .base import GasAndLiquidEoS
 
 import numpy as np
-from numpy import sqrt, dot
+from numpy import exp, log, sqrt, dot
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+from matplotlib.axes._axes import Axes
 from scipy.constants import R
 from typing import Optional
 from abc import abstractmethod
@@ -209,8 +212,75 @@ class Cubic(GasAndLiquidEoS):
     def DA(self):
         pass
 
-    def phi(self):
-        pass
+    def phi(self,
+            T: float,
+            P: float,
+            y: FloatVector
+            ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in the gas
+        phase.
+
+        \begin{aligned}
+        \ln \hat{\phi}_i &= \frac{b_i}{b_m}(Z-1)-\ln(Z-B^*)
+        +\frac{A^*}{B^*\sqrt{u^2-4w}}\left(\frac{b_i}{b_m}-\delta_i  \right)\ln{\frac{2Z+B^*(u+\sqrt{u^2-4w})}{2Z+B^*(u-\sqrt{u^2-4w})}} \\
+        \delta_i &= \frac{2a_i^{1/2}}{a_m}\sum_j y_j a_j^{1/2}(1-\bar{k}_{ij})
+        \end{aligned}
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 145.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Fugacity coefficients of all components.
+        """
+        u = self._u
+        w = self._w
+        d = sqrt(u**2 - 4*w)
+        a = self.a(T)
+        am = self.am(T, y)
+        b = self.b
+        bm = self.bm(y)
+        k = self.k
+        A = am*P/(R*T)**2
+        B = bm*P/(R*T)
+        b_bm = b/bm
+        Z = self.Z(T, P, y)
+
+        if k is None:
+            delta = 2*sqrt(a/am)
+        else:
+            delta = np.sum(y * sqrt(a) * (1 - k), axis=1)
+
+        # get only vapor solution
+        z = max(Z)
+        lnphi = b_bm*(z - 1) - log(z - B) + A/(B*d) * \
+            (b_bm - delta)*log((2*z + B*(u + d))/(2*z + B*(u - d)))
+
+        return exp(lnphi)
+
+    def plot(self, T, y, Prange: tuple):
+        fig, ax = plt.subplots()
+        V = []
+        P = []
+        for p in np.linspace(*Prange, 100):
+            v = self.v(T, p, y)
+            V += v.tolist()
+            P += [p]*len(v)
+        X = np.concatenate(([V], [P])).T
+        X = X[X[:, 0].argsort()]
+        ax.semilogx(X[:, 0], X[:, 1])
 
 
 class RedlichKwong(Cubic):
@@ -228,8 +298,8 @@ class RedlichKwong(Cubic):
     For a single component, the parameters $a$ and $b$ are given by:
 
     \begin{aligned}
-    a &= 0.42748 \frac{R^2 T_{c}^2}{P_{c}} T_{r}^{-1/2} \\
-    b &= 0.08664\frac{R T_{c}}{P_{c}}
+        a &= 0.42748 \frac{R^2 T_{c}^2}{P_{c}} T_{r}^{-1/2} \\
+        b &= 0.08664\frac{R T_{c}}{P_{c}}
     \end{aligned}
 
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
@@ -464,7 +534,7 @@ def Z_cubic_roots(u: float,
 
     coeffs = (c3, c2, c1, c0)
     roots = np.roots(coeffs)
-    roots = [x.real for x in roots if abs(x.imag) < eps]
+    roots = [x.real for x in roots if (abs(x.imag) < eps and x.real > B)]
 
     Z = []
     Z.append(min(roots))

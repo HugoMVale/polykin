@@ -148,6 +148,33 @@ def test_cubic_Z():
     assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
 
 
+def test_cubic_butene():
+    "Example 10.7, p. 343, Smith-Van Ness-Abbott."
+    y = np.array([1.])
+    T = 273.15 + 200.
+    P = 70e5
+    for EOS in [Soave, PengRobinson]:
+        eos = EOS(Tc=[420.0], Pc=[40.43e5], w=[0.191])
+        assert isclose(eos.Z(T, P, y), 0.512, rtol=0.1)
+        assert isclose(eos.phi(T, P, y), 0.638, rtol=0.05)
+        assert isclose(eos.fv(T, P, y), 44.7e5, rtol=0.05)
+
+
+def test_cubic_phi():
+    "Example 10.8, p. 347, Smith-Van Ness-Abbott."
+    Tc = [535.5, 591.8]
+    Pc = [41.5e5, 41.1e5]
+    w = [0.323, 0.262]
+    rk = RedlichKwong(Tc, Pc)
+    srk = Soave(Tc, Pc, w)
+    pr = PengRobinson(Tc, Pc, w)
+    y = np.array([0.5, 0.5])
+    T = 273.15 + 50
+    P = 25e3
+    for eos in [rk, srk, pr]:
+        assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-2))
+
+
 def test_cubic_B():
     "Isopropanol"
     Tc = [508.3]
