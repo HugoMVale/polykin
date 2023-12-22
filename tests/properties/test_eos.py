@@ -117,7 +117,7 @@ def test_RK():
     assert all(isclose(eos.v(T, P, y), [71.34e-6, 1713e-6], rtol=1e-3))
 
 
-def test_ammonia_Virial_RK():
+def test_Virial_RK_ammonia():
     "Example 3.10, p. 93, Smith-Van Ness-Abbott."
     ideal = IdealGas()
     rk = RedlichKwong(Tc=[405.7], Pc=[112.8e5])
@@ -131,7 +131,7 @@ def test_ammonia_Virial_RK():
     assert isclose(virial.P(T, v, y), 23.76e5, rtol=1e-3)
 
 
-def test_Z_cubic():
+def test_cubic_Z():
     "Example 3-3, p. 46, Reid-Prausnitz-Poling."
     Tc = [408.2]
     Pc = [36.5e5]
@@ -146,6 +146,19 @@ def test_Z_cubic():
     eos = RedlichKwong(Tc, Pc)
     Z = eos.Z(**state, P=3.706e5)
     assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
+
+
+def test_cubic_B():
+    "Isopropanol"
+    Tc = [508.3]
+    Pc = [47.6e5]
+    Zc = [0.248]
+    w = [0.665]
+    virial = Virial(Tc, Pc, Zc, w)
+    srk = Soave(Tc, Pc, w)
+    T = 273.15 + 200.
+    y = np.array([1.])
+    assert isclose(virial.Bm(T, y), srk.Bm(T, y), rtol=0.1)
 
 
 def test_Z_cubic_interaction():

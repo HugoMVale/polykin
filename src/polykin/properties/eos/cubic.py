@@ -14,10 +14,10 @@ from typing import Optional
 from abc import abstractmethod
 import functools
 
-__all__ = ['Cubic',
-           'RedlichKwong',
+__all__ = ['RedlichKwong',
            'Soave',
-           'PengRobinson']
+           'PengRobinson',
+           'Z_cubic_roots']
 
 
 class Cubic(GasAndLiquidEoS):
@@ -127,14 +127,14 @@ class Cubic(GasAndLiquidEoS):
         """
         return dot(y, self.b)
 
-    def P(self, T, V, y):
+    def P(self, T, v, y):
         r"""Calculate the pressure of the fluid.
 
         Parameters
         ----------
         T : float
             Temperature. Unit = K.
-        V : float
+        v : float
             Molar volume. Unit = m³/mol.
         y : FloatVector
             Mole fractions of all components. Unit = mol/mol.
@@ -148,12 +148,59 @@ class Cubic(GasAndLiquidEoS):
         bm = self.bm(y)
         u = self._u
         w = self._w
-        return R*T/(V - bm) - am/(V**2 + u*V*bm + w*bm**2)
+        return R*T/(v - bm) - am/(v**2 + u*v*bm + w*bm**2)
 
     def Z(self, T, P, y):
+        r"""Calculate the compressibility factors of the coexisting phases a
+        fluid.
+
+        The calculation is handled by
+        [`Z_cubic_roots`](RedlichKwong.md#polykin.properties.eos.Z_cubic_roots).
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Compressibility factor of the gas and/or liquid phases.
+        """
         A = self.am(T, y)*P/(R*T)**2
         B = self.bm(y)*P/(R*T)
-        return Z_cubic_root(self._u, self._w, A, B)
+        return Z_cubic_roots(self._u, self._w, A, B)
+
+    def Bm(self,
+           T: float,
+           y: FloatVector
+           ) -> float:
+        r"""Calculate the second virial coefficient of the mixture.
+
+        $$ B_m = b_m - \frac{a_m}{R T} $$
+
+        Reference:
+
+        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 82.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Mixture second virial coefficient, $B_m$. Unit = m³/mol.
+        """
+        return self.bm(y) - self.am(T, y)/(R*T)
 
     @abstractmethod
     def _alpha(self, T: float) -> FloatVector:
@@ -366,11 +413,50 @@ class PengRobinson(Cubic):
     # (DU, DH, DG) = departures(T, DA, DS, Z)
 
 
-def Z_cubic_root(u: float,
-                 w: float,
-                 A: float,
-                 B: float
-                 ) -> FloatVector:
+def Z_cubic_roots(u: float,
+                  w: float,
+                  A: float,
+                  B: float
+                  ) -> FloatVector:
+    r"""Find the compressibility factor roots of a cubic EOS.
+
+    \begin{gathered}
+        Z^3 + c_2 Z^2 + c_1 Z + c_0 = 0 \\
+        c_2 = -(1 + B - u B) \\
+        c_1 = A + w B^2 - u B - u B^2 \\
+        c_0 = -(A B + w B^2 + w B^3) \\
+        A = \frac{a_m P}{R^2 T^2} \\
+        B = \frac{b_m P}{R T}
+    \end{gathered}
+
+    | Equation      | $u$ | $w$ |
+    |---------------|:---:|:---:|
+    | Redlich-Kwong |  1  |  0  |
+    | Soave         |  1  |  0  |
+    | Peng-Robinson |  2  | -1  |
+
+    Reference:
+
+    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+    liquids 4th edition, 1986, p. 42.
+
+    Parameters
+    ----------
+    u : float
+        Parameter of polynomial equation.
+    w : float
+        Parameter of polynomial equation.
+    A : float
+        Parameter of polynomial equation.
+    B : float
+        Parameter of polynomial equation.
+
+    Returns
+    -------
+    FloatVector
+        Compressibility factor(s) of the coexisting phases. If there are two
+        phases, the first result is the lowest value (liquid).
+    """
     c3 = 1.
     c2 = -(1. + B - u*B)
     c1 = (A + w*B**2 - u*B - u*B**2)
