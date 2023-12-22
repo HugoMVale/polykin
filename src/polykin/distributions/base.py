@@ -7,8 +7,8 @@ from polykin.types import FloatOrArrayLike, FloatOrArray, FloatRangeArray, \
 from polykin.utils import check_bounds, check_type, check_in_set, \
     check_valid_range, custom_error, add_dicts, vectorize
 
-from math import log10
 import numpy as np
+from numpy import log10
 import mpmath
 from scipy import integrate
 import matplotlib.pyplot as plt
@@ -122,7 +122,7 @@ class Distribution(ABC):
         order = self.kind_order[self._verify_kind(kind)]
         # Convert list to ndarray
         if isinstance(size, (list, tuple)):
-            size = np.asarray(size)
+            size = np.array(size)
         # Math is done by the corresponding subclass method
         return self._pdf(size, order, sizeasmass)
 
@@ -170,7 +170,7 @@ class Distribution(ABC):
         self._verify_sizeasmass(sizeasmass)
         # Convert list to ndarray
         if isinstance(size, (list, tuple)):
-            size = np.asarray(size)
+            size = np.array(size)
         # Math is done by the corresponding subclass method
         result = self._cdf(size, order, sizeasmass)
         return result
@@ -463,7 +463,7 @@ class IndividualDistribution(Distribution):
         This implementation is just a fallback solution. More specific
         implementations should be made in subclasses.
         """
-        return np.asarray([1, self.DPz])
+        return np.array([1, self.DPz])
 
     @vectorize
     def _moment_quadrature(self,
@@ -702,11 +702,6 @@ class MixtureDistribution(Distribution):
 
     This kind of distributions are instantiated _indirectly_ by doing linear
     combinations of `IndividualDistribution` objects.
-
-    ??? example
-
-        blend = 2.0*Flory(100, name='A') + 1.0*Poisson(50, name='B')
-
     """
 
     def __init__(self,
