@@ -142,7 +142,7 @@ class Virial(GasEoS):
         Reference:
 
         * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 82.
+        liquids 4th edition, 1986, p. 79.
 
         Parameters
         ----------
@@ -278,7 +278,7 @@ def B_mixture(T: float,
     r"""Calculate the matrix of interaction virial coefficients using the
     mixing rules of Prausnitz.
 
-    $$ \begin{aligned}
+    \begin{aligned}
         B_{ij} &= B(T,T_{cij},P_{cij},\omega_{ij}) \\
         v_{cij} &= \frac{(v_{ci}^{1/3}+v_{cj}^{1/3})^3}{8} \\
         k_{ij} &= 1 -\frac{\sqrt{v_{ci}v_{cj}}}{v_{cij}} \\
@@ -286,7 +286,7 @@ def B_mixture(T: float,
         Z_{cij} &= \frac{Z_{ci}+Z_{cj}}{2} \\
         \omega_{ij} &= \frac{\omega_{i}+\omega_{j}}{2} \\
         P_{cij} &= \frac{Z_{cij} R T_{cij}}{v_{cij}}
-    \end{aligned} $$
+    \end{aligned}
 
     The calculation of the individual coefficients is handled by
     [`B_pure`](.#polykin.properties.eos.B_pure).
