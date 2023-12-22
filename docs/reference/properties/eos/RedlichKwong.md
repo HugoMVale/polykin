@@ -4,7 +4,7 @@
     options:
         members:
             - RedlichKwong
-            - cubic_mixing_rules
+            - Z_cubic_roots
 
 ## Examples
 
