@@ -3,11 +3,13 @@
 # Copyright Hugo Vale 2023
 
 from polykin.types import FloatVector
+from polykin.utils import eps
 
 # import numpy as np
-from numpy import log
+from numpy import log, sqrt
 from scipy.constants import R
 from abc import ABC, abstractmethod
+from typing import Iterable
 
 __all__ = ['EoS']
 
@@ -143,34 +145,31 @@ class GasOrLiquidEoS(EoS):
 
     @abstractmethod
     def DA(self,
-           n: FloatVector,
            T: float,
            V: float,
-           V0: float
+           n: FloatVector,
+           v0: float
            ) -> float:
-        r"""Calculate the residual Helmholtz energy.
+        r"""Calculate the departure of Helmholtz energy.
 
-        $$ A-A^\circ=
-        -\int_\infty^V\left(P-\frac{RT}{P}\right)dV-RT\ln{\frac{V}{V^\circ}} $$
-
-        where the subscript $\circ$ denotes the reference state, which is the
-        ideal gas state at 1 bar and $T$.
+        $$ A(T,V,n) - A^{\circ}(T,V,n)$$
 
         Parameters
         ----------
-        n : FloatVector
-            Mole amounts of all components. Unit = mol.
         T : float
             Temperature. Unit = K.
         V : float
             Volume. Unit = m³.
-        V0 : float
-            Reference volume. Unit = m³.
+        n : FloatVector
+            Mole amounts of all components. Unit = mol.
+        v0 : float
+            Molar volume in reference state. Unit = m³/mol.
+
 
         Returns
         -------
         FloatVector
-            Helmholtz energy departure, $A - A^\circ$. Unit = J/mol.
+            Helmholtz energy departure, $A - A^{\circ}$. Unit = J.
         """
         pass
 
@@ -199,25 +198,30 @@ class GasOrLiquidEoS(EoS):
         """
         pass
 
-    def departures(self, T, P, y):
+    def DX(self,
+           T: float,
+           P: float,
+           y: FloatVector,
+           P0: float = 1e5
+           ) -> dict[str, float]:
+        v0 = R*T/P0
+        nt = 1.
+        n = nt*y
+
         Z = self.Z(T, P, y)
-        V = Z*R*T/P
-        V0 = R*T/self.P0
-        Ares = self.DA(T, V, y)
-        Aig = R*T*log(V/V0)
-        DA = Ares + Aig
-        dT = 0.1
-        Ares_plus = self.DA(T + dT, V, y)
-        DS = (Ares_plus - Ares)/dT + Aig/T
+        if isinstance(Z, Iterable):
+            Z = max(Z)  # temporary fix, get only vapor solution !!!
+        V = nt*Z*R*T/P
+
+        dT = 2*sqrt(eps)*T
+        DA_minus = self.DA(T - dT, V, n, v0)
+        DA_plus = self.DA(T + dT, V, n, v0)
+        DA = (DA_minus + DA_plus)/2
+        DS = -(DA_plus - DA_minus)/(2*dT)
         DU = DA + T*DS
-        DH = DA + T*DS + R*T*(Z - 1.)
-        DG = DA + R*T*(Z - 1.)
-        result = {
-            'A': DA,
-            'G': DG,
-            'H': DH,
-            'S': DS,
-            'U': DU}
+        DH = DU + R*T*(Z - 1)
+        DG = DA + R*T*(Z - 1)
+        result = {'A': DA, 'G': DG, 'H': DH, 'S': DS, 'U': DU}
         return result
 
 

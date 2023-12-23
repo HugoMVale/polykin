@@ -209,8 +209,17 @@ class Cubic(GasAndLiquidEoS):
     def _alpha(self, T: float) -> FloatVector:
         pass
 
-    def DA(self):
-        pass
+    def DA(self, T, V, n, v0):
+        nt = n.sum()
+        y = n/nt
+        u = self._u
+        w = self._w
+        d = sqrt(u**2 - 4*w)
+        am = self.am(T, y)
+        bm = self.bm(y)
+
+        return nt*am/(bm*d)*log((2*V + nt*bm*(u - d))/(2*V + nt*bm*(u + d))) \
+            - nt*R*T*log((V - nt*bm)/(nt*v0))
 
     def phi(self,
             T: float,
@@ -263,7 +272,7 @@ class Cubic(GasAndLiquidEoS):
         else:
             delta = np.sum(y * sqrt(a) * (1 - k), axis=1)
 
-        # get only vapor solution
+        # get only vapor solution !!!
         z = max(Z)
         lnphi = b_bm*(z - 1) - log(z - B) + A/(B*d) * \
             (b_bm - delta)*log((2*z + B*(u + d))/(2*z + B*(u - d)))

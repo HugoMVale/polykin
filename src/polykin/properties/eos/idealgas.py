@@ -5,8 +5,8 @@
 from polykin.types import FloatOrArray
 from .base import GasEoS
 
-from numpy import log
 from scipy.constants import R
+from numpy import log
 
 __all__ = ['IdealGas']
 
@@ -69,5 +69,6 @@ class IdealGas(GasEoS):
         """
         return 1.
 
-    def DA(self, n, T, V, V0):
-        return -R*T*log(V/V0)
+    def DA(self, T, V, n, v0):
+        nt = n.sum()
+        return -nt*R*T*log(V/(nt*v0))

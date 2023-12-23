@@ -220,11 +220,11 @@ class Virial(GasEoS):
         B = self.Bij(T)
         return exp((2*dot(B, y) - Bm)*P/(R*T))
 
-    def DA(self, n, T, V, V0):
+    def DA(self, T, V, n, v0):
         nt = n.sum()
         y = n/nt
         Bm = self.Bm(T, y)
-        return nt*R*T*log(V/(V - nt*Bm)) - R*T*log(V/V0)
+        return -nt*R*T*log((V - nt*Bm)/(nt*v0))
 
 # %% Second virial coefficient
 

@@ -8,7 +8,7 @@ from polykin.properties.eos import IdealGas, Virial, \
 import pytest
 import numpy as np
 from numpy import all, isclose
-# from scipy.constants import R
+from scipy.constants import R
 
 
 @pytest.fixture
@@ -100,11 +100,20 @@ def test_Virial_isopropanol():
 
 
 def test_Virial_butene():
-    "Example 10.7, p. 343, Smith-Van Ness-Abbott."
-    eos = Virial(Tc=[420.0], Pc=[40.43e5], Zc=[0.28], w=[0.191])
+    """Example 6.6, p. 210, Smith-Van Ness-Abbott.
+    Example 10.7, p. 343, Smith-Van Ness-Abbott."""
+    Tc = 420.0
+    Pc = 40.43e5
+    w = 0.191
+    eos = Virial(Tc=[Tc], Pc=[Pc], Zc=[0.28], w=[w])
     y = np.array([1.])
     assert isclose(eos.Z(273.15 + 200., 70e5, y), 0.512, rtol=0.2)
-    assert isclose(eos.phi(273.15, 1.2771e5, y), 0.956, rtol=0.001)
+    T = 273.15
+    P = 1.2771e5
+    assert isclose(eos.phi(T, P, y), 0.956, rtol=0.001)
+    DX = eos.DX(T, P, y, P0=P)
+    assert isclose(DX['S'], -0.8822, rtol=0.01)
+    assert isclose(DX['H'], -344, rtol=0.01)
 
 
 def test_RK():
@@ -131,7 +140,7 @@ def test_Virial_RK_ammonia():
     assert isclose(virial.P(T, v, y), 23.76e5, rtol=1e-3)
 
 
-def test_cubic_Z():
+def test_Cubic_Z():
     "Example 3-3, p. 46, Reid-Prausnitz-Poling."
     Tc = [408.2]
     Pc = [36.5e5]
@@ -148,7 +157,7 @@ def test_cubic_Z():
     assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
 
 
-def test_cubic_butene():
+def test_Cubic_butene():
     "Example 10.7, p. 343, Smith-Van Ness-Abbott."
     y = np.array([1.])
     T = 273.15 + 200.
@@ -160,7 +169,7 @@ def test_cubic_butene():
         assert isclose(eos.fv(T, P, y), 44.7e5, rtol=0.05)
 
 
-def test_cubic_phi():
+def test_Cubic_phi():
     "Example 10.8, p. 347, Smith-Van Ness-Abbott."
     Tc = [535.5, 591.8]
     Pc = [41.5e5, 41.1e5]
@@ -175,7 +184,7 @@ def test_cubic_phi():
         assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-2))
 
 
-def test_cubic_B():
+def test_Cubic_B():
     "Isopropanol"
     Tc = [508.3]
     Pc = [47.6e5]
@@ -188,7 +197,7 @@ def test_cubic_B():
     assert isclose(virial.Bm(T, y), srk.Bm(T, y), rtol=0.1)
 
 
-def test_Z_cubic_interaction():
+def test_Z_Cubic_interaction():
     Tc = [282.4, 126.2]
     Pc = [50.4e5, 33.9e5]
     w = [0.089, 0.039]
@@ -199,3 +208,20 @@ def test_Z_cubic_interaction():
     eos1 = PengRobinson(Tc, Pc, w, k=None)
     eos2 = PengRobinson(Tc, Pc, w, k=k)
     assert isclose(eos1.Z(T, P, y), eos2.Z(T, P, y), rtol=0.01)
+
+
+def test_Cubic_departures():
+    "Example 5-3, p. 111, Reid-Prausnitz-Poling."
+    # isobutane
+    Tc = [364.9]
+    Pc = [46.0e5]
+    w = [0.144]
+    M = 42.081
+    T = 398.15
+    P = 100e5
+    y = np.array([1.])
+    for EOS in [Soave, PengRobinson]:
+        eos = EOS(Tc, Pc, w)
+        DX = eos.DX(T, P, y)
+        assert isclose(DX['H']/M, -235, rtol=0.01)
+        assert isclose(DX['S']/M, -1.37, rtol=0.01)
