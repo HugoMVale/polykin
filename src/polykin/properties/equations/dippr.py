@@ -4,11 +4,12 @@
 
 # This modules implements the most commonly used DIPPR equations.
 
-from polykin.types import FloatOrArray
-from .base import PropertyEquationT
-
 import numpy as np
-from numpy import exp, log, sinh, cosh
+from numpy import cosh, exp, log, sinh
+
+from polykin.types import FloatOrArray
+
+from .base import PropertyEquationT
 
 __all__ = ['DIPPR100',
            'DIPPR101',

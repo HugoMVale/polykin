@@ -5,11 +5,12 @@
 # This module implements commonly used equations to evaluate the vapor
 # pressure of pure components.
 
-from polykin.types import FloatOrArray
-from .base import PropertyEquationT
-
 import numpy as np
 from numpy import exp
+
+from polykin.types import FloatOrArray
+
+from .base import PropertyEquationT
 
 __all__ = ['Antoine', 'Wagner']
 

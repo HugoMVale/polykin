@@ -5,10 +5,11 @@
 # This module implements commonly used equations to evaluate the viscosity of
 # pure components.
 
-from polykin.types import FloatOrArray
-from .base import PropertyEquationT
-
 import numpy as np
+
+from polykin.types import FloatOrArray
+
+from .base import PropertyEquationT
 
 __all__ = ['Yaws']
 

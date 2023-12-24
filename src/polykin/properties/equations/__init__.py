@@ -7,7 +7,7 @@ This modules implements commonly used equations (correlations) to describe the
 physical properties of pure components.
 """
 
+from .base import plotequations
 from .dippr import *
 from .vapor_pressure import *
 from .viscosity import *
-from .base import plotequations

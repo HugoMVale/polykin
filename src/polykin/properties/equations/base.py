@@ -2,19 +2,19 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray, FloatOrArrayLike, \
-    FloatVector, FloatVectorLike
-from polykin.utils import check_in_set, check_valid_range, check_bounds, \
-    convert_check_temperature, eps
+from abc import ABC, abstractmethod
+from typing import Any, Literal, Optional
 
+import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.axes._axes import Axes
+from matplotlib.figure import Figure
 from numpy import log
 from scipy.optimize import curve_fit
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.axes._axes import Axes
-from abc import ABC, abstractmethod
-from typing import Optional, Literal, Any
+
+from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatVectorLike)
+from polykin.utils import (check_bounds, check_in_set, check_valid_range,
+                           convert_check_temperature, eps)
 
 
 class PropertyEquation(ABC):
