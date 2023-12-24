@@ -2,9 +2,9 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector
+from numpy import cbrt, dot, exp, log
 
-from numpy import exp, log, cbrt, dot
+from polykin.types import FloatVector
 
 __all__ = ['MULMX2_perry']
 

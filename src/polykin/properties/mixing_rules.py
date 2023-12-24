@@ -2,12 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatSquareMatrix
+from typing import Optional
 
 import numpy as np
-from numpy import sqrt, dot
+from numpy import dot, sqrt
 from scipy.constants import R
-from typing import Optional
+
+from polykin.types import FloatSquareMatrix, FloatVector
 
 __all__ = ['quadratic_mixing',
            'geometric_interaction_mixing',

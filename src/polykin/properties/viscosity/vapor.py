@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatOrArray
-from polykin.properties.mixing_rules import pseudocritical_properties
-
 import numpy as np
-from numpy import abs, exp, sqrt, dot
+from numpy import abs, dot, exp, sqrt
 from scipy.constants import R
+
+from polykin.properties.mixing_rules import pseudocritical_properties
+from polykin.types import FloatOrArray, FloatVector
 
 __all__ = ['MUVMX2_herning_zipperer',
            'MUVPC_jossi',
