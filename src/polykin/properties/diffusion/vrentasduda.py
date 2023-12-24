@@ -2,17 +2,18 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import check_bounds, check_in_set, check_valid_range, \
-    convert_check_temperature
+from typing import Iterable, Literal, Optional
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
+import numpy as np
 from matplotlib.axes._axes import Axes
+from matplotlib.figure import Figure
+from numpy import exp
 from scipy.constants import R as Rgas
-from typing import Literal, Optional
-from collections.abc import Iterable
+
+from polykin.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils import (check_bounds, check_in_set, check_valid_range,
+                           convert_check_temperature)
 
 # %%
 
@@ -254,9 +255,9 @@ class VrentasDudaBinary():
         y = self.y
 
         w2 = 1 - w1
-        D1 = D0*np.exp(-E/(Rgas*T)) * \
-            np.exp(-(w1*V1star + w2*z*V2star) /
-                   (w1*(K11/y)*(K21 - Tg1 + T) + w2*(K12/y)*(K22 - Tg2 + T)))
+        D1 = D0*exp(-E/(Rgas*T)) * \
+            exp(-(w1*V1star + w2*z*V2star) /
+                (w1*(K11/y)*(K21 - Tg1 + T) + w2*(K12/y)*(K22 - Tg2 + T)))
         return D1
 
     def mutual(self,

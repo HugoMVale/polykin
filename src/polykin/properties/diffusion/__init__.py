@@ -7,6 +7,6 @@ This module implements methods to calculate mutual and self-diffusion
 coefficients in binary liquid and gas mixtures.
 """
 
-from .vrentasduda import *
-from .vapor import *
 from .liquid import *
+from .vapor import *
+from .vrentasduda import *

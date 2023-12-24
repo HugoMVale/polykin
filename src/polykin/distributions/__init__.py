@@ -8,6 +8,6 @@ etc. theoretical and experimental chain-length distributions.
 """
 
 from .analyticaldistributions import *
-from .datadistribution import *
 from .base import *
+from .datadistribution import *
 from .sampledata import sample_mmd

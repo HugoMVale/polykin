@@ -7,5 +7,5 @@ This module implements methods to create and visualize the types of kinetic
 coefficients most often used in polymer reactor models.
 """
 
-from .thermal import *
 from .cld import *
+from .thermal import *

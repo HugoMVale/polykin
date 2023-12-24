@@ -6,9 +6,9 @@
 coefficient in gas solutions.
 """
 
-import numpy as np
 from typing import Optional
-from math import sqrt
+
+from numpy import exp, sqrt
 
 __all__ = ['DV_wilke_lee']
 
@@ -90,7 +90,7 @@ def DV_wilke_lee(T: float,
     F = 1.52996
     G = 1.76474
     H = 3.89411
-    omegaD = A/Ts**B + C/np.exp(D*Ts) + E/np.exp(F*Ts) + G/np.exp(H*Ts)
+    omegaD = A/Ts**B + C/exp(D*Ts) + E/exp(F*Ts) + G/exp(H*Ts)
 
     DAB = 1e-2*(3.03 - 0.98/sqrt(MAB))*T**1.5 / (P*sqrt(MAB)*sAB**2*omegaD)
     return DAB

@@ -6,8 +6,8 @@
 coefficient in liquid solutions.
 """
 
-from typing import Literal
 from math import sqrt
+from typing import Literal
 
 __all__ = ['DL_wilke_chang',
            'DL_hayduk_minhas',
