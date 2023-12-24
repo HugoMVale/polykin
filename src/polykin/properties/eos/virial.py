@@ -2,15 +2,17 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatVectorLike, FloatOrArray, \
-    FloatSquareMatrix
-from .base import GasEoS
-from ..mixing_rules import quadratic_mixing
+import functools
 
 import numpy as np
-from numpy import sqrt, exp, log, dot
+from numpy import dot, exp, log, sqrt
 from scipy.constants import R
-import functools
+
+from polykin.types import (FloatOrArray, FloatSquareMatrix, FloatVector,
+                           FloatVectorLike)
+
+from ..mixing_rules import quadratic_mixing
+from .base import GasEoS
 
 __all__ = ['Virial',
            'B_pure',

@@ -2,11 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray
-from .base import GasEoS
-
-from scipy.constants import R
 from numpy import log
+from scipy.constants import R
+
+from polykin.types import FloatOrArray
+
+from .base import GasEoS
 
 __all__ = ['IdealGas']
 

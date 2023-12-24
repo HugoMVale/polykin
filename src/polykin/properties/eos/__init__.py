@@ -7,6 +7,6 @@ This module implements equations of state (EOS) for gas and liquid mixtures.
 """
 
 from .base import *
+from .cubic import *
 from .idealgas import *
 from .virial import *
-from .cubic import *

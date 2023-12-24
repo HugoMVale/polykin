@@ -2,20 +2,22 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatVectorLike, FloatSquareMatrix
+import functools
+from abc import abstractmethod
+from typing import Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.axes._axes import Axes
+from matplotlib.figure import Figure
+from numpy import dot, exp, log, sqrt
+from scipy.constants import R
+
+from polykin.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 from polykin.utils import eps
+
 from ..mixing_rules import geometric_interaction_mixing
 from .base import GasAndLiquidEoS
-
-import numpy as np
-from numpy import exp, log, sqrt, dot
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.axes._axes import Axes
-from scipy.constants import R
-from typing import Optional
-from abc import abstractmethod
-import functools
 
 __all__ = ['RedlichKwong',
            'Soave',

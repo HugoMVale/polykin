@@ -2,14 +2,15 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector
-from polykin.utils import eps
-
-# import numpy as np
-from numpy import log, sqrt
-from scipy.constants import R
 from abc import ABC, abstractmethod
 from typing import Iterable
+
+# import numpy as np
+from numpy import sqrt
+from scipy.constants import R
+
+from polykin.types import FloatVector
+from polykin.utils import eps
 
 __all__ = ['EoS']
 
