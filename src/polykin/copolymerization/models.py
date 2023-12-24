@@ -5,7 +5,7 @@
 from polykin.types import FloatVector, FloatOrVectorLike, \
     FloatOrArray, FloatOrArrayLike
 from polykin.utils import eps
-from polykin import utils
+from polykin.utils import check_bounds, check_in_set, custom_repr
 from polykin.kinetics import Arrhenius
 
 import numpy as np
@@ -18,7 +18,8 @@ from matplotlib.axes._axes import Axes
 from abc import ABC, abstractmethod
 
 __all__ = ['TerminalModel',
-           'PenultimateModel']
+           'PenultimateModel',
+           'ImplicitPenultimateModel']
 
 # %% Models
 
@@ -45,29 +46,8 @@ class CopoModel(ABC):
 
         self.name = name
 
-    # def __repr__(self) -> str:
-    #     string1 = (
-    #         f"name: {self.name}\n"
-    #         f"M1:   {self.M1}\n"
-    #         f"M2:   {self.M2}"
-    #     )
-    #     string2 = ""
-    #     for pname in self._pnames:
-    #         string2 += "\n" + f"{pname}:" + " " * \
-    #             (5 - len(pname)) + f"{getattr(self, pname)}"
-    #     return string1 + string2
-
     def __repr__(self) -> str:
-        items = []
-        for pname in ('name', 'M1', 'M2') + self._pnames:
-            pstr = str(getattr(self, pname))
-            rows = pstr.split("\n")
-            if len(rows) == 1:
-                item = f"{pname}:" + " "*(5 - len(pname)) + pstr
-            else:
-                item = "\n  ".join([pname + ":"] + rows)
-            items.append(item)
-        return "\n".join(items)
+        return custom_repr(self, ('name', 'M1', 'M2') + self._pnames)
 
     @staticmethod
     def equation_F1(f1: FloatOrArray,
@@ -179,7 +159,7 @@ class CopoModel(ABC):
 
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
-        utils.check_bounds(f1, 0., 1., 'f1')
+        check_bounds(f1, 0., 1., 'f1')
         return self.equation_F1(f1, *self.ri(f1))
 
     def kp(self,
@@ -207,7 +187,7 @@ class CopoModel(ABC):
 
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
-        utils.check_bounds(f1, 0., 1., 'f1')
+        check_bounds(f1, 0., 1., 'f1')
         return self.equation_kp(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
     @property
@@ -341,8 +321,8 @@ class CopoModel(ABC):
         tuple[Figure | None, Axes] | None
             Figure and Axes objects if return_objects is `True`.
         """
-        utils.check_in_set(M, {1, 2}, 'M')
-        utils.check_in_set(kind, {'Mayo', 'kp', 'drift'}, 'kind')
+        check_in_set(M, {1, 2}, 'M')
+        check_in_set(kind, {'Mayo', 'kp', 'drift'}, 'kind')
 
         label = None
         if axes is None:
@@ -383,7 +363,7 @@ class CopoModel(ABC):
                 if isinstance(f0, (int, float)):
                     f0 = [f0]
                 f0 = np.array(f0, dtype=np.float64)
-                utils.check_bounds(f0, 0., 1., 'f0')
+                check_bounds(f0, 0., 1., 'f0')
 
             ax.set_xlabel("Total molar monomer conversion, " + r"$x$")
             ax.set_ylabel(fr"$f_{M}$")
@@ -482,12 +462,8 @@ class TerminalModel(CopoModel):
                  ) -> None:
         """Construct `TerminalCopoModel` with the given parameters."""
 
-        utils.check_bounds(r1, 0., np.inf, 'r1')
-        utils.check_bounds(r2, 0., np.inf, 'r2')
-        self.r1 = r1
-        self.r2 = r2
-        self.k11 = k11
-        self.k22 = k22
+        check_bounds(r1, 0., np.inf, 'r1')
+        check_bounds(r2, 0., np.inf, 'r2')
 
         # Perhaps this could be upgraded to exception, but I don't want to be
         # too restrictive (one does find literature data with (r1,r2)>1)
@@ -495,6 +471,10 @@ class TerminalModel(CopoModel):
             print(
                 f"Warning: `r1`={r1} and `r2`={r2} are both greater than 1, which is deemed physically impossible.")
 
+        self.r1 = r1
+        self.r2 = r2
+        self.k11 = k11
+        self.k22 = k22
         super().__init__(M1, M2, name)
 
     @property
@@ -563,7 +543,7 @@ class PenultimateModel(CopoModel):
     are the cross-propagation coefficients. The four monomer reactivity ratios
     are defined as $r_{11}=k_{111}/k_{112}$, $r_{12}=k_{122}/k_{121}$,
     $r_{21}=k_{211}/k_{212}$ and $r_{22}=k_{222}/k_{221}$. The two radical
-    reactivity ratios are as defined as $s_1=k_{211}/k_{111}$ and
+    reactivity ratios are defined as $s_1=k_{211}/k_{111}$ and
     $s_2=k_{122}/k_{222}$.
 
     Parameters
@@ -618,12 +598,12 @@ class PenultimateModel(CopoModel):
                  ) -> None:
         """Construct `PenultimateModel` with the given parameters."""
 
-        utils.check_bounds(r11, 0., np.inf, 'r11')
-        utils.check_bounds(r12, 0., np.inf, 'r12')
-        utils.check_bounds(r21, 0., np.inf, 'r21')
-        utils.check_bounds(r22, 0., np.inf, 'r22')
-        utils.check_bounds(s1, 0., np.inf, 's1')
-        utils.check_bounds(s2, 0., np.inf, 's2')
+        check_bounds(r11, 0., np.inf, 'r11')
+        check_bounds(r12, 0., np.inf, 'r12')
+        check_bounds(r21, 0., np.inf, 'r21')
+        check_bounds(r22, 0., np.inf, 'r22')
+        check_bounds(s1, 0., np.inf, 's1')
+        check_bounds(s2, 0., np.inf, 's2')
         self.r11 = r11
         self.r12 = r12
         self.r21 = r21
@@ -637,9 +617,9 @@ class PenultimateModel(CopoModel):
     def ri(self,
             f1: FloatOrArray
            ) -> tuple[FloatOrArray, FloatOrArray]:
-        r"""Average reactivity ratios.
+        r"""Pseudo-reactivity ratios.
 
-        In the penultimate model, the average reactivity ratios depend on the
+        In the penultimate model, the pseudo-reactivity ratios depend on the
         instantaneous comonomer composition according to:
 
         $$ \begin{aligned}
@@ -673,10 +653,10 @@ class PenultimateModel(CopoModel):
             T: float,
             Tunit,
             ) -> tuple[FloatOrArray, FloatOrArray]:
-        r"""Average homo-propagation rate coefficients.
+        r"""Pseudo-homopropagation rate coefficients.
 
-        In the penultimate model, the average reactivity ratios depend on the
-        instantaneous comonomer composition according to:
+        In the penultimate model, the pseudo-homopropagation rate coefficients
+        on the instantaneous comonomer composition according to:
 
         $$ \begin{aligned}
         \bar{k}_{11} = k_{111} \frac{f_1 r_{11} + f_2}{f_1 r_{11} + f_2/s_1} \\
@@ -684,7 +664,7 @@ class PenultimateModel(CopoModel):
         \end{aligned} $$
 
         where $r_{ij}$ are the monomer reactivity ratios, $s_i$ are the radical
-        reactivity ratios, and $k_{iii}$ are the homo-propagation rate
+        reactivity ratios, and $k_{iii}$ are the homopropagation rate
         coefficients.
 
         Parameters
@@ -714,4 +694,146 @@ class PenultimateModel(CopoModel):
         k222 = self.k222(T, Tunit)
         k11 = k111*(f1*r11 + f2)/(f1*r11 + f2/s1)
         k22 = k222*(f2*r22 + f1)/(f2*r22 + f1/s2)
+        return (k11, k22)
+
+# %%
+
+
+class ImplicitPenultimateModel(TerminalModel):
+    r"""Implicit penultimate binary copolymerization model.
+
+    According to this model, the reactivity of a macroradical depends on the
+    nature of _penultimate_ and _terminal_ repeating units. A binary system
+    is, thus, described by eight propagation reactions:
+
+    $$
+    \begin{matrix}
+    P^{\bullet}_{11} + M_1 \overset{k_{111}}{\rightarrow} P^{\bullet}_{11} \\
+    P^{\bullet}_{11} + M_2 \overset{k_{112}}{\rightarrow} P^{\bullet}_{12} \\
+    P^{\bullet}_{12} + M_1 \overset{k_{121}}{\rightarrow} P^{\bullet}_{21} \\
+    P^{\bullet}_{12} + M_2 \overset{k_{122}}{\rightarrow} P^{\bullet}_{22} \\
+    P^{\bullet}_{21} + M_1 \overset{k_{211}}{\rightarrow} P^{\bullet}_{11} \\
+    P^{\bullet}_{21} + M_2 \overset{k_{212}}{\rightarrow} P^{\bullet}_{12} \\
+    P^{\bullet}_{22} + M_1 \overset{k_{221}}{\rightarrow} P^{\bullet}_{21} \\
+    P^{\bullet}_{22} + M_2 \overset{k_{222}}{\rightarrow} P^{\bullet}_{22} \\
+    \end{matrix}
+    $$
+
+    where $k_{iii}$ are the homo-propagation rate coefficients and $k_{ijk}$
+    are the cross-propagation coefficients. In contrast to the full (explicit)
+    penultimate model, the implicit version only has two monomer reactivity
+    ratios, which are defined as $r_1=k_{111}/k_{112}=k_{211}/k_{212}$ and
+    $r_2=k_{222}/k_{221}=k_{122}/k_{121}$. The two radical
+    reactivity ratios are defined as $s_1=k_{211}/k_{111}$ and
+    $s_2=k_{122}/k_{222}$.
+
+    Parameters
+    ----------
+    r1 : float
+        Monomer reactivity ratio, $r_1=k_{111}/k_{112}=k_{211}/k_{212}$.
+    r21 : float
+        Monomer reactivity ratio, $r_2=k_{222}/k_{221}=k_{122}/k_{121}$.
+    s1 : float
+        Radical reactivity ratio, $s_1=k_{211}/k_{111}$.
+    s2 : float
+        Radical reactivity ratio, $s_2=k_{122}/k_{222}$.
+    k111 : Arrhenius | None
+        Propagation rate coefficient of M1.
+    k222 : Arrhenius | None
+        Propagation rate coefficient of M2.
+    M1 : str
+        Name of M1.
+    M2 : str
+        Name of M2.
+    name : str
+        Name.
+    """
+
+    r1: float
+    r2: float
+    s1: float
+    s2: float
+    k111: Optional[Arrhenius]
+    k222: Optional[Arrhenius]
+
+    _pnames = ('r1', 'r2', 's1', 's2', 'k111', 'k222')
+
+    def __init__(self,
+                 r1: float,
+                 r2: float,
+                 s1: float,
+                 s2: float,
+                 k111: Optional[Arrhenius] = None,
+                 k222: Optional[Arrhenius] = None,
+                 M1: str = 'M1',
+                 M2: str = 'M2',
+                 name: str = ''
+                 ) -> None:
+        """Construct `ImplicitPenultimateModel` with the given parameters."""
+
+        check_bounds(r1, 0., np.inf, 'r1')
+        check_bounds(r2, 0., np.inf, 'r2')
+        check_bounds(s1, 0., np.inf, 's1')
+        check_bounds(s2, 0., np.inf, 's2')
+
+        # Perhaps this could be upgraded to exception, but I don't want to be
+        # too restrictive (one does find literature data with (r1,r2)>1)
+        if r1 > 1. and r2 > 1.:
+            print(
+                f"Warning: `r1`={r1} and `r2`={r2} are both greater than 1, which is deemed physically impossible.")
+
+        self.r1 = r1
+        self.r2 = r2
+        self.s1 = s1
+        self.s2 = s2
+        self.k111 = k111
+        self.k222 = k222
+        super(TerminalModel, self).__init__(M1, M2, name)
+
+    def kii(self,
+            f1: FloatOrArray,
+            T: float,
+            Tunit,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
+        r"""Pseudo-homopropagation rate coefficients.
+
+        In the implicit penultimate model, the pseudo-homopropagation rate
+        coefficients on the instantaneous comonomer composition according to:
+
+        $$ \begin{aligned}
+        \bar{k}_{11} = k_{111} \frac{f_1 r_1 + f_2}{f_1 r_1 + f_2/s_1} \\
+        \bar{k}_{22} = k_{222} \frac{f_2 r_2 + f_1}{f_2 r_2 + f_1/s_2}
+        \end{aligned} $$
+
+        where $r_i$ are the monomer reactivity ratios, $s_i$ are the radical
+        reactivity ratios, and $k_{iii}$ are the homopropagation rate
+        coefficients.
+
+        Parameters
+        ----------
+        f1 : FloatOrArray
+            Molar fraction of M1.
+        T : float
+            Temperature. Unit = `Tunit`.
+        Tunit : Literal['C', 'K']
+            Temperature unit.
+
+        Returns
+        -------
+        tuple[FloatOrArray, FloatOrArray]
+            Tuple of average propagation rate coefficients,
+            ($\bar{k}_{11}$, $\bar{k}_{22}$).
+        """
+        if self.k111 is None or self.k222 is None:
+            raise ValueError(
+                "To use this feature, `k111` and `k222` cannot be `None`.")
+        f2 = 1. - f1
+        r1 = self.r1
+        r2 = self.r2
+        s1 = self.s1
+        s2 = self.s2
+        k111 = self.k111(T, Tunit)
+        k222 = self.k222(T, Tunit)
+        k11 = k111*(f1*r1 + f2)/(f1*r1 + f2/s1)
+        k22 = k222*(f2*r2 + f1)/(f2*r2 + f1/s2)
         return (k11, k22)
