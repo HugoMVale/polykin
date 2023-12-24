@@ -2,16 +2,19 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVectorLike
-from polykin.utils import vectorize, check_subclass, check_bounds
-from .analyticaldistributions import Flory, Poisson, LogNormal, SchulzZimm
-from .base import Kind, IndividualDistribution, MixtureDistribution, \
-    AnalyticalDistribution, AnalyticalDistributionP2
+import functools
+from typing import Union
 
 import numpy as np
-from scipy import interpolate, integrate, optimize
-from typing import Union
-import functools
+from numpy import log10
+from scipy import integrate, interpolate, optimize
+
+from polykin.types import FloatVectorLike
+from polykin.utils import check_bounds, check_subclass, vectorize
+
+from .analyticaldistributions import Flory, LogNormal, Poisson, SchulzZimm
+from .base import (AnalyticalDistribution, AnalyticalDistributionP2,
+                   IndividualDistribution, Kind, MixtureDistribution)
 
 __all__ = ['DataDistribution']
 
@@ -159,9 +162,9 @@ class DataDistribution(IndividualDistribution):
 
         # Initial guess and bounds
         # We do a log transform on DPn to normalize the changes
-        x0 = np.concatenate([weight, np.log10(DPn)])
+        x0 = np.concatenate([weight, log10(DPn)])
         bounds = [(0, 1) for _ in range(dim)] + \
-            [(np.log10(3), np.log10(xdata[-1])) for _ in range(dim)]
+            [(log10(3), log10(xdata[-1])) for _ in range(dim)]
         if isP2:
             x0 = np.concatenate([x0, PDI])
             bounds += [(1.01, 5.) for _ in range(dim)]

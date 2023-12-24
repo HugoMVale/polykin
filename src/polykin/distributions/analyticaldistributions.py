@@ -2,13 +2,14 @@
 #
 # Copyright Hugo Vale 2023
 
-from .base import AnalyticalDistributionP1, AnalyticalDistributionP2
+import functools
 
-from math import exp, log, sqrt, pi
 import numpy as np
 import scipy.special as sp
 import scipy.stats as st
-import functools
+from numpy import exp, log, pi, sqrt
+
+from .base import AnalyticalDistributionP1, AnalyticalDistributionP2
 
 __all__ = ['Flory', 'Poisson', 'LogNormal', 'SchulzZimm']
 
@@ -118,7 +119,7 @@ class Poisson(AnalyticalDistributionP1):
 
     def _pdf0_length(self, k):
         a = self._a
-        return np.exp((k - 1)*np.log(a) - a - sp.gammaln(k))
+        return exp((k - 1)*log(a) - a - sp.gammaln(k))
 
     @functools.cache
     def _moment_length(self, order):
@@ -141,7 +142,7 @@ class Poisson(AnalyticalDistributionP1):
             result = sp.gammaincc(k, a)
         elif order == 1:
             result = (a + 1)*sp.gammaincc(k, a) - \
-                np.exp(k*log(a) - a - sp.gammaln(k))
+                exp(k*log(a) - a - sp.gammaln(k))
         else:
             raise ValueError
         return result/self._moment_length(order)
@@ -202,7 +203,7 @@ class LogNormal(AnalyticalDistributionP2):
     def _pdf0_length(self, x):
         mu = self._mu
         sigma = self._sigma
-        return np.exp(-(np.log(x) - mu)**2/(2*sigma**2))/(x*sigma*sqrt(2*pi))
+        return exp(-(log(x) - mu)**2/(2*sigma**2))/(x*sigma*sqrt(2*pi))
 
     @functools.cache
     def _moment_length(self, order):
@@ -214,9 +215,9 @@ class LogNormal(AnalyticalDistributionP2):
         mu = self._mu
         sigma = self._sigma
         if order == 0:
-            result = (1 + sp.erf((np.log(x) - mu)/(sigma*sqrt(2))))/2
+            result = (1 + sp.erf((log(x) - mu)/(sigma*sqrt(2))))/2
         elif order == 1:
-            result = sp.erfc((mu + sigma**2 - np.log(x))/(sigma*sqrt(2)))/2
+            result = sp.erfc((mu + sigma**2 - log(x))/(sigma*sqrt(2)))/2
         else:
             raise ValueError
         return result
@@ -282,7 +283,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     def _pdf0_length(self, x):
         k = self._k
         theta = self._theta
-        return x**(k-1)*np.exp(-x/theta)/(theta**k*sp.gamma(k))
+        return x**(k-1)*exp(-x/theta)/(theta**k*sp.gamma(k))
 
     @functools.cache
     def _moment_length(self, order):

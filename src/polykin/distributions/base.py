@@ -2,21 +2,22 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArrayLike, FloatOrArray, FloatRangeArray, \
-    IntOrArray
-from polykin.utils import check_bounds, check_type, check_in_set, \
-    check_valid_range, custom_error, add_dicts, vectorize
-
-import numpy as np
-from numpy import log10
-import mpmath
-from scipy import integrate
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.axes._axes import Axes
-from typing import Literal, Union, Optional
-from abc import ABC, abstractmethod
 import functools
+from abc import ABC, abstractmethod
+from typing import Literal, Optional, Union
+
+import matplotlib.pyplot as plt
+import mpmath
+import numpy as np
+from matplotlib.axes._axes import Axes
+from matplotlib.figure import Figure
+from numpy import log10
+from scipy import integrate
+
+from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatRangeArray,
+                           IntOrArray)
+from polykin.utils import (add_dicts, check_bounds, check_in_set, check_type,
+                           check_valid_range, custom_error, vectorize)
 
 __all__ = ['plotdists']
 
