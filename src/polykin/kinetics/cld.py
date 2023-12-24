@@ -2,17 +2,18 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray, FloatOrArrayLike, \
-    IntOrArrayLike, IntOrArray
-from polykin.utils import check_type, check_bounds, \
-    convert_check_temperature, custom_repr
-from .thermal import Arrhenius, Eyring
+from abc import ABC, abstractmethod
+from typing import Literal, Union
 
 import numpy as np
 from numpy import exp, log, sqrt
-from abc import ABC, abstractmethod
-from typing import Union, Literal
 
+from polykin.types import (FloatOrArray, FloatOrArrayLike, IntOrArray,
+                           IntOrArrayLike)
+from polykin.utils import (check_bounds, check_type, convert_check_temperature,
+                           custom_repr)
+
+from .thermal import Arrhenius, Eyring
 
 __all__ = ['TerminationCompositeModel', 'PropagationHalfLength']
 

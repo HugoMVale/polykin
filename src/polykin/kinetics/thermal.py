@@ -2,16 +2,17 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import check_shapes, check_bounds, convert_list_to_array, \
-    ShapeError
-from polykin.properties.equations.base import PropertyEquationT
+from typing import Optional
 
 import numpy as np
 from numpy import exp
-from scipy.constants import h, R, Boltzmann as kB
-from typing import Optional
+from scipy.constants import Boltzmann as kB
+from scipy.constants import R, h
 
+from polykin.properties.equations.base import PropertyEquationT
+from polykin.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils import (ShapeError, check_bounds, check_shapes,
+                           convert_list_to_array)
 
 __all__ = ['Arrhenius', 'Eyring']
 
