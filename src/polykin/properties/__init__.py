@@ -8,5 +8,5 @@ estimate physical properties often used in polymer reactor models.
 """
 
 from .equations import *
-from .pvt_polymer import *
 from .mixing_rules import *
+from .pvt_polymer import *

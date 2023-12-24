@@ -2,11 +2,11 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector
-
 import numpy as np
-from numpy import exp, sqrt, dot
-from scipy.constants import R, N_A
+from numpy import dot, exp, sqrt
+from scipy.constants import N_A, R
+
+from polykin.types import FloatVector
 
 __all__ = ['KVPC_stiel_thodos',
            'KVMXPC_stiel_thodos',

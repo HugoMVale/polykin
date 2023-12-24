@@ -7,5 +7,5 @@ This module implements methods to calculate the thermal conductivity of pure
 gases, gas mixtures, pure liquids, and liquid mixtures.
 """
 
-from .vapor import *
 from .liquid import *
+from .vapor import *

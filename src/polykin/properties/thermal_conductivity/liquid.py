@@ -2,10 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector
-from polykin.properties import quadratic_mixing
-
 import numpy as np
+
+from polykin.properties import quadratic_mixing
+from polykin.types import FloatVector
 
 __all__ = ['KLMX2_li']
 
