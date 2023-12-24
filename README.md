@@ -12,8 +12,9 @@ development stage, but the following modules can already be used:
   - [x] Penultimate model
   - [x] Terminal model
 - Equations of state
-  - [ ] Cubic (Redlich-Kwong, Soave, Peng-Robinson)
+  - [50%] Cubic (Redlich-Kwong, Soave, Peng-Robinson)
   - [x] Ideal gas
+  - [ ] Sanchez-Lacombe
   - [x] Virial equation
 - [ ] Database
 - Distributions
