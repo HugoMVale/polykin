@@ -2,12 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
+import numpy as np
+from numpy import exp, log
+
 from polykin.types import FloatOrArray
 from polykin.utils import check_bounds
+
 from .base import PolymerPVTEquation
-
-import numpy as np
-
 
 __all__ = ['Tait']
 
@@ -142,7 +143,7 @@ class Tait(PolymerPVTEquation):
         TC = T - 273.15
         V0 = self.A0 + self.A1*TC + self.A2*TC**2
         B = self._B(T)
-        V = V0*(1 - self._C*np.log(1 + P/B))
+        V = V0*(1 - self._C*log(1 + P/B))
         return V
 
     def _B(self,
@@ -162,7 +163,7 @@ class Tait(PolymerPVTEquation):
             B(T).
             Unit = Pa.
         """
-        return self.B0*np.exp(-self.B1*(T - 273.15))
+        return self.B0*exp(-self.B1*(T - 273.15))
 
     def alpha(self,
               T: FloatOrArray,
@@ -218,4 +219,4 @@ class Tait(PolymerPVTEquation):
             Unit = 1/Pa.
         """
         B = self._B(T)
-        return (self._C/(P + B))/(1 - self._C*np.log(1 + P/B))
+        return (self._C/(P + B))/(1 - self._C*log(1 + P/B))

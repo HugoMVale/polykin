@@ -6,5 +6,5 @@
 This module implements methods to evaluate the PVT behavior of pure polymers.
 """
 
-from .tait import *
 from .eos import *
+from .tait import *

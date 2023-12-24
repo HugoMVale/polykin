@@ -4,17 +4,18 @@
 
 from __future__ import annotations
 
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import check_bounds, convert_check_temperature, \
-    convert_check_pressure, eps
-from ..equations.base import PropertyEquation
+from abc import abstractmethod
+from pathlib import Path
+from typing import Literal, Optional
 
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Optional, Literal
-from abc import abstractmethod
 
+from polykin.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils import (check_bounds, convert_check_pressure,
+                           convert_check_temperature, eps)
+
+from ..equations.base import PropertyEquation
 
 __all__ = []
 

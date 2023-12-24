@@ -2,14 +2,16 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray
-from polykin.utils import check_bounds, vectorize
-from .base import PolymerPVTEquation
+from abc import abstractmethod
 
 import numpy as np
-from abc import abstractmethod
+from numpy import log
 from scipy.optimize import root_scalar
 
+from polykin.types import FloatOrArray
+from polykin.utils import check_bounds, vectorize
+
+from .base import PolymerPVTEquation
 
 __all__ = ['Flory',
            'HartmannHaque',
@@ -294,7 +296,7 @@ class HartmannHaque(PolymerPVTEoS):
         tuple[float, float, float]
             Equation of state, first derivative, second derivative.
         """
-        f = p*v**5 - t**(3/2) + np.log(v)  # =0
+        f = p*v**5 - t**(3/2) + log(v)  # =0
         d1f = 5*p*v**4 + 1/v
         d2f = 20*p*v**3 - 1/v**2
         return (f, d1f, d2f)
@@ -362,7 +364,7 @@ class SanchezLacombe(PolymerPVTEoS):
         tuple[float, float, float]
             Equation of state, first derivative, second derivative.
         """
-        f = 1/v**2 + p + t*(np.log(1 - 1/v) + 1/v)  # =0
+        f = 1/v**2 + p + t*(log(1 - 1/v) + 1/v)  # =0
         d1f = ((t - 2)*v + 2)/((v - 1)*v**3)
         d2f = (-3*(t - 2)*v**2 + 2*(t - 6)*v + 6)/((v - 1)**2*v**4)
         return (f, d1f, d2f)
