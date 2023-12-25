@@ -58,9 +58,9 @@ def test_TerminalModel_drift():
 def test_TerminalModel_plot():
     model = TerminalModel(0.5, 0.5,
                           M1="Monomer1", M2="Monomer2", name="MyModel")
-    result = model.plot(M=1, f0=0.2, return_objects=True)
+    result = model.plot('drift', M=1, f0=0.2, return_objects=True)
     assert result is not None and len(result) == 2
-    result = model.plot(M=1, return_objects=True)
+    result = model.plot('Mayo', M=1, return_objects=True)
     assert result is not None and len(result) == 2
 
 

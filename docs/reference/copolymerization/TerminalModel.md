@@ -4,6 +4,8 @@
     options:
         members:
             - TerminalModel
+            - average_kp_binary
+            - inst_copolymer_binary
 
 ## Examples
 

@@ -2,20 +2,20 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatVector, FloatOrVectorLike, \
-    FloatOrArray, FloatOrArrayLike
-from polykin.utils import eps
-from polykin.utils import check_bounds, check_in_set, custom_repr
-from polykin.kinetics import Arrhenius
-
-import numpy as np
-from typing import Optional, Literal
-from scipy.optimize import root_scalar
-from scipy.integrate import solve_ivp
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-from matplotlib.axes._axes import Axes
 from abc import ABC, abstractmethod
+from typing import Literal, Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.axes._axes import Axes
+from matplotlib.figure import Figure
+from scipy.integrate import solve_ivp
+from scipy.optimize import root_scalar
+
+from polykin.kinetics import Arrhenius
+from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatOrVectorLike,
+                           FloatVector, IntOrArrayLike)
+from polykin.utils import check_bounds, check_in_set, custom_repr, eps
 
 __all__ = ['TerminalModel',
            'PenultimateModel',
@@ -49,88 +49,9 @@ class CopoModel(ABC):
     def __repr__(self) -> str:
         return custom_repr(self, ('name', 'M1', 'M2') + self._pnames)
 
-    @staticmethod
-    def equation_F1(f1: FloatOrArray,
-                    r1: FloatOrArray,
-                    r2: FloatOrArray
-                    ) -> FloatOrArray:
-        r"""Instantaneous copolymer composition equation.
-
-        For a binary system, the instantaneous copolymer composition is related
-        to the comonomer composition by:
-
-        $$ F_1=\frac{r_1 f_1^2 + f_1 f_2}{r_1 f_1^2 + 2 f_1 f_2 + r_2 f_2^2} $$
-
-        where $F_i$ and $f_i$ are, respectively, the instantaneous copolymer
-        and comonomer composition of monomer $i$, and $r_i$ are the
-        reactivity ratios. Although the equation is written using terminal
-        model notation, it is equally applicable in the frame of the
-        penultimate model if $r_i \rightarrow \bar{r}_i$.
-
-        Parameters
-        ----------
-        f1 : FloatOrArray
-            Molar fraction of M1.
-        r1 : FloatOrArray
-            Reactivity ratio of M1, $r_1$ or $\bar{r}_1$.
-        r2 : FloatOrArray
-            Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
-
-        Returns
-        -------
-        FloatOrArray
-            Instantaneous copolymer composition, $F_1$.
-        """
-        f2 = 1 - f1
-        return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
-
-    @staticmethod
-    def equation_kp(f1: FloatOrArray,
-                    r1: FloatOrArray,
-                    r2: FloatOrArray,
-                    k11: FloatOrArray,
-                    k22: FloatOrArray
-                    ) -> FloatOrArray:
-        r"""Average propagation rate coefficient equation.
-
-        For a binary system, the instantaneous average propagation rate
-        coefficient is related to the instantaneous comonomer composition by:
-
-        $$ \bar{k}_p = \frac{r_1 f_1^2 + r_2 f_2^2 + 2f_1 f_2}
-           {(r_1 f_1/k_{11}) + (r_2 f_2/k_{22})} $$
-
-        where $f_i$ is the instantaneous comonomer composition of monomer $i$,
-        $r_i$ are the reactivity ratios, and $k_{ii}$ are the homo-propagation
-        rate coefficients. Although the equation is written using terminal
-        model notation, it is equally applicable in the frame of the
-        penultimate model if $r_i \rightarrow \bar{r}_i$ and
-        $k_{ii} \rightarrow \bar{k}_{ii}$.
-
-        Parameters
-        ----------
-        f1 : FloatOrArray
-            Molar fraction of M1.
-        r1 : float
-            Reactivity ratio of M1, $r_1$ or $\bar{r}_1$.
-        r2 : float
-            Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
-        k11 : float
-            Propagation rate coefficient of M1, $k_{11}$ or $\bar{k}_{11}$.
-            Unit = L/(mol·s)
-        k22 : float
-            Propagation rate coefficient of M2, $k_{22}$ or $\bar{k}_{22}$.
-            Unit = L/(mol·s)
-
-        Returns
-        -------
-        FloatOrArray
-            Average propagation rate coefficient. Unit = L/(mol·s)
-        """
-        f2 = 1 - f1
-        return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
-
     @abstractmethod
     def ri(self, f1: FloatOrArray) -> tuple[FloatOrArray, FloatOrArray]:
+        """Return the evaluated reactivity ratios at the given conditions."""
         pass
 
     @abstractmethod
@@ -139,12 +60,17 @@ class CopoModel(ABC):
             T: float,
             Tunit,
             ) -> tuple[FloatOrArray, FloatOrArray]:
+        """Return the evaluated homopropagation rate coefficients at the given
+        conditions."""
         pass
 
     def F1(self,
            f1: FloatOrArrayLike
            ) -> FloatOrArray:
         r"""Calculate the instantaneous copolymer composition, $F_1$.
+
+        The calculation is handled by
+        [`inst_copolymer_binary`](TerminalModel.md#polykin.copolymerization.models.inst_copolymer_binary).
 
         Parameters
         ----------
@@ -160,15 +86,21 @@ class CopoModel(ABC):
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0., 1., 'f1')
-        return self.equation_F1(f1, *self.ri(f1))
+        return inst_copolymer_binary(f1, *self.ri(f1))
 
     def kp(self,
            f1: FloatOrArrayLike,
            T: float,
            Tunit: Literal['C', 'K'] = 'K'
            ) -> FloatOrArray:
-        r"""Calculate the average propagation rate coefficient equation,
-        $\bar{k}_p$.
+        r"""Calculate the average propagation rate coefficient, $\bar{k}_p$.
+
+        The calculation is handled by
+        [`average_kp_binary`](TerminalModel.md#polykin.copolymerization.models.average_kp_binary).
+
+        !!! note
+
+            This feature requires the attributes `k11` and `k22` to be defined.
 
         Parameters
         ----------
@@ -188,7 +120,7 @@ class CopoModel(ABC):
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0., 1., 'f1')
-        return self.equation_kp(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
+        return average_kp_binary(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
     @property
     def azeo(self) -> Optional[float]:
@@ -208,7 +140,7 @@ class CopoModel(ABC):
             return None
 
         def fzero(f1):
-            return self.equation_F1(f1, *self.ri(f1)) - f1
+            return inst_copolymer_binary(f1, *self.ri(f1)) - f1
 
         try:
             solution = root_scalar(f=fzero,
@@ -258,10 +190,10 @@ class CopoModel(ABC):
             x = [x]
 
         def df1dx(x, f1):
-            return (f1 - self.equation_F1(f1, *self.ri(f1)))/(1 - x + eps)
+            return (f1-inst_copolymer_binary(f1, *self.ri(f1)))/(1. - x + eps)
 
         sol = solve_ivp(df1dx,
-                        (0, max(x)),
+                        (0., max(x)),
                         f10,
                         method='LSODA',
                         t_eval=x,
@@ -269,7 +201,7 @@ class CopoModel(ABC):
                         rtol=1e-4)
         if sol.success:
             result = sol.y
-            result = np.maximum(0, result)
+            result = np.maximum(0., result)
             if result.shape[0] == 1:
                 result = result[0]
         else:
@@ -280,7 +212,7 @@ class CopoModel(ABC):
         return result
 
     def plot(self,
-             kind: Literal['Mayo', 'kp', 'drift'] = 'Mayo',
+             kind: Literal['Mayo', 'kp', 'drift'],
              M: Literal[1, 2] = 1,
              f0: Optional[FloatOrVectorLike] = None,
              T: Optional[float] = None,
@@ -328,7 +260,7 @@ class CopoModel(ABC):
         if axes is None:
             fig, ax = plt.subplots()
             if title is None:
-                titles = {'Mayo': "Mayo-Lewis plot",
+                titles = {'Mayo': "Mayo-Lewis diagram",
                           'drift': "Monomer composition drift",
                           'kp': "Average propagation coefficient"}
                 title = titles[kind] + f" {self.M1}(1)-{self.M2}(2)"
@@ -344,15 +276,15 @@ class CopoModel(ABC):
 
             ax.set_xlabel(fr"$f_{M}$")
             ax.set_ylabel(fr"$F_{M}$")
-            ax.set_ylim(0, 1)
+            ax.set_ylim(0., 1.)
 
             ax.plot((0., 1.), (0., 1.), color='black', linewidth=0.5)
 
-            x = np.linspace(0, 1, 1000)
+            x = np.linspace(0., 1., 1000)
             y = self.F1(x)
             if M == 2:
-                x[:] = 1 - x
-                y[:] = 1 - y  # type: ignore
+                x[:] = 1. - x
+                y[:] = 1. - y  # type: ignore
             ax.plot(x, y, label=label)
 
         elif kind == 'drift':
@@ -369,12 +301,12 @@ class CopoModel(ABC):
             ax.set_ylabel(fr"$f_{M}$")
             ax.set_ylim(0, 1)
 
-            x = np.linspace(0, 1, 1000)
+            x = np.linspace(0., 1., 1000)
             if M == 2:
-                f0[:] = 1 - f0
+                f0[:] = 1. - f0
             y = self.drift(f0, x)
             if M == 2:
-                y[:] = 1 - y
+                y[:] = 1. - y
             if y.ndim == 1:
                 y = y[np.newaxis, :]
             for i in range(len(f0)):
@@ -388,17 +320,17 @@ class CopoModel(ABC):
             ax.set_xlabel(fr"$f_{M}$")
             ax.set_ylabel(r"$\bar{k}_p$")
 
-            x = np.linspace(0, 1, 1000)
+            x = np.linspace(0., 1., 1000)
             y = self.kp(x, T, Tunit)
             if M == 2:
-                y[:] = 1 - y  # type: ignore
+                y[:] = 1. - y  # type: ignore
             ax.plot(x, y, label=label)
 
-        ax.set_xlim(0, 1)
+        ax.set_xlim(0., 1.)
         ax.grid(True)
 
         if axes is not None:
-            ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
+            ax.legend(bbox_to_anchor=(1.05, 1.), loc="upper left")
 
         if return_objects:
             return (fig, ax)
@@ -413,18 +345,17 @@ class TerminalModel(CopoModel):
     uniquely on the nature of the _terminal_ repeating unit. A binary system
     is, thus, described by four propagation reactions:
 
-    $$
     \begin{matrix}
     P^{\bullet}_1 + M_1 \overset{k_{11}}{\rightarrow} P^{\bullet}_1 \\
     P^{\bullet}_1 + M_2 \overset{k_{12}}{\rightarrow} P^{\bullet}_2 \\
     P^{\bullet}_2 + M_1 \overset{k_{21}}{\rightarrow} P^{\bullet}_1 \\
     P^{\bullet}_2 + M_2 \overset{k_{22}}{\rightarrow} P^{\bullet}_2
     \end{matrix}
-    $$
 
-    where $k_{ii}$ are the homo-propagation rate coefficients and $k_{ij}$ are
-    the cross-propagation coefficients. The two reactivity ratios are
-    defined as $r_1=k_{11}/k_{12}$ and $r_2=k_{22}/k_{21}$.
+    where $k_{ii}$ are the homopropagation rate coefficients and $k_{ij}$ are
+    the cross-propagation coefficients. The two cross-propagation coefficients
+    are specified via an equal number of reactivity ratios, defined as
+    $r_1=k_{11}/k_{12}$ and $r_2=k_{22}/k_{21}$.
 
     Parameters
     ----------
@@ -516,6 +447,82 @@ class TerminalModel(CopoModel):
                 "To use this feature, `k11` and `k22` cannot be `None`.")
         return (self.k11(T, Tunit), self.k22(T, Tunit))
 
+    def sld(self,
+            k: IntOrArrayLike,
+            f1: FloatOrArrayLike,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
+        r"""Calculate the instantaneous sequence length probability.
+
+        The probability of finding $k$ consecutive units of monomer $i$ in a
+        chain is:
+
+        \begin{gather*}
+            S_{i,k} = (1 - P_{ii})P_{ii}^{k-1} \\
+        \end{gather*}
+
+        where $P_{ii}(f_i)$ is the transition probability and $f_i$ is the
+        molar fraction.
+
+        Parameters
+        ----------
+        k : int
+            Sequence length, i.e., number of consecutive units in a chain.
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, FloatOrArray]
+            Tuple of sequence probabilities, $(S_{1,k}, S_{2,k})$.
+        """
+
+        if isinstance(k, (list, tuple)):
+            k = np.array(k, dtype=np.int32)
+
+        P11, _, _, P22 = self.transitions(f1)
+        result = tuple([(1. - P)*P**(k - 1) for P in [P11, P22]])
+
+        return result  # type: ignore
+
+    def transitions(self,
+                    f1: FloatOrArrayLike
+                    ) -> tuple[FloatOrArray, ...]:
+        r"""Calculate the instantaneous transition probabilities.
+
+        For a binary system, the transition probabilities are given by:
+
+        \begin{aligned}
+            P_{ii} &= \frac{r_i f_i}{r_i f_i + (1 - f_i)} \\
+            P_{ij} &= 1 - P_{ii}
+        \end{aligned}
+
+        where $i,j=1,2, i \neq j$.
+
+        Parameters
+        ----------
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, ...]
+            Tuple of transition probabilities,
+            $(P_{11}, P_{12}, P_{21}, P_{22})$.
+        """
+
+        if isinstance(f1, (list, tuple)):
+            f1 = np.array(f1, dtype=np.float64)
+        check_bounds(f1, 0., 1., 'f')
+
+        f2 = 1. - f1
+        r1 = self.r1
+        r2 = self.r2
+        P11 = r1*f1/(r1*f1 + f2)
+        P22 = r2*f2/(r2*f2 + f1)
+        P12 = 1. - P11
+        P21 = 1. - P22
+        return (P11, P12, P21, P22)
+
 # %% Penultimate model
 
 
@@ -523,10 +530,9 @@ class PenultimateModel(CopoModel):
     r"""Penultimate binary copolymerization model.
 
     According to this model, the reactivity of a macroradical depends on the
-    nature of _penultimate_ and _terminal_ repeating units. A binary system
+    nature of the _penultimate_ and _terminal_ repeating units. A binary system
     is, thus, described by eight propagation reactions:
 
-    $$
     \begin{matrix}
     P^{\bullet}_{11} + M_1 \overset{k_{111}}{\rightarrow} P^{\bullet}_{11} \\
     P^{\bullet}_{11} + M_2 \overset{k_{112}}{\rightarrow} P^{\bullet}_{12} \\
@@ -537,14 +543,16 @@ class PenultimateModel(CopoModel):
     P^{\bullet}_{22} + M_1 \overset{k_{221}}{\rightarrow} P^{\bullet}_{21} \\
     P^{\bullet}_{22} + M_2 \overset{k_{222}}{\rightarrow} P^{\bullet}_{22} \\
     \end{matrix}
-    $$
 
     where $k_{iii}$ are the homo-propagation rate coefficients and $k_{ijk}$
-    are the cross-propagation coefficients. The four monomer reactivity ratios
-    are defined as $r_{11}=k_{111}/k_{112}$, $r_{12}=k_{122}/k_{121}$,
-    $r_{21}=k_{211}/k_{212}$ and $r_{22}=k_{222}/k_{221}$. The two radical
-    reactivity ratios are defined as $s_1=k_{211}/k_{111}$ and
-    $s_2=k_{122}/k_{222}$.
+    are the cross-propagation coefficients. The six cross-propagation
+    coefficients are specified via an equal number of reactivity ratios, which
+    are divided in two categories. There are four monomer reactivity ratios,
+    defined as $r_{11}=k_{111}/k_{112}$, $r_{12}=k_{122}/k_{121}$,
+    $r_{21}=k_{211}/k_{212}$ and $r_{22}=k_{222}/k_{221}$. Additionally, there
+    are two radical reactivity ratios defined as $s_1=k_{211}/k_{111}$ and
+    $s_2=k_{122}/k_{222}$. The latter influence the average propagation rate
+    coefficient, but have no effect on the copolymer composition.
 
     Parameters
     ----------
@@ -622,10 +630,10 @@ class PenultimateModel(CopoModel):
         In the penultimate model, the pseudo-reactivity ratios depend on the
         instantaneous comonomer composition according to:
 
-        $$ \begin{aligned}
+        \begin{aligned}
            \bar{r}_1 &= r_{21}\frac{f_1 r_{11} + f_2}{f_1 r_{21} + f_2} \\
            \bar{r}_2 &= r_{12}\frac{f_2 r_{22} + f_1}{f_2 r_{12} + f_1}
-        \end{aligned} $$
+        \end{aligned}
 
         where $r_{ij}$ are the monomer reactivity ratios.
 
@@ -656,12 +664,12 @@ class PenultimateModel(CopoModel):
         r"""Pseudo-homopropagation rate coefficients.
 
         In the penultimate model, the pseudo-homopropagation rate coefficients
-        on the instantaneous comonomer composition according to:
+        depend on the instantaneous comonomer composition according to:
 
-        $$ \begin{aligned}
-        \bar{k}_{11} = k_{111} \frac{f_1 r_{11} + f_2}{f_1 r_{11} + f_2/s_1} \\
-        \bar{k}_{22} = k_{222} \frac{f_2 r_{22} + f_1}{f_2 r_{22} + f_1/s_2}
-        \end{aligned} $$
+        \begin{aligned}
+        \bar{k}_{11} &= k_{111}\frac{f_1 r_{11} + f_2}{f_1 r_{11} + f_2/s_1} \\
+        \bar{k}_{22} &= k_{222}\frac{f_2 r_{22} + f_1}{f_2 r_{22} + f_1/s_2}
+        \end{aligned}
 
         where $r_{ij}$ are the monomer reactivity ratios, $s_i$ are the radical
         reactivity ratios, and $k_{iii}$ are the homopropagation rate
@@ -679,7 +687,7 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         tuple[FloatOrArray, FloatOrArray]
-            Tuple of average propagation rate coefficients,
+            Tuple of pseudo-homopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
         if self.k111 is None or self.k222 is None:
@@ -702,11 +710,12 @@ class PenultimateModel(CopoModel):
 class ImplicitPenultimateModel(TerminalModel):
     r"""Implicit penultimate binary copolymerization model.
 
-    According to this model, the reactivity of a macroradical depends on the
-    nature of _penultimate_ and _terminal_ repeating units. A binary system
-    is, thus, described by eight propagation reactions:
+    This model is a special case of the full (explicit) penultimate model, with
+    a smaller number of independent parameters. As in the explicit version, the
+    reactivity of a macroradical depends on the nature of the _penultimate_ and
+    _terminal_ repeating units. A binary system is, thus, described by eight
+    propagation reactions:
 
-    $$
     \begin{matrix}
     P^{\bullet}_{11} + M_1 \overset{k_{111}}{\rightarrow} P^{\bullet}_{11} \\
     P^{\bullet}_{11} + M_2 \overset{k_{112}}{\rightarrow} P^{\bullet}_{12} \\
@@ -717,21 +726,22 @@ class ImplicitPenultimateModel(TerminalModel):
     P^{\bullet}_{22} + M_1 \overset{k_{221}}{\rightarrow} P^{\bullet}_{21} \\
     P^{\bullet}_{22} + M_2 \overset{k_{222}}{\rightarrow} P^{\bullet}_{22} \\
     \end{matrix}
-    $$
 
     where $k_{iii}$ are the homo-propagation rate coefficients and $k_{ijk}$
-    are the cross-propagation coefficients. In contrast to the full (explicit)
-    penultimate model, the implicit version only has two monomer reactivity
+    are the cross-propagation coefficients. The six cross-propagation
+    coefficients are specified via just four reactivity ratios, which
+    are divided in two categories. There are two monomer reactivity
     ratios, which are defined as $r_1=k_{111}/k_{112}=k_{211}/k_{212}$ and
-    $r_2=k_{222}/k_{221}=k_{122}/k_{121}$. The two radical
-    reactivity ratios are defined as $s_1=k_{211}/k_{111}$ and
-    $s_2=k_{122}/k_{222}$.
+    $r_2=k_{222}/k_{221}=k_{122}/k_{121}$. Additionally, there
+    are two radical reactivity ratios defined as $s_1=k_{211}/k_{111}$ and
+    $s_2=k_{122}/k_{222}$. The latter influence the average propagation rate
+    coefficient, but have no effect on the copolymer composition.
 
     Parameters
     ----------
     r1 : float
         Monomer reactivity ratio, $r_1=k_{111}/k_{112}=k_{211}/k_{212}$.
-    r21 : float
+    r2 : float
         Monomer reactivity ratio, $r_2=k_{222}/k_{221}=k_{122}/k_{121}$.
     s1 : float
         Radical reactivity ratio, $s_1=k_{211}/k_{111}$.
@@ -798,12 +808,13 @@ class ImplicitPenultimateModel(TerminalModel):
         r"""Pseudo-homopropagation rate coefficients.
 
         In the implicit penultimate model, the pseudo-homopropagation rate
-        coefficients on the instantaneous comonomer composition according to:
+        coefficients depend on the instantaneous comonomer composition
+        according to:
 
-        $$ \begin{aligned}
-        \bar{k}_{11} = k_{111} \frac{f_1 r_1 + f_2}{f_1 r_1 + f_2/s_1} \\
-        \bar{k}_{22} = k_{222} \frac{f_2 r_2 + f_1}{f_2 r_2 + f_1/s_2}
-        \end{aligned} $$
+        \begin{aligned}
+        \bar{k}_{11} &= k_{111} \frac{f_1 r_1 + f_2}{f_1 r_1 + f_2/s_1} \\
+        \bar{k}_{22} &= k_{222} \frac{f_2 r_2 + f_1}{f_2 r_2 + f_1/s_2}
+        \end{aligned}
 
         where $r_i$ are the monomer reactivity ratios, $s_i$ are the radical
         reactivity ratios, and $k_{iii}$ are the homopropagation rate
@@ -821,7 +832,7 @@ class ImplicitPenultimateModel(TerminalModel):
         Returns
         -------
         tuple[FloatOrArray, FloatOrArray]
-            Tuple of average propagation rate coefficients,
+            Tuple of pseudo-homopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
         if self.k111 is None or self.k222 is None:
@@ -837,3 +848,85 @@ class ImplicitPenultimateModel(TerminalModel):
         k11 = k111*(f1*r1 + f2)/(f1*r1 + f2/s1)
         k22 = k222*(f2*r2 + f1)/(f2*r2 + f1/s2)
         return (k11, k22)
+
+# %% Auxiliary functions
+
+
+def inst_copolymer_binary(f1: FloatOrArray,
+                          r1: FloatOrArray,
+                          r2: FloatOrArray
+                          ) -> FloatOrArray:
+    r"""Instantaneous copolymer composition equation (aka Mayo-Lewis equation).
+
+    For a binary system, the instantaneous copolymer composition is related
+    to the comonomer composition by:
+
+    $$ F_1=\frac{r_1 f_1^2 + f_1 f_2}{r_1 f_1^2 + 2 f_1 f_2 + r_2 f_2^2} $$
+
+    where $F_i$ and $f_i$ are, respectively, the instantaneous copolymer
+    and comonomer composition of monomer $i$, and $r_i$ are the
+    reactivity ratios. Although the equation is written using terminal
+    model notation, it is equally applicable in the frame of the
+    penultimate model if $r_i \rightarrow \bar{r}_i$.
+
+    Parameters
+    ----------
+    f1 : FloatOrArray
+        Molar fraction of M1.
+    r1 : FloatOrArray
+        Reactivity ratio of M1, $r_1$ or $\bar{r}_1$.
+    r2 : FloatOrArray
+        Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
+
+    Returns
+    -------
+    FloatOrArray
+        Instantaneous copolymer composition, $F_1$.
+    """
+    f2 = 1 - f1
+    return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
+
+
+def average_kp_binary(f1: FloatOrArray,
+                      r1: FloatOrArray,
+                      r2: FloatOrArray,
+                      k11: FloatOrArray,
+                      k22: FloatOrArray
+                      ) -> FloatOrArray:
+    r"""Average propagation rate coefficient equation.
+
+    For a binary system, the instantaneous average propagation rate
+    coefficient is related to the instantaneous comonomer composition by:
+
+    $$ \bar{k}_p = \frac{r_1 f_1^2 + r_2 f_2^2 + 2f_1 f_2}
+        {(r_1 f_1/k_{11}) + (r_2 f_2/k_{22})} $$
+
+    where $f_i$ is the instantaneous comonomer composition of monomer $i$,
+    $r_i$ are the reactivity ratios, and $k_{ii}$ are the homo-propagation
+    rate coefficients. Although the equation is written using terminal
+    model notation, it is equally applicable in the frame of the
+    penultimate model if $r_i \rightarrow \bar{r}_i$ and
+    $k_{ii} \rightarrow \bar{k}_{ii}$.
+
+    Parameters
+    ----------
+    f1 : FloatOrArray
+        Molar fraction of M1.
+    r1 : float
+        Reactivity ratio of M1, $r_1$ or $\bar{r}_1$.
+    r2 : float
+        Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
+    k11 : float
+        Propagation rate coefficient of M1, $k_{11}$ or $\bar{k}_{11}$.
+        Unit = L/(mol·s)
+    k22 : float
+        Propagation rate coefficient of M2, $k_{22}$ or $\bar{k}_{22}$.
+        Unit = L/(mol·s)
+
+    Returns
+    -------
+    FloatOrArray
+        Average propagation rate coefficient. Unit = L/(mol·s)
+    """
+    f2 = 1 - f1
+    return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
