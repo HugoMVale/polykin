@@ -13,8 +13,8 @@ from matplotlib.figure import Figure
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
-from polykin.types import FloatSquareMatrix, FloatVector, FloatVectorLike
-from polykin.utils import eps
+from polykin.types import FloatOrVectorLike, FloatSquareMatrix, FloatVector
+from polykin.utils import convert_to_vector, eps
 
 from ..mixing_rules import geometric_interaction_mixing
 from .base import GasAndLiquidEoS
@@ -29,6 +29,7 @@ class Cubic(GasAndLiquidEoS):
 
     Tc: FloatVector
     Pc: FloatVector
+    w: Optional[FloatVector]
     k: Optional[FloatSquareMatrix]
     _u: float
     _w: float
@@ -36,19 +37,21 @@ class Cubic(GasAndLiquidEoS):
     _Ωb: float
 
     def __init__(self,
-                 Tc: FloatVectorLike,
-                 Pc: FloatVectorLike,
+                 Tc: FloatOrVectorLike,
+                 Pc: FloatOrVectorLike,
+                 w: Optional[FloatOrVectorLike] = None,
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `Cubic` with the given parameters."""
 
-        if isinstance(Tc, (list, tuple)):
-            Tc = np.array(Tc, dtype=np.float64)
-        if isinstance(Pc, (list, tuple)):
-            Pc = np.array(Pc, dtype=np.float64)
+        if w is not None:
+            Tc, Pc, w = convert_to_vector([Tc, Pc, w])
+        else:
+            Tc, Pc = convert_to_vector([Tc, Pc])
 
         self.Tc = Tc
         self.Pc = Pc
+        self.w = w
         self.k = k
 
     @functools.cache
@@ -330,20 +333,19 @@ class RedlichKwong(Cubic):
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
     """
-
     _u = 1.
     _w = 0.
     _Ωa = 0.42748
     _Ωb = 0.08664
 
     def __init__(self,
-                 Tc: FloatVectorLike,
-                 Pc: FloatVectorLike,
+                 Tc: FloatOrVectorLike,
+                 Pc: FloatOrVectorLike,
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `RedlichKwong` with the given parameters."""
 
-        super().__init__(Tc, Pc, k)
+        super().__init__(Tc, Pc, None, k)
 
     def _alpha(self, T: float) -> FloatVector:
         return sqrt(self.Tc/T)
@@ -388,25 +390,20 @@ class Soave(Cubic):
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
     """
-    w: FloatVector
     _u = 1.
     _w = 0.
     _Ωa = 0.42748
     _Ωb = 0.08664
 
     def __init__(self,
-                 Tc: FloatVectorLike,
-                 Pc: FloatVectorLike,
-                 w: FloatVectorLike,
+                 Tc: FloatOrVectorLike,
+                 Pc: FloatOrVectorLike,
+                 w: FloatOrVectorLike,
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `Soave` with the given parameters."""
 
-        if isinstance(w, (list, tuple)):
-            w = np.array(w, dtype=np.float64)
-
-        self.w = w
-        super().__init__(Tc, Pc, k)
+        super().__init__(Tc, Pc, w, k)
 
     def _alpha(self, T: float) -> FloatVector:
         w = self.w
@@ -454,25 +451,20 @@ class PengRobinson(Cubic):
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
     """
-    w: FloatVector
     _u = 2.
     _w = -1.
     _Ωa = 0.45724
     _Ωb = 0.07780
 
     def __init__(self,
-                 Tc: FloatVectorLike,
-                 Pc: FloatVectorLike,
-                 w: FloatVectorLike,
+                 Tc: FloatOrVectorLike,
+                 Pc: FloatOrVectorLike,
+                 w: FloatOrVectorLike,
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `PengRobinson` with the given parameters."""
 
-        if isinstance(w, (list, tuple)):
-            w = np.array(w, dtype=np.float64)
-
-        self.w = w
-        super().__init__(Tc, Pc, k)
+        super().__init__(Tc, Pc, w, k)
 
     def _alpha(self, T: float) -> FloatVector:
         w = self.w
