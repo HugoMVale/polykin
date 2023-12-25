@@ -2,13 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.eos import IdealGas, Virial, \
-    RedlichKwong, Soave, PengRobinson
-
-import pytest
 import numpy as np
+import pytest
 from numpy import all, isclose
-from scipy.constants import R
+
+from polykin.properties.eos import (IdealGas, PengRobinson, RedlichKwong,
+                                    Soave, Virial)
+from polykin.utils import ShapeError
 
 
 @pytest.fixture
@@ -49,9 +49,14 @@ def test_air(air_parameters, ideal_gas):
             **state), state['y']), state['P'], rtol=1e-2)  # type: ignore
 
 
+def test_Virial_validation():
+    with pytest.raises(ShapeError):
+        _ = Virial(Tc=200., Pc=50e5, Zc=0.28, w=[0.2, 0.3])
+
+
 def test_Virial_Z():
     "Example 3-1, p. 35, Reid-Prausnitz-Poling."
-    eos = Virial(Tc=[385.0], Pc=[41.4e5], Zc=[0.28], w=[0.204])
+    eos = Virial(Tc=385.0, Pc=41.4e5, Zc=0.28, w=0.204)
     state = (366.5, 20.67e5, np.array([1.]))
     assert isclose(eos.Z(*state), 0.75, rtol=0.1)
     assert isclose(eos.v(*state), 1097e-6, rtol=0.1)
@@ -59,7 +64,7 @@ def test_Virial_Z():
 
 def test_Virial_B():
     "Example 3-2, p. 41, Reid-Prausnitz-Poling."
-    eos = Virial(Tc=[571.], Pc=[32.7e5], Zc=[0.28], w=[0.385])
+    eos = Virial(Tc=571., Pc=32.7e5, Zc=0.28, w=0.385)
     assert isclose(eos.Bm(273.15+120., np.array([1.])), -1580e-6, rtol=0.2)
 
 
@@ -78,8 +83,9 @@ def test_Virial_Bij():
 
 def test_Virial_phi():
     "Example 10.8, p. 347, Smith-Van Ness-Abbott."
-    eos = Virial(Tc=[535.5, 591.8], Pc=[41.5e5, 41.1e5], Zc=[0.249, 0.264],
-                 w=[0.323, 0.262])
+    # a mix of list, tuple and array is used on purpose
+    eos = Virial(Tc=[535.5, 591.8], Pc=(41.5e5, 41.1e5), Zc=[0.249, 0.264],
+                 w=np.array([0.323, 0.262]))
     y = np.array([0.5, 0.5])
     T = 273.15 + 50.
     P = 25e3
@@ -90,7 +96,7 @@ def test_Virial_phi():
 
 def test_Virial_isopropanol():
     "Example 3.6, p. 78, Smith-Van Ness-Abbott."
-    eos = Virial(Tc=[508.3], Pc=[47.6e5], Zc=[0.248], w=[0.665])
+    eos = Virial(Tc=508.3, Pc=47.6e5, Zc=0.248, w=0.665)
     T = 273.15 + 200.
     P = 10e5
     y = np.array([1.])
@@ -102,10 +108,7 @@ def test_Virial_isopropanol():
 def test_Virial_butene():
     """Example 6.6, p. 210, Smith-Van Ness-Abbott.
     Example 10.7, p. 343, Smith-Van Ness-Abbott."""
-    Tc = 420.0
-    Pc = 40.43e5
-    w = 0.191
-    eos = Virial(Tc=[Tc], Pc=[Pc], Zc=[0.28], w=[w])
+    eos = Virial(Tc=420.0, Pc=(40.43e5,), Zc=0.28, w=[0.191])
     y = np.array([1.])
     assert isclose(eos.Z(273.15 + 200., 70e5, y), 0.512, rtol=0.2)
     T = 273.15
