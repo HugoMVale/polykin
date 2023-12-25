@@ -24,8 +24,6 @@ class EoS(ABC):
 # %%
 class GasOrLiquidEoS(EoS):
 
-    P0 = 1e5  # Pa
-
     def v(self,
           T: float,
           P: float,
