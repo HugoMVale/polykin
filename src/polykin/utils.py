@@ -2,13 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
-from .types import FloatOrArrayLike, FloatOrArray
-from collections.abc import Iterable
 import functools
-import numpy as np
-from typing import Union, Any, Literal
 from numbers import Number
+from typing import Any, Iterable, Literal, Union
 
+import numpy as np
+
+from .types import FloatOrArray, FloatOrArrayLike, FloatVector
 
 # %% Maths
 
@@ -223,7 +223,7 @@ def check_in_set(var_value: Any,
 
 
 def check_shapes(a: list[Union[float, np.ndarray]],
-                 b: list[Union[float, np.ndarray]]
+                 b: list[Union[float, np.ndarray]] = []
                  ) -> Union[tuple[int, ...], None]:
     """Check shape homogeneity between objects in lists `a` and `b`.
 
@@ -326,6 +326,20 @@ def convert_list_to_array(a: list[Union[float, list, tuple, np.ndarray]]
             a[i] = np.array(a[i], dtype=np.float64)
     return a  # type: ignore
 
+
+def convert_to_vector(a: list[Union[float, list[float], tuple[float, ...], np.ndarray]]
+                      ) -> list[FloatVector]:
+    "Convert inputs to vectors of equal length."
+    result = []
+    for item in a:
+        if not isinstance(item, Iterable):
+            item = (item,)
+        if isinstance(item, (list, tuple)):
+            item = np.array(item, dtype=np.float64)
+        result.append(item)
+    check_shapes(result)
+    return result
+
 # %% Unit functions
 
 
@@ -420,7 +434,7 @@ def custom_repr(obj,
 
     Parameters
     ----------
-    obj : 
+    obj : Any
         Object.
     attr_names : list[str]
         Class atributes.
