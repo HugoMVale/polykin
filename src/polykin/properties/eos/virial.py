@@ -8,8 +8,9 @@ import numpy as np
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
-from polykin.types import (FloatOrArray, FloatSquareMatrix, FloatVector,
-                           FloatVectorLike)
+from polykin.types import (FloatOrArray, FloatOrVectorLike, FloatSquareMatrix,
+                           FloatVector)
+from polykin.utils import convert_to_vector
 
 from ..mixing_rules import quadratic_mixing
 from .base import GasEoS
@@ -61,21 +62,14 @@ class Virial(GasEoS):
     w: FloatVector
 
     def __init__(self,
-                 Tc: FloatVectorLike,
-                 Pc: FloatVectorLike,
-                 Zc: FloatVectorLike,
-                 w: FloatVectorLike
+                 Tc: FloatOrVectorLike,
+                 Pc: FloatOrVectorLike,
+                 Zc: FloatOrVectorLike,
+                 w: FloatOrVectorLike
                  ) -> None:
         """Construct `Virial` with the given parameters."""
 
-        if isinstance(Tc, (list, tuple)):
-            Tc = np.array(Tc, dtype=np.float64)
-        if isinstance(Pc, (list, tuple)):
-            Pc = np.array(Pc, dtype=np.float64)
-        if isinstance(Zc, (list, tuple)):
-            Zc = np.array(Zc, dtype=np.float64)
-        if isinstance(w, (list, tuple)):
-            w = np.array(w, dtype=np.float64)
+        Tc, Pc, Zc, w = convert_to_vector([Tc, Pc, Zc, w])
 
         self.Tc = Tc
         self.Pc = Pc
@@ -218,8 +212,8 @@ class Virial(GasEoS):
         FloatVector
             Fugacity coefficients of all components.
         """
-        Bm = self.Bm(T, y)
         B = self.Bij(T)
+        Bm = self.Bm(T, y)
         return exp((2*dot(B, y) - Bm)*P/(R*T))
 
     def DA(self, T, V, n, v0):
@@ -316,8 +310,8 @@ def B_mixture(T: float,
     FloatSquareMatrix
         Matrix of interaction virial coefficients $B_{ij}$. Unit = m³/mol.
     """
-    N = Tc.size
     vc = Zc*R*Tc/Pc
+    N = Tc.size
     B = np.empty((N, N), dtype=np.float64)
     for i in range(N):
         for j in range(i, N):
