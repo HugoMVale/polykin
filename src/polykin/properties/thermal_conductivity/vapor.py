@@ -179,5 +179,5 @@ def KVMX2_wassilijewa(y: FloatVector,
         Mixture thermal conductivity, $k_m$. Unit = [k].
     """
     a = y*sqrt(M)
-    a *= k/a.sum()
-    return np.sum(a, dtype=np.float64)
+    a /= a.sum()
+    return dot(a, k)
