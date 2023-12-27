@@ -76,7 +76,11 @@ class Virial(GasEoS):
         self.Zc = Zc
         self.w = w
 
-    def Z(self, T, P, y):
+    def Z(self,
+          T: float,
+          P: float,
+          y: FloatVector
+          ) -> float:
         r"""Calculate the compressibility factor of the fluid.
 
         $$ Z = 1 + \frac{B_m P}{R T} $$
@@ -101,13 +105,17 @@ class Virial(GasEoS):
 
         Returns
         -------
-        FloatVector
+        float
             Compressibility factor of the fluid.
         """
         Bm = self.Bm(T, y)
         return 1. + Bm*P/(R*T)
 
-    def P(self, T, v, y):
+    def P(self,
+          T: float,
+          v: float,
+          y: FloatVector
+          ) -> float:
         r"""Calculate the pressure of the fluid.
 
         Parameters
@@ -121,7 +129,7 @@ class Virial(GasEoS):
 
         Returns
         -------
-        FloatVector
+        float
              Pressure. Unit = Pa.
         """
         Bm = self.Bm(T, y)

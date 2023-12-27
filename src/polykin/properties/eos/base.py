@@ -229,7 +229,8 @@ class GasEoS(GasOrLiquidEoS):
     def v(self,
           T: float,
           P: float,
-          y: FloatVector) -> float:
+          y: FloatVector
+          ) -> float:
         r"""Calculate the molar volume the fluid.
 
         $$ v = \frac{Z R T}{P} $$

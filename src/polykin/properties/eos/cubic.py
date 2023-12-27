@@ -55,7 +55,9 @@ class Cubic(GasAndLiquidEoS):
         self.k = k
 
     @functools.cache
-    def a(self, T: float) -> FloatVector:
+    def a(self,
+          T: float
+          ) -> FloatVector:
         r"""Calculate the attractive parameters of the pure-components that
         make up the mixture.
 
@@ -85,7 +87,8 @@ class Cubic(GasAndLiquidEoS):
 
     def am(self,
            T: float,
-           y: FloatVector) -> float:
+           y: FloatVector
+           ) -> float:
         r"""Calculate the mixture attractive parameter from the corresponding
         pure-component parameters.
 
@@ -135,7 +138,11 @@ class Cubic(GasAndLiquidEoS):
         """
         return dot(y, self.b)
 
-    def P(self, T, v, y):
+    def P(self,
+          T: float,
+          v: float,
+          y: FloatVector
+          ) -> float:
         r"""Calculate the pressure of the fluid.
 
         Parameters
@@ -149,7 +156,7 @@ class Cubic(GasAndLiquidEoS):
 
         Returns
         -------
-        FloatVector
+        float
             Pressure. Unit = Pa.
         """
         am = self.am(T, y)
@@ -158,7 +165,11 @@ class Cubic(GasAndLiquidEoS):
         w = self._w
         return R*T/(v - bm) - am/(v**2 + u*v*bm + w*bm**2)
 
-    def Z(self, T, P, y):
+    def Z(self,
+          T: float,
+          P: float,
+          y: FloatVector
+          ) -> FloatVector:
         r"""Calculate the compressibility factors of the coexisting phases a
         fluid.
 
