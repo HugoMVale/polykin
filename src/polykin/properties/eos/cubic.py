@@ -474,17 +474,6 @@ class PengRobinson(Cubic):
 
 # %%
 
-    # Departures
-    # dadT = 1.  # todo
-    # P0 = 1  # fix!!!!
-    # d = sqrt(zu**2 - 4*zw)
-    # t1 = b_m*d
-    # t2 = log((2*Z + B*(zu - d))/(2*Z + B*(zu + d)))
-    # t3 = R*log((Z - B)*P0/P)
-    # DA = a_m/t1*t2 - T*t3
-    # DS = t3 - dadT/t1*t2
-    # (DU, DH, DG) = departures(T, DA, DS, Z)
-
 
 def Z_cubic_roots(u: float,
                   w: float,
