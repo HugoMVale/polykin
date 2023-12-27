@@ -524,12 +524,10 @@ def Z_cubic_roots(u: float,
     c1 = (A + w*B**2 - u*B - u*B**2)
     c0 = -(A*B + w*B**2 + w*B**3)
 
-    coeffs = (c3, c2, c1, c0)
-    roots = np.roots(coeffs)
+    roots = np.roots((c3, c2, c1, c0))
     roots = [x.real for x in roots if (abs(x.imag) < eps and x.real > B)]
 
-    Z = []
-    Z.append(min(roots))
+    Z = [min(roots)]
     if len(roots) > 1:
         Z.append(max(roots))
 
