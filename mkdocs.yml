@@ -85,6 +85,7 @@ plugins:
             show_root_toc_entry: false
             show_bases: false
             separate_signature: true
+            show_signature_annotations: true
             inherited_members: true
             merge_init_into_class: false
             show_symbol_type_toc: true
