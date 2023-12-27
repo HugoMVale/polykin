@@ -13,8 +13,9 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import root_scalar
 
 from polykin.kinetics import Arrhenius
-from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatOrVectorLike,
-                           FloatVector, IntOrArrayLike)
+from polykin.types import (FloatArray, FloatOrArray, FloatOrArrayLike,
+                           FloatOrVectorLike, FloatSquareMatrix, FloatVector,
+                           IntOrArrayLike)
 from polykin.utils import check_bounds, check_in_set, custom_repr, eps
 
 __all__ = ['TerminalModel',
@@ -429,7 +430,7 @@ class TerminalModel(CopoModel):
         r1 = self.r1
         r2 = self.r2
         if r1 < 1. and r2 < 1.:
-            result = (1 - r2)/(2 - r1 - r2)
+            result = (1. - r2)/(2. - r1 - r2)
         else:
             result = None
         return result
@@ -440,49 +441,12 @@ class TerminalModel(CopoModel):
     def kii(self,
             _,
             T: float,
-            Tunit,
+            Tunit: Literal['C', 'K'] = 'K'
             ) -> tuple[FloatOrArray, FloatOrArray]:
         if self.k11 is None or self.k22 is None:
             raise ValueError(
                 "To use this feature, `k11` and `k22` cannot be `None`.")
         return (self.k11(T, Tunit), self.k22(T, Tunit))
-
-    def sld(self,
-            k: IntOrArrayLike,
-            f1: FloatOrArrayLike,
-            ) -> tuple[FloatOrArray, FloatOrArray]:
-        r"""Calculate the instantaneous sequence length probability.
-
-        The probability of finding $k$ consecutive units of monomer $i$ in a
-        chain is:
-
-        \begin{gather*}
-            S_{i,k} = (1 - P_{ii})P_{ii}^{k-1} \\
-        \end{gather*}
-
-        where $P_{ii}(f_i)$ is the transition probability and $f_i$ is the
-        molar fraction.
-
-        Parameters
-        ----------
-        k : int
-            Sequence length, i.e., number of consecutive units in a chain.
-        f1 : FloatOrArrayLike
-            Molar fraction of M1.
-
-        Returns
-        -------
-        tuple[FloatOrArray, FloatOrArray]
-            Tuple of sequence probabilities, $(S_{1,k}, S_{2,k})$.
-        """
-
-        if isinstance(k, (list, tuple)):
-            k = np.array(k, dtype=np.int32)
-
-        P11, _, _, P22 = self.transitions(f1)
-        result = tuple([(1. - P)*P**(k - 1) for P in [P11, P22]])
-
-        return result  # type: ignore
 
     def transitions(self,
                     f1: FloatOrArrayLike
@@ -497,6 +461,11 @@ class TerminalModel(CopoModel):
         \end{aligned}
 
         where $i,j=1,2, i \neq j$.
+
+        Reference:
+
+        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 178.
 
         Parameters
         ----------
@@ -523,6 +492,101 @@ class TerminalModel(CopoModel):
         P21 = 1. - P22
         return (P11, P12, P21, P22)
 
+    def triads(self,
+               f1: FloatOrArrayLike
+               ) -> tuple[FloatOrArray, ...]:
+        r"""Calculate the instantaneous triad fractions.
+
+        For a binary system, the triad fractions are given by:
+
+        \begin{aligned}
+            F_{iii} &= P_{ii}^2 \\
+            F_{iij} &= 2 P_{ii} P_{ij} \\
+            F_{jij} &= P_{ij}^2
+        \end{aligned}
+
+        where $P_{ij}$ is the transition probability $i \rightarrow j$, which
+        is a function of the monomer composition and the reactivity ratios.
+
+        Reference:
+
+        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 179.
+
+        Parameters
+        ----------
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, ...]
+            Tuple of triad fractions,
+            $(F_{111}, F_{112}, F_{212}, F_{222}, F_{221}, F_{121})$.
+        """
+
+        P11, P12, P21, P22 = self.transitions(f1)
+
+        F111 = P11**2
+        F112 = 2*P11*P12
+        F212 = P12**2
+
+        F222 = P22**2
+        F221 = 2*P22*P21
+        F121 = P21**2
+
+        return (F111, F112, F212, F222, F221, F121)
+
+    def sld(self,
+            f1: FloatOrArrayLike,
+            k: Optional[IntOrArrayLike] = None,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
+        r"""Calculate the instantaneous sequence length probability or the
+        number-average sequence length.
+
+        For a binary system, the probability of finding $k$ consecutive units
+        of monomer $i$ in a chain is:
+
+        $$ S_{i,k} = (1 - P_{ii})P_{ii}^{k-1} $$
+
+        and the corresponding number-average sequence length is:
+
+        $$ \bar{S}_i = \sum_k k S_{i,k} = \frac{1}{1 - P_{ii}} $$
+
+        where $P_{ii}$ is the transition probability $i \rightarrow i$, which
+        is a function of the monomer composition and the reactivity ratios.
+
+        Reference:
+
+        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 177.
+
+        Parameters
+        ----------
+        k : int | None
+            Sequence length, i.e., number of consecutive units in a chain.
+            If `None`, the number-average sequence length will be computed.
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, FloatOrArray]
+            If `k is None`, a tuple of number-average sequence lengths,
+            $(\bar{S}_1, \bar{S}_2)$. Otherwise, a tuple of sequence
+            probabilities, $(S_{1,k}, S_{2,k})$.
+        """
+
+        P11, _, _, P22 = self.transitions(f1)
+
+        if k is None:
+            result = tuple([1/(1 - P + eps) for P in [P11, P22]])
+        else:
+            if isinstance(k, (list, tuple)):
+                k = np.array(k, dtype=np.int32)
+            result = tuple([(1. - P)*P**(k - 1) for P in [P11, P22]])
+
+        return result  # type: ignore
 # %% Penultimate model
 
 
@@ -645,7 +709,7 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         tuple[FloatOrArray, FloatOrArray]
-            Tuple of average reactivity ratios, ($\bar{r}_1$, $\bar{r}_2$).
+            Tuple of pseudo-reactivity ratios, ($\bar{r}_1$, $\bar{r}_2$).
         """
         f2 = 1. - f1
         r11 = self.r11
@@ -659,7 +723,7 @@ class PenultimateModel(CopoModel):
     def kii(self,
             f1: FloatOrArray,
             T: float,
-            Tunit,
+            Tunit: Literal['C', 'K'] = 'K',
             ) -> tuple[FloatOrArray, FloatOrArray]:
         r"""Pseudo-homopropagation rate coefficients.
 
@@ -704,6 +768,169 @@ class PenultimateModel(CopoModel):
         k22 = k222*(f2*r22 + f1)/(f2*r22 + f1/s2)
         return (k11, k22)
 
+    def transitions(self,
+                    f1: FloatOrArrayLike
+                    ) -> tuple[FloatOrArray, ...]:
+        r"""Calculate the instantaneous transition probabilities.
+
+        For a binary system, the transition probabilities are given by:
+
+        \begin{aligned}
+            P_{iii} &= \frac{r_{ii} f_i}{r_{ii} f_i + (1 - f_i)} \\
+            P_{jii} &= \frac{r_{ji} f_i}{r_{ji} f_i + (1 - f_i)} \\
+            P_{iij} &= 1 -  P_{iii} \\
+            P_{jij} &= 1 -  P_{jii}
+        \end{aligned}
+
+        where $i,j=1,2, i \neq j$.
+
+        Reference:
+
+        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 181.
+
+        Parameters
+        ----------
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, ...]
+            Tuple of transition probabilities,
+            $(P_{111}, P_{211}, P_{112}, P_{212}, P_{222}, P_{122}, P_{221},
+            P_{121})$.
+        """
+
+        if isinstance(f1, (list, tuple)):
+            f1 = np.array(f1, dtype=np.float64)
+        check_bounds(f1, 0., 1., 'f')
+
+        f2 = 1. - f1
+        r11 = self.r11
+        r12 = self.r12
+        r21 = self.r21
+        r22 = self.r22
+
+        P111 = r11*f1/(r11*f1 + f2)
+        P211 = r21*f1/(r21*f1 + f2)
+        P112 = 1. - P111
+        P212 = 1. - P211
+
+        P222 = r22*f2/(r22*f2 + f1)
+        P122 = r12*f2/(r12*f2 + f1)
+        P221 = 1. - P222
+        P121 = 1. - P122
+
+        return (P111, P211, P112, P212, P222, P122, P221, P121)
+
+    def triads(self,
+               f1: FloatOrArrayLike
+               ) -> tuple[FloatOrArray, ...]:
+        r"""Calculate the instantaneous triad fractions.
+
+        For a binary system, the triad fractions are given by:
+
+        \begin{aligned}
+            F_{iii} &\propto  P_{jii} \frac{P_{iii}}{1 - P_{iii}} \\
+            F_{iij} &\propto 2 P_{jii} \\
+            F_{jij} &\propto 1 - P_{jii}
+        \end{aligned}
+
+        where $P_{ijk}$ is the transition probability.
+
+        Reference:
+
+        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 181.
+
+        Parameters
+        ----------
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, ...]
+            Tuple of triad fractions,
+            $(F_{111}, F_{112}, F_{212}, F_{222}, F_{221}, F_{121})$.
+        """
+
+        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1)
+
+        F111 = P211*P111/(1. - P111 + eps)
+        F112 = 2*P211
+        F212 = 1. - P211
+        Fsum = F111 + F112 + F212
+        F111 /= Fsum
+        F112 /= Fsum
+        F212 /= Fsum
+
+        F222 = P122*P222/(1. - P222 + eps)
+        F221 = 2*P122
+        F121 = 1. - P122
+        Fsum = F222 + F221 + F121
+        F222 /= Fsum
+        F221 /= Fsum
+        F121 /= Fsum
+
+        return (F111, F112, F212, F222, F221, F121)
+
+    def sld(self,
+            f1: FloatOrArrayLike,
+            k: Optional[IntOrArrayLike] = None,
+            ) -> tuple[FloatOrArray, FloatOrArray]:
+        r"""Calculate the instantaneous sequence length probability or the
+        number-average sequence length.
+
+        For a binary system, the probability of finding $k$ consecutive units
+        of monomer $i$ in a chain is:
+
+        $$ S_{i,k} = \begin{cases}
+            1 - P_{jii} & \text{if } k = 1 \\
+            P_{jii}(1 - P_{iii})P_{iii}^{k-2}& \text{if } k \ge 2
+        \end{cases} $$
+
+        and the corresponding number-average sequence length is:
+
+        $$ \bar{S}_i = \sum_k k S_{i,k} = 1 + \frac{P_{jii}}{1 - P_{iii}} $$
+
+        where $P_{ijk}$ is the transition probability
+        $i \rightarrow j \rightarrow k$, which is a function of the monomer
+        composition and the reactivity ratios.
+
+        Reference:
+
+        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 180.
+
+        Parameters
+        ----------
+        k : int | None
+            Sequence length, i.e., number of consecutive units in a chain.
+            If `None`, the number-average sequence length will be computed.
+        f1 : FloatOrArrayLike
+            Molar fraction of M1.
+
+        Returns
+        -------
+        tuple[FloatOrArray, FloatOrArray]
+            If `k is None`, a tuple of number-average sequence lengths,
+            $(\bar{S}_1, \bar{S}_2)$. Otherwise, a tuple of sequence
+            probabilities, $(S_{1,k}, S_{2,k})$.
+        """
+
+        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1)
+
+        if k is None:
+            S1 = 1. + P211/(1. - P111 + eps)
+            S2 = 1. + P122/(1. - P222 + eps)
+        else:
+            if isinstance(k, (list, tuple)):
+                k = np.array(k, dtype=np.int32)
+            S1 = np.where(k == 1, 1. - P211, P211*(1. - P111)*P111**(k - 2))
+            S2 = np.where(k == 1, 1. - P122, P122*(1. - P222)*P222**(k - 2))
+        return (S1, S2)
 # %%
 
 
@@ -803,7 +1030,7 @@ class ImplicitPenultimateModel(TerminalModel):
     def kii(self,
             f1: FloatOrArray,
             T: float,
-            Tunit,
+            Tunit: Literal['C', 'K'] = 'K',
             ) -> tuple[FloatOrArray, FloatOrArray]:
         r"""Pseudo-homopropagation rate coefficients.
 
@@ -930,3 +1157,54 @@ def average_kp_binary(f1: FloatOrArray,
     """
     f2 = 1 - f1
     return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
+
+
+def transitions_multicomponent(f: FloatArray,
+                               r: FloatSquareMatrix
+                               ) -> FloatArray:
+    r"""Calculate the instantaneous transition probabilities.
+
+    For a multicomponent system, the self-transition probabilities are given
+    by:
+
+    $$ P_{ii} &= \frac{f_i}{\sum_j \frac{f_j}{r_{ij}}} $$
+
+    where $f_i$ is the molar fraction of monomer $i$ and $r_{ij}=k_{ii}/k_{ij}$
+    is the multicomponent reactivity ratio matrix. By definition, $r_{ii}=1$,
+    but the matrix is _not_ symmetrical. For the particular case of a binary
+    system, the matrix is given by:
+
+    $$ r = \begin{bmatrix}
+            1   & r1 \\
+            r_2 & 1
+           \end{bmatrix} $$
+
+    Reference:
+
+    * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+    process modeling, Wiley, 1996, p. 178.
+
+    Parameters
+    ----------
+    f : FloatArray
+        Array(..., N) of instantaneous monomer composition.
+    r : FloatSquareMatrix
+        Reactivity ratio matrix (NxN).
+
+    Returns
+    -------
+    FloatArray
+        Array of transition probabilities$.
+    """
+
+    # fN = 1. - np.sum(f, axis=-1)
+    # f = np.concatenate((f, fN))
+
+    # P = np.empty_like(f)
+    # for i in range(f.shape[-1]):
+    #     P[:, i] = f[:, i]/np.sum(f/r, axis=-1)
+
+    denominator = np.sum(f / r, axis=-1)
+    P = f / denominator[:, np.newaxis]
+
+    return P

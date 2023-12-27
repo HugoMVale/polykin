@@ -2,10 +2,11 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.copolymerization import TerminalModel, PenultimateModel
-from polykin.kinetics import Arrhenius
-
 import numpy as np
+from numpy import all, isclose
+
+from polykin.copolymerization import PenultimateModel, TerminalModel
+from polykin.kinetics import Arrhenius
 
 # %% Terminal
 
@@ -21,19 +22,19 @@ def test_TerminalModel_azeo():
     assert m.azeo is None
     m = TerminalModel(0.1, 0.1)
     assert m.azeo is not None
-    assert np.isclose(m.azeo, 0.5)
+    assert isclose(m.azeo, 0.5)
 
 
 def test_TerminalModel_F1():
     m = TerminalModel(0.1, 0.1)
     f1azeo = m.azeo
     assert f1azeo is not None
-    assert np.isclose(m.F1(f1azeo), f1azeo)
+    assert isclose(m.F1(f1azeo), f1azeo)
     m = TerminalModel(1., 1.)
-    assert np.all(np.isclose(m.F1([0.3, 0.7]), [0.3, 0.7]))
+    assert all(isclose(m.F1([0.3, 0.7]), [0.3, 0.7]))
     m = TerminalModel(2., 0.6)
     f1 = [0.3, 0.7]
-    assert np.all(m.F1(f1) > np.array(f1))
+    assert all(m.F1(f1) > np.array(f1))
 
 
 def test_TerminalModel_kp():
@@ -41,9 +42,34 @@ def test_TerminalModel_kp():
     k2 = Arrhenius(100, 0, 300, name='k2')
     m = TerminalModel(0.1, 0.1, k1, k2)
     T = 300.
-    assert np.isclose(m.kp(1., T), k1(T))
-    assert np.isclose(m.kp(0., T), k2(T))
-    assert np.isclose(m.kp(0.5, T), k2(T))
+    assert isclose(m.kp(1., T), k1(T))
+    assert isclose(m.kp(0., T), k2(T))
+    assert isclose(m.kp(0.5, T), k2(T))
+
+
+def test_TerminalModel_triads():
+    "Example 4.1, p. 179, Dotson-Galván-Laurence-Tirell"
+    m = TerminalModel(r1=0.48, r2=0.42, M1='ST', M2='MMA')
+    assert all(isclose(m.triads(f1=0.75),
+                       [0.348, 0.484, 0.168, 0.0151, 0.215, 0.769], rtol=1e-2))  # type: ignore
+
+
+def test_TerminalModel_sld():
+    "Figure 4.3, 4.4 p. 184, Dotson-Galván-Laurence-Tirell"
+    tm = TerminalModel(r1=0.331, r2=0.053, M1='ST', M2='ACN')
+    pm = PenultimateModel(r11=0.229, r12=0.091, r21=0.634, r22=0.039,
+                          s1=1, s2=1, M1='ST', M2='ACN')
+    f1 = 0.6
+    k = np.arange(1, 100)
+    for model in [tm, pm]:
+        F1 = model.F1(f1)
+        Sn = model.sld(f1, k=None)
+        assert isclose(F1/(1 - F1), Sn[0]/Sn[1])
+        Sk = model.sld(f1, k=k)
+        assert all(isclose(Sn, [np.dot(k, Sk[0]), np.dot(k, Sk[1])],
+                           rtol=1e-5))
+    Sk = tm.sld(f1, k=1)
+    assert all(isclose(Sk, (0.668, 0.966), rtol=1e-2))  # type: ignore
 
 
 def test_TerminalModel_drift():
@@ -52,15 +78,14 @@ def test_TerminalModel_drift():
     assert f1azeo is not None
     f10 = [0.1, f1azeo, 0.9]
     f1_x = m.drift(f10, x=0.999)
-    assert np.all(np.isclose(f1_x.flatten(), [0.0, f1azeo, 1]))
+    assert all(isclose(f1_x.flatten(), [0.0, f1azeo, 1]))
 
 
 def test_TerminalModel_plot():
-    model = TerminalModel(0.5, 0.5,
-                          M1="Monomer1", M2="Monomer2", name="MyModel")
-    result = model.plot('drift', M=1, f0=0.2, return_objects=True)
+    m = TerminalModel(0.5, 0.5, M1="Monomer1", M2="Monomer2", name="MyModel")
+    result = m.plot('drift', M=1, f0=0.2, return_objects=True)
     assert result is not None and len(result) == 2
-    result = model.plot('Mayo', M=1, return_objects=True)
+    result = m.plot('Mayo', M=1, return_objects=True)
     assert result is not None and len(result) == 2
 
 
@@ -71,21 +96,21 @@ def test_PenultimateModel_azeo():
     assert m.azeo is None
     m = PenultimateModel(0.8, 0.8, 0.8, 0.8, 1., 1.)
     assert m.azeo is not None
-    assert np.isclose(m.azeo, 0.5)
+    assert isclose(m.azeo, 0.5)
 
 
 def test_PenultimateModel_F1():
     m = PenultimateModel(0.4, 0.4, 0.8, 0.8, 1., 1.)
     f1azeo = m.azeo
     assert f1azeo is not None
-    assert np.isclose(m.F1(f1azeo), f1azeo)
+    assert isclose(m.F1(f1azeo), f1azeo)
     m = PenultimateModel(1, 1, 1, 1, 1, 1)
     f1 = [0.3, 0.7]
-    assert np.all(np.isclose(m.F1(f1), f1))
+    assert all(isclose(m.F1(f1), f1))
     m = PenultimateModel(2.3, 2.0, 0.5, 0.6, 1, 1)
-    assert np.all(m.F1(f1) > np.array(f1))
+    assert all(m.F1(f1) > np.array(f1))
     m = PenultimateModel(0.5, 0.6, 2.3, 2.0, 1, 1)
-    assert np.all(m.F1(f1) < np.array(f1))
+    assert all(m.F1(f1) < np.array(f1))
 
 
 def test_PenultimateModel_kp():
@@ -93,6 +118,6 @@ def test_PenultimateModel_kp():
     k2 = Arrhenius(100, 0, 300, name='k2')
     m = PenultimateModel(0.1, 0.1, 0.1, 0.1, 1., 1., k1, k2)
     T = 300.
-    assert np.isclose(m.kp(1., T), k1(T))
-    assert np.isclose(m.kp(0., T), k2(T))
-    assert np.isclose(m.kp(0.5, T), k2(T))
+    assert isclose(m.kp(1., T), k1(T))
+    assert isclose(m.kp(0., T), k2(T))
+    assert isclose(m.kp(0.5, T), k2(T))
