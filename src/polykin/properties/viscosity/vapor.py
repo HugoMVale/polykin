@@ -55,8 +55,8 @@ def MUVMX2_herning_zipperer(y: FloatVector,
         Mixture viscosity, $\mu_m$. Unit = [mu].
     """
     a = y*sqrt(M)
-    a *= mu/np.sum(a)
-    return np.sum(a, dtype=np.float64)
+    a /= a.sum()
+    return dot(a, mu)
 
 # %% Pressure correction
 
