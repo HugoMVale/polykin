@@ -19,15 +19,15 @@ def test_CopoModel_repr():
 
 def test_TerminalModel_azeo():
     m = TerminalModel(1.2, 0.3)
-    assert m.azeo is None
+    assert m.azeotrope is None
     m = TerminalModel(0.1, 0.1)
-    assert m.azeo is not None
-    assert isclose(m.azeo, 0.5)
+    assert m.azeotrope is not None
+    assert isclose(m.azeotrope, 0.5)
 
 
 def test_TerminalModel_F1():
     m = TerminalModel(0.1, 0.1)
-    f1azeo = m.azeo
+    f1azeo = m.azeotrope
     assert f1azeo is not None
     assert isclose(m.F1(f1azeo), f1azeo)
     m = TerminalModel(1., 1.)
@@ -50,7 +50,7 @@ def test_TerminalModel_kp():
 def test_TerminalModel_triads():
     "Example 4.1, p. 179, Dotson-Galván-Laurence-Tirell"
     m = TerminalModel(r1=0.48, r2=0.42, M1='ST', M2='MMA')
-    assert all(isclose(m.triads(f1=0.75),
+    assert all(isclose(list(m.triads(f1=0.75).values()),
                        [0.348, 0.484, 0.168, 0.0151, 0.215, 0.769], rtol=1e-2))  # type: ignore
 
 
@@ -63,18 +63,19 @@ def test_TerminalModel_sld():
     k = np.arange(1, 100)
     for model in [tm, pm]:
         F1 = model.F1(f1)
-        Sn = model.sld(f1, k=None)
-        assert isclose(F1/(1 - F1), Sn[0]/Sn[1])
-        Sk = model.sld(f1, k=k)
-        assert all(isclose(Sn, [np.dot(k, Sk[0]), np.dot(k, Sk[1])],
+        Sn = model.sequence(f1, k=None)
+        assert isclose(F1/(1 - F1), Sn['1']/Sn['2'])
+        Sk = model.sequence(f1, k=k)
+        assert all(isclose(list(Sn.values()),
+                           [np.dot(k, Sk['1']), np.dot(k, Sk['2'])],
                            rtol=1e-5))
-    Sk = tm.sld(f1, k=1)
-    assert all(isclose(Sk, (0.668, 0.966), rtol=1e-2))  # type: ignore
+    Sk = tm.sequence(f1, k=1)
+    assert all(isclose(list(Sk.values()), [0.668, 0.966], rtol=1e-2))
 
 
 def test_TerminalModel_drift():
     m = TerminalModel(0.1, 0.1)
-    f1azeo = m.azeo
+    f1azeo = m.azeotrope
     assert f1azeo is not None
     f10 = [0.1, f1azeo, 0.9]
     f1_x = m.drift(f10, x=0.999)
@@ -93,15 +94,15 @@ def test_TerminalModel_plot():
 
 def test_PenultimateModel_azeo():
     m = PenultimateModel(2., 3., 0.5, 0.6, 1., 1.)
-    assert m.azeo is None
+    assert m.azeotrope is None
     m = PenultimateModel(0.8, 0.8, 0.8, 0.8, 1., 1.)
-    assert m.azeo is not None
-    assert isclose(m.azeo, 0.5)
+    assert m.azeotrope is not None
+    assert isclose(m.azeotrope, 0.5)
 
 
 def test_PenultimateModel_F1():
     m = PenultimateModel(0.4, 0.4, 0.8, 0.8, 1., 1.)
-    f1azeo = m.azeo
+    f1azeo = m.azeotrope
     assert f1azeo is not None
     assert isclose(m.F1(f1azeo), f1azeo)
     m = PenultimateModel(1, 1, 1, 1, 1, 1)

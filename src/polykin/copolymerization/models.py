@@ -124,7 +124,7 @@ class CopoModel(ABC):
         return average_kp_binary(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
     @property
-    def azeo(self) -> Optional[float]:
+    def azeotrope(self) -> Optional[float]:
         r"""Calculate the azeotrope composition.
 
         Returns
@@ -410,7 +410,7 @@ class TerminalModel(CopoModel):
         super().__init__(M1, M2, name)
 
     @property
-    def azeo(self) -> Optional[float]:
+    def azeotrope(self) -> Optional[float]:
         r"""Calculate the azeotrope composition.
 
         An azeotrope (i.e., a point where $F_1=f_1$) only exists if both
@@ -450,7 +450,7 @@ class TerminalModel(CopoModel):
 
     def transitions(self,
                     f1: FloatOrArrayLike
-                    ) -> tuple[FloatOrArray, ...]:
+                    ) -> dict[str, FloatOrArray]:
         r"""Calculate the instantaneous transition probabilities.
 
         For a binary system, the transition probabilities are given by:
@@ -474,9 +474,9 @@ class TerminalModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, ...]
-            Tuple of transition probabilities,
-            $(P_{11}, P_{12}, P_{21}, P_{22})$.
+        dict[str, FloatOrArray]
+            Dictionary of transition probabilities,
+            {'11': $P_{11}$, '12': $P_{12}$, ... }.
         """
 
         if isinstance(f1, (list, tuple)):
@@ -490,11 +490,17 @@ class TerminalModel(CopoModel):
         P22 = r2*f2/(r2*f2 + f1)
         P12 = 1. - P11
         P21 = 1. - P22
-        return (P11, P12, P21, P22)
+
+        result = {'11': P11,
+                  '12': P12,
+                  '21': P21,
+                  '22': P22}
+
+        return result
 
     def triads(self,
                f1: FloatOrArrayLike
-               ) -> tuple[FloatOrArray, ...]:
+               ) -> dict[str, FloatOrArray]:
         r"""Calculate the instantaneous triad fractions.
 
         For a binary system, the triad fractions are given by:
@@ -520,12 +526,12 @@ class TerminalModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, ...]
-            Tuple of triad fractions,
-            $(F_{111}, F_{112}, F_{212}, F_{222}, F_{221}, F_{121})$.
+        dict[str, FloatOrArray]
+            Dictionary of triad fractions,
+            {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
 
-        P11, P12, P21, P22 = self.transitions(f1)
+        P11, P12, P21, P22 = self.transitions(f1).values()
 
         F111 = P11**2
         F112 = 2*P11*P12
@@ -535,12 +541,19 @@ class TerminalModel(CopoModel):
         F221 = 2*P22*P21
         F121 = P21**2
 
-        return (F111, F112, F212, F222, F221, F121)
+        result = {'111': F111,
+                  '112': F112,
+                  '212': F212,
+                  '222': F222,
+                  '221': F221,
+                  '121': F121}
 
-    def sld(self,
-            f1: FloatOrArrayLike,
-            k: Optional[IntOrArrayLike] = None,
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+        return result
+
+    def sequence(self,
+                 f1: FloatOrArrayLike,
+                 k: Optional[IntOrArrayLike] = None,
+                 ) -> dict[str, FloatOrArray]:
         r"""Calculate the instantaneous sequence length probability or the
         number-average sequence length.
 
@@ -571,22 +584,24 @@ class TerminalModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, FloatOrArray]
-            If `k is None`, a tuple of number-average sequence lengths,
-            $(\bar{S}_1, \bar{S}_2)$. Otherwise, a tuple of sequence
-            probabilities, $(S_{1,k}, S_{2,k})$.
+        dict[str, FloatOrArray]
+            If `k is None`, a dictionary of number-average sequence lengths,
+            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, a dictionary of
+            sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
         """
 
-        P11, _, _, P22 = self.transitions(f1)
+        P11, _, _, P22 = self.transitions(f1).values()
 
         if k is None:
-            result = tuple([1/(1 - P + eps) for P in [P11, P22]])
+            result = {str(i + 1): 1/(1 - P + eps)
+                      for i, P in enumerate([P11, P22])}
         else:
             if isinstance(k, (list, tuple)):
                 k = np.array(k, dtype=np.int32)
-            result = tuple([(1. - P)*P**(k - 1) for P in [P11, P22]])
+            result = {str(i + 1): (1. - P)*P**(k - 1)
+                      for i, P in enumerate([P11, P22])}
 
-        return result  # type: ignore
+        return result
 # %% Penultimate model
 
 
@@ -770,7 +785,7 @@ class PenultimateModel(CopoModel):
 
     def transitions(self,
                     f1: FloatOrArrayLike
-                    ) -> tuple[FloatOrArray, ...]:
+                    ) -> dict[str, FloatOrArray]:
         r"""Calculate the instantaneous transition probabilities.
 
         For a binary system, the transition probabilities are given by:
@@ -796,10 +811,9 @@ class PenultimateModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, ...]
-            Tuple of transition probabilities,
-            $(P_{111}, P_{211}, P_{112}, P_{212}, P_{222}, P_{122}, P_{221},
-            P_{121})$.
+        dict[str, FloatOrArray]
+            Dictionary of transition probabilities,
+            {'111': $P_{111}$, '211': $P_{211}$, '121': $P_{121}$, ... }.
         """
 
         if isinstance(f1, (list, tuple)):
@@ -822,11 +836,20 @@ class PenultimateModel(CopoModel):
         P221 = 1. - P222
         P121 = 1. - P122
 
-        return (P111, P211, P112, P212, P222, P122, P221, P121)
+        result = {'111': P111,
+                  '211': P211,
+                  '112': P112,
+                  '212': P212,
+                  '222': P222,
+                  '122': P122,
+                  '221': P221,
+                  '121': P121}
+
+        return result
 
     def triads(self,
                f1: FloatOrArrayLike
-               ) -> tuple[FloatOrArray, ...]:
+               ) -> dict[str, FloatOrArray]:
         r"""Calculate the instantaneous triad fractions.
 
         For a binary system, the triad fractions are given by:
@@ -837,7 +860,9 @@ class PenultimateModel(CopoModel):
             F_{jij} &\propto 1 - P_{jii}
         \end{aligned}
 
-        where $P_{ijk}$ is the transition probability.
+        where $P_{ijk}$ is the transition probability
+        $i \rightarrow j \rightarrow k$, which is a function of the monomer
+        composition and the reactivity ratios.
 
         Reference:
 
@@ -851,12 +876,12 @@ class PenultimateModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, ...]
-            Tuple of triad fractions,
-            $(F_{111}, F_{112}, F_{212}, F_{222}, F_{221}, F_{121})$.
+        dict[str, FloatOrArray]
+            Dictionary of triad fractions,
+            {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
 
-        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1)
+        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1).values()
 
         F111 = P211*P111/(1. - P111 + eps)
         F112 = 2*P211
@@ -874,12 +899,19 @@ class PenultimateModel(CopoModel):
         F221 /= Fsum
         F121 /= Fsum
 
-        return (F111, F112, F212, F222, F221, F121)
+        result = {'111': F111,
+                  '112': F112,
+                  '212': F212,
+                  '222': F222,
+                  '221': F221,
+                  '121': F121}
 
-    def sld(self,
-            f1: FloatOrArrayLike,
-            k: Optional[IntOrArrayLike] = None,
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+        return result
+
+    def sequence(self,
+                 f1: FloatOrArrayLike,
+                 k: Optional[IntOrArrayLike] = None,
+                 ) -> dict[str, FloatOrArray]:
         r"""Calculate the instantaneous sequence length probability or the
         number-average sequence length.
 
@@ -914,13 +946,13 @@ class PenultimateModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, FloatOrArray]
-            If `k is None`, a tuple of number-average sequence lengths,
-            $(\bar{S}_1, \bar{S}_2)$. Otherwise, a tuple of sequence
-            probabilities, $(S_{1,k}, S_{2,k})$.
+        dict[str, FloatOrArray]
+            If `k is None`, a dictionary of number-average sequence lengths,
+            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, a dictionary of
+            sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
         """
 
-        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1)
+        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1).values()
 
         if k is None:
             S1 = 1. + P211/(1. - P111 + eps)
@@ -930,8 +962,9 @@ class PenultimateModel(CopoModel):
                 k = np.array(k, dtype=np.int32)
             S1 = np.where(k == 1, 1. - P211, P211*(1. - P111)*P111**(k - 2))
             S2 = np.where(k == 1, 1. - P122, P122*(1. - P222)*P222**(k - 2))
-        return (S1, S2)
-# %%
+
+        return {'1': S1, '2': S2}
+# %% Implicit penultimate model
 
 
 class ImplicitPenultimateModel(TerminalModel):
