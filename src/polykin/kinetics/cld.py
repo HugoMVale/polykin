@@ -96,7 +96,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         self.name = name
 
     def __repr__(self) -> str:
-        return custom_repr(self, ('name', 'icrit', 'aS', 'aL', 'kt11'), 8)
+        return custom_repr(self, ('name', 'icrit', 'aS', 'aL', 'kt11'))
 
     @staticmethod
     def equation(i: IntOrArray,
@@ -223,7 +223,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
         self.name = name
 
     def __repr__(self) -> str:
-        return custom_repr(self, ('name', 'C', 'ihalf', 'kp'), 8)
+        return custom_repr(self, ('name', 'C', 'ihalf', 'kp'))
 
     @staticmethod
     def equation(i: IntOrArray,

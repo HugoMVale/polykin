@@ -428,7 +428,7 @@ def convert_check_pressure(
 
 def custom_repr(obj,
                 attr_names: Union[list[str], tuple[str, ...]],
-                nspaces: int = 5
+                nspaces: int = 3
                 ) -> str:
     """Generate custom repr string.
 
@@ -439,7 +439,7 @@ def custom_repr(obj,
     attr_names : list[str]
         Class atributes.
     nspaces : int
-        Number of white spaces.
+        Number of white spaces after longest attribute name.
 
     Returns
     -------
@@ -447,12 +447,13 @@ def custom_repr(obj,
         Formated repr string.
     """
     items = []
-    for pname in attr_names:
-        pstr = str(getattr(obj, pname))
-        rows = pstr.split("\n")
+    nspaces += max([len(attr) for attr in attr_names])
+    for attr_name in attr_names:
+        attr_str = str(getattr(obj, attr_name))
+        rows = attr_str.split("\n")
         if len(rows) == 1:
-            item = f"{pname}:" + " "*(nspaces - len(pname)) + pstr
+            item = f"{attr_name}:" + " "*(nspaces - len(attr_name)) + attr_str
         else:
-            item = "\n  ".join([pname + ":"] + rows)
+            item = "\n  ".join([attr_name + ":"] + rows)
         items.append(item)
     return "\n".join(items)
