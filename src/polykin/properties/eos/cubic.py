@@ -6,10 +6,10 @@ import functools
 from abc import abstractmethod
 from typing import Optional
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.axes._axes import Axes
-from matplotlib.figure import Figure
+# from matplotlib.axes._axes import Axes
+# from matplotlib.figure import Figure
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
@@ -29,7 +29,7 @@ class Cubic(GasAndLiquidEoS):
 
     Tc: FloatVector
     Pc: FloatVector
-    w: Optional[FloatVector]
+    w: FloatVector
     k: Optional[FloatSquareMatrix]
     _u: float
     _w: float
@@ -39,15 +39,12 @@ class Cubic(GasAndLiquidEoS):
     def __init__(self,
                  Tc: FloatOrVectorLike,
                  Pc: FloatOrVectorLike,
-                 w: Optional[FloatOrVectorLike] = None,
-                 k: Optional[FloatSquareMatrix] = None
+                 w: FloatOrVectorLike,
+                 k: Optional[FloatSquareMatrix]
                  ) -> None:
         """Construct `Cubic` with the given parameters."""
 
-        if w is not None:
-            Tc, Pc, w = convert_to_vector([Tc, Pc, w])
-        else:
-            Tc, Pc = convert_to_vector([Tc, Pc])
+        Tc, Pc, w = convert_to_vector([Tc, Pc, w])
 
         self.Tc = Tc
         self.Pc = Pc
@@ -295,17 +292,17 @@ class Cubic(GasAndLiquidEoS):
 
         return exp(lnphi)
 
-    def plot(self, T, y, Prange: tuple):
-        fig, ax = plt.subplots()
-        V = []
-        P = []
-        for p in np.linspace(*Prange, 100):
-            v = self.v(T, p, y)
-            V += v.tolist()
-            P += [p]*len(v)
-        X = np.concatenate(([V], [P])).T
-        X = X[X[:, 0].argsort()]
-        ax.semilogx(X[:, 0], X[:, 1])
+    # def plot(self, T, y, Prange: tuple):
+    #     fig, ax = plt.subplots()
+    #     V = []
+    #     P = []
+    #     for p in np.linspace(*Prange, 100):
+    #         v = self.v(T, p, y)
+    #         V += v.tolist()
+    #         P += [p]*len(v)
+    #     X = np.concatenate(([V], [P])).T
+    #     X = X[X[:, 0].argsort()]
+    #     ax.semilogx(X[:, 0], X[:, 1])
 
 
 class RedlichKwong(Cubic):
@@ -356,7 +353,7 @@ class RedlichKwong(Cubic):
                  ) -> None:
         """Construct `RedlichKwong` with the given parameters."""
 
-        super().__init__(Tc, Pc, None, k)
+        super().__init__(Tc, Pc, [0.], k)
 
     def _alpha(self, T: float) -> FloatVector:
         return sqrt(self.Tc/T)
