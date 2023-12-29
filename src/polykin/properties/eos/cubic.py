@@ -353,7 +353,7 @@ class RedlichKwong(Cubic):
                  ) -> None:
         """Construct `RedlichKwong` with the given parameters."""
 
-        super().__init__(Tc, Pc, [0.], k)
+        super().__init__(Tc, Pc, np.zeros_like(Tc), k)
 
     def _alpha(self, T: float) -> FloatVector:
         return sqrt(self.Tc/T)
