@@ -27,12 +27,17 @@ __all__ = ['TerminalModel',
 
 class CopoModel(ABC):
 
-    name: str
+    k1: Optional[Arrhenius]
+    k2: Optional[Arrhenius]
     M1: str
     M2: str
+    name: str
+
     _pnames: tuple[str, ...]
 
     def __init__(self,
+                 k1: Optional[Arrhenius],
+                 k2: Optional[Arrhenius],
                  M1: str,
                  M2: str,
                  name: str
@@ -45,13 +50,18 @@ class CopoModel(ABC):
         else:
             raise ValueError("`M1` and `M2` must be non-empty and different.")
 
+        self.k1 = k1
+        self.k2 = k2
         self.name = name
 
     def __repr__(self) -> str:
-        return custom_repr(self, ('name', 'M1', 'M2') + self._pnames)
+        return custom_repr(self, ('name', 'M1', 'M2', 'k1', 'k2')
+                           + self._pnames)
 
     @abstractmethod
-    def ri(self, f1: FloatOrArray) -> tuple[FloatOrArray, FloatOrArray]:
+    def ri(self,
+           f1: FloatOrArray
+           ) -> tuple[FloatOrArray, FloatOrArray]:
         """Return the evaluated reactivity ratios at the given conditions."""
         pass
 
@@ -364,10 +374,10 @@ class TerminalModel(CopoModel):
         Reactivity ratio of M1, $r_1=k_{11}/k_{12}$.
     r2 : float
         Reactivity ratio of M2, $r_2=k_{22}/k_{21}$.
-    k11 : Arrhenius | None
-        Propagation rate coefficient of M1.
-    k22 : Arrhenius | None
-        Propagation rate coefficient of M2.
+    k1 : Arrhenius | None
+        Homopropagation rate coefficient of M1, $k_1 \equiv k_{11}$.
+    k2 : Arrhenius | None
+        Homopropagation rate coefficient of M2, $k_2 \equiv k_{22}$.
     M1 : str
         Name of M1.
     M2 : str
@@ -378,16 +388,14 @@ class TerminalModel(CopoModel):
 
     r1: float
     r2: float
-    k11: Optional[Arrhenius]
-    k22: Optional[Arrhenius]
 
-    _pnames = ('r1', 'r2', 'k11', 'k22')
+    _pnames = ('r1', 'r2')
 
     def __init__(self,
                  r1: float,
                  r2: float,
-                 k11: Optional[Arrhenius] = None,
-                 k22: Optional[Arrhenius] = None,
+                 k1: Optional[Arrhenius] = None,
+                 k2: Optional[Arrhenius] = None,
                  M1: str = 'M1',
                  M2: str = 'M2',
                  name: str = ''
@@ -405,9 +413,7 @@ class TerminalModel(CopoModel):
 
         self.r1 = r1
         self.r2 = r2
-        self.k11 = k11
-        self.k22 = k22
-        super().__init__(M1, M2, name)
+        super().__init__(k1, k2, M1, M2, name)
 
     @property
     def azeotrope(self) -> Optional[float]:
@@ -443,10 +449,10 @@ class TerminalModel(CopoModel):
             T: float,
             Tunit: Literal['C', 'K'] = 'K'
             ) -> tuple[FloatOrArray, FloatOrArray]:
-        if self.k11 is None or self.k22 is None:
+        if self.k1 is None or self.k2 is None:
             raise ValueError(
-                "To use this feature, `k11` and `k22` cannot be `None`.")
-        return (self.k11(T, Tunit), self.k22(T, Tunit))
+                "To use this feature, `k1` and `k2` cannot be `None`.")
+        return (self.k1(T, Tunit), self.k2(T, Tunit))
 
     def transitions(self,
                     f1: FloatOrArrayLike
@@ -475,8 +481,7 @@ class TerminalModel(CopoModel):
         Returns
         -------
         dict[str, FloatOrArray]
-            Dictionary of transition probabilities,
-            {'11': $P_{11}$, '12': $P_{12}$, ... }.
+            Transition probabilities, {'11': $P_{11}$, '12': $P_{12}$, ... }.
         """
 
         if isinstance(f1, (list, tuple)):
@@ -527,7 +532,7 @@ class TerminalModel(CopoModel):
         Returns
         -------
         dict[str, FloatOrArray]
-            Dictionary of triad fractions,
+            Triad fractions,
             {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
 
@@ -585,8 +590,8 @@ class TerminalModel(CopoModel):
         Returns
         -------
         dict[str, FloatOrArray]
-            If `k is None`, a dictionary of number-average sequence lengths,
-            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, a dictionary of
+            If `k is None`, the number-average sequence lengths,
+            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
             sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
         """
 
@@ -647,10 +652,10 @@ class PenultimateModel(CopoModel):
         Radical reactivity ratio, $s_1=k_{211}/k_{111}$.
     s2 : float
         Radical reactivity ratio, $s_2=k_{122}/k_{222}$.
-    k111 : Arrhenius | None
-        Propagation rate coefficient of M1.
-    k222 : Arrhenius | None
-        Propagation rate coefficient of M2.
+    k1 : Arrhenius | None
+        Homopropagation rate coefficient of M1, $k_1 \equiv k_{111}$.
+    k2 : Arrhenius | None
+        Homopropagation rate coefficient of M2, $k_2 \equiv k_{222}$.
     M1 : str
         Name of M1.
     M2 : str
@@ -665,10 +670,8 @@ class PenultimateModel(CopoModel):
     r22: float
     s1: float
     s2: float
-    k111: Optional[Arrhenius]
-    k222: Optional[Arrhenius]
 
-    _pnames = ('r11', 'r12', 'r21', 'r22', 's1', 's2', 'k111', 'k222')
+    _pnames = ('r11', 'r12', 'r21', 'r22', 's1', 's2')
 
     def __init__(self,
                  r11: float,
@@ -677,8 +680,8 @@ class PenultimateModel(CopoModel):
                  r22: float,
                  s1: float,
                  s2: float,
-                 k111: Optional[Arrhenius] = None,
-                 k222: Optional[Arrhenius] = None,
+                 k1: Optional[Arrhenius] = None,
+                 k2: Optional[Arrhenius] = None,
                  M1: str = 'M1',
                  M2: str = 'M2',
                  name: str = ''
@@ -691,15 +694,14 @@ class PenultimateModel(CopoModel):
         check_bounds(r22, 0., np.inf, 'r22')
         check_bounds(s1, 0., np.inf, 's1')
         check_bounds(s2, 0., np.inf, 's2')
+
         self.r11 = r11
         self.r12 = r12
         self.r21 = r21
         self.r22 = r22
         self.s1 = s1
         self.s2 = s2
-        self.k111 = k111
-        self.k222 = k222
-        super().__init__(M1, M2, name)
+        super().__init__(k1, k2, M1, M2, name)
 
     def ri(self,
             f1: FloatOrArray
@@ -724,7 +726,7 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         tuple[FloatOrArray, FloatOrArray]
-            Tuple of pseudo-reactivity ratios, ($\bar{r}_1$, $\bar{r}_2$).
+            Pseudo-reactivity ratios, ($\bar{r}_1$, $\bar{r}_2$).
         """
         f2 = 1. - f1
         r11 = self.r11
@@ -766,21 +768,21 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         tuple[FloatOrArray, FloatOrArray]
-            Tuple of pseudo-homopropagation rate coefficients,
+            Pseudo-homopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
-        if self.k111 is None or self.k222 is None:
+        if self.k1 is None or self.k2 is None:
             raise ValueError(
-                "To use this feature, `k111` and `k222` cannot be `None`.")
+                "To use this feature, `k1` and `k2` cannot be `None`.")
         f2 = 1. - f1
         r11 = self.r11
         r22 = self.r22
         s1 = self.s1
         s2 = self.s2
-        k111 = self.k111(T, Tunit)
-        k222 = self.k222(T, Tunit)
-        k11 = k111*(f1*r11 + f2)/(f1*r11 + f2/s1)
-        k22 = k222*(f2*r22 + f1)/(f2*r22 + f1/s2)
+        k1 = self.k1(T, Tunit)
+        k2 = self.k2(T, Tunit)
+        k11 = k1*(f1*r11 + f2)/(f1*r11 + f2/s1)
+        k22 = k2*(f2*r22 + f1)/(f2*r22 + f1/s2)
         return (k11, k22)
 
     def transitions(self,
@@ -812,7 +814,7 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         dict[str, FloatOrArray]
-            Dictionary of transition probabilities,
+            Transition probabilities,
             {'111': $P_{111}$, '211': $P_{211}$, '121': $P_{121}$, ... }.
         """
 
@@ -877,7 +879,7 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         dict[str, FloatOrArray]
-            Dictionary of triad fractions,
+            Triad fractions,
             {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
 
@@ -947,8 +949,8 @@ class PenultimateModel(CopoModel):
         Returns
         -------
         dict[str, FloatOrArray]
-            If `k is None`, a dictionary of number-average sequence lengths,
-            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, a dictionary of
+            If `k is None`, the number-average sequence lengths,
+            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
             sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
         """
 
@@ -970,11 +972,11 @@ class PenultimateModel(CopoModel):
 class ImplicitPenultimateModel(TerminalModel):
     r"""Implicit penultimate binary copolymerization model.
 
-    This model is a special case of the full (explicit) penultimate model, with
-    a smaller number of independent parameters. As in the explicit version, the
-    reactivity of a macroradical depends on the nature of the _penultimate_ and
-    _terminal_ repeating units. A binary system is, thus, described by eight
-    propagation reactions:
+    This model is a special case of the general (explicit) penultimate model,
+    with a smaller number of independent parameters. As in the explicit
+    version, the reactivity of a macroradical depends on the nature of the
+    _penultimate_ and _terminal_ repeating units. A binary system is, thus,
+    described by eight propagation reactions:
 
     \begin{matrix}
     P^{\bullet}_{11} + M_1 \overset{k_{111}}{\rightarrow} P^{\bullet}_{11} \\
@@ -1007,10 +1009,10 @@ class ImplicitPenultimateModel(TerminalModel):
         Radical reactivity ratio, $s_1=k_{211}/k_{111}$.
     s2 : float
         Radical reactivity ratio, $s_2=k_{122}/k_{222}$.
-    k111 : Arrhenius | None
-        Propagation rate coefficient of M1.
-    k222 : Arrhenius | None
-        Propagation rate coefficient of M2.
+    k1 : Arrhenius | None
+        Homopropagation rate coefficient of M1, $k_1 \equiv k_{111}$.
+    k2 : Arrhenius | None
+        Homopropagation rate coefficient of M2, $k_2 \equiv k_{222}$.
     M1 : str
         Name of M1.
     M2 : str
@@ -1023,42 +1025,28 @@ class ImplicitPenultimateModel(TerminalModel):
     r2: float
     s1: float
     s2: float
-    k111: Optional[Arrhenius]
-    k222: Optional[Arrhenius]
 
-    _pnames = ('r1', 'r2', 's1', 's2', 'k111', 'k222')
+    _pnames = ('r1', 'r2', 's1', 's2')
 
     def __init__(self,
                  r1: float,
                  r2: float,
                  s1: float,
                  s2: float,
-                 k111: Optional[Arrhenius] = None,
-                 k222: Optional[Arrhenius] = None,
+                 k1: Optional[Arrhenius] = None,
+                 k2: Optional[Arrhenius] = None,
                  M1: str = 'M1',
                  M2: str = 'M2',
                  name: str = ''
                  ) -> None:
         """Construct `ImplicitPenultimateModel` with the given parameters."""
 
-        check_bounds(r1, 0., np.inf, 'r1')
-        check_bounds(r2, 0., np.inf, 'r2')
         check_bounds(s1, 0., np.inf, 's1')
         check_bounds(s2, 0., np.inf, 's2')
 
-        # Perhaps this could be upgraded to exception, but I don't want to be
-        # too restrictive (one does find literature data with (r1,r2)>1)
-        if r1 > 1. and r2 > 1.:
-            print(
-                f"Warning: `r1`={r1} and `r2`={r2} are both greater than 1, which is deemed physically impossible.")
-
-        self.r1 = r1
-        self.r2 = r2
         self.s1 = s1
         self.s2 = s2
-        self.k111 = k111
-        self.k222 = k222
-        super(TerminalModel, self).__init__(M1, M2, name)
+        super().__init__(r1, r2, k1, k2, M1, M2, name)
 
     def kii(self,
             f1: FloatOrArray,
@@ -1095,18 +1083,18 @@ class ImplicitPenultimateModel(TerminalModel):
             Tuple of pseudo-homopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
-        if self.k111 is None or self.k222 is None:
+        if self.k1 is None or self.k2 is None:
             raise ValueError(
-                "To use this feature, `k111` and `k222` cannot be `None`.")
+                "To use this feature, `k1` and `k2` cannot be `None`.")
         f2 = 1. - f1
         r1 = self.r1
         r2 = self.r2
         s1 = self.s1
         s2 = self.s2
-        k111 = self.k111(T, Tunit)
-        k222 = self.k222(T, Tunit)
-        k11 = k111*(f1*r1 + f2)/(f1*r1 + f2/s1)
-        k22 = k222*(f2*r2 + f1)/(f2*r2 + f1/s2)
+        k1 = self.k1(T, Tunit)
+        k2 = self.k2(T, Tunit)
+        k11 = k1*(f1*r1 + f2)/(f1*r1 + f2/s1)
+        k22 = k2*(f2*r2 + f1)/(f2*r2 + f1/s2)
         return (k11, k22)
 
 # %% Auxiliary functions
