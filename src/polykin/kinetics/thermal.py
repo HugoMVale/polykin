@@ -65,6 +65,11 @@ class Arrhenius(KineticCoefficientT):
         Symbol of coefficient $k$.
     name : str
         Name.
+
+    !!! note annotate "See also"
+
+        * [Eyring](Eyring.md): alternative method.
+
     """
 
     _pinfo = {'k0': ('#', True), 'EaR': ('K', True), 'T0': ('K', False)}
@@ -302,6 +307,11 @@ class Eyring(KineticCoefficientT):
         Symbol of coefficient $k$.
     name : str
         Name.
+
+    !!! note annotate "See also"
+
+        * [Arrhenius](Arrhenius.md): alternative method.
+
     """
 
     _pinfo = {'DSa': ('J/(mol·K)', True),
