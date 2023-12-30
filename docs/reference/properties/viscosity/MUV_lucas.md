@@ -9,7 +9,7 @@
 
 Estimate the viscosity of ethylene at 350 K and 10 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.viscosity import MUV_lucas
 
 mu = MUV_lucas(T=350., P=10e5, M=28.05e-3,

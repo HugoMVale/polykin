@@ -9,7 +9,7 @@
 
 Estimate the viscosity of a 60 mol% ethylene/nitrogen gas mixture at 350 K and 10 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.viscosity import MUVMX_lucas
 import numpy as np
 

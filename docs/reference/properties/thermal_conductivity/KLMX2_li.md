@@ -9,7 +9,7 @@
 
 Estimate the thermal conductivity of a 50 wt% styrene/isoprene liquid mixture at 20°C.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.thermal_conductivity import KLMX2_li
 import numpy as np
 

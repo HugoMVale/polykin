@@ -9,7 +9,7 @@
 
 Estimate the vaporization enthalpy of butadiene at the normal boiling temperature.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.vaporization_enthalpy import DHVL_kistiakowsky_vetere
 
 DHVL = DHVL_kistiakowsky_vetere(Tb=268.6, M=54.1e-3, kind='hydrocarbon')

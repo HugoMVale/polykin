@@ -9,7 +9,7 @@
 
 Estimate the viscosity of a 50 mol% styrene/toluene liquid mixture at 20°C.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.viscosity import MULMX2_perry
 import numpy as np
 

@@ -9,7 +9,7 @@
 
 Estimate the residual viscosity of ethylene at 350 K and 100 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.viscosity import MUVPC_jossi
 
 vc = 130. # cm³/mol

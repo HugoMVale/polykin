@@ -9,7 +9,7 @@
 
 Estimate the viscosity of a 50 mol% ethylene/1-butene gas mixture at 120°C and 1 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.viscosity import MUVMX2_herning_zipperer
 import numpy as np
 

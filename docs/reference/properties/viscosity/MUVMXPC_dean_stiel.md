@@ -10,7 +10,7 @@
 Estimate the residual viscosity of a 50 mol% ethylene/propylene mixture
 at 350 K and 100 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.viscosity import MUVMXPC_dean_stiel
 import numpy as np
 

@@ -9,7 +9,7 @@
 
 Estimate the residual thermal conductivity of ethylene at 350 K and 100 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.thermal_conductivity import KVPC_stiel_thodos
 
 v = 1.84e-4 # m³/mol, with Peng-Robinson

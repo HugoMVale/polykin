@@ -10,7 +10,7 @@
 Estimate the thermal conductivity of a 50 mol% styrene/ethyl-benzene gas mixture at 25°C and
 0.1 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.thermal_conductivity import KVMX2_wassilijewa
 import numpy as np
 

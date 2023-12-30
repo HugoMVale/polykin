@@ -10,7 +10,7 @@
 Estimate the residual thermal conductivity of a 50 mol% ethylene/propylene mixture
 at 350 K and 100 bar.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.thermal_conductivity import KVMXPC_stiel_thodos
 import numpy as np
 
