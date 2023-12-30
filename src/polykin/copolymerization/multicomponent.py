@@ -178,11 +178,21 @@ def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
                     ) -> FloatMatrix:
     r"""Convert Q-e values to reactivity ratios.
 
-    $$ r_{ij}=\frac{Q_i}{Q_j}\exp{\left(-e_i(e_i -e_j)\right)} $$
+    According to the Q-e scheme proposed by Alfrey and Price, the reactivity
+    ratios of the terminal model can be estimated using the relationship:
+
+    $$ r_{ij} = \frac{Q_i}{Q_j}\exp{\left(-e_i(e_i -e_j)\right)} $$
+
+    where $Q_i$ and $e_i$ are monomer-specific constants, and
+    $r_{ij}=k_{ii}/k_{ij}$ is the multicomponent reactivity ratio matrix.
+
+    Reference:
+
+    * T Alfrey, CC Price. J. Polym. Sci., 1947, 2: 101-106.
 
     Parameters
     ----------
-    Qe_pairs : list[tuple[float, float]]
+    Qe_values : list[tuple[float, float]]
         List (N) of Q-e values.
 
     Returns

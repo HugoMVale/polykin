@@ -172,10 +172,15 @@ nav:
   - API Reference:
       - polykin.copolymerization:
           - reference/copolymerization/index.md
-          - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
-          - ImplicitPenultimateModel: reference/copolymerization/ImplicitPenultimateModel.md
-          - PenultimateModel: reference/copolymerization/PenultimateModel.md
-          - TerminalModel: reference/copolymerization/TerminalModel.md
+          - Binary:
+              # - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
+              - ImplicitPenultimateModel: reference/copolymerization/binary/ImplicitPenultimateModel.md
+              - PenultimateModel: reference/copolymerization/binary/PenultimateModel.md
+              - TerminalModel: reference/copolymerization/binary/TerminalModel.md
+              - average_kp_binary: reference/copolymerization/binary/average_kp_binary.md
+              - inst_copolymer_binary: reference/copolymerization/binary/inst_copolymer_binary.md
+          - Multicomponent:
+              - convert_Qe_to_r: reference/copolymerization/multicomponent/convert_Qe_to_r.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md
@@ -184,6 +189,7 @@ nav:
           - MixtureDistribution: reference/distributions/MixtureDistribution.md
           - Poisson: reference/distributions/Poisson.md
           - SchulzZimm: reference/distributions/SchulzZimm.md
+          - plotdists: reference/distributions/plotdists.md
       - polykin.kinetics:
           - reference/kinetics/index.md
           - Arrhenius: reference/kinetics/Arrhenius.md

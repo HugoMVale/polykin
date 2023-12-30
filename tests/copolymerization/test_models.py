@@ -97,7 +97,13 @@ def test_TerminalModel_plot():
     assert result is not None and len(result) == 2
 
 
+def test_TerminalModel_from_Qe():
+    m = TerminalModel.from_Qe((1., -0.8), (0.78, 0.4), M1='STY', M2='MMA')
+    assert m.azeotrope and isclose(m.azeotrope, 0.5, atol=0.1)
+    assert all(isclose([m.r1, m.r2], [0.5, 0.5], atol=0.1))
+
 # %% Penultimate
+
 
 def test_PenultimateModel_azeo():
     m = PenultimateModel(2., 3., 0.5, 0.6, 1., 1.)
