@@ -5,7 +5,8 @@
 import numpy as np
 from numpy import all, isclose
 
-from polykin.copolymerization import PenultimateModel, TerminalModel
+from polykin.copolymerization import (ImplicitPenultimateModel,
+                                      PenultimateModel, TerminalModel)
 from polykin.kinetics import Arrhenius
 
 # %% Terminal
@@ -128,3 +129,20 @@ def test_PenultimateModel_kp():
     assert isclose(m.kp(1., T), k1(T))
     assert isclose(m.kp(0., T), k2(T))
     assert isclose(m.kp(0.5, T), k2(T))
+
+
+# %% Implicit penultimate
+
+def test_PenultimateModel_ImplicitPenultimateModel_kp():
+    k1 = Arrhenius(10, 1000, 300, name='k1')
+    k2 = Arrhenius(100, 2000, 300, name='k2')
+    r1 = 0.4
+    r2 = 0.8
+    s1 = 0.6
+    s2 = 1.5
+    im = ImplicitPenultimateModel(r1, r2, s1, s2, k1, k2)
+    pm = PenultimateModel(r1, r2, r1, r2, s1, s2, k1, k2)
+    for f10 in [0.2, 0.45, 0.8]:
+        for T in [280., 300., 350.]:
+            assert isclose(im.F1(f10), pm.F1(f10))
+            assert isclose(im.kp(f10, T), pm.kp(f10, T))
