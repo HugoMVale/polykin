@@ -7,7 +7,7 @@
 
 ## Examples
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.kinetics import PropagationHalfLength, Arrhenius
 
 kp = Arrhenius(
@@ -17,5 +17,5 @@ kp = Arrhenius(
 kpi = PropagationHalfLength(kp, C=10, ihalf=0.5, name='kp(T,i) of styrene')
 
 # kp of a trimeric radical at 50°C
-print(kpi(T=50., i=3, Tunit='C'))
+print(f"{kpi(T=50., i=3, Tunit='C'):.2e} " + kp.unit)
 ```

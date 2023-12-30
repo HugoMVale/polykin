@@ -9,7 +9,7 @@
 
 Define and evaluate a rate coefficient from transition state properties.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.kinetics import Eyring
 
 k = Eyring(

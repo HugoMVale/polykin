@@ -9,7 +9,7 @@
 
 Define and evaluate the propagation rate coefficient of styrene.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.kinetics import Arrhenius
 
 kp = Arrhenius(

@@ -9,7 +9,7 @@
 
 Estimate the diffusion coefficient of vinyl chloride through liquid water.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.diffusion import DL_hayduk_minhas
 
 D = DL_hayduk_minhas(
@@ -20,5 +20,5 @@ D = DL_hayduk_minhas(
     viscB=0.89e-3     # viscosity of water at solution temperature
     )
 
-print(D)
+print(f"{D:.2e} m²/s")
 ```

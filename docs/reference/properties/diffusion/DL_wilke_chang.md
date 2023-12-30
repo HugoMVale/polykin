@@ -10,7 +10,7 @@
 
 Estimate the diffusion coefficient of vinyl chloride through liquid water.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.diffusion import DL_wilke_chang
 
 D = DL_wilke_chang(
@@ -22,5 +22,5 @@ D = DL_wilke_chang(
     phi=2.6         # association factor for water (see docstring)
     )
 
-print(D)
+print(f"{D:.2e} m²/s")
 ```

@@ -42,5 +42,5 @@ D = DV_wilke_lee(
     TB=None,      # air
     )
 
-print(D)
+print(f"{D:.2e} m²/s")
 ```
