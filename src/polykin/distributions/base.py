@@ -419,14 +419,9 @@ class IndividualDistribution(Distribution):
                      order: int,
                      shift: int = 0
                      ) -> float:
-        """Molar-mass moments of the _number_ probability density/mass
-        function.
-        """
         return self._moment_length(order)*self.M0**(order-shift)
 
     def _pdf(self, size, order, sizeasmass):
-        """$m$-th order chain-length / molar mass probability density
-        function."""
         factor = 1
         if sizeasmass:
             size = size/self.M0
@@ -435,15 +430,11 @@ class IndividualDistribution(Distribution):
             / (self._moment_length(order)*factor)
 
     def _cdf(self, size, order, sizeasmass):
-        """$m$-th order chain-length / molar mass probability cumulative
-        function."""
         if sizeasmass:
             size = size/self.M0
         return self._cdf_length(size, order)
 
     def _xrange_plot(self, sizeasmass):
-        """Default chain-length or molar mass range for distribution plots.
-        """
         xrange = self._range_length_default
         if sizeasmass:
             xrange = xrange*self.M0
@@ -694,7 +685,6 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
 
     @property
     def _pvalues(self) -> tuple:
-        """Value(s) defining the chain-length pdf."""
         return (self.DPn, self.PDI)
 
 
@@ -745,12 +735,12 @@ class MixtureDistribution(Distribution):
         return bool(self.components)
 
     @property
-    def components(self) -> dict:
+    def components(self) -> dict[IndividualDistribution, float]:
         r"""Individual components of the mixture distribution.
 
         Returns
         -------
-        dict[IndividualDistribution: float]
+        dict[IndividualDistribution, float]
             Dictionary of individual distributions and corresponding mass
             weight.
         """
@@ -767,7 +757,7 @@ class MixtureDistribution(Distribution):
         """
         result = 'empty'
         if self.components:
-            spacer = f"{' '*3}"
+            spacer = ' '*3
             header = [f"{'#':>2}", f"{'Weight':>6}", f"{'Distribution':>12}",
                       f"{'DPn':>8}", f"{'DPw':>8}", f"{'PDI':>4}"]
             header = (spacer).join(header)
@@ -820,8 +810,6 @@ class MixtureDistribution(Distribution):
         return numerator/denominator
 
     def _xrange_plot(self, sizeasmass):
-        """Default chain-length or molar mass range for distribution plots.
-        """
         xrange = np.empty(2)
         xrange[0] = min([d._xrange_plot(sizeasmass)[0]
                         for d in self.__iter__()])
