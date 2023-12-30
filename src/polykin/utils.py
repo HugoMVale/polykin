@@ -327,7 +327,8 @@ def convert_list_to_array(a: list[Union[float, list, tuple, np.ndarray]]
     return a  # type: ignore
 
 
-def convert_to_vector(a: list[Union[float, list[float], tuple[float, ...], np.ndarray]]
+def convert_to_vector(a: list[Union[float, list[float], tuple[float, ...], np.ndarray]],
+                      equal_shapes: bool = True
                       ) -> list[FloatVector]:
     "Convert inputs to vectors of equal length."
     result = []
@@ -337,7 +338,8 @@ def convert_to_vector(a: list[Union[float, list[float], tuple[float, ...], np.nd
         if isinstance(item, (list, tuple)):
             item = np.array(item, dtype=np.float64)
         result.append(item)
-    check_shapes(result)
+    if equal_shapes:
+        check_shapes(result)
     return result
 
 # %% Unit functions
