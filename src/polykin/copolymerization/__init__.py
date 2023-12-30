@@ -7,5 +7,6 @@ This module implements classes to analyze and fit copolymerization data.
 
 """
 
-from .models import *
-from .analysis import *
+from .binary import *
+from .copodataset import *
+from .multicomponent import *
