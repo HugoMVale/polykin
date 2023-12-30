@@ -11,6 +11,12 @@ from polykin.kinetics import Arrhenius
 # %% Terminal
 
 
+def test_CopoModel_input_validation(capsys):
+    _ = TerminalModel(1.2, 1.3)
+    out, _ = capsys.readouterr()
+    assert (out.lower().startswith('warning'))
+
+
 def test_CopoModel_repr():
     m = TerminalModel(1.2, 0.3)
     out = m.__repr__()
