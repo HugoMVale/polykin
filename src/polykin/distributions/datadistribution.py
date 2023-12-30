@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 import functools
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 from numpy import log10
@@ -106,7 +106,7 @@ class DataDistribution(IndividualDistribution):
                               type[SchulzZimm]],
             dim: int = 1,
             display_table: bool = True
-            ) -> Union[AnalyticalDistribution, MixtureDistribution, None]:
+            ) -> Optional[Union[AnalyticalDistribution, MixtureDistribution]]:
         """Fit (deconvolute) a `DataDistribution` into a linear combination of
         `AnalyticalDistribution`(s).
 
@@ -203,4 +203,4 @@ class DataDistribution(IndividualDistribution):
             print("Failed to fit distribution: ", solution.message)
             result = None
 
-        return result
+        return result  # type : ignore
