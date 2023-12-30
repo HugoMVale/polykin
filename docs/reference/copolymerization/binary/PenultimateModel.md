@@ -1,6 +1,6 @@
 # polykin.copolymerization
 
-::: polykin.copolymerization.models
+::: polykin.copolymerization.binary
     options:
         members:
             - PenultimateModel

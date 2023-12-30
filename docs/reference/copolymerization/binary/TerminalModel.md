@@ -1,6 +1,6 @@
 # polykin.copolymerization
 
-::: polykin.copolymerization.models
+::: polykin.copolymerization.binary
     options:
         members:
             - TerminalModel
@@ -18,6 +18,6 @@ from polykin.copolymerization import TerminalModel
 model = TerminalModel(r1=0.16, r2=0.70, 
         M1='BA', M2='ST', name='BA/ST, 50°C')
 
-print("f1azeo =", model.azeo)
+print("f1azeo =", model.azeotrope)
 print("F1(f1=0.5) =", model.F1(0.5))
 ```
