@@ -15,18 +15,16 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import root_scalar
 
 from polykin.kinetics import Arrhenius
+from polykin.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatOrVectorLike,
                            FloatVector, IntOrArrayLike)
-from polykin.utils import (check_bounds, check_in_set, convert_to_vector,
-                           custom_repr, eps)
+from polykin.utils import check_bounds, check_in_set, custom_repr
 
 from .binary import average_kp_binary, inst_copolymer_binary
-from .copodataset import CopoDataset
+from .copodataset import CopoDataset, DriftDataset, MayoDataset, kpDataset
 from .multicomponent import convert_Qe_to_r
 
-__all__ = ['TerminalModel',
-           'PenultimateModel',
-           'ImplicitPenultimateModel']
+__all__ = ['TerminalModel']
 
 # %% Models
 
@@ -38,7 +36,7 @@ class CopoModel(ABC):
     M1: str
     M2: str
     name: str
-    data: dict[str, list[CopoDataset]]
+    data: list[CopoDataset]
 
     _pnames: tuple[str, ...]
 
@@ -60,7 +58,7 @@ class CopoModel(ABC):
         self.k1 = k1
         self.k2 = k2
         self.name = name
-        self.data = {kind: [] for kind in ('Mayo', 'drift', 'kp')}
+        self.data = []
 
     def __repr__(self) -> str:
         return custom_repr(self, ('name', 'M1', 'M2', 'k1', 'k2')
@@ -203,7 +201,7 @@ class CopoModel(ABC):
         FloatVector
             Monomer fraction of M1 at a given conversion, $f_1(x)$.
         """
-        f10, x = convert_to_vector([f10, x], False)
+        f10, x = convert_FloatOrVectorLike_to_FloatVector([f10, x], False)
 
         def df1dx(x, f1):
             return (f1-inst_copolymer_binary(f1, *self.ri(f1)))/(1. - x + eps)
@@ -228,7 +226,7 @@ class CopoModel(ABC):
         return result
 
     def plot(self,
-             kind: Literal['drift', 'kp', 'Mayo'],
+             kind: Literal['drift', 'kp', 'Mayo', 'triads'],
              show: Literal['auto', 'all', 'data', 'model'] = 'auto',
              M: Literal[1, 2] = 1,
              f0: Optional[FloatOrVectorLike] = None,
@@ -243,7 +241,7 @@ class CopoModel(ABC):
 
         Parameters
         ----------
-        kind : Literal['drift', 'kp', 'Mayo']
+        kind : Literal['drift', 'kp', 'Mayo', 'triads']
             Kind of plot to be generated.
         show : Literal['auto', 'all', 'data', 'model']
             What informatation is to be plotted.
@@ -273,7 +271,7 @@ class CopoModel(ABC):
             Figure and Axes objects if return_objects is `True`.
         """
         check_in_set(M, {1, 2}, 'M')
-        check_in_set(kind, {'Mayo', 'kp', 'drift'}, 'kind')
+        check_in_set(kind, {'Mayo', 'kp', 'drift', 'triads'}, 'kind')
         check_in_set(show, {'auto', 'all', 'data', 'model'}, 'show')
 
         label_model = None
@@ -282,7 +280,8 @@ class CopoModel(ABC):
             if title is None:
                 titles = {'Mayo': "Mayo-Lewis diagram",
                           'drift': "Monomer composition drift",
-                          'kp': "Average propagation coefficient"}
+                          'kp': "Average propagation coefficient",
+                          'triads': "Triad fractions"}
                 title = titles[kind] + f" {self.M1}(1)-{self.M2}(2)"
             if title:
                 fig.suptitle(title)
@@ -294,7 +293,14 @@ class CopoModel(ABC):
 
         unit_range = (0., 1.)
         npoints = 1000
-        data = None
+        Mname = self.M1 if M == 1 else self.M2
+        ndataseries = 0
+
+        if show == 'auto':
+            if not self.data:
+                show = 'model'
+            else:
+                show = 'all'
 
         if kind == 'Mayo':
 
@@ -305,7 +311,7 @@ class CopoModel(ABC):
 
             ax.plot(unit_range, unit_range, color='black', linewidth=0.5)
 
-            if show in {'auto', 'all', 'model'}:
+            if show in {'model', 'all'}:
                 x = np.linspace(*unit_range, npoints, dtype=np.float64)
                 y = self.F1(x)
                 if M == 2:
@@ -313,14 +319,13 @@ class CopoModel(ABC):
                     y[:] = 1. - y  # type: ignore
                 ax.plot(x, y, label=label_model)
 
-            if show in {'auto', 'all', 'data'}:
-                data = self.data[kind]
-                for ds in data:
-                    x = ds.x
-                    y = ds.y
-                    if (M == 2) == (self.M1 == ds.M1):
-                        x[:] = 1. - x
-                        y[:] = 1. - y
+            if show in {'data', 'all'}:
+                for ds in self.data:
+                    if not isinstance(ds, MayoDataset):
+                        continue
+                    x = ds.getvar('f', Mname)
+                    y = ds.getvar('F', Mname)
+                    ndataseries += 1
                     ax.scatter(x, y,
                                label=ds.name if ds.name else None)
 
@@ -331,7 +336,7 @@ class CopoModel(ABC):
             ax.set_xlim(*unit_range)
             ax.set_ylim(*unit_range)
 
-            if show == 'model' or (show == 'auto' and f0 is not None):
+            if show == 'model':
 
                 if f0 is None:
                     raise ValueError("`f0` is required for a `drift` plot.")
@@ -354,21 +359,18 @@ class CopoModel(ABC):
 
             if show in {'data', 'all'}:
 
-                data = self.data[kind]
-                for ds in data:
-                    x = ds.x
-                    y = ds.y
-                    if (M == 2) == (self.M1 == ds.M1):
-                        y[:] = 1. - y
+                for ds in self.data:
+                    if not isinstance(ds, DriftDataset):
+                        continue
+                    x = ds.getvar('x')
+                    y = ds.getvar('f', Mname)
+                    ndataseries += 1
                     ax.scatter(x, y,
                                label=ds.name if ds.name else None)
 
                     if show == 'all':
                         x = np.linspace(*unit_range, npoints)
-                        y0 = ds.y0
-                        if self.M1 != ds.M1:
-                            y0 = 1. - y0
-                        y = self.drift(y0, x)
+                        y = self.drift(ds.getvar('f', self.M1)[0], x)
                         if M == 2:
                             y[:] = 1. - y
                         ax.plot(x, y, label=label_model)
@@ -379,7 +381,7 @@ class CopoModel(ABC):
             ax.set_ylabel(r"$\bar{k}_p$")
             ax.set_xlim(*unit_range)
 
-            if show in ('model') or (show == 'auto' and T is not None):
+            if show == 'model':
 
                 if T is None:
                     raise ValueError("`T` is required for a `kp` plot.")
@@ -390,27 +392,26 @@ class CopoModel(ABC):
                     x[:] = 1. - x
                 ax.plot(x, y, label=label_model)
 
-            if show in {'all', 'data'}:
+            if show in {'data', 'all'}:
 
-                data = self.data[kind]
-                for ds in data:
-                    x = ds.x
-                    y = ds.y
-                    if (M == 2) == (self.M1 == ds.M1):
-                        x[:] = 1. - x
+                for ds in self.data:
+                    if not isinstance(ds, kpDataset):
+                        continue
+                    x = ds.getvar('f', Mname)
+                    y = ds.getvar('kp')
+                    ndataseries += 1
                     ax.scatter(x, y,
                                label=ds.name if ds.name else None)
                     if show == 'all':
                         x = np.linspace(*unit_range, npoints)
-                        T = ds.T
-                        y = self.kp(x, T, Tunit)
+                        y = self.kp(x, ds.T, ds.Tunit)
                         if M == 2:
                             x[:] = 1. - x
                         ax.plot(x, y, label=label_model)
 
         ax.grid(True)
 
-        if axes is not None or data is not None:
+        if axes is not None or ndataseries:
             ax.legend(bbox_to_anchor=(1.05, 1.), loc="upper left")
 
         if return_objects:
@@ -436,7 +437,11 @@ class CopoModel(ABC):
                 raise ValueError(
                     f"Monomers defined in dataset `{ds.name}` are invalid: "
                     f"{ds_monomers}!={valid_monomers}")
-            self.data[ds.kind].append(ds)
+            if ds not in set(self.data):
+                self.data.append(ds)
+            else:
+                print(f"Warning: duplicate dataset '{ds.name}' was skipped.")
+
 
 # %% Terminal model
 
@@ -619,7 +624,7 @@ class TerminalModel(CopoModel):
 
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
-        check_bounds(f1, 0., 1., 'f')
+        check_bounds(f1, 0., 1., 'f1')
 
         f2 = 1. - f1
         r1 = self.r1
@@ -741,491 +746,3 @@ class TerminalModel(CopoModel):
 
         return result
 # %% Penultimate model
-
-
-class PenultimateModel(CopoModel):
-    r"""Penultimate binary copolymerization model.
-
-    According to this model, the reactivity of a macroradical depends on the
-    nature of the _penultimate_ and _terminal_ repeating units. A binary system
-    is, thus, described by eight propagation reactions:
-
-    \begin{matrix}
-    P^{\bullet}_{11} + M_1 \overset{k_{111}}{\rightarrow} P^{\bullet}_{11} \\
-    P^{\bullet}_{11} + M_2 \overset{k_{112}}{\rightarrow} P^{\bullet}_{12} \\
-    P^{\bullet}_{12} + M_1 \overset{k_{121}}{\rightarrow} P^{\bullet}_{21} \\
-    P^{\bullet}_{12} + M_2 \overset{k_{122}}{\rightarrow} P^{\bullet}_{22} \\
-    P^{\bullet}_{21} + M_1 \overset{k_{211}}{\rightarrow} P^{\bullet}_{11} \\
-    P^{\bullet}_{21} + M_2 \overset{k_{212}}{\rightarrow} P^{\bullet}_{12} \\
-    P^{\bullet}_{22} + M_1 \overset{k_{221}}{\rightarrow} P^{\bullet}_{21} \\
-    P^{\bullet}_{22} + M_2 \overset{k_{222}}{\rightarrow} P^{\bullet}_{22} \\
-    \end{matrix}
-
-    where $k_{iii}$ are the homo-propagation rate coefficients and $k_{ijk}$
-    are the cross-propagation coefficients. The six cross-propagation
-    coefficients are specified via an equal number of reactivity ratios, which
-    are divided in two categories. There are four monomer reactivity ratios,
-    defined as $r_{11}=k_{111}/k_{112}$, $r_{12}=k_{122}/k_{121}$,
-    $r_{21}=k_{211}/k_{212}$ and $r_{22}=k_{222}/k_{221}$. Additionally, there
-    are two radical reactivity ratios defined as $s_1=k_{211}/k_{111}$ and
-    $s_2=k_{122}/k_{222}$. The latter influence the average propagation rate
-    coefficient, but have no effect on the copolymer composition.
-
-    Parameters
-    ----------
-    r11 : float
-        Monomer reactivity ratio, $r_{11}=k_{111}/k_{112}$.
-    r12 : float
-        Monomer reactivity ratio, $r_{12}=k_{122}/k_{121}$.
-    r21 : float
-        Monomer reactivity ratio, $r_{21}=k_{211}/k_{212}$.
-    r22 : float
-        Monomer reactivity ratio, $r_{22}=k_{222}/k_{221}$.
-    s1 : float
-        Radical reactivity ratio, $s_1=k_{211}/k_{111}$.
-    s2 : float
-        Radical reactivity ratio, $s_2=k_{122}/k_{222}$.
-    k1 : Arrhenius | None
-        Homopropagation rate coefficient of M1, $k_1 \equiv k_{111}$.
-    k2 : Arrhenius | None
-        Homopropagation rate coefficient of M2, $k_2 \equiv k_{222}$.
-    M1 : str
-        Name of M1.
-    M2 : str
-        Name of M2.
-    name : str
-        Name.
-    """
-
-    r11: float
-    r12: float
-    r21: float
-    r22: float
-    s1: float
-    s2: float
-
-    _pnames = ('r11', 'r12', 'r21', 'r22', 's1', 's2')
-
-    def __init__(self,
-                 r11: float,
-                 r12: float,
-                 r21: float,
-                 r22: float,
-                 s1: float,
-                 s2: float,
-                 k1: Optional[Arrhenius] = None,
-                 k2: Optional[Arrhenius] = None,
-                 M1: str = 'M1',
-                 M2: str = 'M2',
-                 name: str = ''
-                 ) -> None:
-        """Construct `PenultimateModel` with the given parameters."""
-
-        check_bounds(r11, 0., np.inf, 'r11')
-        check_bounds(r12, 0., np.inf, 'r12')
-        check_bounds(r21, 0., np.inf, 'r21')
-        check_bounds(r22, 0., np.inf, 'r22')
-        check_bounds(s1, 0., np.inf, 's1')
-        check_bounds(s2, 0., np.inf, 's2')
-
-        self.r11 = r11
-        self.r12 = r12
-        self.r21 = r21
-        self.r22 = r22
-        self.s1 = s1
-        self.s2 = s2
-        super().__init__(k1, k2, M1, M2, name)
-
-    def ri(self,
-            f1: FloatOrArray
-           ) -> tuple[FloatOrArray, FloatOrArray]:
-        r"""Pseudoreactivity ratios.
-
-        In the penultimate model, the pseudoreactivity ratios depend on the
-        instantaneous comonomer composition according to:
-
-        \begin{aligned}
-           \bar{r}_1 &= r_{21}\frac{f_1 r_{11} + f_2}{f_1 r_{21} + f_2} \\
-           \bar{r}_2 &= r_{12}\frac{f_2 r_{22} + f_1}{f_2 r_{12} + f_1}
-        \end{aligned}
-
-        where $r_{ij}$ are the monomer reactivity ratios.
-
-        Parameters
-        ----------
-        f1 : FloatOrArray
-            Molar fraction of M1.
-
-        Returns
-        -------
-        tuple[FloatOrArray, FloatOrArray]
-            Pseudoreactivity ratios, ($\bar{r}_1$, $\bar{r}_2$).
-        """
-        f2 = 1. - f1
-        r11 = self.r11
-        r12 = self.r12
-        r21 = self.r21
-        r22 = self.r22
-        r1 = r21*(f1*r11 + f2)/(f1*r21 + f2)
-        r2 = r12*(f2*r22 + f1)/(f2*r12 + f1)
-        return (r1, r2)
-
-    def kii(self,
-            f1: FloatOrArray,
-            T: float,
-            Tunit: Literal['C', 'K'] = 'K',
-            ) -> tuple[FloatOrArray, FloatOrArray]:
-        r"""Pseudohomopropagation rate coefficients.
-
-        In the penultimate model, the pseudohomopropagation rate coefficients
-        depend on the instantaneous comonomer composition according to:
-
-        \begin{aligned}
-        \bar{k}_{11} &= k_{111}\frac{f_1 r_{11} + f_2}{f_1 r_{11} + f_2/s_1} \\
-        \bar{k}_{22} &= k_{222}\frac{f_2 r_{22} + f_1}{f_2 r_{22} + f_1/s_2}
-        \end{aligned}
-
-        where $r_{ij}$ are the monomer reactivity ratios, $s_i$ are the radical
-        reactivity ratios, and $k_{iii}$ are the homopropagation rate
-        coefficients.
-
-        Parameters
-        ----------
-        f1 : FloatOrArray
-            Molar fraction of M1.
-        T : float
-            Temperature. Unit = `Tunit`.
-        Tunit : Literal['C', 'K']
-            Temperature unit.
-
-        Returns
-        -------
-        tuple[FloatOrArray, FloatOrArray]
-            Pseudohomopropagation rate coefficients,
-            ($\bar{k}_{11}$, $\bar{k}_{22}$).
-        """
-        if self.k1 is None or self.k2 is None:
-            raise ValueError(
-                "To use this feature, `k1` and `k2` cannot be `None`.")
-        f2 = 1. - f1
-        r11 = self.r11
-        r22 = self.r22
-        s1 = self.s1
-        s2 = self.s2
-        k1 = self.k1(T, Tunit)
-        k2 = self.k2(T, Tunit)
-        k11 = k1*(f1*r11 + f2)/(f1*r11 + f2/s1)
-        k22 = k2*(f2*r22 + f1)/(f2*r22 + f1/s2)
-        return (k11, k22)
-
-    def transitions(self,
-                    f1: FloatOrArrayLike
-                    ) -> dict[str, FloatOrArray]:
-        r"""Calculate the instantaneous transition probabilities.
-
-        For a binary system, the transition probabilities are given by:
-
-        \begin{aligned}
-            P_{iii} &= \frac{r_{ii} f_i}{r_{ii} f_i + (1 - f_i)} \\
-            P_{jii} &= \frac{r_{ji} f_i}{r_{ji} f_i + (1 - f_i)} \\
-            P_{iij} &= 1 -  P_{iii} \\
-            P_{jij} &= 1 -  P_{jii}
-        \end{aligned}
-
-        where $i,j=1,2, i \neq j$.
-
-        Reference:
-
-        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
-        process modeling, Wiley, 1996, p. 181.
-
-        Parameters
-        ----------
-        f1 : FloatOrArrayLike
-            Molar fraction of M1.
-
-        Returns
-        -------
-        dict[str, FloatOrArray]
-            Transition probabilities,
-            {'111': $P_{111}$, '211': $P_{211}$, '121': $P_{121}$, ... }.
-        """
-
-        if isinstance(f1, (list, tuple)):
-            f1 = np.array(f1, dtype=np.float64)
-        check_bounds(f1, 0., 1., 'f')
-
-        f2 = 1. - f1
-        r11 = self.r11
-        r12 = self.r12
-        r21 = self.r21
-        r22 = self.r22
-
-        P111 = r11*f1/(r11*f1 + f2)
-        P211 = r21*f1/(r21*f1 + f2)
-        P112 = 1. - P111
-        P212 = 1. - P211
-
-        P222 = r22*f2/(r22*f2 + f1)
-        P122 = r12*f2/(r12*f2 + f1)
-        P221 = 1. - P222
-        P121 = 1. - P122
-
-        result = {'111': P111,
-                  '211': P211,
-                  '112': P112,
-                  '212': P212,
-                  '222': P222,
-                  '122': P122,
-                  '221': P221,
-                  '121': P121}
-
-        return result
-
-    def triads(self,
-               f1: FloatOrArrayLike
-               ) -> dict[str, FloatOrArray]:
-        r"""Calculate the instantaneous triad fractions.
-
-        For a binary system, the triad fractions are given by:
-
-        \begin{aligned}
-            F_{iii} &\propto  P_{jii} \frac{P_{iii}}{1 - P_{iii}} \\
-            F_{iij} &\propto 2 P_{jii} \\
-            F_{jij} &\propto 1 - P_{jii}
-        \end{aligned}
-
-        where $P_{ijk}$ is the transition probability
-        $i \rightarrow j \rightarrow k$, which is a function of the monomer
-        composition and the reactivity ratios.
-
-        Reference:
-
-        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
-        process modeling, Wiley, 1996, p. 181.
-
-        Parameters
-        ----------
-        f1 : FloatOrArrayLike
-            Molar fraction of M1.
-
-        Returns
-        -------
-        dict[str, FloatOrArray]
-            Triad fractions,
-            {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
-        """
-
-        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1).values()
-
-        F111 = P211*P111/(1. - P111 + eps)
-        F112 = 2*P211
-        F212 = 1. - P211
-        Fsum = F111 + F112 + F212
-        F111 /= Fsum
-        F112 /= Fsum
-        F212 /= Fsum
-
-        F222 = P122*P222/(1. - P222 + eps)
-        F221 = 2*P122
-        F121 = 1. - P122
-        Fsum = F222 + F221 + F121
-        F222 /= Fsum
-        F221 /= Fsum
-        F121 /= Fsum
-
-        result = {'111': F111,
-                  '112': F112,
-                  '212': F212,
-                  '222': F222,
-                  '221': F221,
-                  '121': F121}
-
-        return result
-
-    def sequence(self,
-                 f1: FloatOrArrayLike,
-                 k: Optional[IntOrArrayLike] = None,
-                 ) -> dict[str, FloatOrArray]:
-        r"""Calculate the instantaneous sequence length probability or the
-        number-average sequence length.
-
-        For a binary system, the probability of finding $k$ consecutive units
-        of monomer $i$ in a chain is:
-
-        $$ S_{i,k} = \begin{cases}
-            1 - P_{jii} & \text{if } k = 1 \\
-            P_{jii}(1 - P_{iii})P_{iii}^{k-2}& \text{if } k \ge 2
-        \end{cases} $$
-
-        and the corresponding number-average sequence length is:
-
-        $$ \bar{S}_i = \sum_k k S_{i,k} = 1 + \frac{P_{jii}}{1 - P_{iii}} $$
-
-        where $P_{ijk}$ is the transition probability
-        $i \rightarrow j \rightarrow k$, which is a function of the monomer
-        composition and the reactivity ratios.
-
-        Reference:
-
-        * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
-        process modeling, Wiley, 1996, p. 180.
-
-        Parameters
-        ----------
-        k : int | None
-            Sequence length, i.e., number of consecutive units in a chain.
-            If `None`, the number-average sequence length will be computed.
-        f1 : FloatOrArrayLike
-            Molar fraction of M1.
-
-        Returns
-        -------
-        dict[str, FloatOrArray]
-            If `k is None`, the number-average sequence lengths,
-            {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
-            sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
-        """
-
-        P111, P211, _, _, P222, P122, _, _ = self.transitions(f1).values()
-
-        if k is None:
-            S1 = 1. + P211/(1. - P111 + eps)
-            S2 = 1. + P122/(1. - P222 + eps)
-        else:
-            if isinstance(k, (list, tuple)):
-                k = np.array(k, dtype=np.int32)
-            S1 = np.where(k == 1, 1. - P211, P211*(1. - P111)*P111**(k - 2))
-            S2 = np.where(k == 1, 1. - P122, P122*(1. - P222)*P222**(k - 2))
-
-        return {'1': S1, '2': S2}
-# %% Implicit penultimate model
-
-
-class ImplicitPenultimateModel(TerminalModel):
-    r"""Implicit penultimate binary copolymerization model.
-
-    This model is a special case of the general (explicit) penultimate model,
-    with a smaller number of independent parameters. As in the explicit
-    version, the reactivity of a macroradical depends on the nature of the
-    _penultimate_ and _terminal_ repeating units. A binary system is, thus,
-    described by eight propagation reactions:
-
-    \begin{matrix}
-    P^{\bullet}_{11} + M_1 \overset{k_{111}}{\rightarrow} P^{\bullet}_{11} \\
-    P^{\bullet}_{11} + M_2 \overset{k_{112}}{\rightarrow} P^{\bullet}_{12} \\
-    P^{\bullet}_{12} + M_1 \overset{k_{121}}{\rightarrow} P^{\bullet}_{21} \\
-    P^{\bullet}_{12} + M_2 \overset{k_{122}}{\rightarrow} P^{\bullet}_{22} \\
-    P^{\bullet}_{21} + M_1 \overset{k_{211}}{\rightarrow} P^{\bullet}_{11} \\
-    P^{\bullet}_{21} + M_2 \overset{k_{212}}{\rightarrow} P^{\bullet}_{12} \\
-    P^{\bullet}_{22} + M_1 \overset{k_{221}}{\rightarrow} P^{\bullet}_{21} \\
-    P^{\bullet}_{22} + M_2 \overset{k_{222}}{\rightarrow} P^{\bullet}_{22} \\
-    \end{matrix}
-
-    where $k_{iii}$ are the homo-propagation rate coefficients and $k_{ijk}$
-    are the cross-propagation coefficients. The six cross-propagation
-    coefficients are specified via just four reactivity ratios, which
-    are divided in two categories. There are two monomer reactivity
-    ratios, which are defined as $r_1=k_{111}/k_{112}=k_{211}/k_{212}$ and
-    $r_2=k_{222}/k_{221}=k_{122}/k_{121}$. Additionally, there
-    are two radical reactivity ratios defined as $s_1=k_{211}/k_{111}$ and
-    $s_2=k_{122}/k_{222}$. The latter influence the average propagation rate
-    coefficient, but have no effect on the copolymer composition.
-
-    Parameters
-    ----------
-    r1 : float
-        Monomer reactivity ratio, $r_1=k_{111}/k_{112}=k_{211}/k_{212}$.
-    r2 : float
-        Monomer reactivity ratio, $r_2=k_{222}/k_{221}=k_{122}/k_{121}$.
-    s1 : float
-        Radical reactivity ratio, $s_1=k_{211}/k_{111}$.
-    s2 : float
-        Radical reactivity ratio, $s_2=k_{122}/k_{222}$.
-    k1 : Arrhenius | None
-        Homopropagation rate coefficient of M1, $k_1 \equiv k_{111}$.
-    k2 : Arrhenius | None
-        Homopropagation rate coefficient of M2, $k_2 \equiv k_{222}$.
-    M1 : str
-        Name of M1.
-    M2 : str
-        Name of M2.
-    name : str
-        Name.
-    """
-
-    r1: float
-    r2: float
-    s1: float
-    s2: float
-
-    _pnames = ('r1', 'r2', 's1', 's2')
-
-    def __init__(self,
-                 r1: float,
-                 r2: float,
-                 s1: float,
-                 s2: float,
-                 k1: Optional[Arrhenius] = None,
-                 k2: Optional[Arrhenius] = None,
-                 M1: str = 'M1',
-                 M2: str = 'M2',
-                 name: str = ''
-                 ) -> None:
-        """Construct `ImplicitPenultimateModel` with the given parameters."""
-
-        check_bounds(s1, 0., np.inf, 's1')
-        check_bounds(s2, 0., np.inf, 's2')
-
-        self.s1 = s1
-        self.s2 = s2
-        super().__init__(r1, r2, k1, k2, M1, M2, name)
-
-    def kii(self,
-            f1: FloatOrArray,
-            T: float,
-            Tunit: Literal['C', 'K'] = 'K',
-            ) -> tuple[FloatOrArray, FloatOrArray]:
-        r"""Pseudo-homopropagation rate coefficients.
-
-        In the implicit penultimate model, the pseudohomopropagation rate
-        coefficients depend on the instantaneous comonomer composition
-        according to:
-
-        \begin{aligned}
-        \bar{k}_{11} &= k_{111} \frac{f_1 r_1 + f_2}{f_1 r_1 + f_2/s_1} \\
-        \bar{k}_{22} &= k_{222} \frac{f_2 r_2 + f_1}{f_2 r_2 + f_1/s_2}
-        \end{aligned}
-
-        where $r_i$ are the monomer reactivity ratios, $s_i$ are the radical
-        reactivity ratios, and $k_{iii}$ are the homopropagation rate
-        coefficients.
-
-        Parameters
-        ----------
-        f1 : FloatOrArray
-            Molar fraction of M1.
-        T : float
-            Temperature. Unit = `Tunit`.
-        Tunit : Literal['C', 'K']
-            Temperature unit.
-
-        Returns
-        -------
-        tuple[FloatOrArray, FloatOrArray]
-            Tuple of pseudohomopropagation rate coefficients,
-            ($\bar{k}_{11}$, $\bar{k}_{22}$).
-        """
-        if self.k1 is None or self.k2 is None:
-            raise ValueError(
-                "To use this feature, `k1` and `k2` cannot be `None`.")
-        f2 = 1. - f1
-        r1 = self.r1
-        r2 = self.r2
-        s1 = self.s1
-        s2 = self.s2
-        k1 = self.k1(T, Tunit)
-        k2 = self.k2(T, Tunit)
-        k11 = k1*(f1*r1 + f2)/(f1*r1 + f2/s1)
-        k22 = k2*(f2*r2 + f1)/(f2*r2 + f1/s2)
-        return (k11, k22)
