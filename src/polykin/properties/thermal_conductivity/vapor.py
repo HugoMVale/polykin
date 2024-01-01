@@ -2,7 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-import numpy as np
 from numpy import dot, exp, sqrt
 from scipy.constants import N_A, R
 
