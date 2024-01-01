@@ -7,8 +7,8 @@ from typing import Any, Iterable, Union
 
 import numpy as np
 
-from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVectorLike,
-                    FloatVector)
+from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVector,
+                    FloatOrVectorLike, FloatVector)
 from .utils import check_shapes
 
 # %% Maths
@@ -57,6 +57,17 @@ class vectorize(np.vectorize):
 def convert_FloatOrArrayLike_to_FloatOrArray(a: list[FloatOrArrayLike]
                                              ) -> list[FloatOrArray]:
     "Convert list of `FloatOrArrayLike` to list of `FloatOrArray`."
+    result = []
+    for item in a:
+        if isinstance(item, (list, tuple)):
+            item = np.array(item, dtype=np.float64)
+        result.append(item)
+    return result
+
+
+def convert_FloatOrVectorLike_to_FloatOrVector(a: list[FloatOrVectorLike]
+                                               ) -> list[FloatOrVector]:
+    "Convert list of `FloatOrVectorLike` to list of `FloatOrVector`."
     result = []
     for item in a:
         if isinstance(item, (list, tuple)):
