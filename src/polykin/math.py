@@ -59,7 +59,7 @@ def convert_FloatOrArrayLike_to_FloatOrArray(a: list[FloatOrArrayLike]
     "Convert list of `FloatOrArrayLike` to list of `FloatOrArray`."
     result = []
     for item in a:
-        if isinstance(a, (list, tuple)):
+        if isinstance(item, (list, tuple)):
             item = np.array(item, dtype=np.float64)
         result.append(item)
     return result

@@ -228,20 +228,26 @@ def check_shapes(a: list[Union[float, np.ndarray]],
         Common shape of `a` or None.
     """
 
+    shapes_a = [elem.shape for elem in a if
+                isinstance(elem, np.ndarray) and elem.shape != ()]
+    shapes_b = [elem.shape for elem in b if
+                isinstance(elem, np.ndarray) and elem.shape != ()]
+
     check_a = True
-    check_b = True
     shape = None
-    shapes_a = [elem.shape for elem in a if isinstance(elem, np.ndarray)]
-    shapes_b = [elem.shape for elem in b if isinstance(elem, np.ndarray)]
     if shapes_a:
-        if len(shapes_a) != len(a) or len(set(shapes_a)) != 1:
-            check_a = False
-        else:
-            shape = shapes_a[0]
+        check_a = len(shapes_a) == len(a) and len(set(shapes_a)) == 1
+        shape = shapes_a[0]
+
+    check_b = True
     if shapes_b:
-        if len(set(shapes_a + shapes_b)) != 1:
+        if not shapes_a:
             check_b = False
-    if not (check_a and check_b):
+        else:
+            if len(set(shapes_a + shapes_b)) != 1:
+                check_b = False
+
+    if not check_a or not check_b:
         raise ShapeError("Input parameters have inconsistent shapes.")
     return shape
 

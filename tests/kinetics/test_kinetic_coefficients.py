@@ -4,7 +4,7 @@
 
 from polykin.kinetics import Arrhenius, Eyring, \
     TerminationCompositeModel, PropagationHalfLength
-from polykin.utils import RangeError
+from polykin.utils import RangeError, ShapeError
 
 import pytest
 import numpy as np
@@ -21,14 +21,6 @@ def test_input_validation(capsys):
         _ = Arrhenius(1, 1, 1, -1)
     with pytest.raises(ValueError):
         _ = Arrhenius(1, 1, 1, 1, -1)
-    with pytest.raises(ValueError):
-        _ = Arrhenius([1, 2], [1, 2, 3], 298)
-    with pytest.raises(ValueError):
-        _ = Arrhenius([1, 2], [2, 3], [200])
-    with pytest.raises(ValueError):
-        _ = Arrhenius([1, 2], [2, 3], Tmin=[200])
-    with pytest.raises(ValueError):
-        _ = Arrhenius([1, 2], [2, 3], Tmax=[500])
     with pytest.raises(ValueError):
         _ = Arrhenius([1, 2], [2, 3], [500, -100])
     with pytest.raises(ValueError):
@@ -56,10 +48,27 @@ def test_input_validation(capsys):
     assert (out.lower().startswith('warning'))
 
 
+def test_shape_validation():
+    with pytest.raises(ShapeError):
+        _ = Arrhenius([1, 2], [2, 3], [200])
+    with pytest.raises(ShapeError):
+        _ = Arrhenius([1, 2], [2, 3], Tmin=[200])
+    with pytest.raises(ShapeError):
+        _ = Arrhenius([1, 2], [2, 3], Tmax=[500])
+    with pytest.raises(ShapeError):
+        _ = Arrhenius(k0=[1., 1.], EaR=1, T0=1.)
+    with pytest.raises(ShapeError):
+        _ = Arrhenius([1, 2], [1, 2, 3], 298)
+    with pytest.raises(ShapeError):
+        _ = Arrhenius(k0=1., EaR=[1., 1.], T0=1.)
+    with pytest.raises(ShapeError):
+        _ = Arrhenius(k0=1., EaR=1., T0=[1., 1.])
+
+
 def test_evaluation_Arrhenius():
     k0 = [1., 1.]
     EaR = [2000., 4000.]
-    T0 = 400
+    T0 = np.array(400)  # array declared on pupose
     k = Arrhenius(k0, EaR, T0, name='test')
     assert k.shape == (2,)
     assert np.all((np.isclose(k(T0, 'K'), k0)))
