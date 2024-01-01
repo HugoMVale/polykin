@@ -14,10 +14,11 @@ from matplotlib.figure import Figure
 from numpy import log10
 from scipy import integrate
 
+from polykin.math import add_dicts, vectorize
 from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatRangeArray,
                            IntOrArray)
-from polykin.utils import (add_dicts, check_bounds, check_in_set, check_type,
-                           check_valid_range, custom_error, vectorize)
+from polykin.utils import (check_bounds, check_in_set, check_type,
+                           check_valid_range, custom_error)
 
 __all__ = ['plotdists']
 

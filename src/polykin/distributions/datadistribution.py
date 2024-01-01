@@ -10,7 +10,8 @@ from numpy import log10
 from scipy import integrate, interpolate, optimize
 
 from polykin.types import FloatVectorLike
-from polykin.utils import check_bounds, check_subclass, vectorize
+from polykin.utils import check_bounds, check_subclass
+from polykin.math import vectorize
 
 from .analyticaldistributions import Flory, LogNormal, Poisson, SchulzZimm
 from .base import (AnalyticalDistribution, AnalyticalDistributionP2,

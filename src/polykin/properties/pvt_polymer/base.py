@@ -13,7 +13,8 @@ import pandas as pd
 
 from polykin.types import FloatOrArray, FloatOrArrayLike
 from polykin.utils import (check_bounds, convert_check_pressure,
-                           convert_check_temperature, eps)
+                           convert_check_temperature)
+from polykin.math import eps
 
 from ..equations.base import PropertyEquation
 

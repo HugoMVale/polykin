@@ -2,17 +2,19 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Optional
+from __future__ import annotations
+
+from typing import Optional, Union
 
 import numpy as np
 from numpy import exp
 from scipy.constants import Boltzmann as kB
 from scipy.constants import R, h
 
+from polykin.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.properties.equations.base import PropertyEquationT
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import (ShapeError, check_bounds, check_shapes,
-                           convert_list_to_array)
+from polykin.types import FloatOrArray, FloatOrArrayLike, ShapeError
+from polykin.utils import check_bounds, check_shapes
 
 __all__ = ['Arrhenius', 'Eyring']
 
@@ -88,7 +90,7 @@ class Arrhenius(KineticCoefficientT):
 
         # Convert lists to arrays
         k0, EaR, T0, Tmin, Tmax = \
-            convert_list_to_array([k0, EaR, T0, Tmin, Tmax])
+            convert_FloatOrArrayLike_to_FloatOrArray([k0, EaR, T0, Tmin, Tmax])
 
         # Check shapes
         self._shape = check_shapes([k0, EaR], [T0, Tmin, Tmax])
@@ -136,7 +138,9 @@ class Arrhenius(KineticCoefficientT):
         r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
         return self.__call__(np.inf)
 
-    def __mul__(self, other):
+    def __mul__(self,
+                other: Union[int, float, Arrhenius]
+                ) -> Arrhenius:
         """Multipy Arrhenius coefficient(s).
 
         Create a new Arrhenius coefficient from a product of two Arrhenius
@@ -179,10 +183,14 @@ class Arrhenius(KineticCoefficientT):
         else:
             return NotImplemented
 
-    def __rmul__(self, other):
+    def __rmul__(self,
+                 other: Union[int, float, Arrhenius]
+                 ) -> Arrhenius:
         return self.__mul__(other)
 
-    def __truediv__(self, other):
+    def __truediv__(self,
+                    other: Union[int, float, Arrhenius]
+                    ) -> Arrhenius:
         """Divide Arrhenius coefficient(s).
 
         Create a new Arrhenius coefficient from a division of two Arrhenius
@@ -225,7 +233,9 @@ class Arrhenius(KineticCoefficientT):
         else:
             return NotImplemented
 
-    def __rtruediv__(self, other):
+    def __rtruediv__(self,
+                     other: Union[int, float]
+                     ) -> Arrhenius:
         if isinstance(other, (int, float)):
             return Arrhenius(k0=other/self.p['k0'],
                              EaR=-self.p['EaR'],
@@ -238,7 +248,9 @@ class Arrhenius(KineticCoefficientT):
         else:
             return NotImplemented
 
-    def __pow__(self, other):
+    def __pow__(self,
+                other: Union[int, float]
+                ) -> Arrhenius:
         """Power of an Arrhenius coefficient.
 
         Create a new Arrhenius coefficient from the exponentiation of an
@@ -330,7 +342,8 @@ class Eyring(KineticCoefficientT):
 
         # Convert lists to arrays
         DSa, DHa, kappa, Tmin, Tmax = \
-            convert_list_to_array([DSa, DHa, kappa, Tmin, Tmax])
+            convert_FloatOrArrayLike_to_FloatOrArray(
+                [DSa, DHa, kappa, Tmin, Tmax])
 
         # Check shapes
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])

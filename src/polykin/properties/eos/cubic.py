@@ -13,8 +13,8 @@ import numpy as np
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
+from polykin.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.types import FloatOrVectorLike, FloatSquareMatrix, FloatVector
-from polykin.utils import convert_to_vector, eps
 
 from ..mixing_rules import geometric_interaction_mixing
 from .base import GasAndLiquidEoS
@@ -44,7 +44,7 @@ class Cubic(GasAndLiquidEoS):
                  ) -> None:
         """Construct `Cubic` with the given parameters."""
 
-        Tc, Pc, w = convert_to_vector([Tc, Pc, w])
+        Tc, Pc, w = convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, w])
 
         self.Tc = Tc
         self.Pc = Pc

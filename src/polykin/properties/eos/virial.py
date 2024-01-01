@@ -8,9 +8,9 @@ import numpy as np
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
+from polykin.math import convert_FloatOrVectorLike_to_FloatVector
 from polykin.types import (FloatOrArray, FloatOrVectorLike, FloatSquareMatrix,
                            FloatVector)
-from polykin.utils import convert_to_vector
 
 from ..mixing_rules import quadratic_mixing
 from .base import GasEoS
@@ -69,7 +69,8 @@ class Virial(GasEoS):
                  ) -> None:
         """Construct `Virial` with the given parameters."""
 
-        Tc, Pc, Zc, w = convert_to_vector([Tc, Pc, Zc, w])
+        Tc, Pc, Zc, w = \
+            convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, Zc, w])
 
         self.Tc = Tc
         self.Pc = Pc

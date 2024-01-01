@@ -12,9 +12,10 @@ from matplotlib.figure import Figure
 from numpy import log
 from scipy.optimize import curve_fit
 
-from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatVectorLike)
+from polykin.math import eps
+from polykin.types import FloatOrArray, FloatOrArrayLike, FloatVectorLike
 from polykin.utils import (check_bounds, check_in_set, check_valid_range,
-                           convert_check_temperature, eps)
+                           convert_check_temperature)
 
 
 class PropertyEquation(ABC):

@@ -2,31 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-import functools
 from numbers import Number
 from typing import Any, Iterable, Literal, Union
 
 import numpy as np
 
-from .types import FloatOrArray, FloatOrArrayLike, FloatVector
-
-# %% Maths
-
-eps = float(np.finfo(np.float64).eps)
-
-# %% Custom exceptions
-
-
-class RangeWarning(Warning):
-    pass
-
-
-class RangeError(ValueError):
-    pass
-
-
-class ShapeError(ValueError):
-    pass
+from .types import FloatOrArray, FloatOrArrayLike, RangeError, ShapeError
 
 # %% Check tools
 
@@ -277,70 +258,6 @@ def check_valid_range(r: tuple[float, float],
     check_bounds(r, xmin, xmax, name)
     return r
 
-# %% Special functions
-
-
-def add_dicts(d1: dict[Any, Union[int, float]],
-              d2: dict[Any, Union[int, float]],
-              new: bool = False
-              ) -> dict[Any, Union[int, float]]:
-    """Adds two dictionaries by summing the values for the same key.
-
-    Parameters
-    ----------
-    d1 : dict[Any, int  |  float]
-        first dictionary
-    d2 : dict[Any, int  |  float]
-        second dictionary
-    new : bool
-        if True, a new dictionary will be created (`d = d1 + d2`), otherwise,
-        d1 will be modified in place (`d1 <- d1 + d2`).
-
-    Returns
-    -------
-    dict[Any, int | float]
-        Sum of both dictionaries.
-    """
-    if new:
-        dout = d1.copy()
-    else:
-        dout = d1
-
-    for key, value in d2.items():
-        dout[key] = dout.get(key, 0) + value
-    return dout
-
-
-class vectorize(np.vectorize):
-    "Vectorize decorator for instance methods."
-
-    def __get__(self, obj, objtype):
-        return functools.partial(self.__call__, obj)
-
-
-def convert_list_to_array(a: list[Union[float, list, tuple, np.ndarray]]
-                          ) -> list[Union[float, np.ndarray]]:
-    "Convert lists to numpy arrays."
-    for i in range(len(a)):
-        if isinstance(a[i], (list, tuple)):
-            a[i] = np.array(a[i], dtype=np.float64)
-    return a  # type: ignore
-
-
-def convert_to_vector(a: list[Union[float, list[float], tuple[float, ...], np.ndarray]],
-                      equal_shapes: bool = True
-                      ) -> list[FloatVector]:
-    "Convert inputs to vectors of equal length."
-    result = []
-    for item in a:
-        if not isinstance(item, Iterable):
-            item = (item,)
-        if isinstance(item, (list, tuple)):
-            item = np.array(item, dtype=np.float64)
-        result.append(item)
-    if equal_shapes:
-        check_shapes(result)
-    return result
 
 # %% Unit functions
 
