@@ -219,10 +219,10 @@ nav:
               - Tait: reference/properties/pvt_polymer/Tait.md
           - Thermal Conductivity:
               - reference/properties/thermal_conductivity/index.md
-              - KLMX2_li: reference/properties/thermal_conductivity/KLMX2_li.md
-              - KVMX2_wassilijewa: reference/properties/thermal_conductivity/KVMX2_wassilijewa.md
-              - KVPC_stiel_thodos: reference/properties/thermal_conductivity/KVPC_stiel_thodos.md
-              - KVMXPC_stiel_thodos: reference/properties/thermal_conductivity/KVMXPC_stiel_thodos.md
+              - KLMX2_Li: reference/properties/thermal_conductivity/KLMX2_Li.md
+              - KVMX2_Wassilijewa: reference/properties/thermal_conductivity/KVMX2_Wassilijewa.md
+              - KVPC_Stiel_Thodos: reference/properties/thermal_conductivity/KVPC_Stiel_Thodos.md
+              - KVMXPC_Stiel_Thodos: reference/properties/thermal_conductivity/KVMXPC_Stiel_Thodos.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
               - DHVL_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/DHVL_kistiakowsky_vetere.md
@@ -231,11 +231,11 @@ nav:
               - DHVL_watson: reference/properties/vaporization_enthalpy/DHVL_watson.md
           - Viscosity:
               - reference/properties/viscosity/index.md
-              - MULMX2_perry: reference/properties/viscosity/MULMX2_perry.md
-              - MUV_lucas: reference/properties/viscosity/MUV_lucas.md
-              - MUVMX_lucas: reference/properties/viscosity/MUVMX_lucas.md
-              - MUVMX2_herning_zipperer: reference/properties/viscosity/MUVMX2_herning_zipperer.md
-              - MUVPC_jossi: reference/properties/viscosity/MUVPC_jossi.md
-              - MUVMXPC_dean_stiel: reference/properties/viscosity/MUVMXPC_dean_stiel.md
+              - MULMX2_Perry: reference/properties/viscosity/MULMX2_Perry.md
+              - MUV_Lucas: reference/properties/viscosity/MUV_Lucas.md
+              - MUVMX_Lucas: reference/properties/viscosity/MUVMX_Lucas.md
+              - MUVMX2_Herning_Zipperer: reference/properties/viscosity/MUVMX2_Herning_Zipperer.md
+              - MUVPC_Jossi: reference/properties/viscosity/MUVPC_Jossi.md
+              - MUVMXPC_Dean_Stiel: reference/properties/viscosity/MUVMXPC_Dean_Stiel.md
           #- Activity Coefficient Models: reference/properties/acm.md
       - polykin.types: reference/types.md
