@@ -1,12 +1,10 @@
 # polykin.copolymerization
 
-::: polykin.copolymerization.binary
+::: polykin.copolymerization
     options:
         members:
             - TerminalModel
-            - average_kp_binary
-            - inst_copolymer_binary
-
+<!--
 ## Examples
 
 Analyze the behavior of the butyl acrylate and styrene system,
@@ -21,3 +19,4 @@ model = TerminalModel(r1=0.16, r2=0.70,
 print("f1azeo =", model.azeotrope)
 print("F1(f1=0.5) =", model.F1(0.5))
 ```
+-->

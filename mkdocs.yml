@@ -204,7 +204,7 @@ nav:
               - VrentasDudaBinary: reference/properties/diffusion/VrentasDudaBinary.md
               - DL_Hayduk_Minhas: reference/properties/diffusion/DL_Hayduk_Minhas.md
               - DL_Wilke_Chang: reference/properties/diffusion/DL_Wilke_Chang.md
-              - DV_Wilke_Lee: reference/properties/diffusion/DV_wilke_Lee.md
+              - DV_Wilke_Lee: reference/properties/diffusion/DV_Wilke_Lee.md
           - Equations of State:
               - IdealGas: reference/properties/eos/IdealGas.md
               - PengRobinson: reference/properties/eos/PengRobinson.md

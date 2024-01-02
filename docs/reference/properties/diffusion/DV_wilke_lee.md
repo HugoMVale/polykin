@@ -9,7 +9,7 @@
 
 Estimate the diffusion coefficient of vinyl chloride through water vapor.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.diffusion import DV_Wilke_Lee
 
 D = DV_Wilke_Lee(
@@ -28,7 +28,7 @@ print(D)
 
 Estimate the diffusion coefficient of vinyl chloride through air.
 
-```python exec="on" source="console"
+```python exec="on" source="material-block"
 from polykin.properties.diffusion import DV_Wilke_Lee
 
 D = DV_Wilke_Lee(

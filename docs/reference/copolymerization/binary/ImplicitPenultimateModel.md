@@ -1,13 +1,14 @@
 # polykin.copolymerization
 
-::: polykin.copolymerization.binary
+::: polykin.copolymerization
     options:
         members:
             - ImplicitPenultimateModel
 
+<!--
 ## Examples
 
-<!-- Analyze the behavior of the butyl acrylate and styrene system,
+ Analyze the behavior of the butyl acrylate and styrene system,
 using parameters from the literature.
 
 ```python exec="on" source="console"
