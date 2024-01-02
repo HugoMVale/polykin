@@ -6,12 +6,12 @@ from numpy import cbrt, dot, exp, log
 
 from polykin.types import FloatVector
 
-__all__ = ['MULMX2_perry']
+__all__ = ['MULMX2_Perry']
 
 # %% Mixing rules
 
 
-def MULMX2_perry(x: FloatVector,
+def MULMX2_Perry(x: FloatVector,
                  mu: FloatVector,
                  hydrocarbons: bool = False,
                  ) -> float:

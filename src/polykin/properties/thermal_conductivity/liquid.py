@@ -7,12 +7,12 @@ import numpy as np
 from polykin.properties import quadratic_mixing
 from polykin.types import FloatVector
 
-__all__ = ['KLMX2_li']
+__all__ = ['KLMX2_Li']
 
 # %% Mixing rules
 
 
-def KLMX2_li(w: FloatVector,
+def KLMX2_Li(w: FloatVector,
              k: FloatVector,
              rho: FloatVector,
              ) -> float:

@@ -2,8 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.thermal_conductivity import KLMX2_li, \
-    KVPC_stiel_thodos, KVMXPC_stiel_thodos, KVMX2_wassilijewa
+from polykin.properties.thermal_conductivity import KLMX2_Li, \
+    KVPC_Stiel_Thodos, KVMXPC_Stiel_Thodos, KVMX2_Wassilijewa
 
 import numpy as np
 from scipy.constants import R
@@ -19,7 +19,7 @@ def test_KLMX2_li():
     w = np.array([w1, 1 - w1])
     rho = np.array([0.713, 0.792])
     k = np.array([0.1383, 0.2069])
-    km = KLMX2_li(w, k, rho)
+    km = KLMX2_Li(w, k, rho)
     assert np.isclose(km, 0.167, rtol=1e-2)
 
 
@@ -30,7 +30,7 @@ def test_KVPC_stiel_thodos():
     Zc = 0.274
     M = 44.013e-3
     V = 144e-6
-    kpc = KVPC_stiel_thodos(V, M, Tc, Pc, Zc)
+    kpc = KVPC_Stiel_Thodos(V, M, Tc, Pc, Zc)
     assert np.isclose(kpc, 1.78e-2, rtol=1e-2)
 
 
@@ -41,11 +41,11 @@ def test_KVPC_stiel_thodos_continuity():
     M = 1.
     dV = 0.001
     for V in [1/0.5, 1/2.]:
-        k1 = KVPC_stiel_thodos(V-dV, M, Tc, Pc, Zc)
-        k2 = KVPC_stiel_thodos(V+dV, M, Tc, Pc, Zc)
+        k1 = KVPC_Stiel_Thodos(V-dV, M, Tc, Pc, Zc)
+        k2 = KVPC_Stiel_Thodos(V+dV, M, Tc, Pc, Zc)
         assert np.isclose(k1, k2, rtol=2e-2)
     with pytest.raises(ValueError):
-        _ = KVPC_stiel_thodos(1/2.81, M, Tc, Pc, Zc)
+        _ = KVPC_Stiel_Thodos(1/2.81, M, Tc, Pc, Zc)
 
 
 def test_KVMXPC_stiel_thodos():
@@ -58,7 +58,7 @@ def test_KVMXPC_stiel_thodos():
     Tc = np.array([190.4, 304.1])
     M = np.array([16.043e-3, 44.010e-3])
     w = np.array([0.011, 0.239])
-    kpc = KVMXPC_stiel_thodos(V, y, M, Tc, Pc, Zc, w)
+    kpc = KVMXPC_Stiel_Thodos(V, y, M, Tc, Pc, Zc, w)
     assert np.isclose(kpc, 1.50e-2, rtol=1e-2)
 
 
@@ -70,5 +70,5 @@ def test_KVMX2_wassilijewa():
     y = np.array([y1, 1 - y1])
     k = np.array([1.66e-2, 2.14e-2])
     M = np.array([M1, M2])
-    k_mix = KVMX2_wassilijewa(y, k, M)
+    k_mix = KVMX2_Wassilijewa(y, k, M)
     assert np.isclose(k_mix, 1.92e-2, rtol=5e-2)

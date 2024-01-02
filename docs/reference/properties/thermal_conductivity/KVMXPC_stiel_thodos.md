@@ -3,7 +3,7 @@
 ::: polykin.properties.thermal_conductivity
     options:
         members:
-            - KVMXPC_stiel_thodos
+            - KVMXPC_Stiel_Thodos
 
 ## Examples
 
@@ -11,7 +11,7 @@ Estimate the residual thermal conductivity of a 50 mol% ethylene/propylene mixtu
 at 350 K and 100 bar.
 
 ```python exec="on" source="material-block"
-from polykin.properties.thermal_conductivity import KVMXPC_stiel_thodos
+from polykin.properties.thermal_conductivity import KVMXPC_Stiel_Thodos
 import numpy as np
 
 v = 1.12e-4  # m³/mol, with Peng-Robinson
@@ -23,7 +23,7 @@ Tc = np.array([282.4, 364.9])       # K
 Zc = np.array([0.280, 0.274])
 w = np.array([0.089, 0.144]) 
 
-k_residual = KVMXPC_stiel_thodos(v, y, M, Tc, Pc, Zc, w)
+k_residual = KVMXPC_Stiel_Thodos(v, y, M, Tc, Pc, Zc, w)
 
 print(f"{k_residual:.2e} W/(m·K)")
 ```

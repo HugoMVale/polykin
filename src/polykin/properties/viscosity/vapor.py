@@ -9,17 +9,17 @@ from scipy.constants import R
 from polykin.properties.mixing_rules import pseudocritical_properties
 from polykin.types import FloatOrArray, FloatVector
 
-__all__ = ['MUVMX2_herning_zipperer',
-           'MUVPC_jossi',
-           'MUVMXPC_dean_stiel',
-           'MUV_lucas',
-           'MUVMX_lucas'
+__all__ = ['MUVMX2_Herning_Zipperer',
+           'MUVPC_Jossi',
+           'MUVMXPC_Dean_Stiel',
+           'MUV_Lucas',
+           'MUVMX_Lucas'
            ]
 
 # %% Mixing rules
 
 
-def MUVMX2_herning_zipperer(y: FloatVector,
+def MUVMX2_Herning_Zipperer(y: FloatVector,
                             mu: FloatVector,
                             M: FloatVector
                             ) -> float:
@@ -61,7 +61,7 @@ def MUVMX2_herning_zipperer(y: FloatVector,
 # %% Pressure correction
 
 
-def MUVPC_jossi(rhor: float,
+def MUVPC_Jossi(rhor: float,
                 M: float,
                 Tc: float,
                 Pc: float
@@ -105,7 +105,7 @@ def MUVPC_jossi(rhor: float,
     return (a**4 - 1)/xi
 
 
-def MUVMXPC_dean_stiel(v: float,
+def MUVMXPC_Dean_Stiel(v: float,
                        y: FloatVector,
                        M: FloatVector,
                        Tc: FloatVector,
@@ -162,7 +162,7 @@ def MUVMXPC_dean_stiel(v: float,
 
 # %% Estimation methods
 
-def MUV_lucas(T: float,
+def MUV_Lucas(T: float,
               P: float,
               M: float,
               Tc: float,
@@ -202,12 +202,12 @@ def MUV_lucas(T: float,
     """
     Tr = T/Tc
     Pr = P/Pc
-    FP0 = _MUV_lucas_FP0(Tr, Tc, Pc, Zc, dm)
-    mu = _MUV_lucas_mu(Tr, Pr, M, Tc, Pc, FP0)  # type: ignore
+    FP0 = _MUV_Lucas_FP0(Tr, Tc, Pc, Zc, dm)
+    mu = _MUV_Lucas_mu(Tr, Pr, M, Tc, Pc, FP0)  # type: ignore
     return mu
 
 
-def MUVMX_lucas(T: float,
+def MUVMX_Lucas(T: float,
                 P: float,
                 y: FloatVector,
                 M: FloatVector,
@@ -251,13 +251,13 @@ def MUVMX_lucas(T: float,
     Tc_mix = dot(y, Tc)
     M_mix = dot(y, M)
     Pc_mix = R*Tc_mix*dot(y, Zc)/dot(y, R*Tc*Zc/Pc)
-    FP0_mix = dot(y, _MUV_lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
-    mu = _MUV_lucas_mu(
+    FP0_mix = dot(y, _MUV_Lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
+    mu = _MUV_Lucas_mu(
         T/Tc_mix, P/Pc_mix, M_mix, Tc_mix, Pc_mix, FP0_mix)
     return mu
 
 
-def _MUV_lucas_mu(Tr: float,
+def _MUV_Lucas_mu(Tr: float,
                   Pr: float,
                   M: float,
                   Tc: float,
@@ -309,7 +309,7 @@ def _MUV_lucas_mu(Tr: float,
     return Z2*FP/xi
 
 
-def _MUV_lucas_FP0(Tr: FloatOrArray,
+def _MUV_Lucas_FP0(Tr: FloatOrArray,
                    Tc: FloatOrArray,
                    Pc: FloatOrArray,
                    Zc: FloatOrArray,

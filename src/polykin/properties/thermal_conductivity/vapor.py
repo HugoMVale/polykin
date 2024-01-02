@@ -7,14 +7,14 @@ from scipy.constants import N_A, R
 
 from polykin.types import FloatVector
 
-__all__ = ['KVPC_stiel_thodos',
-           'KVMXPC_stiel_thodos',
-           'KVMX2_wassilijewa']
+__all__ = ['KVPC_Stiel_Thodos',
+           'KVMXPC_Stiel_Thodos',
+           'KVMX2_Wassilijewa']
 
 # %% Pressure correction
 
 
-def KVPC_stiel_thodos(v: float,
+def KVPC_Stiel_Thodos(v: float,
                       M: float,
                       Tc: float,
                       Pc: float,
@@ -72,7 +72,7 @@ def KVPC_stiel_thodos(v: float,
     return a/(gamma * Zc**5)
 
 
-def KVMXPC_stiel_thodos(v: float,
+def KVMXPC_Stiel_Thodos(v: float,
                         y: FloatVector,
                         M: FloatVector,
                         Tc: FloatVector,
@@ -137,12 +137,12 @@ def KVMXPC_stiel_thodos(v: float,
     Pc_mix = Zc_mix*R*Tc_mix/vc_mix
     M_mix = dot(y, M)
 
-    return KVPC_stiel_thodos(v, M_mix, Tc_mix, Pc_mix, Zc_mix)
+    return KVPC_Stiel_Thodos(v, M_mix, Tc_mix, Pc_mix, Zc_mix)
 
 # %% Mixing rules
 
 
-def KVMX2_wassilijewa(y: FloatVector,
+def KVMX2_Wassilijewa(y: FloatVector,
                       k: FloatVector,
                       M: FloatVector
                       ) -> float:
