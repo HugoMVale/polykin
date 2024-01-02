@@ -13,14 +13,14 @@ from scipy.constants import R
 
 from polykin.types import FloatOrArray
 
-__all__ = ['DHVL_pitzer',
-           'DHVL_vetere',
-           'DHVL_watson',
-           'DHVL_kistiakowsky_vetere'
+__all__ = ['DHVL_Pitzer',
+           'DHVL_Vetere',
+           'DHVL_Watson',
+           'DHVL_Kistiakowsky_Vetere'
            ]
 
 
-def DHVL_pitzer(T: FloatOrArray,
+def DHVL_Pitzer(T: FloatOrArray,
                 Tc: float,
                 w: float
                 ) -> FloatOrArray:
@@ -58,7 +58,7 @@ def DHVL_pitzer(T: FloatOrArray,
     return R*Tc*(7.08*(1 - Tr)**0.354 + 10.95*w*(1 - Tr)**0.456)
 
 
-def DHVL_vetere(Tb: float,
+def DHVL_Vetere(Tb: float,
                 Tc: float,
                 Pc: float,
                 ) -> float:
@@ -99,7 +99,7 @@ def DHVL_vetere(Tb: float,
         / (0.37691 - 0.37306*Tbr + 0.15075/(Pc/1e5)/Tbr**2)
 
 
-def DHVL_watson(hvap1: float,
+def DHVL_Watson(hvap1: float,
                 T1: float,
                 T2: float,
                 Tc: float
@@ -137,7 +137,7 @@ def DHVL_watson(hvap1: float,
     return hvap1*((1 - T2/Tc)/(1 - T1/Tc))**0.38
 
 
-def DHVL_kistiakowsky_vetere(
+def DHVL_Kistiakowsky_Vetere(
         Tb: float,
         M: Optional[float] = None,
         kind: Literal['any', 'acid_alcohol', 'ester',

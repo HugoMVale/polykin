@@ -4,16 +4,16 @@
 ::: polykin.properties.diffusion
     options:
         members:
-            - DL_wilke_chang
+            - DL_Wilke_Chang
 
 ## Examples
 
 Estimate the diffusion coefficient of vinyl chloride through liquid water.
 
 ```python exec="on" source="material-block"
-from polykin.properties.diffusion import DL_wilke_chang
+from polykin.properties.diffusion import DL_Wilke_Chang
 
-D = DL_wilke_chang(
+D = DL_Wilke_Chang(
     T=298.,         # temperature
     MA=62.5e-3,     # molar mass of vinyl chloride
     MB=18.0e-3,     # molar mass of water

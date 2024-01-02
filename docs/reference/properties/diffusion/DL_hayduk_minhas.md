@@ -3,16 +3,16 @@
 ::: polykin.properties.diffusion
     options:
         members:
-            - DL_hayduk_minhas
+            - DL_Hayduk_Minhas
 
 ## Examples
 
 Estimate the diffusion coefficient of vinyl chloride through liquid water.
 
 ```python exec="on" source="material-block"
-from polykin.properties.diffusion import DL_hayduk_minhas
+from polykin.properties.diffusion import DL_Hayduk_Minhas
 
-D = DL_hayduk_minhas(
+D = DL_Hayduk_Minhas(
     T=298.,           # temperature
     method='aqueous', # equation for aqueous solutions
     MA=62.5e-3,       # molar mass of vinyl chloride

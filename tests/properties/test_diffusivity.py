@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from polykin.properties.diffusion import VrentasDudaBinary, \
-    DL_wilke_chang, DL_hayduk_minhas, DV_wilke_lee
+    DL_Wilke_Chang, DL_Hayduk_Minhas, DV_Wilke_Lee
 
 import numpy as np
 import pytest
@@ -75,7 +75,7 @@ def test_plot(vrentas_instance):
 
 def test_wilke_chang():
     "Ethylbenze in water. Example 11.5, page 599 of Reid et al."
-    result = DL_wilke_chang(T=293.,
+    result = DL_Wilke_Chang(T=293.,
                             MA=106.17e-3,
                             MB=18.0e-3,
                             rhoA=761.,
@@ -87,7 +87,7 @@ def test_wilke_chang():
 
 def test_hayduk_minhas_1():
     "Hexane in hexane."
-    result = DL_hayduk_minhas(T=298.15,
+    result = DL_Hayduk_Minhas(T=298.15,
                               method='paraffin',
                               MA=86.2e-3,
                               rhoA=613.,
@@ -98,7 +98,7 @@ def test_hayduk_minhas_1():
 
 def test_hayduk_minhas_2():
     "Ethylbenze in water"
-    result = DL_hayduk_minhas(T=293.,
+    result = DL_Hayduk_Minhas(T=293.,
                               method='aqueous',
                               MA=106.17e-3,
                               rhoA=761.,
@@ -109,7 +109,7 @@ def test_hayduk_minhas_2():
 
 def test_hayduk_minhas_input():
     with pytest.raises(ValueError):
-        _ = DL_hayduk_minhas(T=293.,
+        _ = DL_Hayduk_Minhas(T=293.,
                              method='nomethod',
                              MA=106.17e-3,
                              rhoA=761.,
@@ -121,7 +121,7 @@ def test_hayduk_minhas_input():
 
 def test_wilke_lee_air():
     "Allyl chloride in air. Example 11.3, page 589 of Reid et al."
-    result = DV_wilke_lee(T=298.,
+    result = DV_Wilke_Lee(T=298.,
                           P=1e5,
                           MA=76.5e-3,
                           MB=29.0e-3,
@@ -135,7 +135,7 @@ def test_wilke_lee_air():
 
 def test_wilke_lee():
     "Allyl chloride in steam."
-    result = DV_wilke_lee(T=298.,
+    result = DV_Wilke_Lee(T=298.,
                           P=1e5,
                           MA=76.5e-3,
                           MB=18.0e-3,
@@ -149,7 +149,7 @@ def test_wilke_lee():
 
 def test_wilke_lee_input():
     with pytest.raises(ValueError):
-        _ = DV_wilke_lee(T=298.,
+        _ = DV_Wilke_Lee(T=298.,
                          P=1e5,
                          MA=76.5e-3,
                          MB=29.0e-3,
@@ -159,7 +159,7 @@ def test_wilke_lee_input():
                          TB=300.  # issue
                          )
     with pytest.raises(ValueError):
-        _ = DV_wilke_lee(T=298.,
+        _ = DV_Wilke_Lee(T=298.,
                          P=1e5,
                          MA=76.5e-3,
                          MB=29.0e-3,

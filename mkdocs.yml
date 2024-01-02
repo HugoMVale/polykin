@@ -202,9 +202,9 @@ nav:
           - Diffusion:
               - reference/properties/diffusion/index.md
               - VrentasDudaBinary: reference/properties/diffusion/VrentasDudaBinary.md
-              - DL_hayduk_minhas: reference/properties/diffusion/DL_hayduk_minhas.md
-              - DL_wilke_chang: reference/properties/diffusion/DL_wilke_chang.md
-              - DV_wilke_lee: reference/properties/diffusion/DV_wilke_lee.md
+              - DL_Hayduk_Minhas: reference/properties/diffusion/DL_Hayduk_Minhas.md
+              - DL_Wilke_Chang: reference/properties/diffusion/DL_Wilke_Chang.md
+              - DV_Wilke_Lee: reference/properties/diffusion/DV_wilke_Lee.md
           - Equations of State:
               - IdealGas: reference/properties/eos/IdealGas.md
               - PengRobinson: reference/properties/eos/PengRobinson.md
@@ -225,10 +225,10 @@ nav:
               - KVMXPC_Stiel_Thodos: reference/properties/thermal_conductivity/KVMXPC_Stiel_Thodos.md
           - Vaporization Enthalpy:
               #- reference/properties/vaporization_enthalpy/index.md
-              - DHVL_kistiakowsky_vetere: reference/properties/vaporization_enthalpy/DHVL_kistiakowsky_vetere.md
-              - DHVL_pitzer: reference/properties/vaporization_enthalpy/DHVL_pitzer.md
-              - DHVL_vetere: reference/properties/vaporization_enthalpy/DHVL_vetere.md
-              - DHVL_watson: reference/properties/vaporization_enthalpy/DHVL_watson.md
+              - DHVL_Kistiakowsky_Vetere: reference/properties/vaporization_enthalpy/DHVL_Kistiakowsky_Vetere.md
+              - DHVL_Pitzer: reference/properties/vaporization_enthalpy/DHVL_Pitzer.md
+              - DHVL_Vetere: reference/properties/vaporization_enthalpy/DHVL_Vetere.md
+              - DHVL_Watson: reference/properties/vaporization_enthalpy/DHVL_Watson.md
           - Viscosity:
               - reference/properties/viscosity/index.md
               - MULMX2_Perry: reference/properties/viscosity/MULMX2_Perry.md

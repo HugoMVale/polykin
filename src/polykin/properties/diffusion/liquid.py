@@ -9,14 +9,14 @@ coefficient in liquid solutions.
 from math import sqrt
 from typing import Literal
 
-__all__ = ['DL_wilke_chang',
-           'DL_hayduk_minhas',
+__all__ = ['DL_Wilke_Chang',
+           'DL_Hayduk_Minhas',
            ]
 
 # %% Liquid phase: infinite-dilution
 
 
-def DL_wilke_chang(T: float,
+def DL_Wilke_Chang(T: float,
                    MA: float,
                    MB: float,
                    rhoA: float,
@@ -66,7 +66,7 @@ def DL_wilke_chang(T: float,
     return 7.4e-12*sqrt(phi*MB*1e3)*T/((viscB*1e3)*(1e6*MA/rhoA)**0.6)
 
 
-def DL_hayduk_minhas(T: float,
+def DL_Hayduk_Minhas(T: float,
                      method: Literal['paraffin', 'aqueous'],
                      MA: float,
                      rhoA: float,

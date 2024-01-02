@@ -10,10 +10,10 @@ from typing import Optional
 
 from numpy import exp, sqrt
 
-__all__ = ['DV_wilke_lee']
+__all__ = ['DV_Wilke_Lee']
 
 
-def DV_wilke_lee(T: float,
+def DV_Wilke_Lee(T: float,
                  P: float,
                  MA: float,
                  MB: float,
