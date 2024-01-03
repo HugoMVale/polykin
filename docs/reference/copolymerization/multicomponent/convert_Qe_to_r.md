@@ -1,6 +1,6 @@
 # polykin.copolymerization
 
-::: polykin.copolymerization.multicomponent
+::: polykin.copolymerization
     options:
         members:
             - convert_Qe_to_r

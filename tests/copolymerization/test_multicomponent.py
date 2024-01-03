@@ -2,10 +2,37 @@
 #
 # Copyright Hugo Vale 2023
 
-import numpy as np
+# import numpy as np
 from numpy import all, isclose
 
-from polykin.copolymerization import convert_Qe_to_r
+from polykin.copolymerization import (convert_Qe_to_r, inst_copolymer_binary,
+                                      inst_copolymer_ternary)
+
+
+def test_inst_copolymer_ternary():
+    r12 = 0.2
+    r21 = 2.3
+    r13 = 3.0
+    r31 = 0.9
+    r23 = 0.4
+    r32 = 1.5
+    # f3=0
+    f1 = 0.4
+    f2 = 1 - f1
+    F1_b = inst_copolymer_binary(f1, r1=r12, r2=r21)
+    F1_t, _, _ = inst_copolymer_ternary(f1, f2, r12, r21, r13, r31, r23, r32)
+    assert isclose(F1_b, F1_t)
+    # f2=0
+    f1 = 0.4
+    f2 = 0.
+    F1_b = inst_copolymer_binary(f1, r1=r13, r2=r31)
+    F1_t, _, _ = inst_copolymer_ternary(f1, f2, r12, r21, r13, r31, r23, r32)
+    # f1=0
+    f1 = 0.
+    f2 = 0.5
+    F2_b = inst_copolymer_binary(f2, r1=r23, r2=r32)
+    _, F2_t, _ = inst_copolymer_ternary(f1, f2, r12, r21, r13, r31, r23, r32)
+    assert isclose(F2_b, F2_t)
 
 
 def test_convert_Qe():

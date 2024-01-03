@@ -181,6 +181,7 @@ nav:
               - inst_copolymer_binary: reference/copolymerization/binary/inst_copolymer_binary.md
           - Multicomponent:
               - convert_Qe_to_r: reference/copolymerization/multicomponent/convert_Qe_to_r.md
+              - inst_copolymer_ternary: reference/copolymerization/multicomponent/inst_copolymer_ternary.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md

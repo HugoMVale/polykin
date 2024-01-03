@@ -6,15 +6,96 @@ import numpy as np
 from numpy import exp
 from scipy.integrate import solve_ivp
 
-from polykin.types import (FloatArray, FloatMatrix, FloatSquareMatrix,
-                           FloatVector, FloatVectorLike)
+from polykin.types import (FloatArray, FloatMatrix, FloatOrArray,
+                           FloatSquareMatrix, FloatVector, FloatVectorLike)
 
-# %% Multicomponent Mayo-Lewis equation
+__all__ = ['inst_copolymer_ternary',
+           'inst_copolymer_multicomponent',
+           'convert_Qe_to_r']
+
+# %% Multicomponent versions of Mayo-Lewis equation
 
 
-def inst_copolymer_composition(f: FloatVector,
-                               r: FloatSquareMatrix
-                               ) -> FloatVector:
+def inst_copolymer_ternary(f1: FloatOrArray,
+                           f2: FloatOrArray,
+                           r12: float,
+                           r21: float,
+                           r13: float,
+                           r31: float,
+                           r23: float,
+                           r32: float,
+                           ) -> tuple[FloatOrArray, FloatOrArray, FloatOrArray]:
+    r"""Instantaneous terpolymer composition equation.
+
+    For a ternary system, the instantaneous copolymer composition $F_i$ is
+    related to the monomer composition $f_i$ by:
+
+    \begin{aligned}
+        S &= \frac{f_1}{r_{21} r_{31}} + \frac{f_2}{r_{21} r_{32}} + \frac{f_3}{r_{31} r_{23}} \\
+        T &= f_1 + \frac{f_2}{r_{12}} + \frac{f_3}{r_{13}} \\
+        U &= \frac{f_1}{r_{12} r_{31}} + \frac{f_2}{r_{12} r_{32}} + \frac{f_3}{r_{13} r_{32}} \\
+        V &= f_2 + \frac{f_1}{r_{21}} + \frac{f_3}{r_{23}} \\
+        W &= \frac{f_1}{r_{13} r_{21}} + \frac{f_2}{r_{23} r_{12}} + \frac{f_3}{r_{13} r_{23}} \\
+        X &= f_3 + \frac{f_1}{r_{31}} + \frac{f_2}{r_{32}} \\
+        F_1 &= \frac{f_1 S T}{f_1 S T + f_2 U V + f_3 W X} \\
+        F_2 &= \frac{f_2 U V}{f_1 S T + f_2 U V + f_3 W X} \\
+        F_3 &= \frac{f_3 W X}{f_1 S T + f_2 U V + f_3 W X}
+    \end{aligned}
+
+    where $r_{ij}=k_{ii}/k_{ij}$ are the multicomponent reactivity ratios.
+
+    Reference:
+
+    * Kazemi, N., Duever, T.A. and Penlidis, A. (2014), Demystifying the
+    estimation of reactivity ratios for terpolymerization systems. AIChE J.,
+    60: 1752-1766.
+
+    Parameters
+    ----------
+    f1 : FloatOrArray
+        Molar fraction of M1.
+    f2 : FloatOrArray
+        Molar fraction of M2.
+    r12 : float
+        Reactivity ratio.
+    r21 : float
+        Reactivity ratio.
+    r13 : float
+        Reactivity ratio.
+    r31 : float
+        Reactivity ratio.
+    r23 : float
+        Reactivity ratio.
+    r32 : float
+        Reactivity ratio.
+
+    Returns
+    -------
+    tuple[FloatOrArray, FloatOrArray, FloatOrArray]:
+        Instantaneous terpolymer composition, $(F_1, F_2, F_3)$.
+    """
+
+    f3 = 1. - (f1 + f2)
+
+    S = f1/(r21*r31) + f2/(r21*r32) + f3/(r31*r23)
+    T = f1 + f2/r12 + f3/r13
+    U = f1/(r12*r31) + f2/(r12*r32) + f3/(r13*r32)
+    V = f2 + f1/r21 + f3/r23
+    W = f1/(r13*r21) + f2/(r23*r12) + f3/(r13*r23)
+    X = f3 + f1/r31 + f2/r32
+
+    denominator = f1*S*T + f2*U*V + f3*W*X
+
+    F1 = f1*S*T/denominator
+    F2 = f2*U*V/denominator
+    F3 = 1. - (F1 + F2)
+
+    return (F1, F2, F3)
+
+
+def inst_copolymer_multicomponent(f: FloatVector,
+                                  r: FloatSquareMatrix
+                                  ) -> FloatVector:
     """Compute the instantaneous copolymer composition for an arbitrary
     monomer mixture.
 
@@ -90,7 +171,7 @@ def composition_drift(f0: FloatVectorLike,
         raise ValueError("Shape mismatch between `f0` and `r`.")
 
     def ode(xt_: float, f_: np.ndarray) -> np.ndarray:
-        F = inst_copolymer_composition(f_, r)
+        F = inst_copolymer_multicomponent(f_, r)
         return (f_ - F[:-1]) / (1 - xt_)
 
     sol = solve_ivp(ode,
