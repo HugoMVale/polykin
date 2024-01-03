@@ -163,7 +163,7 @@ def DHVL_Kistiakowsky_Vetere(
     Tb : float
         Normal boiling point temperature. Unit = K.
     M : float | None
-        Molar mass. Unit = kg/mol.
+        Molar mass. Must be provided except if `kind = "any"`. Unit = kg/mol.
     kind : Literal['any', 'acid_alcohol', 'ester', 'hydrocarbon', 'polar']
         Type of compound. `any` corresponds ot the original correlation
         proposed by Kistiakowsky.
