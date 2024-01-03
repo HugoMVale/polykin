@@ -11,9 +11,10 @@ from polykin.types import (FloatArray, FloatMatrix, FloatOrArray,
 
 __all__ = ['inst_copolymer_ternary',
            'inst_copolymer_multicomponent',
+           'monomer_drift_multicomponent',
            'convert_Qe_to_r']
 
-# %% Multicomponent versions of Mayo-Lewis equation
+# %% Multicomponent versions of the Mayo-Lewis equation
 
 
 def inst_copolymer_ternary(f1: FloatOrArray,
@@ -96,15 +97,28 @@ def inst_copolymer_ternary(f1: FloatOrArray,
 def inst_copolymer_multicomponent(f: FloatVector,
                                   r: FloatSquareMatrix
                                   ) -> FloatVector:
-    """Compute the instantaneous copolymer composition for an arbitrary
-    monomer mixture.
+    """Multicomponent copolymer composition equation.
+
+    The algorithm uses a linear algebra procedure and is applicable to systems
+    with an arbitrary number of monomers.
+
+    !!! note
+
+        For systems with 2 or 3 monomers, the equivalent functions
+        `inst_copolymer_binary` and `inst_copolymer_ternary` are significantly
+        faster.
+
+    Reference:
+
+    * Jung, Woosung. Mathematical modeling of free-radical six-component bulk
+    and solution polymerization. MS thesis. University of Waterloo, 2008.
 
     Parameters
     ----------
     f : FloatVector
         Vector(N-1) of instantaneous monomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix (NxN).
+        Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
@@ -113,8 +127,6 @@ def inst_copolymer_multicomponent(f: FloatVector,
     """
 
     # Compute radical probabilities, p(i)
-    # The radical propabilites can be found from the solution of a system of
-    # linear equations, A.p = b (W. Jung, 2008).
     N = len(f) + 1
     flong = np.concatenate((f, [1. - np.sum(f, dtype=np.float64)]))
     A = np.empty((N - 1, N - 1))
@@ -126,37 +138,35 @@ def inst_copolymer_multicomponent(f: FloatVector,
                     if j != m:
                         a -= flong[j] / r[m, j]
             else:
-                a = flong[m] * (1 / r[n, m] - 1 / r[N - 1, m])
+                a = flong[m]*(1./r[n, m] - 1./r[N - 1, m])
             A[m, n] = a
 
     b = -flong[:-1] / r[-1, :-1]
     p = np.linalg.solve(A, b)
-    p = np.append(p, 1 - np.sum(p, dtype=np.float64))
+    p = np.append(p, 1. - np.sum(p, dtype=np.float64))
 
     # Compute copolymer compositions, F(i)
-    denominator = np.sum(p[:, np.newaxis] * flong / r)  # scalar
-    numerator = np.sum(flong / r, axis=1)               # vector
-    F = p * numerator / denominator
+    F = p*np.sum(flong/r, axis=1)/np.sum(p[:, np.newaxis]*flong/r)
 
     return F
 
 # %% Multicomponent Skeist equation
 
 
-def composition_drift(f0: FloatVectorLike,
-                      r: FloatSquareMatrix,
-                      xteval: FloatVectorLike
-                      ) -> tuple[FloatMatrix, FloatVector]:
+def monomer_drift_multicomponent(f0: FloatVectorLike,
+                                 r: FloatSquareMatrix,
+                                 xteval: FloatVectorLike
+                                 ) -> tuple[FloatMatrix, FloatVector]:
     """Compute the monomer composition drift for an arbitrary monomer mixture.
 
     Parameters
     ----------
     f0 : FloatVectorLike
-        Vector (N) of initial instantaneous comonomer composition.
+        Vector(N) of initial instantaneous comonomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix (NxN).
+        Reactivity ratio matrix(NxN).
     xteval : FloatVectorLike
-        Vector (M) of total monomer conversion values where the drift is to be
+        Vector(M) of total monomer conversion values where the drift is to be
         evaluated.
 
     Returns
@@ -226,12 +236,12 @@ def transitions_multicomponent(f: FloatArray,
     f : FloatArray
         Array(..., N) of instantaneous monomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix (NxN).
+        Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
     FloatArray
-        Array of transition probabilities$.
+        Array of transition probabilities.
     """
 
     # fN = 1. - np.sum(f, axis=-1)
