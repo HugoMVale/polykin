@@ -70,7 +70,7 @@ class Arrhenius(KineticCoefficientT):
 
     !!! note annotate "See also"
 
-        * [Eyring](Eyring.md): alternative method.
+        * [`Eyring`](Eyring.md): alternative method.
 
     """
 
@@ -322,7 +322,7 @@ class Eyring(KineticCoefficientT):
 
     !!! note annotate "See also"
 
-        * [Arrhenius](Arrhenius.md): alternative method.
+        * [`Arrhenius`](Arrhenius.md): alternative method.
 
     """
 

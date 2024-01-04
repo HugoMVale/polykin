@@ -31,8 +31,8 @@ def KLMX2_Li(w: FloatVector,
         are arbitrary, as they cancel out when considering the ratio of the
         numerator to the denominator.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 565.
 

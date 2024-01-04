@@ -26,8 +26,7 @@ class VrentasDudaBinary():
     r"""Vrentas-Duda free volume model for the diffusivity of binary polymer
     solutions.
 
-    The solvent self-diffusion coefficient is given by
-    [Vrentas & Duda (1977)](https://doi.org/10.1002/pol.1977.180150302):
+    The solvent self-diffusion coefficient is given by:
 
     $$ D_1 = D_0 e^{\left(-\frac{E}{RT}\right)}
        \exp\left[-\frac{\gamma (w_1\hat{V}_1^* + w_2 \xi \hat{V}_2^*)}
@@ -49,6 +48,11 @@ class VrentasDudaBinary():
     $\xi$ is the ratio between the critical volume of the polymer and the
     solvent jumping units,
     and $\chi$ is the Flory-Huggins' interaction parameter.
+
+    References
+    ----------
+    *   Vrentas, J.S. and Duda, J.L. (1977), J. Polym. Sci. Polym. Phys. Ed.,
+        15: 403-416.
 
     Parameters
     ----------

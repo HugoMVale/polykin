@@ -35,8 +35,8 @@ def MUVMX2_Herning_Zipperer(y: FloatVector,
         $M_i$ are arbitrary, as they cancel out when considering the ratio of
         the numerator to the denominator.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 410.
 
@@ -77,8 +77,8 @@ def MUVPC_Jossi(rhor: float,
     $\rho_r = v_c / v$ is the reduced gas density. This equation is valid in
     the range $0.1 < \rho_r < 3.0$.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 424.
 
@@ -122,8 +122,8 @@ def MUVMXPC_Dean_Stiel(v: float,
     $\rho_r = v_c / v$ is the reduced gas density. This
     equation is valid in the range $0 \le \rho_r < 2.5$.
 
-    Reference:
-
+    References
+    ----------
     * Dean, D., and Stiel, L. "The viscosity of nonpolar gas mixtures at
     moderate and high pressures." AIChE Journal 11.3 (1965): 526-532.
 
@@ -173,8 +173,8 @@ def MUV_Lucas(T: float,
     r"""Calculate the viscosity of a pure gas at a given temperature and
     pressure using the method of Lucas.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 421.
 
@@ -219,8 +219,8 @@ def MUVMX_Lucas(T: float,
     r"""Calculate the viscosity of a gas mixture at a given temperature and
     pressure using the method of Lucas.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 431.
 

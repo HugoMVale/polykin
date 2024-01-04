@@ -30,8 +30,8 @@ def quadratic_mixing(y: FloatVector,
         symmetry of $Q_{ij}$. The _full_ matrix must be supplied and will be
         used as given.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 75.
 
@@ -65,8 +65,8 @@ def geometric_interaction_mixing(y: FloatVector,
 
         Only the entries above the main diagonal of $k_{i,j}$ are used.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 75.
 
@@ -117,8 +117,8 @@ def pseudocritical_properties(y: FloatVector,
 
     where the meaning of the parameters is as defined below.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 76-77.
 

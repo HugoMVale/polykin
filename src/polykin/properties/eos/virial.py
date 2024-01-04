@@ -39,10 +39,10 @@ class Virial(GasEoS):
         This equation is an improvement over the ideal gas model, but it
         should only be used up to moderate pressures such that $v/v_c > 2$.
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
     Parameters
     ----------
@@ -144,10 +144,10 @@ class Virial(GasEoS):
 
         $$ B_m = \sum_i \sum_j y_i y_j B_{ij} $$
 
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 79.
+        References
+        ----------
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 79.
 
         Parameters
         ----------
@@ -202,10 +202,10 @@ class Virial(GasEoS):
         coefficients, $B_m$ is the second virial coefficient of the mixture,
         and $y_i$ is the mole fraction in the gas phase.
 
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 145.
+        References
+        ----------
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 145.
 
         Parameters
         ----------
@@ -247,10 +247,10 @@ def B_pure(T: FloatOrArray,
     $T_c$ is the critical temperature, $T_r=T/T_c$ is the reduced temperature,
     and $\omega$ is the acentric factor.
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 40.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 40.
 
     Parameters
     ----------
@@ -296,10 +296,10 @@ def B_mixture(T: float,
     The calculation of the individual coefficients is handled by
     [`B_pure`](.#polykin.properties.eos.B_pure).
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 80.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 80.
 
     Parameters
     ----------

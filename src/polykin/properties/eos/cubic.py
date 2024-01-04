@@ -91,10 +91,10 @@ class Cubic(GasAndLiquidEoS):
 
         $$ a_m = \sum_i \sum_j y_i y_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) $$
 
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 82.
+        References
+        ----------
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 82.
 
         Parameters
         ----------
@@ -118,10 +118,10 @@ class Cubic(GasAndLiquidEoS):
 
         $$ b_m = \sum_i y_i b_i $$
 
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 82.
+        References
+        ----------
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 82.
 
         Parameters
         ----------
@@ -199,10 +199,10 @@ class Cubic(GasAndLiquidEoS):
 
         $$ B_m = b_m - \frac{a_m}{R T} $$
 
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 82.
+        References
+        ----------
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 82.
 
         Parameters
         ----------
@@ -248,10 +248,10 @@ class Cubic(GasAndLiquidEoS):
         \delta_i &= \frac{2a_i^{1/2}}{a_m}\sum_j y_j a_j^{1/2}(1-\bar{k}_{ij})
         \end{aligned}
 
-        Reference:
-
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 145.
+        References
+        ----------
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 145.
 
         Parameters
         ----------
@@ -327,10 +327,10 @@ class RedlichKwong(Cubic):
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     and $T_r = T/T_c$ is the reduced temperature.
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
     Parameters
     ----------
@@ -382,10 +382,10 @@ class Soave(Cubic):
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     and $T_r = T/T_c$ is the reduced temperature.
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
     Parameters
     ----------
@@ -443,10 +443,10 @@ class PengRobinson(Cubic):
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     and $T_r = T/T_c$ is the reduced temperature.
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-    liquids 4th edition, 1986, p. 37, 40, 80, 82.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
     Parameters
     ----------
@@ -505,10 +505,10 @@ def Z_cubic_roots(u: float,
     | Soave         |  1  |  0  |
     | Peng-Robinson |  2  | -1  |
 
-    Reference:
-
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-    liquids 4th edition, 1986, p. 42.
+    References
+    ----------
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 42.
 
     Parameters
     ----------

@@ -37,8 +37,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
     r"""Composite model for the termination rate coefficient between two
     radicals.
 
-    This model implements the chain-length dependence proposed by
-    [Smith & Russel (2003)](https://doi.org/10.1002/mats.200390029):
+    This model implements the chain-length dependence:
 
     $$ k_t(i,j)=\sqrt{k_t(i,i) k_t(j,j)} $$
 
@@ -53,6 +52,10 @@ class TerminationCompositeModel(KineticCoefficientCLD):
     between two monomeric radicals, $i_{crit}$ is the critical chain length,
     $\alpha_S$ is the short-chain exponent, and $\alpha_L$ is the long-chain
     exponent.
+
+    References
+    ----------
+    *   [Smith & Russel (2003)](https://doi.org/10.1002/mats.200390029)
 
     Parameters
     ----------
@@ -175,17 +178,18 @@ class PropagationHalfLength(KineticCoefficientCLD):
     r"""Half-length model for the decay of the propagation rate coefficient
     with chain length.
 
-    This model implements the chain-length dependence proposed by
-    [Smith et al. (2005)](https://doi.org/10.1016/j.eurpolymj.2004.09.002):
+    This model implements the chain-length dependence:
 
-    $$
-    k_p(i) = k_p \left[ 1+ (C - 1)\exp{\left (-\frac{\ln 2}{i_{1/2}} (i-1)
-             \right )} \right]
-    $$
+    $$ k_p(i) = k_p \left[ 1+ (C - 1)\exp{\left (-\frac{\ln 2}{i_{1/2}} (i-1)
+                \right )} \right] $$
 
     where $k_p=k_p(\infty)$ is the long-chain value of the propagation rate
     coefficient, $C\ge 1$ is the ratio $k_p(1)/k_p$ and $(i_{1/2}+1)$ is the
     hypothetical chain-length at which the difference $k_p(1) - k_p$ is halved.
+
+    References
+    ----------
+    *   [Smith et al. (2005)](https://doi.org/10.1016/j.eurpolymj.2004.09.002)
 
     Parameters
     ----------

@@ -6,6 +6,7 @@
 # pure components.
 
 import numpy as np
+from numpy import exp
 
 from polykin.types import FloatOrArray
 
@@ -111,4 +112,4 @@ class Yaws(PropertyEquationT):
         if base10:
             return 10**x
         else:
-            return np.exp(x)
+            return exp(x)

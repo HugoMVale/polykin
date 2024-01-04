@@ -12,8 +12,9 @@ def inst_copolymer_binary(f1: FloatOrArray,
                           r1: FloatOrArray,
                           r2: FloatOrArray
                           ) -> FloatOrArray:
-    r"""Instantaneous copolymer composition equation
-    (aka [Mayo-Lewis](https://en.wikipedia.org/wiki/Mayo%E2%80%93Lewis_equation) equation).
+    r"""Calculate the instantaneous copolymer composition using the
+    [Mayo-Lewis](https://en.wikipedia.org/wiki/Mayo%E2%80%93Lewis_equation)
+     equation.
 
     For a binary system, the instantaneous copolymer composition $F_i$ is
     related to the comonomer composition $f_i$ by:
@@ -23,6 +24,10 @@ def inst_copolymer_binary(f1: FloatOrArray,
     where $r_i$ are the reactivity ratios. Although the equation is written
     using terminal model notation, it is equally applicable in the frame of the
     penultimate model if $r_i \rightarrow \bar{r}_i$.
+
+    References
+    ----------
+    *   [Mayo & Lewis (1944)](https://doi.org/10.1021/ja01237a052)
 
     Parameters
     ----------
@@ -37,6 +42,13 @@ def inst_copolymer_binary(f1: FloatOrArray,
     -------
     FloatOrArray
         Instantaneous copolymer composition, $F_1$.
+
+    !!! note annotate "See also"
+
+        * [`inst_copolymer_ternary`](../multicomponent/inst_copolymer_ternary.md):
+          method for terpolymer systems.
+        * [`inst_copolymer_multicomponent`](../multicomponent/inst_copolymer_multicomponent.md):
+          method for multicomponent systems.
     """
     f2 = 1 - f1
     return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
@@ -48,7 +60,7 @@ def average_kp_binary(f1: FloatOrArray,
                       k11: FloatOrArray,
                       k22: FloatOrArray
                       ) -> FloatOrArray:
-    r"""Average propagation rate coefficient equation.
+    r"""Calculate the average propagation rate coefficient.
 
     For a binary system, the instantaneous average propagation rate
     coefficient is related to the instantaneous comonomer composition by:

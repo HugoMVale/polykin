@@ -30,8 +30,8 @@ class Tait(PolymerPVTEquation):
     where $A_i$ and $B_i$ are constant parameters, $T$ is the absolute
     temperature, and $P$ is the pressure.
 
-    References:
-
+    References
+    ----------
     *   Danner, Ronald P., and Martin S. High. Handbook of polymer
         solution thermodynamics. John Wiley & Sons, 2010.
 

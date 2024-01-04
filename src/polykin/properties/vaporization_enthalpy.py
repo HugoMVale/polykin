@@ -24,7 +24,7 @@ def DHVL_Pitzer(T: FloatOrArray,
                 Tc: float,
                 w: float
                 ) -> FloatOrArray:
-    r"""Estimate the enthalpy of vaporization of a pure compound at a given
+    r"""Calculate the enthalpy of vaporization of a pure compound at a given
     temperature, $\Delta H_v(T)$, using the Pitzer acentric factor method.
 
     $$
@@ -35,8 +35,8 @@ def DHVL_Pitzer(T: FloatOrArray,
     temperature, and $\omega$ is the acentric factor. The equation is valid in
     the range $0.6<T_r<1$.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 220.
 
@@ -62,7 +62,7 @@ def DHVL_Vetere(Tb: float,
                 Tc: float,
                 Pc: float,
                 ) -> float:
-    r"""Estimate the enthalpy of vaporization of a pure compound at the normal
+    r"""Calculate the enthalpy of vaporization of a pure compound at the normal
     boiling point, $\Delta H_{vb}$, using the Vetere method.
 
     $$
@@ -75,8 +75,8 @@ def DHVL_Vetere(Tb: float,
     $T_b$ is the normal boiling temperature, and $T_{br}=T_b/T_c$ is the
     reduced normal boiling temperature.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 227.
 
@@ -104,7 +104,7 @@ def DHVL_Watson(hvap1: float,
                 T2: float,
                 Tc: float
                 ) -> float:
-    r"""Estimate the variation of the vaporization enthalpy of a pure compound
+    r"""Calculate the variation of the vaporization enthalpy of a pure compound
     with temperature using the Watson method.
 
     $$ \Delta H_{v,2} = \Delta H_{v,1}
@@ -112,8 +112,8 @@ def DHVL_Watson(hvap1: float,
 
     where $T_{r,i}=T_i/T_c$.
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 228.
 
@@ -142,9 +142,8 @@ def DHVL_Kistiakowsky_Vetere(
         M: Optional[float] = None,
         kind: Literal['any', 'acid_alcohol', 'ester',
                       'hydrocarbon', 'polar'] = 'any') -> float:
-    r"""Estimate the enthalpy of vaporization of a pure compound at the normal
-    boiling point, $\Delta H_{vb}$, using Vetere's modification of the
-    Kistiakowsky method.
+    r"""Calculate the enthalpy of vaporization of a pure compound at the normal
+    boiling point, using Vetere's modification of the Kistiakowsky method.
 
     $$ \Delta H_{vb} = T_b \Delta S_{vb}(T_b, M, kind) $$
 
@@ -153,8 +152,8 @@ def DHVL_Kistiakowsky_Vetere(
     five empirical correlations depending on the kind of compound (see
     Parameter description).
 
-    Reference:
-
+    References
+    ----------
     * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
     4th edition, 1986, p. 231.
 

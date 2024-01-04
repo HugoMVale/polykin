@@ -23,7 +23,7 @@ D = DV_Wilke_Lee(
     TB=373.,      # normal boiling point of water
     )
 
-print(D)
+print(f"{D:.2e} m²/s")
 ```
 
 Estimate the diffusion coefficient of vinyl chloride through air.
