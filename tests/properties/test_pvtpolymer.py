@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.pvt_polymer import \
-    Tait, Flory, HartmannHaque, SanchezLacombe
-from polykin.utils import RangeError
-
-import pytest
 import numpy as np
+import pytest
+
+from polykin.properties.pvt_polymer import (Flory, HartmannHaque,
+                                            SanchezLacombe, Tait)
+from polykin.utils.exceptions import RangeError
 
 atol = 0e0
 rtol = 1e-4

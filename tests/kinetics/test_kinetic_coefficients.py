@@ -4,7 +4,7 @@
 
 from polykin.kinetics import Arrhenius, Eyring, \
     TerminationCompositeModel, PropagationHalfLength
-from polykin.utils import RangeError, ShapeError
+from polykin.utils.exceptions import RangeError, ShapeError
 
 import pytest
 import numpy as np

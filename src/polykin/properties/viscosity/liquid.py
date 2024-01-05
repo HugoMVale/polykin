@@ -4,7 +4,7 @@
 
 from numpy import cbrt, dot, exp, log
 
-from polykin.types import FloatVector
+from polykin.utils.types import FloatVector
 
 __all__ = ['MULMX2_Perry']
 

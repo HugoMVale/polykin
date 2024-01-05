@@ -8,7 +8,7 @@ from numpy import all, isclose
 
 from polykin.properties.eos import (IdealGas, PengRobinson, RedlichKwong,
                                     Soave, Virial)
-from polykin.utils import ShapeError
+from polykin.utils.exceptions import ShapeError
 
 
 @pytest.fixture
