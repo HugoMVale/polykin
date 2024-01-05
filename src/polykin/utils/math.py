@@ -9,7 +9,7 @@ import numpy as np
 
 from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVector,
                     FloatOrVectorLike, FloatVector)
-from .utils import check_shapes
+from .tools import check_shapes
 
 # %% Maths
 

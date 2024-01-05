@@ -9,9 +9,9 @@ import numpy as np
 from numpy import log10
 from scipy import integrate, interpolate, optimize
 
-from polykin.types import FloatVectorLike
-from polykin.utils import check_bounds, check_subclass
-from polykin.math import vectorize
+from polykin.utils.math import vectorize
+from polykin.utils.tools import check_bounds, check_subclass
+from polykin.utils.types import FloatVectorLike
 
 from .analyticaldistributions import Flory, LogNormal, Poisson, SchulzZimm
 from .base import (AnalyticalDistribution, AnalyticalDistributionP2,

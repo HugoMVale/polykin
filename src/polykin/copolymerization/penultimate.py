@@ -9,9 +9,10 @@ from typing import Literal, Optional
 import numpy as np
 
 from polykin.kinetics import Arrhenius
-from polykin.math import eps
-from polykin.types import FloatOrArray, FloatOrArrayLike, IntOrArrayLike
-from polykin.utils import check_bounds
+from polykin.utils.math import eps
+from polykin.utils.tools import check_bounds
+from polykin.utils.types import FloatOrArray, FloatOrArrayLike, IntOrArrayLike
+
 from .terminal import CopoModel, TerminalModel
 
 __all__ = ['PenultimateModel',

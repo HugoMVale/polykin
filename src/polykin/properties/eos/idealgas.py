@@ -5,7 +5,7 @@
 from numpy import log
 from scipy.constants import R
 
-from polykin.types import FloatOrArray
+from polykin.utils.types import FloatOrArray
 
 from .base import GasEoS
 

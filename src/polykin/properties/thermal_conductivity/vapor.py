@@ -5,7 +5,7 @@
 from numpy import dot, exp, sqrt
 from scipy.constants import N_A, R
 
-from polykin.types import FloatVector
+from polykin.utils.types import FloatVector
 
 __all__ = ['KVPC_Stiel_Thodos',
            'KVMXPC_Stiel_Thodos',

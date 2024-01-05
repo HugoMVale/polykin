@@ -9,9 +9,9 @@ from numpy import exp
 from scipy.constants import Boltzmann as kB
 from scipy.constants import R, h
 
-from polykin.math import convert_FloatOrArrayLike_to_FloatOrArray
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import check_bounds, check_shapes
+from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
+from polykin.utils.tools import check_bounds, check_shapes
+from polykin.utils.types import FloatOrArray, FloatOrArrayLike
 
 from .base import KineticCoefficientT
 

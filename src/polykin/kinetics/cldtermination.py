@@ -7,10 +7,10 @@ from typing import Literal, Union
 import numpy as np
 from numpy import sqrt
 
-from polykin.types import (FloatOrArray, FloatOrArrayLike, IntOrArray,
-                           IntOrArrayLike)
-from polykin.utils import (check_bounds, check_type, convert_check_temperature,
-                           custom_repr)
+from polykin.utils.tools import (check_bounds, check_type,
+                                 convert_check_temperature, custom_repr)
+from polykin.utils.types import (FloatOrArray, FloatOrArrayLike, IntOrArray,
+                                 IntOrArrayLike)
 
 from .arrhenius import Arrhenius
 from .base import KineticCoefficientCLD

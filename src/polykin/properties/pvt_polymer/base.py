@@ -11,10 +11,10 @@ from typing import Literal, Optional
 import numpy as np
 import pandas as pd
 
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import (check_bounds, convert_check_pressure,
-                           convert_check_temperature)
-from polykin.math import eps
+from polykin.utils.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils.tools import (check_bounds, convert_check_pressure,
+                                 convert_check_temperature)
+from polykin.utils.math import eps
 
 from ..equations.base import PropertyEquation
 

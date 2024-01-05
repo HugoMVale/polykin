@@ -7,7 +7,7 @@
 import numpy as np
 from numpy import cosh, exp, log, sinh
 
-from polykin.types import FloatOrArray
+from polykin.utils.types import FloatOrArray
 
 from .base import PropertyEquationT
 

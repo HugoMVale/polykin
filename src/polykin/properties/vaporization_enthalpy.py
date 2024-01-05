@@ -11,7 +11,7 @@ from typing import Literal, Optional
 from numpy import log, log10
 from scipy.constants import R
 
-from polykin.types import FloatOrArray
+from polykin.utils.types import FloatOrArray
 
 __all__ = ['DHVL_Pitzer',
            'DHVL_Vetere',

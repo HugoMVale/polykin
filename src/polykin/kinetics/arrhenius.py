@@ -9,9 +9,10 @@ from typing import Union
 import numpy as np
 from numpy import exp
 
-from polykin.math import convert_FloatOrArrayLike_to_FloatOrArray
-from polykin.types import FloatOrArray, FloatOrArrayLike, ShapeError
-from polykin.utils import check_bounds, check_shapes
+from polykin.utils.exceptions import ShapeError
+from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
+from polykin.utils.tools import check_bounds, check_shapes
+from polykin.utils.types import FloatOrArray, FloatOrArrayLike
 
 from .base import KineticCoefficientT
 

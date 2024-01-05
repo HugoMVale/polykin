@@ -6,8 +6,9 @@ import numpy as np
 from numpy import exp
 from scipy.integrate import solve_ivp
 
-from polykin.types import (FloatArray, FloatMatrix, FloatOrArray,
-                           FloatSquareMatrix, FloatVector, FloatVectorLike)
+from polykin.utils.types import (FloatArray, FloatMatrix, FloatOrArray,
+                                 FloatSquareMatrix, FloatVector,
+                                 FloatVectorLike)
 
 __all__ = ['inst_copolymer_ternary',
            'inst_copolymer_multicomponent',
@@ -26,30 +27,30 @@ def inst_copolymer_ternary(f1: FloatOrArray,
                            r23: float,
                            r32: float,
                            ) -> tuple[FloatOrArray, FloatOrArray, FloatOrArray]:
-    r"""Instantaneous terpolymer composition equation.
+    r"""Calculate the instantaneous copolymer composition for a ternary system.
 
     For a ternary system, the instantaneous copolymer composition $F_i$ is
     related to the monomer composition $f_i$ by:
 
     \begin{aligned}
-        S &= \frac{f_1}{r_{21} r_{31}} + \frac{f_2}{r_{21} r_{32}} + \frac{f_3}{r_{31} r_{23}} \\
-        T &= f_1 + \frac{f_2}{r_{12}} + \frac{f_3}{r_{13}} \\
-        U &= \frac{f_1}{r_{12} r_{31}} + \frac{f_2}{r_{12} r_{32}} + \frac{f_3}{r_{13} r_{32}} \\
-        V &= f_2 + \frac{f_1}{r_{21}} + \frac{f_3}{r_{23}} \\
-        W &= \frac{f_1}{r_{13} r_{21}} + \frac{f_2}{r_{23} r_{12}} + \frac{f_3}{r_{13} r_{23}} \\
-        X &= f_3 + \frac{f_1}{r_{31}} + \frac{f_2}{r_{32}} \\
-        F_1 &= \frac{f_1 S T}{f_1 S T + f_2 U V + f_3 W X} \\
-        F_2 &= \frac{f_2 U V}{f_1 S T + f_2 U V + f_3 W X} \\
-        F_3 &= \frac{f_3 W X}{f_1 S T + f_2 U V + f_3 W X}
+        a &= \frac{f_1}{r_{21} r_{31}} + \frac{f_2}{r_{21} r_{32}} + \frac{f_3}{r_{31} r_{23}} \\
+        b &= f_1 + \frac{f_2}{r_{12}} + \frac{f_3}{r_{13}} \\
+        c &= \frac{f_1}{r_{12} r_{31}} + \frac{f_2}{r_{12} r_{32}} + \frac{f_3}{r_{13} r_{32}} \\
+        d &= f_2 + \frac{f_1}{r_{21}} + \frac{f_3}{r_{23}} \\
+        e &= \frac{f_1}{r_{13} r_{21}} + \frac{f_2}{r_{23} r_{12}} + \frac{f_3}{r_{13} r_{23}} \\
+        g &= f_3 + \frac{f_1}{r_{31}} + \frac{f_2}{r_{32}} \\
+        F_1 &= \frac{a b f_1}{a b f_1 + c d f_2 + e g f_3} \\
+        F_2 &= \frac{c d f_2}{a b f_1 + c d f_2 + e g f_3} \\
+        F_3 &= \frac{e g f_3}{a b f_1 + c d f_2 + e g f_3}
     \end{aligned}
 
     where $r_{ij}=k_{ii}/k_{ij}$ are the multicomponent reactivity ratios.
 
-    Reference:
+    **References**
 
-    * Kazemi, N., Duever, T.A. and Penlidis, A. (2014), Demystifying the
-    estimation of reactivity ratios for terpolymerization systems. AIChE J.,
-    60: 1752-1766.
+    *   Kazemi, N., Duever, T.A. and Penlidis, A. (2014), Demystifying the
+        estimation of reactivity ratios for terpolymerization systems.
+        AIChE J., 60: 1752-1766.
 
     Parameters
     ----------
@@ -74,21 +75,28 @@ def inst_copolymer_ternary(f1: FloatOrArray,
     -------
     tuple[FloatOrArray, FloatOrArray, FloatOrArray]:
         Instantaneous terpolymer composition, $(F_1, F_2, F_3)$.
+
+    !!! note annotate "See also"
+
+        * [`inst_copolymer_binary`](../binary/inst_copolymer_binary.md):
+          method for binary systems.
+        * [`inst_copolymer_multicomponent`](../multicomponent/inst_copolymer_multicomponent.md):
+          method for multicomponent systems.
     """
 
     f3 = 1. - (f1 + f2)
 
-    S = f1/(r21*r31) + f2/(r21*r32) + f3/(r31*r23)
-    T = f1 + f2/r12 + f3/r13
-    U = f1/(r12*r31) + f2/(r12*r32) + f3/(r13*r32)
-    V = f2 + f1/r21 + f3/r23
-    W = f1/(r13*r21) + f2/(r23*r12) + f3/(r13*r23)
-    X = f3 + f1/r31 + f2/r32
+    a = f1/(r21*r31) + f2/(r21*r32) + f3/(r31*r23)
+    b = f1 + f2/r12 + f3/r13
+    c = f1/(r12*r31) + f2/(r12*r32) + f3/(r13*r32)
+    d = f2 + f1/r21 + f3/r23
+    e = f1/(r13*r21) + f2/(r23*r12) + f3/(r13*r23)
+    g = f3 + f1/r31 + f2/r32
 
-    denominator = f1*S*T + f2*U*V + f3*W*X
+    denominator = f1*a*b + f2*c*d + f3*e*g
 
-    F1 = f1*S*T/denominator
-    F2 = f2*U*V/denominator
+    F1 = f1*a*b/denominator
+    F2 = f2*c*d/denominator
     F3 = 1. - (F1 + F2)
 
     return (F1, F2, F3)
@@ -97,21 +105,16 @@ def inst_copolymer_ternary(f1: FloatOrArray,
 def inst_copolymer_multicomponent(f: FloatVector,
                                   r: FloatSquareMatrix
                                   ) -> FloatVector:
-    """Multicomponent copolymer composition equation.
+    """Calculate the instantaneous copolymer composition for a system with an
+    arbitrary number of monomers.
 
-    The algorithm uses a linear algebra procedure and is applicable to systems
-    with an arbitrary number of monomers.
+    This algorithm relies on general linear algebra procedure applicable to
+    systems with any number of monomers.
 
-    !!! note
+    **References**
 
-        For systems with 2 or 3 monomers, the equivalent functions
-        `inst_copolymer_binary` and `inst_copolymer_ternary` are significantly
-        faster.
-
-    Reference:
-
-    * Jung, Woosung. Mathematical modeling of free-radical six-component bulk
-    and solution polymerization. MS thesis. University of Waterloo, 2008.
+    *   Jung, Woosung. Mathematical modeling of free-radical six-component bulk
+        and solution polymerization. MS thesis. University of Waterloo, 2008.
 
     Parameters
     ----------
@@ -124,6 +127,13 @@ def inst_copolymer_multicomponent(f: FloatVector,
     -------
     FloatVector
         Vector(N) of instantaneous copolymer composition.
+
+    !!! note annotate "See also"
+
+        * [`inst_copolymer_binary`](../binary/inst_copolymer_binary.md):
+          specific (and faster) method for binary systems.
+        * [`inst_copolymer_ternary`](../multicomponent/inst_copolymer_ternary.md):
+          specific (and faster) method for terpolymer systems.
     """
 
     # Compute radical probabilities, p(i)
@@ -226,10 +236,10 @@ def transitions_multicomponent(f: FloatArray,
             r_2 & 1
            \end{bmatrix} $$
 
-    Reference:
+    **References**
 
-    * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
-    process modeling, Wiley, 1996, p. 178.
+    *   NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+        process modeling, Wiley, 1996, p. 178.
 
     Parameters
     ----------
@@ -277,9 +287,9 @@ def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
     where $Q_i$ and $e_i$ are monomer-specific constants, and
     $r_{ij}=k_{ii}/k_{ij}$ is the multicomponent reactivity ratio matrix.
 
-    Reference:
+    **References**
 
-    * T Alfrey, CC Price. J. Polym. Sci., 1947, 2: 101-106.
+    *   T Alfrey, CC Price. J. Polym. Sci., 1947, 2: 101-106.
 
     Parameters
     ----------

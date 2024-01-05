@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.types import FloatOrArray
+from polykin.utils.types import FloatOrArray
 
 __all__ = ['inst_copolymer_binary',
            'average_kp_binary']

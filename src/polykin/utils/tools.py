@@ -7,7 +7,8 @@ from typing import Any, Iterable, Literal, Union
 
 import numpy as np
 
-from .types import FloatOrArray, FloatOrArrayLike, RangeError, ShapeError
+from .exceptions import RangeError, ShapeError
+from .types import FloatOrArray, FloatOrArrayLike
 
 # %% Check tools
 

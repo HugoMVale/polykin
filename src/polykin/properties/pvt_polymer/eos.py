@@ -8,9 +8,9 @@ import numpy as np
 from numpy import log
 from scipy.optimize import root_scalar
 
-from polykin.math import vectorize
-from polykin.types import FloatOrArray
-from polykin.utils import check_bounds
+from polykin.utils.math import vectorize
+from polykin.utils.types import FloatOrArray
+from polykin.utils.tools import check_bounds
 
 from .base import PolymerPVTEquation
 

@@ -15,10 +15,11 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import root_scalar
 
 from polykin.kinetics import Arrhenius
-from polykin.math import convert_FloatOrVectorLike_to_FloatVector, eps
-from polykin.types import (FloatOrArray, FloatOrArrayLike, FloatOrVectorLike,
-                           FloatVector, IntOrArrayLike)
-from polykin.utils import check_bounds, check_in_set, custom_repr
+from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
+from polykin.utils.tools import check_bounds, check_in_set, custom_repr
+from polykin.utils.types import (FloatOrArray, FloatOrArrayLike,
+                                 FloatOrVectorLike, FloatVector,
+                                 IntOrArrayLike)
 
 from .binary import average_kp_binary, inst_copolymer_binary
 from .copodataset import CopoDataset, DriftDataset, MayoDataset, kpDataset

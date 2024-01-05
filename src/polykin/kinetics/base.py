@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from polykin.properties.equations.base import PropertyEquationT
-from polykin.types import FloatOrArray
+from polykin.utils.types import FloatOrArray
 
 
 class KineticCoefficientT(PropertyEquationT):

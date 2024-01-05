@@ -11,9 +11,9 @@ from matplotlib.figure import Figure
 from numpy import exp
 from scipy.constants import R as Rgas
 
-from polykin.types import FloatOrArray, FloatOrArrayLike
-from polykin.utils import (check_bounds, check_in_set, check_valid_range,
-                           convert_check_temperature)
+from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
+                                 convert_check_temperature)
+from polykin.utils.types import FloatOrArray, FloatOrArrayLike
 
 # %%
 

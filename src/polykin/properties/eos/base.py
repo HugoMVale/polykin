@@ -9,8 +9,8 @@ from typing import Iterable
 from numpy import sqrt
 from scipy.constants import R
 
-from polykin.math import eps
-from polykin.types import FloatVector
+from polykin.utils.math import eps
+from polykin.utils.types import FloatVector
 
 __all__ = ['EoS']
 

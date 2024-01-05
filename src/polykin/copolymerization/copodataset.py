@@ -5,9 +5,9 @@
 from abc import ABC
 from typing import Any, Literal
 
-from polykin.math import convert_FloatOrVectorLike_to_FloatOrVector
-from polykin.types import FloatOrVectorLike, FloatVectorLike
-from polykin.utils import check_shapes
+from polykin.utils.math import convert_FloatOrVectorLike_to_FloatOrVector
+from polykin.utils.tools import check_shapes
+from polykin.utils.types import FloatOrVectorLike, FloatVectorLike
 
 # from dataclasses import dataclass
 

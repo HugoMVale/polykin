@@ -8,7 +8,7 @@ import numpy as np
 from numpy import dot, sqrt
 from scipy.constants import R
 
-from polykin.types import FloatSquareMatrix, FloatVector
+from polykin.utils.types import FloatSquareMatrix, FloatVector
 
 __all__ = ['quadratic_mixing',
            'geometric_interaction_mixing',

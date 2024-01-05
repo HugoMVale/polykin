@@ -28,18 +28,3 @@ FloatMatrix = NDArray[Shape['*, *'], Float64]
 FloatSquareMatrix = NDArray[Shape['Dim, Dim'], Float64]
 
 FloatRangeArray = NDArray[Shape['2'], Float64]
-
-
-# %% Exceptions
-
-
-class RangeWarning(Warning):
-    pass
-
-
-class RangeError(ValueError):
-    pass
-
-
-class ShapeError(ValueError):
-    pass
