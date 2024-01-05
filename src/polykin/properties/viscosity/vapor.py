@@ -7,7 +7,7 @@ from numpy import abs, dot, exp, sqrt
 from scipy.constants import R
 
 from polykin.properties.mixing_rules import pseudocritical_properties
-from polykin.types import FloatOrArray, FloatVector
+from polykin.utils.types import FloatOrArray, FloatVector
 
 __all__ = ['MUVMX2_Herning_Zipperer',
            'MUVPC_Jossi',
