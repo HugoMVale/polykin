@@ -1,6 +1,6 @@
-# Types (polykin.types)
+# Types (polykin.utils.types)
 
-::: polykin.types
+::: polykin.utils.types
     options:
         members:
             - IntArray
