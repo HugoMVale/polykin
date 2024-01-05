@@ -11,11 +11,21 @@ from polykin.utils.types import (FloatArray, FloatMatrix, FloatOrArray,
                                  FloatVectorLike)
 
 __all__ = ['inst_copolymer_ternary',
-           'inst_copolymer_multicomponent',
-           'monomer_drift_multicomponent',
-           'convert_Qe_to_r']
+           'inst_copolymer_multi',
+           'monomer_drift_multi',
+           'convert_Qe_to_r',
+           'transitions_multi']
 
 # %% Multicomponent versions of the Mayo-Lewis equation
+#
+# By definition, $r_{ii}=1$, but the matrix is _not_ symmetrical. For the
+# particular case of a binary system, the matrix is given by:
+#
+#    $$ r = \begin{bmatrix}
+#            1   & r1 \\
+#            r_2 & 1
+#           \end{bmatrix} $$
+#
 
 
 def inst_copolymer_ternary(f1: FloatOrArray,
@@ -79,9 +89,9 @@ def inst_copolymer_ternary(f1: FloatOrArray,
     !!! note annotate "See also"
 
         * [`inst_copolymer_binary`](../binary/inst_copolymer_binary.md):
-          method for binary systems.
-        * [`inst_copolymer_multicomponent`](../multicomponent/inst_copolymer_multicomponent.md):
-          method for multicomponent systems.
+          specific method for binary systems.
+        * [`inst_copolymer_multi`](../multicomponent/inst_copolymer_multi.md):
+          generic method for multicomponent systems.
     """
 
     f3 = 1. - (f1 + f2)
@@ -102,9 +112,9 @@ def inst_copolymer_ternary(f1: FloatOrArray,
     return (F1, F2, F3)
 
 
-def inst_copolymer_multicomponent(f: FloatVector,
-                                  r: FloatSquareMatrix
-                                  ) -> FloatVector:
+def inst_copolymer_multi(f: FloatVector,
+                         r: FloatSquareMatrix
+                         ) -> FloatVector:
     """Calculate the instantaneous copolymer composition for a system with an
     arbitrary number of monomers.
 
@@ -113,7 +123,7 @@ def inst_copolymer_multicomponent(f: FloatVector,
 
     **References**
 
-    *   Jung, Woosung. Mathematical modeling of free-radical six-component bulk
+    *   Jung, W. Mathematical modeling of free-radical six-component bulk
         and solution polymerization. MS thesis. University of Waterloo, 2008.
 
     Parameters
@@ -131,9 +141,9 @@ def inst_copolymer_multicomponent(f: FloatVector,
     !!! note annotate "See also"
 
         * [`inst_copolymer_binary`](../binary/inst_copolymer_binary.md):
-          specific (and faster) method for binary systems.
+          specific method for binary systems.
         * [`inst_copolymer_ternary`](../multicomponent/inst_copolymer_ternary.md):
-          specific (and faster) method for terpolymer systems.
+          specific method for terpolymer systems.
     """
 
     # Compute radical probabilities, p(i)
@@ -163,10 +173,10 @@ def inst_copolymer_multicomponent(f: FloatVector,
 # %% Multicomponent Skeist equation
 
 
-def monomer_drift_multicomponent(f0: FloatVectorLike,
-                                 r: FloatSquareMatrix,
-                                 xteval: FloatVectorLike
-                                 ) -> tuple[FloatMatrix, FloatVector]:
+def monomer_drift_multi(f0: FloatVectorLike,
+                        r: FloatSquareMatrix,
+                        xteval: FloatVectorLike
+                        ) -> tuple[FloatMatrix, FloatVector]:
     """Compute the monomer composition drift for an arbitrary monomer mixture.
 
     Parameters
@@ -191,7 +201,7 @@ def monomer_drift_multicomponent(f0: FloatVectorLike,
         raise ValueError("Shape mismatch between `f0` and `r`.")
 
     def ode(xt_: float, f_: np.ndarray) -> np.ndarray:
-        F = inst_copolymer_multicomponent(f_, r)
+        F = inst_copolymer_multi(f_, r)
         return (f_ - F[:-1]) / (1 - xt_)
 
     sol = solve_ivp(ode,
@@ -216,25 +226,18 @@ def monomer_drift_multicomponent(f0: FloatVectorLike,
 # %% Multicomponent transition probabilities
 
 
-def transitions_multicomponent(f: FloatArray,
-                               r: FloatSquareMatrix
-                               ) -> FloatArray:
+def transitions_multi(f: FloatVector,
+                      r: FloatSquareMatrix
+                      ) -> FloatVector:
     r"""Calculate the instantaneous transition probabilities.
 
     For a multicomponent system, the self-transition probabilities are given
     by:
 
-    $$ P_{ii} &= \frac{f_i}{\sum_j \frac{f_j}{r_{ij}}} $$
+    $$ P_{ii} = \frac{f_i}{\sum_j r_{ij}^{-1} f_j} $$
 
     where $f_i$ is the molar fraction of monomer $i$ and $r_{ij}=k_{ii}/k_{ij}$
-    is the multicomponent reactivity ratio matrix. By definition, $r_{ii}=1$,
-    but the matrix is _not_ symmetrical. For the particular case of a binary
-    system, the matrix is given by:
-
-    $$ r = \begin{bmatrix}
-            1   & r1 \\
-            r_2 & 1
-           \end{bmatrix} $$
+    is the multicomponent reactivity ratio matrix.
 
     **References**
 
@@ -243,28 +246,17 @@ def transitions_multicomponent(f: FloatArray,
 
     Parameters
     ----------
-    f : FloatArray
-        Array(..., N) of instantaneous monomer composition.
+    f : FloatVector
+        Vector(N) of instantaneous monomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
+        Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
-    FloatArray
-        Array of transition probabilities.
+    FloatVector
+        Vector(N) of self-transition probabilities.
     """
-
-    # fN = 1. - np.sum(f, axis=-1)
-    # f = np.concatenate((f, fN))
-
-    # P = np.empty_like(f)
-    # for i in range(f.shape[-1]):
-    #     P[:, i] = f[:, i]/np.sum(f/r, axis=-1)
-
-    denominator = np.sum(f / r, axis=-1)
-    P = f / denominator[:, np.newaxis]
-
-    return P
+    return f / np.sum(f / r, axis=-1)
 
 
 # %% Multicomponent Q-e

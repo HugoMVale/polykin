@@ -46,9 +46,9 @@ def inst_copolymer_binary(f1: FloatOrArray,
     !!! note annotate "See also"
 
         * [`inst_copolymer_ternary`](../multicomponent/inst_copolymer_ternary.md):
-          method for terpolymer systems.
-        * [`inst_copolymer_multicomponent`](../multicomponent/inst_copolymer_multicomponent.md):
-          method for multicomponent systems.
+          specific method for terpolymer systems.
+        * [`inst_copolymer_multi`](../multicomponent/inst_copolymer_multi.md):
+          generic method for multicomponent systems.
     """
     f2 = 1 - f1
     return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
@@ -60,7 +60,8 @@ def average_kp_binary(f1: FloatOrArray,
                       k11: FloatOrArray,
                       k22: FloatOrArray
                       ) -> FloatOrArray:
-    r"""Calculate the average propagation rate coefficient.
+    r"""Calculate the average propagation rate coefficient in a
+    copolymerization.
 
     For a binary system, the instantaneous average propagation rate
     coefficient is related to the instantaneous comonomer composition by:

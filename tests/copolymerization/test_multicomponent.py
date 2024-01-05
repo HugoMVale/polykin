@@ -6,7 +6,7 @@ import numpy as np
 from numpy import all, isclose
 
 from polykin.copolymerization import (convert_Qe_to_r, inst_copolymer_binary,
-                                      inst_copolymer_multicomponent,
+                                      inst_copolymer_multi,
                                       inst_copolymer_ternary)
 
 
@@ -53,7 +53,7 @@ def test_inst_copolymer_multicomponent():
     r[2, 0] = r31
     r[1, 2] = r23
     r[2, 1] = r32
-    F_m = inst_copolymer_multicomponent(np.array([f1, f2]), r)
+    F_m = inst_copolymer_multi(np.array([f1, f2]), r)
     assert all(isclose(F_t, F_m,))  # type: ignore
 
 

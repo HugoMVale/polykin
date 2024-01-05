@@ -54,7 +54,7 @@ watch:
 plugins:
   - search
   - autolinks
-  #- autorefs
+  # - autorefs
   - markdown-exec
   - table-reader
   - bibtex:
@@ -155,10 +155,6 @@ nav:
       - index.md
       - Installation: installation.md
   # - generated/gallery
-  # - Installation: installation.md
-  # - Getting Started:
-  #     - installation.md
-  #     - quickstart.md
   - Tutorials:
       - "tutorials/index.md"
       - Copolymerization: "tutorials/copolymerization.ipynb"
@@ -182,6 +178,8 @@ nav:
           - Multicomponent:
               - convert_Qe_to_r: reference/copolymerization/multicomponent/convert_Qe_to_r.md
               - inst_copolymer_ternary: reference/copolymerization/multicomponent/inst_copolymer_ternary.md
+              - inst_copolymer_multi: reference/copolymerization/multicomponent/inst_copolymer_multi.md
+              - transitions_multi: reference/copolymerization/multicomponent/transitions_multi.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md
