@@ -91,8 +91,8 @@ class Cubic(GasAndLiquidEoS):
 
         $$ a_m = \sum_i \sum_j y_i y_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) $$
 
-        References
-        ----------
+        **References**
+
         *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
             liquids 4th edition, 1986, p. 82.
 
@@ -118,8 +118,8 @@ class Cubic(GasAndLiquidEoS):
 
         $$ b_m = \sum_i y_i b_i $$
 
-        References
-        ----------
+        **References**
+
         *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
             liquids 4th edition, 1986, p. 82.
 
@@ -199,8 +199,8 @@ class Cubic(GasAndLiquidEoS):
 
         $$ B_m = b_m - \frac{a_m}{R T} $$
 
-        References
-        ----------
+        **References**
+
         *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
             liquids 4th edition, 1986, p. 82.
 
@@ -248,8 +248,8 @@ class Cubic(GasAndLiquidEoS):
         \delta_i &= \frac{2a_i^{1/2}}{a_m}\sum_j y_j a_j^{1/2}(1-\bar{k}_{ij})
         \end{aligned}
 
-        References
-        ----------
+        **References**
+
         *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
             liquids 4th edition, 1986, p. 145.
 
@@ -327,8 +327,8 @@ class RedlichKwong(Cubic):
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     and $T_r = T/T_c$ is the reduced temperature.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
         liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
@@ -382,8 +382,8 @@ class Soave(Cubic):
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     and $T_r = T/T_c$ is the reduced temperature.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
         liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
@@ -443,8 +443,8 @@ class PengRobinson(Cubic):
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     and $T_r = T/T_c$ is the reduced temperature.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
         liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
@@ -505,8 +505,8 @@ def Z_cubic_roots(u: float,
     | Soave         |  1  |  0  |
     | Peng-Robinson |  2  | -1  |
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
         liquids 4th edition, 1986, p. 42.
 

@@ -35,10 +35,10 @@ def DHVL_Pitzer(T: FloatOrArray,
     temperature, and $\omega$ is the acentric factor. The equation is valid in
     the range $0.6<T_r<1$.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 220.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 220.
 
     Parameters
     ----------
@@ -75,10 +75,10 @@ def DHVL_Vetere(Tb: float,
     $T_b$ is the normal boiling temperature, and $T_{br}=T_b/T_c$ is the
     reduced normal boiling temperature.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 227.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 227.
 
     Parameters
     ----------
@@ -112,10 +112,10 @@ def DHVL_Watson(hvap1: float,
 
     where $T_{r,i}=T_i/T_c$.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 228.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 228.
 
     Parameters
     ----------
@@ -152,10 +152,10 @@ def DHVL_Kistiakowsky_Vetere(
     five empirical correlations depending on the kind of compound (see
     Parameter description).
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 231.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 231.
 
     Parameters
     ----------

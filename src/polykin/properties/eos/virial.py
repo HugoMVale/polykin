@@ -39,8 +39,8 @@ class Virial(GasEoS):
         This equation is an improvement over the ideal gas model, but it
         should only be used up to moderate pressures such that $v/v_c > 2$.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
         liquids 4th edition, 1986, p. 37, 40, 80, 82.
 
@@ -90,10 +90,10 @@ class Virial(GasEoS):
         the temperature, and $B_m=B_m(T,y)$ is the mixture second virial
         coefficient.
 
-        Reference:
+        **References**
 
-        * RC Reid, JM Prausniz, and BE Poling. The properties of gases &
-        liquids 4th edition, 1986, p. 37.
+        *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+            liquids 4th edition, 1986, p. 37.
 
         Parameters
         ----------
@@ -144,8 +144,8 @@ class Virial(GasEoS):
 
         $$ B_m = \sum_i \sum_j y_i y_j B_{ij} $$
 
-        References
-        ----------
+        **References**
+
         *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
             liquids 4th edition, 1986, p. 79.
 
@@ -202,8 +202,8 @@ class Virial(GasEoS):
         coefficients, $B_m$ is the second virial coefficient of the mixture,
         and $y_i$ is the mole fraction in the gas phase.
 
-        References
-        ----------
+        **References**
+
         *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
             liquids 4th edition, 1986, p. 145.
 
@@ -247,8 +247,8 @@ def B_pure(T: FloatOrArray,
     $T_c$ is the critical temperature, $T_r=T/T_c$ is the reduced temperature,
     and $\omega$ is the acentric factor.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
         4th edition, 1986, p. 40.
 
@@ -296,8 +296,8 @@ def B_mixture(T: float,
     The calculation of the individual coefficients is handled by
     [`B_pure`](.#polykin.properties.eos.B_pure).
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
         4th edition, 1986, p. 80.
 

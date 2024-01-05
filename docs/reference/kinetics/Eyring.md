@@ -1,6 +1,6 @@
 # polykin.kinetics
 
-::: polykin.kinetics.thermal
+::: polykin.kinetics
     options:
         members:
             - Eyring

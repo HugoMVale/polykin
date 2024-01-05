@@ -195,7 +195,7 @@ class PolymerPVTEquation(PropertyEquation):
         | Sanchez-Lacombe | [2] Table 4.1.9  (p. 78-79)          |
         | Tait            | [1] Table 3B-1 (p. 41)               |
 
-        References:
+        **References**
 
         1.  Danner, Ronald P., and Martin S. High. Handbook of polymer
             solution thermodynamics. John Wiley & Sons, 2010.

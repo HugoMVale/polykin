@@ -32,8 +32,8 @@ class PropagationHalfLength(KineticCoefficientCLD):
     coefficient, $C\ge 1$ is the ratio $k_p(1)/k_p$ and $(i_{1/2}+1)$ is the
     hypothetical chain-length at which the difference $k_p(1) - k_p$ is halved.
 
-    References
-    ----------
+    **References**
+
     *   [Smith et al. (2005)](https://doi.org/10.1016/j.eurpolymj.2004.09.002)
 
     Parameters

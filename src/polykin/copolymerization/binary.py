@@ -25,8 +25,8 @@ def inst_copolymer_binary(f1: FloatOrArray,
     using terminal model notation, it is equally applicable in the frame of the
     penultimate model if $r_i \rightarrow \bar{r}_i$.
 
-    References
-    ----------
+    **References**
+
     *   [Mayo & Lewis (1944)](https://doi.org/10.1021/ja01237a052)
 
     Parameters

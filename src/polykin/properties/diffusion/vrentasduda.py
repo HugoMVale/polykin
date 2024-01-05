@@ -49,8 +49,8 @@ class VrentasDudaBinary():
     solvent jumping units,
     and $\chi$ is the Flory-Huggins' interaction parameter.
 
-    References
-    ----------
+    **References**
+
     *   Vrentas, J.S. and Duda, J.L. (1977), J. Polym. Sci. Polym. Phys. Ed.,
         15: 403-416.
 

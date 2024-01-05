@@ -1,6 +1,6 @@
 # polykin.kinetics
 
-::: polykin.kinetics.cld
+::: polykin.kinetics
     options:
         members:
             - PropagationHalfLength

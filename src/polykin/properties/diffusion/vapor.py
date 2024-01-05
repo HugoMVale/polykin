@@ -29,8 +29,8 @@ def DV_Wilke_Lee(T: float,
         If air is one of the components of the mixture, arguments `TB` and
         `rhoB` should both be set to `None`.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
         4th edition, 1986, p. 587.
 

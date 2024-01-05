@@ -32,10 +32,10 @@ def KVPC_Stiel_Thodos(v: float,
     reduced gas density. This equation is valid in the range
     $0 \leq \rho_r < 2.8$.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 521.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 521.
 
     Parameters
     ----------
@@ -84,10 +84,10 @@ def KVMXPC_Stiel_Thodos(v: float,
     conductivity of gas mixtures using the method of Stiel and Thodos for
     nonpolar components, combined with the mixing rules of Yorizane.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 536.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 536.
 
     Parameters
     ----------
@@ -158,10 +158,10 @@ def KVMX2_Wassilijewa(y: FloatVector,
         $M_i$ are arbitrary, as they cancel out when considering the ratio of
         the numerator to the denominator.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, pp. 410, 531.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, pp. 410, 531.
 
     Parameters
     ----------

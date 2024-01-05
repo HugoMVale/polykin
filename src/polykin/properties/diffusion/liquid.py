@@ -35,8 +35,8 @@ def DL_Wilke_Chang(T: float,
     section. The numerical factor has been adjusted to convert the equation to
     SI units.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
         4th edition, 1986, p. 598.
 
@@ -75,8 +75,8 @@ def DL_Hayduk_Minhas(T: float,
     r"""Estimate the infinite-dilution coefficient of a solute A in a liquid
     solvent B, $D^0_{AB}$, using the Hayduk-Minhas method.
 
-    References
-    ----------
+    **References**
+
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
         4th edition, 1986, p. 602.
 

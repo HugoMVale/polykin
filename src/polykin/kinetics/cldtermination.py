@@ -39,8 +39,8 @@ class TerminationCompositeModel(KineticCoefficientCLD):
     $\alpha_S$ is the short-chain exponent, and $\alpha_L$ is the long-chain
     exponent.
 
-    References
-    ----------
+    **References**
+
     *   [Smith & Russel (2003)](https://doi.org/10.1002/mats.200390029)
 
     Parameters

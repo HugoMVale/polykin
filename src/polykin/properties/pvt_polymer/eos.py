@@ -183,8 +183,8 @@ class Flory(PolymerPVTEoS):
     respectively, the reduced volume, reduced pressure and reduced temperature.
     $V^*$, $P^*$ and $T^*$ are reference quantities that are polymer dependent.
 
-    References
-    ----------
+    **References**
+
     *   Caruthers et al. Handbook of Diffusion and Thermal Properties of
         Polymers and Polymer Solutions. AIChE, 1998.
 
@@ -250,8 +250,8 @@ class HartmannHaque(PolymerPVTEoS):
     respectively, the reduced volume, reduced pressure and reduced temperature.
     $V^*$, $P^*$ and $T^*$ are reference quantities that are polymer dependent.
 
-    References
-    ----------
+    **References**
+
     *   Caruthers et al. Handbook of Diffusion and Thermal Properties of
         Polymers and Polymer Solutions. AIChE, 1998.
 
@@ -318,8 +318,8 @@ class SanchezLacombe(PolymerPVTEoS):
     respectively, the reduced volume, reduced pressure and reduced temperature.
     $V^*$, $P^*$ and $T^*$ are reference quantities that are polymer dependent.
 
-    References
-    ----------
+    **References**
+
     *   Caruthers et al. Handbook of Diffusion and Thermal Properties of
         Polymers and Polymer Solutions. AIChE, 1998.
 
