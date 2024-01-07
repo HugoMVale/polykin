@@ -49,6 +49,23 @@ def inst_copolymer_binary(f1: FloatOrArray,
           specific method for terpolymer systems.
         * [`inst_copolymer_multi`](../multicomponent/inst_copolymer_multi.md):
           generic method for multicomponent systems.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import inst_copolymer_binary
+
+    An example with f1 as scalar.
+    >>> F1 = inst_copolymer_binary(f1=0.5, r1=0.16, r2=0.70)
+    >>> print(f"F1 = {F1:.3f}")
+    F1 = 0.406
+
+    An example with f1 as array (not list).
+    >>> import numpy as np
+    >>> f1 = np.array([0.2, 0.6, 0.8])
+    >>> F1 = inst_copolymer_binary(f1=f1, r1=0.16, r2=0.70)
+    >>> F1
+    array([0.21487603, 0.45812808, 0.58259325])
+
     """
     f2 = 1 - f1
     return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
@@ -95,6 +112,22 @@ def average_kp_binary(f1: FloatOrArray,
     -------
     FloatOrArray
         Average propagation rate coefficient. Unit = L/(mol·s)
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import average_kp_binary
+
+    An example with f1 as scalar.
+    >>> kp = average_kp_binary(f1=0.5, r1=0.16, r2=0.70, k11=100., k22=1000.)
+    >>> print(f"{kp:.0f} L/(mol·s)")
+    622 L/(mol·s)
+
+    An example with f1 as array (not list).
+    >>> import numpy as np
+    >>> f1 = np.array([0.2, 0.6, 0.8])
+    >>> kp = average_kp_binary(f1=f1, r1=0.16, r2=0.70, k11=100., k22=1000.)
+    >>> kp
+    array([880.        , 523.87096774, 317.18309859])
     """
     f2 = 1 - f1
     return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))

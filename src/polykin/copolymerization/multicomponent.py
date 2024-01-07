@@ -60,8 +60,8 @@ def inst_copolymer_ternary(f1: FloatOrArray,
     **References**
 
     *   Kazemi, N., Duever, T.A. and Penlidis, A. (2014), Demystifying the
-        estimation of reactivity ratios for terpolymerization systems.
-        AIChE J., 60: 1752-1766.
+    estimation of reactivity ratios for terpolymerization systems. AIChE J.,
+    60: 1752-1766.
 
     Parameters
     ----------
@@ -93,8 +93,18 @@ def inst_copolymer_ternary(f1: FloatOrArray,
           specific method for binary systems.
         * [`inst_copolymer_multi`](../multicomponent/inst_copolymer_multi.md):
           generic method for multicomponent systems.
-    """
 
+    Examples
+    --------
+    >>> from polykin.copolymerization import inst_copolymer_ternary
+    >>> 
+    >>> F1, F2, F3 = inst_copolymer_ternary(f1=0.5, f2=0.3, r12=0.2, r21=2.3,
+    ...                                     r13=3.0, r31=0.9, r23=0.4, r32=1.5) 
+    >>> 
+    >>> print(f"F1 = {F1:.2f}; F2 = {F2:.2f}; F3 = {F3:.2f}")
+    F1 = 0.32; F2 = 0.41; F3 = 0.27
+
+    """
     f3 = 1. - (f1 + f2)
 
     a = f1/(r21*r31) + f2/(r21*r32) + f3/(r31*r23)
@@ -122,22 +132,17 @@ def inst_copolymer_multi(f: FloatVector,
     This algorithm relies on general linear algebra procedure applicable to
     systems with any number of monomers.
 
-    **References**
-
-    *   Jung, W. Mathematical modeling of free-radical six-component bulk
-        and solution polymerization. MS thesis. University of Waterloo, 2008.
-
     Parameters
     ----------
     f : FloatVector
-        Vector(N-1) of instantaneous monomer composition.
+        Vector (N-1) of instantaneous monomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
+        Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
     FloatVector
-        Vector(N) of instantaneous copolymer composition.
+        Vector (N) of instantaneous copolymer composition.
 
     !!! note annotate "See also"
 
@@ -145,8 +150,30 @@ def inst_copolymer_multi(f: FloatVector,
           specific method for binary systems.
         * [`inst_copolymer_ternary`](../multicomponent/inst_copolymer_ternary.md):
           specific method for terpolymer systems.
-    """
 
+    **References**
+
+    *   Jung, W. Mathematical modeling of free-radical six-component bulk
+        and solution polymerization. MS thesis. University of Waterloo, 2008.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import inst_copolymer_multi
+    >>> import numpy as np
+
+    Define reactivity ratio matrix.
+    >>> r = np.ones((3, 3))
+    >>> r[0, 1] = 0.2
+    >>> r[1, 0] = 2.3
+    >>> r[0, 2] = 3.0
+    >>> r[2, 0] = 0.9
+    >>> r[1, 2] = 0.4
+    >>> r[2, 1] = 1.5
+
+    Evaluate instantaneous copolymer composition at f1=0.5 and f2=0.3.
+    >>> inst_copolymer_multi(np.array([0.5, 0.3]), r)
+    array([0.32138111, 0.41041608, 0.26820282])
+    """
     # Compute radical probabilities, p(i)
     N = len(f) + 1
     flong = np.concatenate((f, [1. - np.sum(f, dtype=np.float64)]))
@@ -193,18 +220,40 @@ def monomer_drift_multi(f0: FloatVectorLike,
     Parameters
     ----------
     f0 : FloatVectorLike
-        Vector(N) of initial instantaneous comonomer composition.
+        Vector (N) of initial instantaneous comonomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix(NxN).
+        Reactivity ratio matrix (NxN).
     x : FloatVectorLike
-        Vector(M) of total monomer conversion values where the drift is to be
+        Vector (M) of total monomer conversion values where the drift is to be
         evaluated.
 
     Returns
     -------
     FloatMatrix
-        Matrix(MxN) of monomer fraction of monomer $i$ at the specified
+        Matrix (MxN) of monomer fraction of monomer $i$ at the specified
         total monomer conversion(s), $f_i(x)$.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import monomer_drift_multi
+    >>> import numpy as np
+    >>>
+    >>> r = np.ones((3, 3))
+    >>> r[0, 1] = 0.2
+    >>> r[1, 0] = 2.3
+    >>> r[0, 2] = 3.0
+    >>> r[2, 0] = 0.9
+    >>> r[1, 2] = 0.4
+    >>> r[2, 1] = 1.5
+    >>>
+    >>> f = monomer_drift_multi(f0=np.array([0.5, 0.3, 0.2]),
+    ...                         r=r, x=np.array([0.1, 0.5, 0.9, 0.99]))
+    >>> f
+    array([[5.19230749e-01, 2.87888151e-01, 1.92881100e-01],
+           [6.38387269e-01, 2.04571229e-01, 1.57041502e-01],
+           [8.31725111e-01, 5.64177982e-03, 1.62633109e-01],
+           [5.00285275e-01, 1.93845681e-07, 4.99714531e-01]])
+
     """
 
     N = len(f0)
@@ -264,6 +313,25 @@ def transitions_multi(f: FloatVector,
     -------
     FloatVector
         Vector(N) of self-transition probabilities.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import transitions_multi
+    >>> import numpy as np
+    >>>
+    >>> r = np.ones((3, 3))
+    >>> r[0, 1] = 0.2
+    >>> r[1, 0] = 2.3
+    >>> r[0, 2] = 3.0
+    >>> r[2, 0] = 0.9
+    >>> r[1, 2] = 0.4
+    >>> r[2, 1] = 1.5
+    >>>
+    >>> P = transitions_multi(np.array([0.5, 0.3, 0.2]), r)
+    >>>
+    >>> print(f"P11 = {P[0]:.2f}; P22 = {P[1]:.2f}; P33 = {P[2]:.2f}")
+    P11 = 0.24; P22 = 0.29; P33 = 0.21
+
     """
     return f / np.sum(f / r, axis=-1)
 
@@ -295,6 +363,24 @@ def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
     -------
     FloatSquareMatrix
         Reactivity ratio matrix (NxN).
+
+    Examples
+    --------
+    Estimate the reactivity ratio matrix for styrene (1), methyl
+    methacrylate (2), and vinyl acetate(3) using Q-e values from the
+    literature.
+
+    >>> from polykin.copolymerization import convert_Qe_to_r
+    >>> 
+    >>> Qe1 = (1.0, -0.80)    # Sty
+    >>> Qe2 = (0.78, 0.40)    # MMA
+    >>> Qe3 = (0.026, -0.88)  # VAc
+    >>> 
+    >>> convert_Qe_to_r([Qe1, Qe2, Qe3])
+    array([[1.00000000e+00, 4.90888315e-01, 4.10035538e+01],
+           [4.82651046e-01, 1.00000000e+00, 1.79788736e+01],
+           [2.42325444e-02, 1.08066091e-02, 1.00000000e+00]])
+
     """
     Q = [x[0] for x in Qe_values]
     e = [x[1] for x in Qe_values]

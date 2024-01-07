@@ -609,7 +609,7 @@ class TerminalModel(CopoModel):
 
         where $i,j=1,2, i \neq j$.
 
-        Reference:
+        **References**
 
         * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
         process modeling, Wiley, 1996, p. 178.
@@ -660,7 +660,7 @@ class TerminalModel(CopoModel):
         where $P_{ij}$ is the transition probability $i \rightarrow j$, which
         is a function of the monomer composition and the reactivity ratios.
 
-        Reference:
+        **References**
 
         * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
         process modeling, Wiley, 1996, p. 179.
@@ -715,7 +715,7 @@ class TerminalModel(CopoModel):
         where $P_{ii}$ is the transition probability $i \rightarrow i$, which
         is a function of the monomer composition and the reactivity ratios.
 
-        Reference:
+        **References**
 
         * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
         process modeling, Wiley, 1996, p. 177.

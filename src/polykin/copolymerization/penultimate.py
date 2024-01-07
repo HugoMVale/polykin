@@ -214,7 +214,7 @@ class PenultimateModel(CopoModel):
 
         where $i,j=1,2, i \neq j$.
 
-        Reference:
+        **References**
 
         * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
         process modeling, Wiley, 1996, p. 181.
@@ -279,7 +279,7 @@ class PenultimateModel(CopoModel):
         $i \rightarrow j \rightarrow k$, which is a function of the monomer
         composition and the reactivity ratios.
 
-        Reference:
+        **References**
 
         * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
         process modeling, Wiley, 1996, p. 181.
@@ -346,7 +346,7 @@ class PenultimateModel(CopoModel):
         $i \rightarrow j \rightarrow k$, which is a function of the monomer
         composition and the reactivity ratios.
 
-        Reference:
+        **References**
 
         * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
         process modeling, Wiley, 1996, p. 180.

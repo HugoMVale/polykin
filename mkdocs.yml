@@ -57,8 +57,8 @@ plugins:
   # - autorefs
   - markdown-exec
   - table-reader
-  - bibtex:
-      bib_file: "docs/bibliography/bibliography.bib"
+  #- bibtex:
+  #    bib_file: "docs/bibliography/bibliography.bib"
   #    csl_file: "docs/bibliography/american-chemical-society.csl"
   # - gen-files:
   #     scripts:
