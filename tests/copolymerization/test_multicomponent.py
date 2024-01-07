@@ -5,9 +5,11 @@
 import numpy as np
 from numpy import all, isclose
 
-from polykin.copolymerization import (convert_Qe_to_r, inst_copolymer_binary,
+from polykin.copolymerization import (TerminalModel, convert_Qe_to_r,
+                                      inst_copolymer_binary,
                                       inst_copolymer_multi,
-                                      inst_copolymer_ternary)
+                                      inst_copolymer_ternary,
+                                      monomer_drift_multi)
 
 
 def test_inst_copolymer_ternary():
@@ -55,6 +57,20 @@ def test_inst_copolymer_multicomponent():
     r[2, 1] = r32
     F_m = inst_copolymer_multi(np.array([f1, f2]), r)
     assert all(isclose(F_t, F_m,))  # type: ignore
+
+
+def test_monomer_drift_multi():
+    r1 = 0.4
+    r2 = 0.7
+    r = np.ones((2, 2))
+    r[0, 1] = r1
+    r[1, 0] = r2
+    x = [0.1, 0.4, 0.8, 0.99]
+    m = TerminalModel(r1, r2)
+    for f10 in [0.2, 0.5, 0.9]:
+        sol_b = m.drift(f10, x)
+        sol_m = monomer_drift_multi([f10, 1.-f10], r, x)
+        assert all(isclose(sol_b, sol_m[:, 0], rtol=1e-4))
 
 
 def test_convert_Qe():

@@ -6,9 +6,10 @@ import numpy as np
 from numpy import exp
 from scipy.integrate import solve_ivp
 
-from polykin.utils.types import (FloatArray, FloatMatrix, FloatOrArray,
-                                 FloatSquareMatrix, FloatVector,
-                                 FloatVectorLike)
+from polykin.utils.types import (FloatMatrix, FloatOrArray, FloatSquareMatrix,
+                                 FloatVector, FloatVectorLike)
+from polykin.utils.exceptions import ShapeError
+from polykin.utils.math import eps
 
 __all__ = ['inst_copolymer_ternary',
            'inst_copolymer_multi',
@@ -175,9 +176,19 @@ def inst_copolymer_multi(f: FloatVector,
 
 def monomer_drift_multi(f0: FloatVectorLike,
                         r: FloatSquareMatrix,
-                        xteval: FloatVectorLike
-                        ) -> tuple[FloatMatrix, FloatVector]:
-    """Compute the monomer composition drift for an arbitrary monomer mixture.
+                        x: FloatVectorLike
+                        ) -> FloatMatrix:
+    r"""Compute the monomer composition drift for a system with an arbitrary
+    number of monomers.
+
+    In a closed system, the drift in monomer composition is given by
+    the solution of the following system of differential equations:
+
+    $$ \frac{\textup{d} f_i}{\textup{d}x} = \frac{f_i - F_i}{1 - x} $$
+
+    with initial condition $f_i(0)=f_{i,0}$, where $f_i$ and $F_i$ are,
+    respectively, the instantaneous comonomer and copolymer composition of
+    monomer $i$, and $x$ is the total molar monomer conversion.
 
     Parameters
     ----------
@@ -185,43 +196,41 @@ def monomer_drift_multi(f0: FloatVectorLike,
         Vector(N) of initial instantaneous comonomer composition.
     r : FloatSquareMatrix
         Reactivity ratio matrix(NxN).
-    xteval : FloatVectorLike
+    x : FloatVectorLike
         Vector(M) of total monomer conversion values where the drift is to be
         evaluated.
 
     Returns
     -------
-    tuple[FloatMatrix, FloatVector]
-        Tuple of monomer conversion (~xteval) and corresponding comonomer
-        composition (MxN).
+    FloatMatrix
+        Matrix(MxN) of monomer fraction of monomer $i$ at the specified
+        total monomer conversion(s), $f_i(x)$.
     """
 
     N = len(f0)
     if r.shape != (N, N):
-        raise ValueError("Shape mismatch between `f0` and `r`.")
+        raise ShapeError("Shape mismatch between `f0` and `r`.")
 
-    def ode(xt_: float, f_: np.ndarray) -> np.ndarray:
-        F = inst_copolymer_multi(f_, r)
-        return (f_ - F[:-1]) / (1 - xt_)
+    def ode(x_: float, f_: FloatVector) -> FloatVector:
+        F_ = inst_copolymer_multi(f_, r)
+        return (f_ - F_[:-1]) / (1. - x_ + eps)
 
     sol = solve_ivp(ode,
-                    t_span=(0., xteval[-1]),
+                    t_span=(0., x[-1]),
                     y0=f0[:-1],
-                    t_eval=xteval,
+                    t_eval=x,
                     rtol=1e-4,
                     method='LSODA')
 
     if sol.success:
-        xt = sol.t
-        f = np.empty((len(xteval), N))
+        f = np.empty((len(x), N))
         f[:, :-1] = np.transpose(sol.y)
         f[:, -1] = 1 - np.sum(f[:, :-1], axis=1)
     else:
         f = np.array([np.nan])
-        xt = np.array([np.nan])
         print(sol.message)
 
-    return (xt, f)
+    return f
 
 # %% Multicomponent transition probabilities
 
@@ -260,12 +269,6 @@ def transitions_multi(f: FloatVector,
 
 
 # %% Multicomponent Q-e
-
-# @dataclass(frozen=True)
-# class QePair:
-#     Q: float
-#     e: float
-
 
 def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
                     ) -> FloatMatrix:
