@@ -195,7 +195,8 @@ class CopoModel(ABC):
         f10 : FloatOrVectorLike
             Initial molar fraction of M1, $f_{1,0}=f_1(0)$.
         x : FloatOrVectorLike
-            Total molar monomer conversion.
+            Value(s) of total monomer conversion values where the drift is to
+            be evaluated.
 
         Returns
         -------
@@ -204,8 +205,9 @@ class CopoModel(ABC):
         """
         f10, x = convert_FloatOrVectorLike_to_FloatVector([f10, x], False)
 
-        def df1dx(x, f1):
-            return (f1-inst_copolymer_binary(f1, *self.ri(f1)))/(1. - x + eps)
+        def df1dx(x_, f1_):
+            F1_ = inst_copolymer_binary(f1_, *self.ri(f1_))
+            return (f1_ - F1_)/(1. - x_ + eps)
 
         sol = solve_ivp(df1dx,
                         (0., max(x)),
