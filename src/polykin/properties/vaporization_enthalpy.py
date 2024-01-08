@@ -53,6 +53,15 @@ def DHVL_Pitzer(T: FloatOrArray,
     -------
     FloatOrArray
         Vaporization enthalpy. Unit = J/mol.
+
+    Examples
+    --------
+    Estimate the vaporization enthalpy of vinyl chloride at 50°C.
+    >>> from polykin.properties.vaporization_enthalpy import DHVL_Pitzer
+    >>> DHVL = DHVL_Pitzer(T=273.15+50, Tc=425., w=0.122)
+    >>> print(f"{DHVL/1e3:.1f} kJ/mol")
+    17.5 kJ/mol
+
     """
     Tr = T/Tc
     return R*Tc*(7.08*(1 - Tr)**0.354 + 10.95*w*(1 - Tr)**0.456)
@@ -93,6 +102,16 @@ def DHVL_Vetere(Tb: float,
     -------
     float
         Vaporization enthalpy at the normal boiling point. Unit = J/mol.
+
+    Examples
+    --------
+    Estimate the vaporization enthalpy of vinyl chloride at the normal boiling
+    temperature.
+    >>> from polykin.properties.vaporization_enthalpy import DHVL_Vetere
+    >>> DHVL = DHVL_Vetere(Tb=259.8, Tc=425., Pc=51.5e5)
+    >>> print(f"{DHVL/1e3:.1f} kJ/mol")
+    21.6 kJ/mol
+
     """
     Tbr = Tb/Tc
     return R*Tc*Tbr*(0.4343*log(Pc/1e5) - 0.69431 + 0.89584*Tbr) \
@@ -133,6 +152,16 @@ def DHVL_Watson(hvap1: float,
     -------
     float
         Vaporization temperature at `T2`. Unit = [hvap1].
+
+    Examples
+    --------
+    Estimate the vaporization enthalpy of vinyl chloride at 50°C from the known
+    value at the normal boiling temperature.
+    >>> from polykin.properties.vaporization_enthalpy import DHVL_Watson
+    >>> DHVL = DHVL_Watson(hvap1=22.9, T1=258., T2=273.15+50, Tc=425.)
+    >>> print(f"{DHVL:.1f} kJ/mol")
+    19.0 kJ/mol
+
     """
     return hvap1*((1 - T2/Tc)/(1 - T1/Tc))**0.38
 
@@ -171,6 +200,17 @@ def DHVL_Kistiakowsky_Vetere(
     -------
     float
         Vaporization enthalpy at the normal boiling point. Unit = J/mol.
+
+    Examples
+    --------
+    Estimate the vaporization enthalpy of butadiene at the normal boiling
+    temperature.
+    >>> from polykin.properties.vaporization_enthalpy \
+    ...      import DHVL_Kistiakowsky_Vetere
+    >>> DHVL = DHVL_Kistiakowsky_Vetere(Tb=268.6, M=54.1e-3, kind='hydrocarbon')
+    >>> print(f"{DHVL/1e3:.1f} kJ/mol")
+    22.4 kJ/mol
+
     """
 
     if kind == 'any':
