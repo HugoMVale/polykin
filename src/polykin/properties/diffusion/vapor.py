@@ -59,6 +59,40 @@ def DV_Wilke_Lee(T: float,
     -------
     float
         Binary diffusion coefficient. Unit = m²/s.
+
+    Examples
+    --------
+    Estimate the diffusion coefficient of vinyl chloride through water vapor.
+
+    >>> from polykin.properties.diffusion import DV_Wilke_Lee
+    >>> D = DV_Wilke_Lee(
+    ...     T=298.,       # temperature
+    ...     P=1e5,        # pressure
+    ...     MA=62.5e-3,   # molar mass of vinyl chloride
+    ...     MB=18.0e-3,   # molar mass of water
+    ...     rhoA=910.,    # density of vinyl chloride at the normal boiling point
+    ...     rhoB=959.,    # density of water at the normal boiling point
+    ...     TA=260.,      # normal boiling point of vinyl chloride
+    ...     TB=373.,      # normal boiling point of water
+    ...     )
+    >>> print(f"{D:.2e} m²/s")
+    1.10e-05 m²/s
+
+    Estimate the diffusion coefficient of vinyl chloride through air.
+
+    >>> from polykin.properties.diffusion import DV_Wilke_Lee
+    >>> D = DV_Wilke_Lee(
+    ...     T=298.,       # temperature
+    ...     P=1e5,        # pressure
+    ...     MA=62.5e-3,   # molar mass of vinyl chloride
+    ...     MB=18.0e-3,   # molar mass of water
+    ...     rhoA=910.,    # density of vinyl chloride at the normal boiling point
+    ...     rhoB=None,    # air
+    ...     TA=260.,      # normal boiling point of vinyl chloride
+    ...     TB=None,      # air
+    ...     )
+    >>> print(f"{D:.2e} m²/s")
+    1.37e-05 m²/s
     """
 
     MAB = 1e3*2/(1/MA + 1/MB)
