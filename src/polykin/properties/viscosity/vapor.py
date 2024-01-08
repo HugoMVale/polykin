@@ -35,10 +35,10 @@ def MUVMX2_Herning_Zipperer(y: FloatVector,
         $M_i$ are arbitrary, as they cancel out when considering the ratio of
         the numerator to the denominator.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 410.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 410.
 
     Parameters
     ----------
@@ -53,6 +53,23 @@ def MUVMX2_Herning_Zipperer(y: FloatVector,
     -------
     float
         Mixture viscosity, $\mu_m$. Unit = [mu].
+
+    Examples
+    --------
+    Estimate the viscosity of a 50 mol% ethylene/1-butene gas mixture at 120°C
+    and 1 bar.
+    >>> from polykin.properties.viscosity import MUVMX2_Herning_Zipperer
+    >>> import numpy as np
+    >>>
+    >>> y = np.array([0.5, 0.5])
+    >>> mu = np.array([130e-7, 100e-7]) # Pa.s, from literature
+    >>> M = np.array([28.e-3, 56.e-3])  # kg/mol
+    >>>
+    >>> mu_mix = MUVMX2_Herning_Zipperer(y, mu, M)
+    >>>
+    >>> print(f"{mu_mix:.2e} Pa·s")
+    1.12e-05 Pa·s
+
     """
     a = y*sqrt(M)
     a /= a.sum()
@@ -77,10 +94,10 @@ def MUVPC_Jossi(rhor: float,
     $\rho_r = v_c / v$ is the reduced gas density. This equation is valid in
     the range $0.1 < \rho_r < 3.0$.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 424.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 424.
 
     Parameters
     ----------
@@ -97,6 +114,21 @@ def MUVPC_Jossi(rhor: float,
     -------
     float
         Residual viscosity, $(\mu - \mu^\circ)$. Unit = Pa·s.
+
+    Examples
+    --------
+    Estimate the residual viscosity of ethylene at 350 K and 100 bar.
+    >>> from polykin.properties.viscosity import MUVPC_Jossi
+    >>>
+    >>> vc = 130. # cm³/mol
+    >>> v  = 184. # cm³/mol, with Peng-Robinson
+    >>> rhor = vc/v
+    >>>
+    >>> mu_residual = MUVPC_Jossi(rhor=rhor, Tc=282.4, Pc=50.4e5, M=28.05e-3)
+    >>>
+    >>> print(f"{mu_residual:.2e} Pa·s")
+    6.76e-06 Pa·s
+
     """
     a = 1.0230 + 0.23364*rhor + 0.58533*rhor**2 - 0.40758*rhor**3 \
         + 0.093324*rhor**4
@@ -122,10 +154,10 @@ def MUVMXPC_Dean_Stiel(v: float,
     $\rho_r = v_c / v$ is the reduced gas density. This
     equation is valid in the range $0 \le \rho_r < 2.5$.
 
-    References
-    ----------
-    * Dean, D., and Stiel, L. "The viscosity of nonpolar gas mixtures at
-    moderate and high pressures." AIChE Journal 11.3 (1965): 526-532.
+    **References**
+
+    *   Dean, D., and Stiel, L. "The viscosity of nonpolar gas mixtures at
+        moderate and high pressures." AIChE Journal 11.3 (1965): 526-532.
 
     Parameters
     ----------
@@ -146,6 +178,28 @@ def MUVMXPC_Dean_Stiel(v: float,
     -------
     float
         Residual viscosity, $(\mu_m - \mu_m^\circ)$. Unit = Pa·s.
+
+    Examples
+    --------
+    Estimate the residual viscosity of a 50 mol% ethylene/propylene mixture
+    t 350 K and 100 bar.
+
+    >>> from polykin.properties.viscosity import MUVMXPC_Dean_Stiel
+    >>> import numpy as np
+    >>>
+    >>> v = 1.12e-4  # m³/mol, with Peng-Robinson
+    >>>
+    >>> y = np.array([0.5, 0.5])
+    >>> M = np.array([28.05e-3, 42.08e-3]) # kg/mol
+    >>> Tc = np.array([282.4, 364.9])      # K
+    >>> Pc = np.array([50.4e5, 46.0e5])    # Pa
+    >>> Zc = np.array([0.280, 0.274])
+    >>>
+    >>> mu_residual = MUVMXPC_Dean_Stiel(v, y, M, Tc, Pc, Zc)
+    >>>
+    >>> print(f"{mu_residual:.2e} Pa·s")
+    2.32e-05 Pa·s
+
     """
 
     # Mixing rules recommended in paper
@@ -173,10 +227,10 @@ def MUV_Lucas(T: float,
     r"""Calculate the viscosity of a pure gas at a given temperature and
     pressure using the method of Lucas.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 421.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 421.
 
     Parameters
     ----------
@@ -199,6 +253,17 @@ def MUV_Lucas(T: float,
     -------
     float
         Gas viscosity, $\mu$. Unit = Pa·s.
+
+    Examples
+    --------
+    Estimate the viscosity of ethylene at 350 K and 10 bar.
+
+    >>> from polykin.properties.viscosity import MUV_Lucas
+    >>> mu = MUV_Lucas(T=350., P=10e5, M=28.05e-3,
+    ...                 Tc=282.4, Pc=50.4e5, Zc=0.280, dm=0.)
+    >>> print(f"{mu:.2e} Pa·s")
+    1.20e-05 Pa·s
+
     """
     Tr = T/Tc
     Pr = P/Pc
@@ -219,10 +284,10 @@ def MUVMX_Lucas(T: float,
     r"""Calculate the viscosity of a gas mixture at a given temperature and
     pressure using the method of Lucas.
 
-    References
-    ----------
-    * RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-    4th edition, 1986, p. 431.
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 431.
 
     Parameters
     ----------
@@ -247,6 +312,28 @@ def MUVMX_Lucas(T: float,
     -------
     float
         Gas mixture viscosity, $\mu_m$. Unit = Pa·s.
+
+    Examples
+    --------
+    Estimate the viscosity of a 60 mol% ethylene/nitrogen gas mixture at 350 K
+    and 10 bar.
+
+    >>> from polykin.properties.viscosity import MUVMX_Lucas
+    >>> import numpy as np
+    >>>
+    >>> y = np.array([0.6, 0.4])
+    >>> M = np.array([28.e-3, 28.e-3])   # kg/mol
+    >>> Tc = np.array([282.4, 126.2])    # K
+    >>> Pc = np.array([50.4e5, 33.9e5])  # Pa
+    >>> Zc = np.array([0.280, 0.290])
+    >>> dm = np.array([0., 0.])
+    >>>
+    >>> mu_mix = MUVMX_Lucas(T=350., P=10e5, y=y, M=M,
+    ...                      Tc=Tc, Pc=Pc, Zc=Zc, dm=dm)
+    >>>
+    >>> print(f"{mu_mix:.2e} Pa·s")
+    1.45e-05 Pa·s
+
     """
     Tc_mix = dot(y, Tc)
     M_mix = dot(y, M)
