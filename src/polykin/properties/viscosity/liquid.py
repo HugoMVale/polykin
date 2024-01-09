@@ -26,10 +26,10 @@ def MULMX2_Perry(x: FloatVector,
 
     $$ \ln{\mu_m} = \sum_i x_i \ln{\mu_i} $$
 
-    References
-    ----------
-    * Perry, R. H., D. W. Green, and J. Maloney. Perrys Chemical Engineers
-    Handbook, 7th ed. 1999, p. 2-367.
+    **References**
+
+    *   Perry, R. H., D. W. Green, and J. Maloney. Perrys Chemical Engineers
+        Handbook, 7th ed. 1999, p. 2-367.
 
     Parameters
     ----------
