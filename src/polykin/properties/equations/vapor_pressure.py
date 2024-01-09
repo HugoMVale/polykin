@@ -33,12 +33,6 @@ class Antoine(PropertyEquationT):
         most cases, but care should be taken to ensure the parameters match the
         intended use.
 
-    !!! hint
-        The Antoine equation is limited in terms of temperature range. Wider
-        ranges can be achieved with
-        [DIPPR101](./#polykin.properties.equations.dippr.DIPPR101) or
-        [Wagner](./#polykin.properties.equations.vapor_pressure.Wagner).
-
     Parameters
     ----------
     A : float
@@ -63,6 +57,13 @@ class Antoine(PropertyEquationT):
         Symbol of vapor pressure.
     name : str
         Name.
+
+    !!! note annotate "See also"
+
+        * [`DIPPR101`](./#polykin.properties.equations.dippr.DIPPR101):
+        alternative method, applicable to wider temperature ranges.
+        * [`Wagner`](./#polykin.properties.equations.vapor_pressure.Wagner):
+        alternative method, applicable to wider temperature ranges.
     """
 
     _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K', True),
