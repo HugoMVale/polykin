@@ -2,5 +2,7 @@
 
 ::: polykin.properties.diffusion
 
-For illustration examples, please refer to the associated
-[tutorial](../../../tutorials/diffusion_coefficients).
+!!! tip
+
+    For illustration examples, please refer to the associated
+    [tutorial](../../../tutorials/diffusion_coefficients).

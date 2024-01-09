@@ -2,6 +2,7 @@
 
 ::: polykin.distributions
 
-For illustration examples, please refer to the associated
-[tutorial](../../tutorials/distributions).
+!!! tip
 
+    For illustration examples, please refer to the associated
+    [tutorial](../../tutorials/distributions).

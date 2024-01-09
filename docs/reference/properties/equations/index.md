@@ -2,8 +2,10 @@
 
 ::: polykin.properties.equations
 
-For illustration examples, please refer to the associated
-[tutorial](../../../tutorials/physprop_equations).
+!!! tip
+
+    For illustration examples, please refer to the associated
+    [tutorial](../../../tutorials/physprop_equations).
 
 ::: polykin.properties.equations.vapor_pressure
     options:
