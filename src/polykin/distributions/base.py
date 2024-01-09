@@ -867,6 +867,14 @@ def plotdists(dists: list[Distribution],
     -------
     Figure
         Matplotlib Figure object holding the joint plot.
+
+    Examples
+    --------
+    >>> from polykin.distributions import Flory, LogNormal, plotdists
+    >>> a = Flory(100, M0=0.050, name='A')
+    >>> b = LogNormal(100, PDI=3., M0=0.050, name='B')
+    >>> fig = plotdists([a, b], kind='gpc', xrange=(1, 1e4), cdf=2)
+    >>> fig.show()
     """
 
     # Check input
