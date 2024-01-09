@@ -694,6 +694,32 @@ class MixtureDistribution(Distribution):
 
     This kind of distributions are instantiated _indirectly_ by doing linear
     combinations of `IndividualDistribution` objects.
+
+    Examples
+    --------
+    >>> from polykin.distributions import Flory, SchulzZimm
+    >>> a = Flory(100, M0=0.050, name='A')
+    >>> b = SchulzZimm(100, PDI=3., M0=0.10, name='B')
+    >>> c = 0.3*a + 0.7*b # c is now a MixtureDistribution instance
+    >>> c
+    type: MixtureDistribution
+    name: A+B
+    DPn:  100.0
+    DPw:  269.7
+    DPz:  474.9
+    PDI:  3.12
+    M0:   0.077 kg/mol
+    Mn:   7.692 kg/mol
+    Mw:   23.985 kg/mol
+    Mz:   45.635 kg/mol
+    ...
+
+    >>> c.pdf(c.DPn)
+    0.002802983984583185
+
+    >>> c.cdf([c.DPn, c.DPw, c.DPz])
+    array([0.21950423, 0.61773034, 0.85164309])
+
     """
 
     def __init__(self,

@@ -32,6 +32,34 @@ class Flory(AnalyticalDistributionP1):
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name
+
+
+    Examples
+    --------
+    Define a Flory distribution and evaluate the corresponding probability
+    density function and cumulative distribution function for representative
+    chain lengths.
+
+    >>> from polykin.distributions import Flory
+    >>> a = Flory(100, M0=0.050, name='A')
+    >>> a
+    type: Flory
+    name: A
+    DPn:  100.0
+    DPw:  199.0
+    DPz:  298.5
+    PDI:  1.99
+    M0:   0.050 kg/mol
+    Mn:   5.000 kg/mol
+    Mw:   9.950 kg/mol
+    Mz:   14.925 kg/mol
+
+    >>> a.pdf(a.DPn)
+    0.003697296376497271
+
+    >>> a.cdf([a.DPn, a.DPw, a.DPz])
+    array([0.26793532, 0.59535432, 0.80159978])
+
     """
     _continuous = False
 
@@ -101,6 +129,33 @@ class Poisson(AnalyticalDistributionP1):
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name
+
+    Examples
+    --------
+    Define a Poisson distribution and evaluate the corresponding probability
+    density function and cumulative distribution function for representative
+    chain lengths.
+
+    >>> from polykin.distributions import Poisson
+    >>> a = Poisson(100, M0=0.050, name='A')
+    >>> a
+    type: Poisson
+    name: A
+    DPn:  100.0
+    DPw:  101.0
+    DPz:  102.0
+    PDI:  1.01
+    M0:   0.050 kg/mol
+    Mn:   5.000 kg/mol
+    Mw:   5.050 kg/mol
+    Mz:   5.099 kg/mol
+
+    >>> a.pdf(a.DPn)
+    0.04006147193133002
+
+    >>> a.cdf([a.DPn, a.DPw, a.DPz])
+    array([0.48703481, 0.52669305, 0.56558077])
+
     """
 
     _continuous = False
@@ -175,6 +230,33 @@ class LogNormal(AnalyticalDistributionP2):
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name.
+
+    Examples
+    --------
+    Define a LogNormal distribution and evaluate the corresponding probability
+    density function and cumulative distribution function for representative
+    chain lengths.
+
+    >>> from polykin.distributions import LogNormal
+    >>> a = LogNormal(100, PDI=3., M0=0.050, name='A')
+    >>> a
+    type: LogNormal
+    name: A
+    DPn:  100.0
+    DPw:  300.0
+    DPz:  900.0
+    PDI:  3.00
+    M0:   0.050 kg/mol
+    Mn:   5.000 kg/mol
+    Mw:   15.000 kg/mol
+    Mz:   45.000 kg/mol
+
+    >>> a.pdf(a.DPn)
+    0.003317780747597256
+
+    >>> a.cdf([a.DPn, a.DPw, a.DPz])
+    array([0.3001137, 0.6998863, 0.9420503])
+
     """
     # https://reference.wolfram.com/language/ref/LogNormalDistribution.html
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html
@@ -255,6 +337,33 @@ class SchulzZimm(AnalyticalDistributionP2):
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
         Name.
+
+    Examples
+    --------
+    Define a SchulzZimm distribution and evaluate the corresponding probability
+    density function and cumulative distribution function for representative
+    chain lengths.
+
+    >>> from polykin.distributions import SchulzZimm
+    >>> a = SchulzZimm(100, PDI=3., M0=0.050, name='A')
+    >>> a
+    type: SchulzZimm
+    name: A
+    DPn:  100.0
+    DPw:  300.0
+    DPz:  500.0
+    PDI:  3.00
+    M0:   0.050 kg/mol
+    Mn:   5.000 kg/mol
+    Mw:   15.000 kg/mol
+    Mz:   25.000 kg/mol
+
+    >>> a.pdf(a.DPn)
+    0.0024197072451914337
+
+    >>> a.cdf([a.DPn, a.DPw, a.DPz])
+    array([0.19874804, 0.60837482, 0.82820286])
+
     """
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
     # https://goldbook.iupac.org/terms/view/S05502
