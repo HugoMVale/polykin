@@ -88,7 +88,7 @@ class CopoModel(ABC):
         r"""Calculate the instantaneous copolymer composition, $F_1$.
 
         The calculation is handled by
-        [`inst_copolymer_binary`](TerminalModel.md#polykin.copolymerization.binary.inst_copolymer_binary).
+        [`inst_copolymer_binary`](inst_copolymer_binary.md).
 
         Parameters
         ----------
@@ -114,7 +114,7 @@ class CopoModel(ABC):
         r"""Calculate the average propagation rate coefficient, $\bar{k}_p$.
 
         The calculation is handled by
-        [`average_kp_binary`](TerminalModel.md#polykin.copolymerization.binary.average_kp_binary).
+        [`average_kp_binary`](average_kp_binary.md).
 
         !!! note
 
@@ -532,7 +532,7 @@ class TerminalModel(CopoModel):
         as primary input instead of the reactivity ratios.
 
         The conversion from Q-e to r is handled by
-        [`convert_Qe_to_r`](TerminalModel.md#polykin.copolymerization.multicomponent.convert_Qe_to_r).
+        [`convert_Qe_to_r`](../multicomponent/convert_Qe_to_r.md).
 
         Parameters
         ----------
