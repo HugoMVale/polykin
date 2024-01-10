@@ -2,7 +2,7 @@
 
 ::: polykin.kinetics
 
-!!! tip
+!!! info
 
     For illustration examples, please refer to the associated
     [tutorial](../../tutorials/kinetic_coefficients).

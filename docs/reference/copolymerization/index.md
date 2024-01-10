@@ -2,7 +2,7 @@
 
 ::: polykin.copolymerization
 
-!!! tip
+!!! info
 
     For illustration examples, please refer to the associated
     [tutorial](../../tutorials/copolymerization).
