@@ -9,7 +9,4 @@
 | Mixing rules        | [`MUVMX2_Herning_Zipperer`](MUVMX2_Herning_Zipperer.md)                         | [`MULMX2_Perry`](MULMX2_Perry.md) |
 | Pressure correction | [`MUVPC_Jossi`](MUVPC_Jossi.md), [`MUVMXPC_Dean_Stiel`](MUVMXPC_Dean_Stiel.md)  | —                                 |
 
-!!! info
-
-    For illustration examples, please refer to the associated
-    [tutorial](../../../tutorials/viscosity).
+[:simple-jupyter: Tutorial](../../../tutorials/viscosity){ .md-button }

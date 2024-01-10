@@ -2,7 +2,4 @@
 
 ::: polykin.kinetics
 
-!!! info
-
-    For illustration examples, please refer to the associated
-    [tutorial](../../tutorials/kinetic_coefficients).
+[:simple-jupyter: Tutorial](../../tutorials/kinetic_coefficients){ .md-button }

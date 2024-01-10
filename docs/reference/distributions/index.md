@@ -2,7 +2,4 @@
 
 ::: polykin.distributions
 
-!!! info
-
-    For illustration examples, please refer to the associated
-    [tutorial](../../tutorials/distributions).
+[:simple-jupyter: Tutorial](../../tutorials/distributions){ .md-button }

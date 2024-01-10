@@ -2,10 +2,7 @@
 
 ::: polykin.properties.equations
 
-!!! tip
-
-    For illustration examples, please refer to the associated
-    [tutorial](../../../tutorials/physprop_equations).
+[:simple-jupyter: Tutorial](../../../tutorials/physprop_equations){ .md-button }
 
 ::: polykin.properties.equations.vapor_pressure
     options:

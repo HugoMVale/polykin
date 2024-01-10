@@ -2,7 +2,4 @@
 
 ::: polykin.copolymerization
 
-!!! info
-
-    For illustration examples, please refer to the associated
-    [tutorial](../../tutorials/copolymerization).
+[:simple-jupyter: Tutorial](../../tutorials/copolymerization){ .md-button }
