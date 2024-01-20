@@ -178,6 +178,7 @@ nav:
               - PenultimateModel: reference/copolymerization/binary/PenultimateModel.md
               - TerminalModel: reference/copolymerization/binary/TerminalModel.md
               - average_kp_binary: reference/copolymerization/binary/average_kp_binary.md
+              - fit_Finemann_Ross: reference/copolymerization/binary/fit_Finemann_Ross.md
               - inst_copolymer_binary: reference/copolymerization/binary/inst_copolymer_binary.md
           - Multicomponent:
               - convert_Qe_to_r: reference/copolymerization/multicomponent/convert_Qe_to_r.md
@@ -200,6 +201,8 @@ nav:
           - Eyring: reference/kinetics/Eyring.md
           - PropagationHalfLength: reference/kinetics/PropagationHalfLength.md
           - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
+      - polykin.math:
+          - confidence_ellipse: reference/math/confidence_ellipse.md
       - polykin.properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md
@@ -242,4 +245,5 @@ nav:
               - MUVPC_Jossi: reference/properties/viscosity/MUVPC_Jossi.md
               - MUVMXPC_Dean_Stiel: reference/properties/viscosity/MUVMXPC_Dean_Stiel.md
           #- Activity Coefficient Models: reference/properties/acm.md
-      - polykin.types: reference/types.md
+      - polykin.utils:
+          - Types: reference/types.md
