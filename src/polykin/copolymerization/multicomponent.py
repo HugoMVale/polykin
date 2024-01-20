@@ -284,7 +284,7 @@ def monomer_drift_multi(f0: FloatVectorLike,
 # %% Multicomponent transition probabilities
 
 
-def transitions_multi(f: FloatVector,
+def transitions_multi(f: FloatVectorLike,
                       r: FloatSquareMatrix
                       ) -> FloatVector:
     r"""Calculate the instantaneous transition probabilities.
@@ -304,7 +304,7 @@ def transitions_multi(f: FloatVector,
 
     Parameters
     ----------
-    f : FloatVector
+    f : FloatVectorLike
         Vector(N) of instantaneous monomer composition.
     r : FloatSquareMatrix
         Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
@@ -327,12 +327,13 @@ def transitions_multi(f: FloatVector,
     >>> r[1, 2] = 0.4
     >>> r[2, 1] = 1.5
     >>>
-    >>> P = transitions_multi(np.array([0.5, 0.3, 0.2]), r)
+    >>> P = transitions_multi([0.5, 0.3, 0.2], r)
     >>>
     >>> print(f"P11 = {P[0]:.2f}; P22 = {P[1]:.2f}; P33 = {P[2]:.2f}")
     P11 = 0.24; P22 = 0.29; P33 = 0.21
 
     """
+    f = np.asarray(f)
     return f / np.sum(f / r, axis=-1)
 
 
