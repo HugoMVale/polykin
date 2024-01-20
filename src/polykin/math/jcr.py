@@ -20,7 +20,7 @@ def confidence_ellipse(ax: Axes,
                        ndata: int,
                        alpha: float = 0.05,
                        color: str = 'black'
-                       ) -> Axes:
+                       ) -> None:
     r"""Generate a confidence ellipse for models with 2 estimated parameters
     using a linear approximation method.
 
@@ -72,10 +72,10 @@ def confidence_ellipse(ax: Axes,
     # method implementation is specific for 2D
     npar = 2
     if len(center) != npar:
-        ShapeError(f"`center` must be a vector of length {npar}.")
+        raise ShapeError(f"`center` must be a vector of length {npar}.")
 
     if cov.shape != (npar, npar):
-        ShapeError(f"`cov` must be a {npar}x{npar} matrix.")
+        raise ShapeError(f"`cov` must be a {npar}x{npar} matrix.")
 
     # check inputs
     check_bounds(alpha, 0.001, 0.50, 'alpha')
@@ -105,4 +105,4 @@ def confidence_ellipse(ax: Axes,
     ax.add_patch(ellipse)
     ax.scatter(*center, c=color, s=5)
 
-    return ax
+    return None

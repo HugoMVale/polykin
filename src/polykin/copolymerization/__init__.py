@@ -9,6 +9,7 @@ This module implements classes to analyze and fit copolymerization data.
 
 from .binary import *
 from .copodataset import *
+from .fitting import *
 from .multicomponent import *
 from .penultimate import *
 from .terminal import *
