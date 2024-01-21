@@ -157,7 +157,6 @@ def fit_reactivity_ratios(
         ax.set_xlabel(r"$r_1$")
         ax.set_ylabel(r"$r_2$")
         confidence_ellipse(ax, (r1, r2), cov, ndata, alpha, 'tab:blue')
-        ax.legend(bbox_to_anchor=(1.05, 1.), loc="upper left")
 
     result = CopoFitResult(r1=r1, r2=r2,
                            cov=cov,
