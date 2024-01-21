@@ -5,18 +5,18 @@
 import numpy as np
 from matplotlib.axes._axes import Axes
 from matplotlib.patches import Ellipse
-from nptyping import Float64, NDArray, Shape
 from scipy.stats.distributions import f as Fdist
 
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
+from polykin.utils.types import Float2x2Matrix
 
 __all__ = ['confidence_ellipse']
 
 
 def confidence_ellipse(ax: Axes,
                        center: tuple[float, float],
-                       cov: NDArray[Shape['2, 2'], Float64],
+                       cov: Float2x2Matrix,
                        ndata: int,
                        alpha: float = 0.05,
                        color: str = 'black'
@@ -51,10 +51,10 @@ def confidence_ellipse(ax: Axes,
     Parameters
     ----------
     ax : Axes
-        Matplotlib Axes object where ellipse will be added.
+        Matplotlib Axes object to which ellipse will be patched.
     center : tuple[float, float]
         Point estimate of the model parameters, $\hat{\beta}$.
-    cov : FloatSquareMatrix
+    cov : Float2x2Matrix
         Scaled variance-covariance matrix (2x2), $V_{\beta}$.
     ndata : int
         Number of data points.
@@ -63,10 +63,6 @@ def confidence_ellipse(ax: Axes,
     color : str
         Color of ellipse contour and center.
 
-    Returns
-    -------
-    Axes
-        Updated Matplotlib Axes object with ellipse.
     """
 
     # method implementation is specific for 2D
