@@ -2,10 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
+from typing import Optional
+
 import numpy as np
 from matplotlib.axes._axes import Axes
 from matplotlib.patches import Ellipse
 from scipy.stats.distributions import f as Fdist
+from scipy.stats.distributions import t as tdist
 
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
@@ -19,9 +22,11 @@ def confidence_ellipse(ax: Axes,
                        cov: Float2x2Matrix,
                        ndata: int,
                        alpha: float = 0.05,
-                       color: str = 'black'
+                       color: str = 'black',
+                       label: Optional[str] = None,
+                       confint: bool = True
                        ) -> None:
-    r"""Generate a confidence ellipse for models with 2 estimated parameters
+    r"""Generate a confidence ellipse for 2 jointly estimated parameters
     using a linear approximation method.
 
     The joint $100(1-\alpha)\%$ confidence region for the parameters
@@ -34,8 +39,8 @@ def confidence_ellipse(ax: Axes,
     where $\hat\beta$ is the point estimate of $\beta$ (obtained by
     least-squares fitting), $V_{\beta}$ is the _scaled_ variance-covariance
     matrix, $p=2$ is the number of parameters, $n>p$ is the number of data
-    points used in the regression, $\alpha$ is the significance level, and $F$
-    is the F-distribution.
+    points considered in the regression, $\alpha$ is the significance level,
+    and $F$ is the F-distribution.
 
     The method is exact for models that are linear in the parameters. For
     models that are non-linear in the parameters, the size and shape of the
@@ -62,7 +67,11 @@ def confidence_ellipse(ax: Axes,
         Significance level, $\alpha$.
     color : str
         Color of ellipse contour and center.
-
+    label : str
+        Ellipse label.
+    confint : bool
+        If `True` the _individual_ confidence intervals of the parameters are
+        represented as lines.
     """
 
     # method implementation is specific for 2D
@@ -96,9 +105,16 @@ def confidence_ellipse(ax: Axes,
                       height=length_y,
                       angle=angle,
                       facecolor='none',
-                      edgecolor=color)
+                      edgecolor=color,
+                      label=label)
 
     ax.add_patch(ellipse)
     ax.scatter(*center, c=color, s=5)
+
+    if confint:
+        std_error = np.sqrt(np.diag(cov))
+        tval = tdist.ppf(1. - alpha/2, ndata - npar)
+        ci = std_error*tval
+        ax.errorbar(*center, xerr=ci[0], yerr=ci[1], color=color)
 
     return None
