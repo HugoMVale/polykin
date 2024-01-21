@@ -314,7 +314,7 @@ class MayoDataset(CopoDataset):
                  M2: str,
                  f1: FloatVectorLike,
                  F1: FloatVectorLike,
-                 sigma_f1: FloatOrVectorLike = 1e-3,
+                 sigma_f1: FloatOrVectorLike = 1e-2,
                  sigma_F1: FloatOrVectorLike = 5e-2,
                  weight: float = 1,
                  T: float = 298.,
