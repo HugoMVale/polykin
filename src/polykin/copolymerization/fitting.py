@@ -128,7 +128,7 @@ def fit_reactivity_ratios(
     else:
         raise ValueError(f"Invalid method `{method}`.")
 
-    if not (r1 and r2 and cov):
+    if r1 is None or r2 is None or cov is None:
         raise FitError(error_message)
 
     # Standard parameter errors and confidence intervals
