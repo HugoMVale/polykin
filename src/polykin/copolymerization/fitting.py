@@ -3,43 +3,49 @@
 # Copyright Hugo Vale 2023
 
 from dataclasses import dataclass
-from operator import itemgetter
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 
 import matplotlib.pyplot as plt
-import matplotlib.transforms as transforms
 import numpy as np
-from matplotlib.patches import Ellipse, Patch
+from matplotlib.axes._axes import Axes
+from matplotlib.figure import Figure
 from scipy import odr
 from scipy.optimize import curve_fit
 from scipy.stats import linregress
-from scipy.stats.distributions import t
+from scipy.stats.distributions import t as tdist
 
-from polykin import utils
-from polykin.types import (FloatOrVector, FloatOrVectorLike, FloatVector,
-                           FloatVectorLike)
-from polykin.utils import ShapeError, check_shapes
-from polykin.math import convert_FloatOrVectorLike_to_FloatOrVector
+from polykin.copolymerization.binary import inst_copolymer_binary
+from polykin.math import confidence_ellipse
+from polykin.utils.exceptions import FitError
+from polykin.utils.math import (convert_FloatOrVectorLike_to_FloatOrVector,
+                                convert_FloatOrVectorLike_to_FloatVector)
+from polykin.utils.tools import check_bounds, check_shapes
+from polykin.utils.types import (Float2x2Matrix, FloatOrVectorLike,
+                                 FloatVectorLike)
 
-__all__ = ['CopoFitResult']
+__all__ = ['fit_Finemann_Ross',
+           'fit_reactivity_ratios']
 
 
 # %% CopoFitResult
 
 
-@dataclass(frozen=True)
+@dataclass
 class CopoFitResult():
     """Something"""
-    M1: str
-    M2: str
-    r1: Optional[float] = None
-    r2: Optional[float] = None
-    sigma_r1: Optional[float] = None
-    sigma_r2: Optional[float] = None
-    error95_r1: Optional[float] = None
-    error95_r2: Optional[float] = None
-    cov: Optional[Any] = None
-    method: str = ''
+    r1: float
+    r2: float
+    cov: Float2x2Matrix
+    se_r1: float
+    se_r2: float
+    ci_r1: float
+    ci_r2: float
+    alpha: float
+    method: str
+    M1: str = 'M1'
+    M2: str = 'M2'
+    Mayo: Optional[tuple[Figure, Axes]] = None
+    JCR: Optional[tuple[Figure, Axes]] = None
 
     def __repr__(self):
         s1 = \
@@ -48,190 +54,184 @@ class CopoFitResult():
             f"M2:         {self.M2}\n" \
             f"r1:         {self.r1:.2E}\n" \
             f"r2:         {self.r2:.2E}\n"
-        if self.sigma_r1 is not None:
+        if self.se_r1 is not None:
             s2 = \
-                f"sigma_r1:   {self.sigma_r1:.2E}\n" \
-                f"sigma_r2:   {self.sigma_r2:.2E}\n" \
-                f"error95_r1: {self.error95_r1:.2E}\n" \
-                f"error95_r2: {self.error95_r2:.2E}\n" \
-                f"cov:        {self.cov}\n"
+                f"se_r1:   {self.se_r1:.2E}\n" \
+                f"se_r2:   {self.se_r2:.2E}\n" \
+                f"ci_r1:   {self.ci_r1:.2E}\n" \
+                f"ci_r2:   {self.ci_r2:.2E}\n" \
+                f"cov:     {self.cov}\n"
         else:
             s2 = ""
         return s1 + s2
 
-# %% Aux functions
-
-
-def draw_jcr(r1: float,
-             r2: float,
-             cov: np.ndarray,
-             alpha: float = 0.05):
-
-    fig, ax = plt.subplots()
-    ax.set_xlabel(r"$r_1$")
-    ax.set_ylabel(r"$r_2$")
-    ax.scatter(r1, r2, c='black', s=5)
-    confidence_ellipse((r1, r2), cov, ax)
-    return
-
-
-def confidence_ellipse(center: tuple[float, float],
-                       cov: np.ndarray,
-                       ax: plt.Axes,
-                       nstd: float = 1.96
-                       ) -> Patch:
-
-    pearson = cov[0, 1]/np.sqrt(cov[0, 0]*cov[1, 1])
-    radius_x = np.sqrt(1 + pearson)
-    radius_y = np.sqrt(1 - pearson)
-    scale_x, scale_y = np.sqrt(np.diag(cov))*nstd
-
-    ellipse = Ellipse((0, 0),
-                      width=2*radius_x,
-                      height=2*radius_y,
-                      facecolor='none',
-                      edgecolor='black')
-
-    transf = transforms.Affine2D() \
-        .rotate_deg(45) \
-        .scale(scale_x, scale_y) \
-        .translate(*center)
-
-    ellipse.set_transform(transf + ax.transData)
-    return ax.add_patch(ellipse)
-
 # %%
 
 
-def fit(self,
-        method: Literal['FR', 'NLLS', 'ODR'] = 'NLLS',
+def fit_reactivity_ratios(
+        f1: FloatVectorLike,
+        F1: FloatVectorLike,
+        sigma_f: FloatOrVectorLike,
+        sigma_F: FloatOrVectorLike,
+        method: Literal['NLLS', 'ODR'] = 'NLLS',
         alpha: float = 0.05,
-        plot: bool = True
-        ) -> CopoFitResult:
+        plot_Mayo: bool = True,
+        plot_JCR: bool = True) -> CopoFitResult:
 
-    method_names = {'FR': 'Finemann-Ross',
-                    'NLLS': 'Non-linear least squares',
-                    'ODR': 'Orthogonal distance regression'}
+    f1, F1 = convert_FloatOrVectorLike_to_FloatVector([f1, F1])
+    sigma_f, sigma_F = convert_FloatOrVectorLike_to_FloatOrVector(
+        [sigma_f, sigma_F])
 
-    # Concatenate all datasets and save to cache
-    if not self._data_fit:
-        f1 = np.array([])
-        F1 = np.array([])
-        sigma_f = np.array([])
-        sigma_F = np.array([])
-        for ds in self.data:
-            ds_f1 = ds.f1
-            ds_F1 = ds.F1
-            npoints = len(ds_f1)
-            if ds.M1 == self.M2 and ds.M2 == self.M1:
-                ds_f1 = 1 - ds_f1
-                ds_F1 = 1 - ds_F1
-            f1 = np.concatenate([f1, ds_f1])
-            F1 = np.concatenate([F1, ds_F1])
-            if isinstance(ds.sigma_f, float):
-                ds_sigma_f = np.full(npoints, ds.sigma_f)
-            else:
-                ds_sigma_f = ds.sigma_f
-            if isinstance(ds.sigma_F, float):
-                ds_sigma_F = np.full(npoints, ds.sigma_F)
-            else:
-                ds_sigma_F = ds.sigma_F
-            sigma_f = np.concatenate([sigma_f, ds_sigma_f])
-            sigma_F = np.concatenate([sigma_F, ds_sigma_F])
+    # Check inputs
+    check_shapes([f1, F1], [sigma_f, sigma_F])
+    check_bounds(f1, 0., 1., 'f1')
+    check_bounds(F1, 0., 1., 'F1')
 
-        # Remove invalid f, F values
-        idx_valid = np.logical_and.reduce((f1 > 0, f1 < 1, F1 > 0, F1 < 1))
-        f1 = f1[idx_valid]
-        F1 = F1[idx_valid]
-        sigma_f = sigma_f[idx_valid]
-        sigma_F = sigma_F[idx_valid]
+    # Convert sigma to vectors
+    ndata = f1.size
+    if isinstance(sigma_f, float):
+        sigma_f = np.full(ndata, sigma_f)
+    if isinstance(sigma_F, float):
+        sigma_F = np.full(ndata, sigma_F)
 
-        # Store in cache
-        self._data_fit.update({'f1': f1,
-                               'F1': F1,
-                               'sigma_f': sigma_f,
-                               'sigma_F': sigma_F})
-    else:
-        f1, F1, sigma_f, sigma_F = \
-            itemgetter('f1', 'F1', 'sigma_f', 'sigma_F')(self._data_fit)
+    r1, r2, cov, = None, None, None
+    error_message = ''
+    if method == 'NLLS':
 
-    # Finemann-Ross (either for itself or as initial guess for other methods)
-    x, y = f1/(1 - f1), F1/(1 - F1)
-    x, y = -y/x**2, (y - 1)/x
-    solution = linregress(x, y)
-    _r1, _r2 = solution.intercept, solution.slope  # type: ignore
-
-    r1 = None
-    r2 = None
-    sigma_r1 = None
-    sigma_r2 = None
-    cov = None
-    error95_r1 = None
-    error95_r2 = None
-
-    if method == 'FR':
-        r1 = _r1
-        r2 = _r2
-
-    elif method == 'NLLS':
-        solution = curve_fit(F1_inst,
+        solution = curve_fit(inst_copolymer_binary,
                              xdata=f1,
                              ydata=F1,
-                             p0=(_r1, _r2),
+                             p0=(1., 1.),
                              sigma=sigma_F,
-                             absolute_sigma=True,
-                             bounds=(0, np.inf),
+                             absolute_sigma=False,  # for scaled cov
+                             bounds=(0., np.inf),
                              full_output=True)
         if solution[4]:
             r1, r2 = solution[0]
             cov = solution[1]
-            # This next part is to be checked
-            sigma_r1, sigma_r2 = np.sqrt(np.diag(cov))
-            tval = t.ppf(1 - alpha/2, max(0, f1.size - cov.shape[0]))
-            error95_r1 = sigma_r1*tval
-            error95_r2 = sigma_r2*tval
         else:
-            print("Fit error: ", solution[3])
+            error_message = solution[3]
 
     elif method == 'ODR':
-        odr_Model = odr.Model(lambda beta, x: F1_inst(x, *beta))
+
+        odr_Model = odr.Model(lambda beta, x: inst_copolymer_binary(x, *beta))
         odr_Data = odr.RealData(x=f1, y=F1, sx=sigma_f, sy=sigma_F)
-        odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=(_r1, _r2))
+        odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=(1., 1.))
         solution = odr_ODR.run()
-        r1, r2 = solution.beta
-        cov = np.array(solution.cov_beta)  # !!! not sure
-        # This next part is to be checked + finished
-        sigma_r1, sigma_r2 = solution.sd_beta
-        error95_r1 = sigma_r1
-        error95_r2 = sigma_r2
+        if (solution.info < 5):  # type: ignore
+            r1, r2 = solution.beta
+            # cov_beta is absolute, so rescaling is required
+            cov = solution.cov_beta*solution.res_var  # type: ignore
+        else:
+            error_message = solution.stopreason
 
     else:
-        utils.check_in_set(method, set(method_names.keys()), 'method')
+        raise ValueError(f"Invalid method `{method}`.")
 
-    # Pack results into object
-    result = CopoFitResult(M1=self.M1,
-                           M2=self.M2,
-                           r1=r1,
-                           r2=r2,
-                           sigma_r1=sigma_r1,
-                           sigma_r2=sigma_r2,
-                           error95_r1=error95_r1,
-                           error95_r2=error95_r2,
+    if not (r1 and r2 and cov):
+        raise FitError(error_message)
+
+    # Standard parameter errors and confidence intervals
+    se_r = np.sqrt(np.diag(cov))
+    ci_r = se_r*tdist.ppf(1. - alpha/2, ndata - 2)
+
+    # Mayo plot
+    Mayo = None
+    if plot_Mayo:
+        Mayo = plt.subplots()
+        ax = Mayo[1]
+        ax.set_xlabel(r"$f_1$")
+        ax.set_ylabel(r"$F_1$")
+        ax.scatter(f1, F1)
+        ax.set_xlim(0., 1.)
+        ax.set_ylim(0., 1.)
+        x = np.linspace(0., 1., 200)
+        y = inst_copolymer_binary(x, r1, r2)
+        ax.plot(x, y)
+
+    # Joint confidence region
+    JCR = None
+    if plot_JCR:
+        JCR = plt.subplots()
+        ax = JCR[1]
+        ax.set_xlabel(r"$r_1$")
+        ax.set_ylabel(r"$r_2$")
+        confidence_ellipse(ax, (r1, r2), cov, ndata, alpha, 'tab:blue')
+        ax.legend(bbox_to_anchor=(1.05, 1.), loc="upper left")
+
+    result = CopoFitResult(r1=r1, r2=r2,
                            cov=cov,
-                           method=method_names[method])
-    if r1 is not None and r2 is not None and cov is not None:
-        draw_jcr(r1, r2, cov, alpha)
+                           se_r1=se_r[0], se_r2=se_r[1],
+                           ci_r1=ci_r[0], ci_r2=ci_r[1],
+                           alpha=alpha,
+                           method=method,
+                           Mayo=Mayo, JCR=JCR)
+
     return result
 
 # %% Fit functions
 
 
-def fit_Finemann_Ross(f1: FloatVector,
-                      F1: FloatVector
+def fit_Finemann_Ross(f1: FloatVectorLike,
+                      F1: FloatVectorLike
                       ) -> tuple[float, float]:
-    # Finemann-Ross (either for itself or as initial guess for other methods)
-    x, y = f1/(1 - f1), F1/(1 - F1)
-    x, y = -y/x**2, (y - 1)/x
-    solution = linregress(x, y)
-    r1, r2 = solution.intercept, solution.slope
+    r"""Fit binary copolymer composition data using the Finemann-Ross method.
+
+    $$ \left(\frac{x(y-1)}{y}\right) = -r_2 + r_1 \left(\frac{x^2}{y}\right) $$
+
+    where $x = f_1/(1 - f_1)$, $y = F_1/(1 - F_1)$, $r_i$ are the reactivity
+    ratios, $f_1$ is the monomer composition, and $F_1$ is the instantaneous
+    copolymer composition.
+
+    **Reference**
+
+    *   Fineman, M.; Ross, S. D. J. Polymer Sci. 1950, 5, 259.
+
+    !!! note
+
+        The Finemann-Ross method relies on a linearization procedure that can
+        lead to significant statistical bias. The method is provided for its
+        historical significance, but should no longer be used for fitting
+        reactivity ratios.
+
+    Parameters
+    ----------
+    f1 : FloatVectorLike
+        Vector of molar fraction of M1, $f_1$.
+    F1 : FloatVectorLike
+        Vector of instantaneous copolymer composition of M1, $F_1$.
+
+    Returns
+    -------
+    tuple[float, float]
+        Point estimates of the reactivity ratios $(r_1, r_2)$.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization.fitting import fit_Finemann_Ross
+    >>> import numpy as np
+    >>>
+    >>> f1 = [0.186, 0.299, 0.527, 0.600, 0.700, 0.798]
+    >>> F1 = [0.196, 0.279, 0.415, 0.473, 0.542, 0.634]
+    >>>
+    >>> r1, r2 = fit_Finemann_Ross(f1, F1)
+    >>> print(f"r1 = {r1:.3f}, r2 = {r2:.3f}")
+    r1 = 0.226, r2 = 0.762
+
+    """
+
+    f1 = np.asarray(f1)
+    F1 = np.asarray(F1)
+
+    # Variable transformation
+    x = f1/(1. - f1)
+    y = F1/(1. - F1)
+    H = x**2/y
+    G = x*(y - 1.)/y
+
+    # Linear regression
+    solution = linregress(H, G)
+    r1 = solution.slope  # type: ignore
+    r2 = - solution.intercept  # type: ignore
+
     return (r1, r2)
