@@ -16,3 +16,7 @@ class RangeError(ValueError):
 
 class ShapeError(ValueError):
     pass
+
+
+class FitError(ValueError):
+    pass
