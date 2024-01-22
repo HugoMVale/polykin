@@ -97,7 +97,7 @@ def confidence_ellipse(ax: Axes,
     # "scale" of ellipse
     scale = npar*Fdist.ppf(1. - alpha, npar, ndata - npar)
 
-    # length of ellipse axes
+    # lengths of ellipse axes
     length_x, length_y = 2*np.sqrt(scale*eigenvalues)
 
     ellipse = Ellipse(center,
@@ -112,9 +112,7 @@ def confidence_ellipse(ax: Axes,
     ax.scatter(*center, c=color, s=5)
 
     if confint:
-        std_error = np.sqrt(np.diag(cov))
-        tval = tdist.ppf(1. - alpha/2, ndata - npar)
-        ci = std_error*tval
+        ci = np.sqrt(np.diag(cov))*tdist.ppf(1. - alpha/2, ndata - npar)
         ax.errorbar(*center, xerr=ci[0], yerr=ci[1], color=color)
 
     return None
