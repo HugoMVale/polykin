@@ -18,6 +18,8 @@ Using any of these subpackages requires an explicit import. For example,
 * properties       = physical property methods and models
 
 """
+import importlib.metadata
+
 from polykin.properties.equations import plotequations
 
-__version__ = "0.3.1"
+__version__ = importlib.metadata.version('polykin')
