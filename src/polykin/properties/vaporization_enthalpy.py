@@ -8,10 +8,11 @@ of pure components.
 
 from typing import Literal, Optional
 
+import numpy as np
 from numpy import log, log10
 from scipy.constants import R
 
-from polykin.utils.types import FloatOrArray
+from polykin.utils.types import FloatOrArray, FloatOrArrayLike
 
 __all__ = ['DHVL_Pitzer',
            'DHVL_Vetere',
@@ -20,7 +21,7 @@ __all__ = ['DHVL_Pitzer',
            ]
 
 
-def DHVL_Pitzer(T: FloatOrArray,
+def DHVL_Pitzer(T: FloatOrArrayLike,
                 Tc: float,
                 w: float
                 ) -> FloatOrArray:
@@ -68,6 +69,7 @@ def DHVL_Pitzer(T: FloatOrArray,
     17.5 kJ/mol
 
     """
+    T = np.asarray(T)
     Tr = T/Tc
     return R*Tc*(7.08*(1 - Tr)**0.354 + 10.95*w*(1 - Tr)**0.456)
 
