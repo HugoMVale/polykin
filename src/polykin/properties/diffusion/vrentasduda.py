@@ -187,21 +187,21 @@ class VrentasDudaBinary():
 
     def __repr__(self) -> str:
         return (
-            f"name:     {self.name}\n"
-            f"unit:     {self.unit}\n"
-            f"D0:       {self.D0}\n"
-            f"E:        {self.E}\n"
-            f"V1*:      {self.V1star}\n"
-            f"V2*:      {self.V2star}\n"
-            f"ξ:        {self.z}\n"
-            f"K11:      {self.K11}\n"
-            f"K12:      {self.K12}\n"
-            f"K21:      {self.K21}\n"
-            f"K22:      {self.K22}\n"
-            f"Tg1:      {self.Tg1}\n"
-            f"Tg2:      {self.Tg2}\n"
-            f"𝛾:        {self.y}\n"
-            f"𝜒:        {self.X}"
+            f"name: {self.name}\n"
+            f"unit: {self.unit}\n"
+            f"D0:   {self.D0}\n"
+            f"E:    {self.E}\n"
+            f"V1*:  {self.V1star}\n"
+            f"V2*:  {self.V2star}\n"
+            f"ξ:    {self.z}\n"
+            f"K11:  {self.K11}\n"
+            f"K12:  {self.K12}\n"
+            f"K21:  {self.K21}\n"
+            f"K22:  {self.K22}\n"
+            f"Tg1:  {self.Tg1}\n"
+            f"Tg2:  {self.Tg2}\n"
+            f"𝛾:    {self.y}\n"
+            f"𝜒:    {self.X}"
         )
 
     def __call__(self,
