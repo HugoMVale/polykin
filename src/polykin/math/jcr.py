@@ -33,18 +33,25 @@ def confidence_ellipse(ax: Axes,
     $\beta=(\beta_1, \beta_2)$ is represented by the domain of values that
     satisfy the following condition:
 
-    $$ (\beta -\hat\beta)^T V^{-1}_{\beta}(\beta -\hat\beta)
-       \leq p F_{p,n-p,\alpha}$$
+    $$ (\beta -\hat\beta)^T V^{-1}(\beta -\hat\beta)
+       \leq p F_{p,n-p,1-\alpha}$$
 
     where $\hat\beta$ is the point estimate of $\beta$ (obtained by
-    least-squares fitting), $V_{\beta}$ is the _scaled_ variance-covariance
+    least-squares fitting), $V$ is the _scaled_ variance-covariance
     matrix, $p=2$ is the number of parameters, $n>p$ is the number of data
     points considered in the regression, $\alpha$ is the significance level,
-    and $F$ is the F-distribution.
+    and $F$ is the Fisher-Snedecor distribution.
 
     The method is exact for models that are linear in the parameters. For
     models that are non-linear in the parameters, the size and shape of the
     ellipse is only an approximation to the true joint confidence region.
+
+    Additionally, the confidence intervals for the individual coefficients are
+    given by:
+
+    $$ \hat{\beta}_i \pm \hat{V}_{ii}^{1/2} t_{n-p,1-\alpha/2} $$
+
+    where $t$ is Student's $t$ distribution.
 
     **Reference**
 
@@ -60,7 +67,7 @@ def confidence_ellipse(ax: Axes,
     center : tuple[float, float]
         Point estimate of the model parameters, $\hat{\beta}$.
     cov : Float2x2Matrix
-        Scaled variance-covariance matrix (2x2), $V_{\beta}$.
+        Scaled variance-covariance matrix (2x2), $V$.
     ndata : int
         Number of data points.
     alpha : float
@@ -98,11 +105,11 @@ def confidence_ellipse(ax: Axes,
     scale = npar*Fdist.ppf(1. - alpha, npar, ndata - npar)
 
     # lengths of ellipse axes
-    length_x, length_y = 2*np.sqrt(scale*eigenvalues)
+    width, height = 2*np.sqrt(scale*eigenvalues)
 
     ellipse = Ellipse(center,
-                      width=length_x,
-                      height=length_y,
+                      width=width,
+                      height=height,
                       angle=angle,
                       facecolor='none',
                       edgecolor=color,
