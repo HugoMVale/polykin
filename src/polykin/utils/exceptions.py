@@ -20,3 +20,11 @@ class ShapeError(ValueError):
 
 class FitError(ValueError):
     pass
+
+
+class RootSolverError(ValueError):
+    pass
+
+
+class ODESolverError(ValueError):
+    pass
