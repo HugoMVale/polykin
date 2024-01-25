@@ -7,7 +7,7 @@ from numpy import abs, dot, exp, sqrt
 from scipy.constants import R
 
 from polykin.properties.mixing_rules import pseudocritical_properties
-from polykin.utils.types import FloatOrArray, FloatVector
+from polykin.utils.types import FloatOrArray, FloatVectorLike
 
 __all__ = ['MUVMX2_Herning_Zipperer',
            'MUVPC_Jossi',
@@ -19,9 +19,9 @@ __all__ = ['MUVMX2_Herning_Zipperer',
 # %% Mixing rules
 
 
-def MUVMX2_Herning_Zipperer(y: FloatVector,
-                            mu: FloatVector,
-                            M: FloatVector
+def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
+                            mu: FloatVectorLike,
+                            M: FloatVectorLike
                             ) -> float:
     r"""Calculate the viscosity of a gas mixture from the viscosities of the
     pure components using the mixing rule Wilke with the approximation of
@@ -42,11 +42,11 @@ def MUVMX2_Herning_Zipperer(y: FloatVector,
 
     Parameters
     ----------
-    y : FloatVector
+    y : FloatVectorLike
         Mole fractions of all components. Unit = Any.
-    mu : FloatVector
+    mu : FloatVectorLike
         Viscosities of all components, $\mu$. Unit = Any.
-    M : FloatVector
+    M : FloatVectorLike
         Molar masses of all components. Unit = Any.
 
     Returns
@@ -59,11 +59,10 @@ def MUVMX2_Herning_Zipperer(y: FloatVector,
     Estimate the viscosity of a 50 mol% ethylene/1-butene gas mixture at 120°C
     and 1 bar.
     >>> from polykin.properties.viscosity import MUVMX2_Herning_Zipperer
-    >>> import numpy as np
     >>>
-    >>> y = np.array([0.5, 0.5])
-    >>> mu = np.array([130e-7, 100e-7]) # Pa.s, from literature
-    >>> M = np.array([28.e-3, 56.e-3])  # kg/mol
+    >>> y = [0.5, 0.5]
+    >>> mu = [130e-7, 100e-7] # Pa.s, from literature
+    >>> M = [28.e-3, 56.e-3]  # kg/mol
     >>>
     >>> mu_mix = MUVMX2_Herning_Zipperer(y, mu, M)
     >>>
@@ -71,6 +70,10 @@ def MUVMX2_Herning_Zipperer(y: FloatVector,
     1.12e-05 Pa·s
 
     """
+    y = np.asarray(y)
+    mu = np.asarray(mu)
+    M = np.asarray(M)
+
     a = y*sqrt(M)
     a /= a.sum()
     return dot(a, mu)
@@ -138,11 +141,11 @@ def MUVPC_Jossi(rhor: float,
 
 
 def MUVMXPC_Dean_Stiel(v: float,
-                       y: FloatVector,
-                       M: FloatVector,
-                       Tc: FloatVector,
-                       Pc: FloatVector,
-                       Zc: FloatVector,
+                       y: FloatVectorLike,
+                       M: FloatVectorLike,
+                       Tc: FloatVectorLike,
+                       Pc: FloatVectorLike,
+                       Zc: FloatVectorLike,
                        ) -> float:
     r"""Calculate the effect of pressure (or density) on the viscosity of
     gas mixtures using the method of Dean and Stiel for nonpolar components.
@@ -163,15 +166,15 @@ def MUVMXPC_Dean_Stiel(v: float,
     ----------
     v : float
         Gas molar volume. Unit = m³/mol.
-    y : FloatVector
+    y : FloatVectorLike
         Mole fractions of all components. Unit = mol/mol.
-    M : FloatVector
+    M : FloatVectorLike
         Molar masses of all components. Unit = kg/mol.
-    Tc : FloatVector
+    Tc : FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : FloatVectorLike
         Critical pressures of all components. Unit = Pa.
-    Zc : FloatVector
+    Zc : FloatVectorLike
         Critical compressibility factors of all components.
 
     Returns
@@ -185,15 +188,14 @@ def MUVMXPC_Dean_Stiel(v: float,
     t 350 K and 100 bar.
 
     >>> from polykin.properties.viscosity import MUVMXPC_Dean_Stiel
-    >>> import numpy as np
     >>>
     >>> v = 1.12e-4  # m³/mol, with Peng-Robinson
     >>>
-    >>> y = np.array([0.5, 0.5])
-    >>> M = np.array([28.05e-3, 42.08e-3]) # kg/mol
-    >>> Tc = np.array([282.4, 364.9])      # K
-    >>> Pc = np.array([50.4e5, 46.0e5])    # Pa
-    >>> Zc = np.array([0.280, 0.274])
+    >>> y = [0.5, 0.5]
+    >>> M = [28.05e-3, 42.08e-3] # kg/mol
+    >>> Tc = [282.4, 364.9]      # K
+    >>> Pc = [50.4e5, 46.0e5]    # Pa
+    >>> Zc = [0.280, 0.274]
     >>>
     >>> mu_residual = MUVMXPC_Dean_Stiel(v, y, M, Tc, Pc, Zc)
     >>>
@@ -201,6 +203,12 @@ def MUVMXPC_Dean_Stiel(v: float,
     2.32e-05 Pa·s
 
     """
+
+    y = np.asarray(y)
+    M = np.asarray(M)
+    Tc = np.asarray(Tc)
+    Pc = np.asarray(Pc)
+    Zc = np.asarray(Zc)
 
     # Mixing rules recommended in paper
     M_mix = dot(y, M)
@@ -274,12 +282,12 @@ def MUV_Lucas(T: float,
 
 def MUVMX_Lucas(T: float,
                 P: float,
-                y: FloatVector,
-                M: FloatVector,
-                Tc: FloatVector,
-                Pc: FloatVector,
-                Zc: FloatVector,
-                dm: FloatVector
+                y: FloatVectorLike,
+                M: FloatVectorLike,
+                Tc: FloatVectorLike,
+                Pc: FloatVectorLike,
+                Zc: FloatVectorLike,
+                dm: FloatVectorLike
                 ) -> float:
     r"""Calculate the viscosity of a gas mixture at a given temperature and
     pressure using the method of Lucas.
@@ -295,17 +303,17 @@ def MUVMX_Lucas(T: float,
         Temperature. Unit = K.
     P : float
         Pressure. Unit = Pa.
-    y : FloatVector
+    y : FloatVectorLike
         Mole fractions of all components. Unit = mol/mol.
-    M : FloatVector
+    M : FloatVectorLike
         Molar masses of all components. Unit = kg/mol.
-    Tc : FloatVector
+    Tc : FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : FloatVectorLike
         Critical pressures of all components. Unit = Pa.
-    Zc : FloatVector
+    Zc : FloatVectorLike
         Critical compressibility factors of all components.
-    dm : FloatVector
+    dm : FloatVectorLike
         Dipole moments of all components. Unit = debye.
 
     Returns
@@ -319,14 +327,13 @@ def MUVMX_Lucas(T: float,
     and 10 bar.
 
     >>> from polykin.properties.viscosity import MUVMX_Lucas
-    >>> import numpy as np
     >>>
-    >>> y = np.array([0.6, 0.4])
-    >>> M = np.array([28.e-3, 28.e-3])   # kg/mol
-    >>> Tc = np.array([282.4, 126.2])    # K
-    >>> Pc = np.array([50.4e5, 33.9e5])  # Pa
-    >>> Zc = np.array([0.280, 0.290])
-    >>> dm = np.array([0., 0.])
+    >>> y = [0.6, 0.4]
+    >>> M = [28.e-3, 28.e-3]   # kg/mol
+    >>> Tc = [282.4, 126.2]    # K
+    >>> Pc = [50.4e5, 33.9e5]  # Pa
+    >>> Zc = [0.280, 0.290]
+    >>> dm = [0., 0.]
     >>>
     >>> mu_mix = MUVMX_Lucas(T=350., P=10e5, y=y, M=M,
     ...                      Tc=Tc, Pc=Pc, Zc=Zc, dm=dm)
@@ -335,6 +342,13 @@ def MUVMX_Lucas(T: float,
     1.45e-05 Pa·s
 
     """
+    y = np.asarray(y)
+    M = np.asarray(M)
+    Tc = np.asarray(Tc)
+    Pc = np.asarray(Pc)
+    Zc = np.asarray(Zc)
+    dm = np.asarray(dm)
+
     Tc_mix = dot(y, Tc)
     M_mix = dot(y, M)
     Pc_mix = R*Tc_mix*dot(y, Zc)/dot(y, R*Tc*Zc/Pc)

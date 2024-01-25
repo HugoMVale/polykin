@@ -34,9 +34,9 @@ def MULMX2_Perry(x: FloatVectorLike,
 
     Parameters
     ----------
-    x : FloatVector
+    x : FloatVectorLike
         Mole fractions of all components. Unit = mol/mol.
-    mu : FloatVector
+    mu : FloatVectorLike
         Viscosities of all components, $\mu$. Unit = Any.
     hydrocarbons : bool
         Method selection. `True` for hydrocarbon mixtures, `False` for
@@ -51,11 +51,10 @@ def MULMX2_Perry(x: FloatVectorLike,
     --------
     Estimate the viscosity of a 50 mol% styrene/toluene liquid mixture at 20°C.
     >>> from polykin.properties.viscosity import MULMX2_Perry
-    >>> import numpy as np
-    >>> 
+    >>>
     >>> x = [0.5, 0.5]
     >>> mu = [0.76, 0.59] # cP, from literature
-    >>> 
+    >>>
     >>> mu_mix = MULMX2_Perry(x, mu)
     >>>
     >>> print(f"{mu_mix:.2f} cP")

@@ -43,7 +43,7 @@ def DHVL_Pitzer(T: FloatOrArrayLike,
 
     Parameters
     ----------
-    T : FloatOrArray
+    T : FloatOrArrayLike
         Temperature. Unit = K.
     Tc : float
         Critical temperature. Unit = K.
