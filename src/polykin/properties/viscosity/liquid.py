@@ -2,17 +2,18 @@
 #
 # Copyright Hugo Vale 2023
 
+import numpy as np
 from numpy import cbrt, dot, exp, log
 
-from polykin.utils.types import FloatVector
+from polykin.utils.types import FloatVectorLike
 
 __all__ = ['MULMX2_Perry']
 
 # %% Mixing rules
 
 
-def MULMX2_Perry(x: FloatVector,
-                 mu: FloatVector,
+def MULMX2_Perry(x: FloatVectorLike,
+                 mu: FloatVectorLike,
                  hydrocarbons: bool = False,
                  ) -> float:
     r"""Calculate the viscosity of a liquid mixture from the viscosities of the
@@ -52,8 +53,8 @@ def MULMX2_Perry(x: FloatVector,
     >>> from polykin.properties.viscosity import MULMX2_Perry
     >>> import numpy as np
     >>> 
-    >>> x = np.array([0.5, 0.5])
-    >>> mu = np.array([0.76, 0.59]) # cP, from literature
+    >>> x = [0.5, 0.5]
+    >>> mu = [0.76, 0.59] # cP, from literature
     >>> 
     >>> mu_mix = MULMX2_Perry(x, mu)
     >>>
@@ -61,6 +62,9 @@ def MULMX2_Perry(x: FloatVector,
     0.67 cP
 
     """
+    x = np.asarray(x)
+    mu = np.asarray(mu)
+
     if hydrocarbons:
         result = dot(x, cbrt(mu))**3
     else:
