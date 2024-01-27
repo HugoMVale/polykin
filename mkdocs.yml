@@ -203,6 +203,7 @@ nav:
           - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
       - polykin.math:
           - confidence_ellipse: reference/math/confidence_ellipse.md
+          - confidence_region: reference/math/confidence_region.md
       - polykin.properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md

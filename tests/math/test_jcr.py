@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 from matplotlib.axes._axes import Axes
+from scipy.optimize import minimize
 
-from polykin.math import confidence_ellipse
+from polykin.math import confidence_ellipse, confidence_region
 from polykin.utils.exceptions import ShapeError
 
 
@@ -83,3 +84,26 @@ def test_confidence_ellipse():
     color = 'black'
     confidence_ellipse(ax, center, cov, ndata, alpha, color)
     assert len(ax.patches) == 3
+
+
+def test_confidence_region():
+    # model and synthetic data
+    def model(x, beta):
+        return beta[0]*x**2 + beta[1]*x**5
+
+    ndata = 101
+    X = np.linspace(0, 1., ndata)
+    beta = (0.15, -0.05)
+    Y = model(X, beta) + np.random.normal(0., 0.05, len(X))
+
+    def sse(beta: tuple[float, float]) -> float:
+        Ye = model(X, beta)
+        return sum((Ye - Y)**2)
+
+    sol = minimize(sse, (-1., 1))
+    beta_est = sol.x
+
+    ax = plt.gca()
+    assert len(ax.get_lines()) == 0
+    confidence_region(ax, beta_est, sse, ndata)
+    assert len(ax.get_lines()) == 1
