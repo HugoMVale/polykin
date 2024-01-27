@@ -48,7 +48,7 @@ def confidence_ellipse(ax: Axes,
     $\alpha$ is the significance level, and $F$ is the Fisher-Snedecor
     distribution.
 
-    !!! important
+    !!! note
 
         This method is only exact for models that are linear in the parameters.
         For models that are non-linear in the parameters, the size and shape of
@@ -88,6 +88,11 @@ def confidence_ellipse(ax: Axes,
     confint : bool
         If `True` the _individual_ confidence intervals of the parameters are
         represented as lines.
+
+    !!! note annotate "See also"
+
+        * [`confidence_region`](confidence_region.md): alternative method
+        based on rigorous approach for non-linear models.
     """
 
     # Method implementation is specific for 2D
@@ -163,7 +168,7 @@ def confidence_region(ax: Axes,
     $\alpha$ is the significance level, and $F$ is the Fisher-Snedecor
     distribution.
 
-    !!! important
+    !!! note
 
         This method is suitable for arbitrary models (linear or non-linear in
         the parameters), without making assumptions about the shape of the JCR.
@@ -208,6 +213,11 @@ def confidence_region(ax: Axes,
         Ellipse label.
     npoints : int
         Number of points used to draw the confidence region.
+
+    !!! note annotate "See also"
+
+        * [`confidence_ellipse`](confidence_ellipse.md): alternative method
+        based on linear approximation.
 
     """
 
