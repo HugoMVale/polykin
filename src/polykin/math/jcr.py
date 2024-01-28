@@ -104,7 +104,7 @@ def confidence_ellipse(ax: Axes,
         raise ShapeError(f"`cov` must be a {npar}x{npar} matrix.")
 
     # Check inputs
-    check_bounds(alpha, 0.001, 0.50, 'alpha')
+    check_bounds(alpha, 0.001, 0.90, 'alpha')
     check_bounds(ndata, npar + 1, np.inf, 'ndata')
 
     # Eigenvalues and (orthogonal) eigenvectors of cov
@@ -227,7 +227,7 @@ def confidence_region(ax: Axes,
         raise ShapeError(f"`center` must be a vector of length {npar}.")
 
     # Check inputs
-    check_bounds(alpha, 0.001, 0.50, 'alpha')
+    check_bounds(alpha, 0.001, 0.90, 'alpha')
     check_bounds(ndata, npar + 1, np.inf, 'ndata')
 
     # Boundary
@@ -245,7 +245,7 @@ def confidence_region(ax: Axes,
     else:
         r0 = sol.root
 
-    # Walk along boundary using radial coordinates
+    # Move along boundary using radial coordinates
     def rdot(theta: float, r: float) -> float:
         "Calculate dr/dtheta along a path of constant 'sse'."
         a = sin(theta)
