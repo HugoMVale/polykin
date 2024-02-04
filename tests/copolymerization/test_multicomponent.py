@@ -94,3 +94,18 @@ def test_transitions_multi():
     f = [0.5, 0.3, 0.2]
     P = transitions_multi(f, r)
     assert all(isclose(P.diagonal(), [0.241, 0.295, 0.209], rtol=1e-2))
+
+
+def test_monomer_drift_multi_2():
+    r1 = 0.4
+    r2 = 0.7
+    r = np.ones((2, 2))
+    r[0, 1] = r1
+    r[1, 0] = r2
+    m = TerminalModel(r1, r2)
+    for f1 in [0.2, 0.5, 0.9]:
+        sol_b = m.transitions(f1)
+        sol_m = transitions_multi([f1, 1. - f1], r)
+        for i in range(2):
+            for j in range(2):
+                assert (isclose(sol_b[f"{i+1}{j+1}"], sol_m[i, j]))
