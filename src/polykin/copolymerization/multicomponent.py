@@ -9,7 +9,7 @@ from typing import Optional
 
 from polykin.utils.types import (FloatMatrix, FloatOrArray, FloatSquareMatrix,
                                  FloatVector, FloatVectorLike)
-from polykin.utils.exceptions import ShapeError
+from polykin.utils.exceptions import ShapeError, ODESolverError
 from polykin.utils.math import eps
 
 __all__ = ['inst_copolymer_ternary',
@@ -136,7 +136,7 @@ def inst_copolymer_multi(f: FloatVector,
     Parameters
     ----------
     f : FloatVector
-        Vector (N-1) of instantaneous monomer composition.
+        Vector (N) of instantaneous monomer composition.
     r : FloatSquareMatrix
         Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
@@ -171,31 +171,30 @@ def inst_copolymer_multi(f: FloatVector,
     >>> r[1, 2] = 0.4
     >>> r[2, 1] = 1.5
 
-    Evaluate instantaneous copolymer composition at f1=0.5 and f2=0.3.
-    >>> inst_copolymer_multi(np.array([0.5, 0.3]), r)
+    Evaluate instantaneous copolymer composition at f1=0.5, f2=0.3, f3=0.2.
+    >>> inst_copolymer_multi(np.array([0.5, 0.3, 0.2]), r)
     array([0.32138111, 0.41041608, 0.26820282])
     """
     # Compute radical probabilities, p(i)
-    N = len(f) + 1
-    flong = np.concatenate((f, [1. - np.sum(f, dtype=np.float64)]))
+    N = len(f)
     A = np.empty((N - 1, N - 1))
     for m in range(N - 1):
         for n in range(N - 1):
             if m == n:
-                a = -flong[m] / r[N - 1, m]
+                a = -f[m] / r[N - 1, m]
                 for j in range(N):
                     if j != m:
-                        a -= flong[j] / r[m, j]
+                        a -= f[j] / r[m, j]
             else:
-                a = flong[m]*(1./r[n, m] - 1./r[N - 1, m])
+                a = f[m]*(1./r[n, m] - 1./r[N - 1, m])
             A[m, n] = a
 
-    b = -flong[:-1] / r[-1, :-1]
+    b = -f[:-1] / r[-1, :-1]
     p = np.linalg.solve(A, b)
     p = np.append(p, 1. - np.sum(p, dtype=np.float64))
 
     # Compute copolymer compositions, F(i)
-    F = p*np.sum(flong/r, axis=1)/np.sum(p[:, np.newaxis]*flong/r)
+    F = p*np.sum(f/r, axis=1)/np.sum(p[:, np.newaxis]*f/r)
 
     return F
 
@@ -261,11 +260,11 @@ def monomer_drift_multi(f0: FloatVectorLike,
     if r.shape != (N, N):
         raise ShapeError("Shape mismatch between `f0` and `r`.")
 
-    def ode(x_: float, f_: FloatVector) -> FloatVector:
-        F_ = inst_copolymer_multi(f_, r)
-        return (f_ - F_[:-1]) / (1. - x_ + eps)
+    def dfdx(x: float, f: FloatVector) -> FloatVector:
+        F = inst_copolymer_multi(np.append(f, 1 - f.sum()), r)
+        return (f - F[:-1]) / (1. - x + eps)
 
-    sol = solve_ivp(ode,
+    sol = solve_ivp(dfdx,
                     t_span=(0., x[-1]),
                     y0=f0[:-1],
                     t_eval=x,
@@ -277,8 +276,7 @@ def monomer_drift_multi(f0: FloatVectorLike,
         f[:, :-1] = np.transpose(sol.y)
         f[:, -1] = 1 - np.sum(f[:, :-1], axis=1)
     else:
-        f = np.array([np.nan])
-        print(sol.message)
+        raise ODESolverError(sol.message)
 
     return f
 

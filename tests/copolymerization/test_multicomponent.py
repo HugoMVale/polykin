@@ -56,7 +56,7 @@ def test_inst_copolymer_multicomponent():
     r[2, 0] = r31
     r[1, 2] = r23
     r[2, 1] = r32
-    F_m = inst_copolymer_multi(np.array([f1, f2]), r)
+    F_m = inst_copolymer_multi(np.array([f1, f2, 1 - f1 - f2]), r)
     assert all(isclose(F_t, F_m,))  # type: ignore
 
 
@@ -70,7 +70,7 @@ def test_monomer_drift_multi():
     m = TerminalModel(r1, r2)
     for f10 in [0.2, 0.5, 0.9]:
         sol_b = m.drift(f10, x)
-        sol_m = monomer_drift_multi([f10, 1.-f10], r, x)
+        sol_m = monomer_drift_multi([f10, 1. - f10], r, x)
         assert all(isclose(sol_b, sol_m[:, 0], rtol=1e-4))
 
 
