@@ -5,6 +5,7 @@
 import numpy as np
 from numpy import exp
 from scipy.integrate import solve_ivp
+from typing import Optional
 
 from polykin.utils.types import (FloatMatrix, FloatOrArray, FloatSquareMatrix,
                                  FloatVector, FloatVectorLike)
@@ -286,13 +287,13 @@ def monomer_drift_multi(f0: FloatVectorLike,
 
 def transitions_multi(f: FloatVectorLike,
                       r: FloatSquareMatrix
-                      ) -> FloatVector:
+                      ) -> FloatSquareMatrix:
     r"""Calculate the instantaneous transition probabilities.
 
-    For a multicomponent system, the self-transition probabilities are given
+    For a multicomponent system, the transition probabilities are given
     by:
 
-    $$ P_{ii} = \frac{f_i}{\sum_j r_{ij}^{-1} f_j} $$
+    $$ P_{ij} = \frac{r_{ij}^{-1} f_j}{\sum_k r_{ik}^{-1} f_k} $$
 
     where $f_i$ is the molar fraction of monomer $i$ and $r_{ij}=k_{ii}/k_{ij}$
     is the multicomponent reactivity ratio matrix.
@@ -305,14 +306,14 @@ def transitions_multi(f: FloatVectorLike,
     Parameters
     ----------
     f : FloatVectorLike
-        Vector(N) of instantaneous monomer composition.
+        Vector (N) of instantaneous monomer composition.
     r : FloatSquareMatrix
         Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
-    FloatVector
-        Vector(N) of self-transition probabilities.
+    FloatSquareMatrix
+        Matrix (NxN) of transition probabilities.
 
     Examples
     --------
@@ -328,16 +329,78 @@ def transitions_multi(f: FloatVectorLike,
     >>> r[2, 1] = 1.5
     >>>
     >>> P = transitions_multi([0.5, 0.3, 0.2], r)
-    >>>
-    >>> print(f"P11 = {P[0]:.2f}; P22 = {P[1]:.2f}; P33 = {P[2]:.2f}")
-    P11 = 0.24; P22 = 0.29; P33 = 0.21
+    >>> P
+    array([[0.24193548, 0.72580645, 0.03225806],
+           [0.21367521, 0.29487179, 0.49145299],
+           [0.58139535, 0.20930233, 0.20930233]])
 
     """
+    # N = len(f)
+    # P = np.empty((N, N))
+    # for i in range(N):
+    #     for j in range(N):
+    #         P[i, j] = f[j]/r[i, j] / np.sum(f/r[i, :])
     f = np.asarray(f)
-    return f / np.sum(f / r, axis=-1)
+    return (f/r) / np.sum(f/r, axis=1)[:, np.newaxis]
 
+# %% Multicomponent sequence
+
+
+# def sequence_multi(f: FloatVectorLike,
+#                    r: FloatSquareMatrix,
+#                    k: Optional[IntOrArrayLike] = None,
+#                    ) -> dict[str, FloatOrArray]:
+#     r"""Calculate the instantaneous sequence length probability or the
+#     number-average sequence length.
+
+#     For a binary system, the probability of finding $k$ consecutive units
+#     of monomer $i$ in a chain is:
+
+#     $$ S_{i,k} = (1 - P_{ii})P_{ii}^{k-1} $$
+
+#     and the corresponding number-average sequence length is:
+
+#     $$ \bar{S}_i = \sum_k k S_{i,k} = \frac{1}{1 - P_{ii}} $$
+
+#     where $P_{ii}$ is the transition probability $i \rightarrow i$, which
+#     is a function of the monomer composition and the reactivity ratios.
+
+#     **References**
+
+#     * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+#     process modeling, Wiley, 1996, p. 177.
+
+#     Parameters
+#     ----------
+#     k : int | None
+#         Sequence length, i.e., number of consecutive units in a chain.
+#         If `None`, the number-average sequence length will be computed.
+#     f1 : FloatOrArrayLike
+#         Molar fraction of M1.
+
+#     Returns
+#     -------
+#     dict[str, FloatOrArray]
+#         If `k is None`, the number-average sequence lengths,
+#         {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
+#         sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
+#     """
+
+#     P11, _, _, P22 = self.transitions(f1).values()
+
+#     if k is None:
+#         result = {str(i + 1): 1/(1 - P + eps)
+#                   for i, P in enumerate([P11, P22])}
+#     else:
+#         if isinstance(k, (list, tuple)):
+#             k = np.array(k, dtype=np.int32)
+#         result = {str(i + 1): (1. - P)*P**(k - 1)
+#                   for i, P in enumerate([P11, P22])}
+
+#     return result
 
 # %% Multicomponent Q-e
+
 
 def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
                     ) -> FloatMatrix:

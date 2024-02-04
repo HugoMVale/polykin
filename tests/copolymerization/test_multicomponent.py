@@ -9,7 +9,8 @@ from polykin.copolymerization import (TerminalModel, convert_Qe_to_r,
                                       inst_copolymer_binary,
                                       inst_copolymer_multi,
                                       inst_copolymer_ternary,
-                                      monomer_drift_multi)
+                                      monomer_drift_multi,
+                                      transitions_multi)
 
 
 def test_inst_copolymer_ternary():
@@ -80,3 +81,16 @@ def test_convert_Qe():
     r = convert_Qe_to_r([Qe1, Qe2, Qe3])
     assert all(isclose(r.diagonal(), [1., 1., 1.]))
     assert all(isclose(r[0, :], [1., 0.5, 40.], rtol=0.1))
+
+
+def test_transitions_multi():
+    r = np.ones((3, 3))
+    r[0, 1] = 0.2
+    r[1, 0] = 2.3
+    r[0, 2] = 3.0
+    r[2, 0] = 0.9
+    r[1, 2] = 0.4
+    r[2, 1] = 1.5
+    f = [0.5, 0.3, 0.2]
+    P = transitions_multi(f, r)
+    assert all(isclose(P.diagonal(), [0.241, 0.295, 0.209], rtol=1e-2))
