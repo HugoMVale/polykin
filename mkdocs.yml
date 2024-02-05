@@ -185,6 +185,7 @@ nav:
               - inst_copolymer_ternary: reference/copolymerization/multicomponent/inst_copolymer_ternary.md
               - inst_copolymer_multi: reference/copolymerization/multicomponent/inst_copolymer_multi.md
               - monomer_drift_multi: reference/copolymerization/multicomponent/monomer_drift_multi.md
+              - sequence_multi: reference/copolymerization/multicomponent/sequence_multi.md
               - transitions_multi: reference/copolymerization/multicomponent/transitions_multi.md
       - polykin.distributions:
           - reference/distributions/index.md
