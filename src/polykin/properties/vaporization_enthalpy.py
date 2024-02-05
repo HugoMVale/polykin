@@ -8,8 +8,7 @@ of pure components.
 
 from typing import Literal, Optional
 
-import numpy as np
-from numpy import log, log10
+from numpy import asarray, log, log10
 from scipy.constants import R
 
 from polykin.utils.types import FloatOrArray, FloatOrArrayLike
@@ -69,9 +68,9 @@ def DHVL_Pitzer(T: FloatOrArrayLike,
     17.5 kJ/mol
 
     """
-    T = np.asarray(T)
+    T = asarray(T)
     Tr = T/Tc
-    return R*Tc*(7.08*(1 - Tr)**0.354 + 10.95*w*(1 - Tr)**0.456)
+    return R*Tc*(7.08*(1. - Tr)**0.354 + 10.95*w*(1. - Tr)**0.456)
 
 
 def DHVL_Vetere(Tb: float,
@@ -251,4 +250,4 @@ def DHVL_Watson(hvap1: float,
     19.0 kJ/mol
 
     """
-    return hvap1*((1 - T2/Tc)/(1 - T1/Tc))**0.38
+    return hvap1*((1. - T2/Tc)/(1. - T1/Tc))**0.38
