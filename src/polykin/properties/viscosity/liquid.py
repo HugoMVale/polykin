@@ -2,8 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-import numpy as np
-from numpy import cbrt, dot, exp, log
+from numpy import asarray, cbrt, dot, exp, log
 
 from polykin.utils.types import FloatVectorLike
 
@@ -61,8 +60,8 @@ def MULMX2_Perry(x: FloatVectorLike,
     0.67 cP
 
     """
-    x = np.asarray(x)
-    mu = np.asarray(mu)
+    x = asarray(x)
+    mu = asarray(mu)
 
     if hydrocarbons:
         result = dot(x, cbrt(mu))**3
