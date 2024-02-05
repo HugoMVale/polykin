@@ -13,9 +13,9 @@ from scipy.constants import R
 def test_MUVMX2_herning_zipperer():
     "Example 9-6, p. 411, Reid-Prausnitz-Poling."
     y2 = 0.303
-    y = np.array([1-y2, y2])
-    mu = np.array([109.4, 72.74])
-    M = np.array([16.043, 58.124])
+    y = [1-y2, y2]
+    mu = [109.4, 72.74]
+    M = [16.043, 58.124]
     mu_mix = MUVMX2_Herning_Zipperer(y, mu, M)
     assert np.isclose(mu_mix, 92.82, rtol=1e-3)
 
@@ -32,8 +32,8 @@ def test_MUVPC_jossi():
 
 def test_MUVMXPC_dean_stiel_1():
     "Example 9-11, p. 425, Reid-Prausnitz-Poling."
-    y = np.array([1.])
-    M = np.array([58.12e-3])
+    y = [1.]
+    M = [58.12e-3]
     Tc = np.array([408.2])
     Pc = np.array([36.5e5])
     Zc = Pc*263e-6/(R*Tc)
@@ -44,11 +44,11 @@ def test_MUVMXPC_dean_stiel_1():
 
 def test_MUVMXPC_dean_stiel_2():
     "Example 23, p. 2-363, Perry's"
-    y = np.array([0.6, 0.4])
-    M = np.array([16.04e-3, 44.10e-3])
+    y = [0.6, 0.4]
+    M = [16.04e-3, 44.10e-3]
     Tc = np.array([-110.4, 96.7]) + 273.15
-    Pc = np.array([4.593e6, 4.246e6])
-    Zc = np.array([0.288, 0.281])
+    Pc = [4.593e6, 4.246e6]
+    Zc = [0.288, 0.281]
     V = 1/3.55e3
     mu_pc = MUVMXPC_Dean_Stiel(V, y, M, Tc, Pc, Zc)
     assert np.isclose(mu_pc, 3.7e-6, rtol=0.1)
@@ -73,12 +73,12 @@ def test_MUVMX_lucas():
     Pc1 = 113.5e5
     Zc1 = 0.244
     dm1 = 1.47
-    y = np.array([1., 0.])
-    M = np.array([M1, 123.])
-    Tc = np.array([Tc1, 123.])
-    Pc = np.array([Pc1, 123.])
-    Zc = np.array([Zc1, 0.2])
-    dm = np.array([dm1, 123.])
+    y = [1., 0.]
+    M = [M1, 123.]
+    Tc = [Tc1, 123.]
+    Pc = [Pc1, 123.]
+    Zc = [Zc1, 0.2]
+    dm = [dm1, 123.]
     mu1 = MUV_Lucas(T=420., P=300e5, M=17.03e-3,
                     Tc=405.5, Pc=113.5e5, Zc=0.244, dm=1.47)
     mu_mix = MUVMX_Lucas(T, P, y, M, Tc, Pc, Zc, dm)
@@ -86,8 +86,8 @@ def test_MUVMX_lucas():
 
 
 def test_MULMX2_perry():
-    x = np.array([0.5, 0.5])
-    mu = np.array([1., 10])
+    x = [0.5, 0.5]
+    mu = [1., 10]
     mu_mix = MULMX2_Perry(x, mu, True)
     assert np.isclose(mu_mix, 5., atol=2.)
     mu_mix = MULMX2_Perry(x, mu, False)

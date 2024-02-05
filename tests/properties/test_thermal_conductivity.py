@@ -16,9 +16,9 @@ def test_KLMX2_li():
     M1 = 74.123
     M2 = 32.04
     w1 = x1*M1/(x1*M1 + (1 - x1)*M2)
-    w = np.array([w1, 1 - w1])
-    rho = np.array([0.713, 0.792])
-    k = np.array([0.1383, 0.2069])
+    w = [w1, 1 - w1]
+    rho = [0.713, 0.792]
+    k = [0.1383, 0.2069]
     km = KLMX2_Li(w, k, rho)
     assert np.isclose(km, 0.167, rtol=1e-2)
 
@@ -52,12 +52,12 @@ def test_KVMXPC_stiel_thodos():
     "Example 10-6, p. 537, Reid-Prausnitz-Poling"
     y1 = 0.755
     V = 159e-6
-    y = np.array([y1, 1 - y1])
-    Zc = np.array([0.288, 0.274])
-    Pc = np.array([46.0e5, 73.8e5])
-    Tc = np.array([190.4, 304.1])
-    M = np.array([16.043e-3, 44.010e-3])
-    w = np.array([0.011, 0.239])
+    y = [y1, 1 - y1]
+    Zc = [0.288, 0.274]
+    Pc = [46.0e5, 73.8e5]
+    Tc = [190.4, 304.1]
+    M = [16.043e-3, 44.010e-3]
+    w = [0.011, 0.239]
     kpc = KVMXPC_Stiel_Thodos(V, y, M, Tc, Pc, Zc, w)
     assert np.isclose(kpc, 1.50e-2, rtol=1e-2)
 
@@ -67,8 +67,8 @@ def test_KVMX2_wassilijewa():
     y1 = 0.25
     M1 = 78.114
     M2 = 39.948
-    y = np.array([y1, 1 - y1])
-    k = np.array([1.66e-2, 2.14e-2])
-    M = np.array([M1, M2])
+    y = [y1, 1 - y1]
+    k = [1.66e-2, 2.14e-2]
+    M = [M1, M2]
     k_mix = KVMX2_Wassilijewa(y, k, M)
     assert np.isclose(k_mix, 1.92e-2, rtol=5e-2)
