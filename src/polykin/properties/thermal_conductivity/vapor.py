@@ -2,10 +2,11 @@
 #
 # Copyright Hugo Vale 2023
 
+import numpy as np
 from numpy import dot, exp, sqrt
 from scipy.constants import N_A, R
 
-from polykin.utils.types import FloatVector
+from polykin.utils.types import FloatVectorLike
 
 __all__ = ['KVPC_Stiel_Thodos',
            'KVMXPC_Stiel_Thodos',
@@ -60,12 +61,12 @@ def KVPC_Stiel_Thodos(v: float,
     Estimate the residual thermal conductivity of ethylene at 350 K and
     100 bar.
     >>> from polykin.properties.thermal_conductivity import KVPC_Stiel_Thodos
-    >>> 
+    >>>
     >>> v = 1.84e-4 # m³/mol, with Peng-Robinson
-    >>> 
+    >>>
     >>> k_residual = KVPC_Stiel_Thodos(v=v, M=28.05e-3,
     ...                                Tc=282.4, Pc=50.4e5, Zc=0.280)
-    >>> 
+    >>>
     >>> print(f"{k_residual:.2e} W/(m·K)")
     1.69e-02 W/(m·K)
 
@@ -88,12 +89,12 @@ def KVPC_Stiel_Thodos(v: float,
 
 
 def KVMXPC_Stiel_Thodos(v: float,
-                        y: FloatVector,
-                        M: FloatVector,
-                        Tc: FloatVector,
-                        Pc: FloatVector,
-                        Zc: FloatVector,
-                        w: FloatVector
+                        y: FloatVectorLike,
+                        M: FloatVectorLike,
+                        Tc: FloatVectorLike,
+                        Pc: FloatVectorLike,
+                        Zc: FloatVectorLike,
+                        w: FloatVectorLike
                         ) -> float:
     r"""Calculate the effect of pressure (or density) on the thermal
     conductivity of gas mixtures using the method of Stiel and Thodos for
@@ -108,17 +109,17 @@ def KVMXPC_Stiel_Thodos(v: float,
     ----------
     v : float
         Gas molar volume. Unit = m³/mol.
-    y : FloatVector
+    y : FloatVectorLike
         Mole fractions of all components. Unit = mol/mol.
-    M : FloatVector
+    M : FloatVectorLike
         Molar masses of all components. Unit = kg/mol.
-    Tc : FloatVector
+    Tc : FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : FloatVectorLike
         Critical pressures of all components. Unit = Pa.
-    Zc : FloatVector
+    Zc : FloatVectorLike
         Critical compressibility factors of all components.
-    w : FloatVector
+    w : FloatVectorLike
         Acentric factors of all components.
 
     Returns
@@ -132,22 +133,29 @@ def KVMXPC_Stiel_Thodos(v: float,
     mixture at 350 K and 100 bar.
     >>> from polykin.properties.thermal_conductivity import KVMXPC_Stiel_Thodos
     >>> import numpy as np
-    >>> 
+    >>>
     >>> v = 1.12e-4  # m³/mol, with Peng-Robinson
-    >>> 
-    >>> y = np.array([0.5, 0.5])
-    >>> M = np.array([28.05e-3, 42.08e-3])  # kg/mol
-    >>> Pc = np.array([50.4e5, 46.0e5])     # Pa
-    >>> Tc = np.array([282.4, 364.9])       # K
-    >>> Zc = np.array([0.280, 0.274])
-    >>> w = np.array([0.089, 0.144]) 
-    >>> 
+    >>>
+    >>> y = [0.5, 0.5]
+    >>> M = [28.05e-3, 42.08e-3]  # kg/mol
+    >>> Pc = [50.4e5, 46.0e5]     # Pa
+    >>> Tc = [282.4, 364.9]       # K
+    >>> Zc = [0.280, 0.274]
+    >>> w = [0.089, 0.144]
+    >>>
     >>> k_residual = KVMXPC_Stiel_Thodos(v, y, M, Tc, Pc, Zc, w)
-    >>> 
+    >>>
     >>> print(f"{k_residual:.2e} W/(m·K)")
     3.82e-02 W/(m·K)
 
     """
+
+    y = np.asarray(y)
+    M = np.asarray(M)
+    Tc = np.asarray(Tc)
+    Pc = np.asarray(Pc)
+    Zc = np.asarray(Zc)
+    w = np.asarray(w)
 
     vc = Zc*R*Tc/Pc
 
@@ -179,9 +187,9 @@ def KVMXPC_Stiel_Thodos(v: float,
 # %% Mixing rules
 
 
-def KVMX2_Wassilijewa(y: FloatVector,
-                      k: FloatVector,
-                      M: FloatVector
+def KVMX2_Wassilijewa(y: FloatVectorLike,
+                      k: FloatVectorLike,
+                      M: FloatVectorLike
                       ) -> float:
     r"""Calculate the thermal conductivity of a gas mixture from the thermal
     conductivities of the pure components using the mixing rule of Wassilijewa,
@@ -202,11 +210,11 @@ def KVMX2_Wassilijewa(y: FloatVector,
 
     Parameters
     ----------
-    y : FloatVector
+    y : FloatVectorLike
         Mole fractions of all components. Unit = Any.
-    k : FloatVector
+    k : FloatVectorLike
         Thermal conductivities of all components. Unit = Any.
-    M : FloatVector
+    M : FloatVectorLike
         Molar masses of all components. Unit = Any.
 
     Returns
@@ -231,6 +239,11 @@ def KVMX2_Wassilijewa(y: FloatVector,
     1.28e-02 W/(m·K)
 
     """
+    y = np.asarray(y)
+    k = np.asarray(k)
+    M = np.asarray(M)
+
     a = y*sqrt(M)
     a /= a.sum()
+
     return dot(a, k)
