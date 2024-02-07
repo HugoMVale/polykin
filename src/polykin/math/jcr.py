@@ -174,9 +174,9 @@ def confidence_region(ax: Axes,
         the parameters), without making assumptions about the shape of the JCR.
         The algorithm used to compute the JCR is very efficient in comparison
         to naive 2D mesh screening approaches, but the number of $S(\beta)$
-        evaluations remains large (typically several hundreds). Therefore, this
-        method can only be applied when the cost of evaluating $S(\beta)$ is
-        acceptable.
+        evaluations remains large (typically several hundreds). Therefore, the
+        applicability of this method depends on the cost of evaluating
+        $S(\beta)$.
 
     **Reference**
 
