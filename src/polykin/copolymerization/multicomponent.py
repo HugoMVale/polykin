@@ -126,18 +126,40 @@ def inst_copolymer_ternary(f1: FloatOrArray,
     return (F1, F2, F3)
 
 
-def inst_copolymer_multi(f: FloatVector,
+def inst_copolymer_multi(f: FloatVectorLike,
                          r: FloatSquareMatrix
                          ) -> FloatVector:
-    """Calculate the instantaneous copolymer composition for a multicomponent
+    r"""Calculate the instantaneous copolymer composition for a multicomponent
     system.
 
-    This algorithm relies on general linear algebra procedure applicable to
-    systems with any number of monomers.
+    For a multicomponent system, the instantaneous copolymer composition can
+    be determined by solving the following set of equations:
+
+    $$ \begin{bmatrix}
+    P_{11}-1  & P_{21}   & ...    & P_{N1} \\
+    P_{12}    & P_{22}-1 & ...    & P_{N2} \\
+    \vdots    & \vdots   & \vdots & \vdots \\
+    1      & 1      & ...    & 1
+    \end{bmatrix}
+    \begin{bmatrix}
+    F_1    \\
+    F_2    \\
+    \vdots \\
+    F_N
+    \end{bmatrix} =
+    \begin{bmatrix}
+    0      \\
+    0      \\
+    \vdots \\
+    1
+    \end{bmatrix} $$
+
+    where $P_{ij}$ are the transition probabilitites, which can be computed
+    from the instantaneous monomer composition and the reactivity matrix.
 
     Parameters
     ----------
-    f : FloatVector
+    f : FloatVectorLike
         Vector (N) of instantaneous monomer composition.
     r : FloatSquareMatrix
         Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
@@ -156,8 +178,8 @@ def inst_copolymer_multi(f: FloatVector,
 
     **References**
 
-    *   Jung, W. Mathematical modeling of free-radical six-component bulk
-        and solution polymerization. MS thesis. University of Waterloo, 2008.
+    *   H. K. Frensdorff, R. Pariser; Copolymerization as a Markov Chain.
+        J. Chem. Phys. 1 November 1963; 39 (9): 2303-2309.
 
     Examples
     --------
@@ -178,28 +200,13 @@ def inst_copolymer_multi(f: FloatVector,
     array([0.32138111, 0.41041608, 0.26820282])
 
     """
-
-    # Compute radical probabilities, p(i)
-    N = f.size
-    A = np.empty((N - 1, N - 1))
-    for m in range(N - 1):
-        for n in range(N - 1):
-            if m == n:
-                a = -f[m] / r[N - 1, m]
-                for j in range(N):
-                    if j != m:
-                        a -= f[j] / r[m, j]
-            else:
-                a = f[m]*(1./r[n, m] - 1./r[N - 1, m])
-            A[m, n] = a
-
-    b = -f[:-1] / r[-1, :-1]
-    p = np.linalg.solve(A, b)
-    p = np.append(p, 1. - np.sum(p, dtype=np.float64))
-
-    # Compute copolymer compositions, F(i)
-    F = p*np.sum(f/r, axis=1)/np.sum(p[:, np.newaxis]*f/r)
-
+    P = transitions_multi(f, r)
+    N = len(f)
+    A = P.T - np.eye(N)
+    A[-1, :] = 1.
+    b = np.zeros(N)
+    b[-1] = 1.
+    F = np.linalg.solve(A, b)
     return F
 
 
@@ -265,7 +272,7 @@ def monomer_drift_multi(f0: FloatVectorLike,
         raise ShapeError("Shape mismatch between `f0` and `r`.")
 
     def dfdx(x: float, f: FloatVector) -> FloatVector:
-        F = inst_copolymer_multi(np.append(f, 1 - f.sum()), r)
+        F = inst_copolymer_multi(np.append(f, 1. - f.sum()), r)
         return (f - F[:-1]) / (1. - x + eps)
 
     sol = solve_ivp(dfdx,
@@ -278,7 +285,7 @@ def monomer_drift_multi(f0: FloatVectorLike,
     if sol.success:
         f = np.empty((len(x), N))
         f[:, :-1] = np.transpose(sol.y)
-        f[:, -1] = 1 - np.sum(f[:, :-1], axis=1)
+        f[:, -1] = 1. - np.sum(f[:, :-1], axis=1)
     else:
         raise ODESolverError(sol.message)
 
@@ -414,7 +421,7 @@ def transitions_multi(f: FloatVectorLike,
 def sequence_multi(f: FloatVectorLike,
                    r: FloatSquareMatrix,
                    k: Optional[IntOrArrayLike] = None,
-                   ) -> dict[str, FloatOrArray]:
+                   ) -> FloatOrArray:
     r"""Calculate the instantaneous sequence length probability or the
     number-average sequence length.
 
@@ -447,10 +454,9 @@ def sequence_multi(f: FloatVectorLike,
 
     Returns
     -------
-    dict[str, FloatOrArray]
-        If `k is None`, the number-average sequence lengths,
-        {'1': $\bar{S}_1$, '2': $\bar{S}_2$, ...}. Otherwise, the
-        sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$, ...}.
+    FloatOrArray
+        If `k is None`, the number-average sequence lengths, $\bar{S}_i$.
+        Otherwise, the sequence probabilities, $S_{i,k}$.
 
     Examples
     --------
@@ -468,27 +474,26 @@ def sequence_multi(f: FloatVectorLike,
     Number-average sequence lengths for all monomers:
     >>> S = sequence_multi([0.5, 0.3, 0.2], r)
     >>> S
-    {'1': 1.3191489361702124, '2': 1.4181818181818178, '3': 1.264705882352941}
+    array([1.31914894, 1.41818182, 1.26470588])
 
     Probabilities for certain sequences lengths:
-    >>> S = sequence_multi([0.5, 0.3, 0.2], r, k=[1, 5, 10])
-    >>> S['1']
-    array([7.58064516e-01, 2.59719433e-03, 2.15279311e-06])
-    >>> S['2']
-    array([7.05128205e-01, 5.33090594e-03, 1.18841243e-05])
-    >>> S['3']
-    array([7.90697674e-01, 1.51742305e-03, 6.09504542e-07])
+    >>> S = sequence_multi([0.5, 0.3, 0.2], r, k=[1, 5])
+    >>> S
+    array([[0.75806452, 0.00259719],
+           [0.70512821, 0.00533091],
+           [0.79069767, 0.00151742]])
 
     """
 
     P = transitions_multi(f, r).diagonal()
 
     if k is None:
-        result = {str(i + 1): 1/(1 - P[i] + eps) for i in range(P.size)}
+        result = 1/(1. - P + eps)
     else:
+        P = P.reshape(-1, 1)
         if isinstance(k, (list, tuple)):
             k = np.array(k, dtype=np.int32)
-        result = {str(i + 1): (1. - P[i])*P[i]**(k - 1) for i in range(P.size)}
+        result = (1. - P)*P**(k - 1)
 
     return result
 
