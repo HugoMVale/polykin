@@ -197,7 +197,9 @@ def inst_copolymer_multi(f: FloatVectorLike,
     >>> r[2, 1] = 1.5
 
     Evaluate instantaneous copolymer composition at f1=0.5, f2=0.3, f3=0.2.
-    >>> inst_copolymer_multi(np.array([0.5, 0.3, 0.2]), r)
+    >>> f = np.array([0.5, 0.3, 0.2])
+    >>> F = inst_copolymer_multi(f, r)
+    >>> F
     array([0.32138111, 0.41041608, 0.26820282])
 
     """
@@ -249,7 +251,8 @@ def monomer_drift_multi(f0: FloatVectorLike,
     --------
     >>> from polykin.copolymerization import monomer_drift_multi
     >>> import numpy as np
-    >>>
+
+    Define reactivity ratio matrix.
     >>> r = np.ones((3, 3))
     >>> r[0, 1] = 0.2
     >>> r[1, 0] = 2.3
@@ -257,9 +260,11 @@ def monomer_drift_multi(f0: FloatVectorLike,
     >>> r[2, 0] = 0.9
     >>> r[1, 2] = 0.4
     >>> r[2, 1] = 1.5
-    >>>
-    >>> f = monomer_drift_multi(f0=np.array([0.5, 0.3, 0.2]),
-    ...                         r=r, x=np.array([0.1, 0.5, 0.9, 0.99]))
+
+    Evaluate monomer drift.
+    >>> f0 = [0.5, 0.3, 0.2]
+    >>> x = [0.1, 0.5, 0.9, 0.99]
+    >>> f = monomer_drift_multi(f0, r, x)
     >>> f
     array([[5.19230749e-01, 2.87888151e-01, 1.92881100e-01],
            [6.38387269e-01, 2.04571229e-01, 1.57041502e-01],
@@ -328,7 +333,8 @@ def transitions_multi(f: FloatVectorLike,
     --------
     >>> from polykin.copolymerization import transitions_multi
     >>> import numpy as np
-    >>>
+
+    Define reactivity ratio matrix.
     >>> r = np.ones((3, 3))
     >>> r[0, 1] = 0.2
     >>> r[1, 0] = 2.3
@@ -336,8 +342,10 @@ def transitions_multi(f: FloatVectorLike,
     >>> r[2, 0] = 0.9
     >>> r[1, 2] = 0.4
     >>> r[2, 1] = 1.5
-    >>>
-    >>> P = transitions_multi([0.5, 0.3, 0.2], r)
+
+    Evaluate transition probabilities.
+    >>> f = [0.5, 0.3, 0.2]
+    >>> P = transitions_multi(f, r)
     >>> P
     array([[0.24193548, 0.72580645, 0.03225806],
            [0.21367521, 0.29487179, 0.49145299],
@@ -399,8 +407,9 @@ def sequence_multi(P: FloatVectorLike,
     >>> from polykin.copolymerization import sequence_multi
     >>> from polykin.copolymerization import transitions_multi
     >>> import numpy as np
-    >>> N = 3
-    >>> r = np.ones((N, N))
+
+    Define reactivity ratio matrix.
+    >>> r = np.ones((3, 3))
     >>> r[0, 1] = 0.2
     >>> r[1, 0] = 2.3
     >>> r[0, 2] = 3.0
@@ -408,18 +417,18 @@ def sequence_multi(P: FloatVectorLike,
     >>> r[1, 2] = 0.4
     >>> r[2, 1] = 1.5
 
-    Self-transition probabilities:
+    Evaluate self-transition probabilities.
     >>> f = [0.5, 0.3, 0.2]
     >>> P = transitions_multi(f, r).diagonal()
     >>> P
     array([0.24193548, 0.29487179, 0.20930233])
 
-    Number-average sequence lengths for all monomers:
+    Evaluate number-average sequence lengths for all monomers.
     >>> S = sequence_multi(P)
     >>> S
     array([1.31914894, 1.41818182, 1.26470588])
 
-    Probabilities for certain sequences lengths:
+    Evaluate probabilities for certain sequence lengths.
     >>> S = sequence_multi(P, k=[1, 5])
     >>> S
     array([[0.75806452, 0.00259719],
