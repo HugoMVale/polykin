@@ -108,6 +108,7 @@ def inst_copolymer_ternary(f1: FloatOrArray,
     F1 = 0.32; F2 = 0.41; F3 = 0.27
 
     """
+
     f3 = 1. - (f1 + f2)
 
     a = f1/(r21*r31) + f2/(r21*r32) + f3/(r31*r23)
@@ -349,8 +350,98 @@ def transitions_multi(f: FloatVectorLike,
     #     for j in range(N):
     #         P[i, j] = f[j]/r[i, j] / np.sum(f/r[i, :])
     f = np.asarray(f)
-    return (f/r) / np.sum(f/r, axis=1)[:, np.newaxis]
+    P = (f/r) / np.sum(f/r, axis=1)[:, np.newaxis]
+    return P
 
+
+# %% Multicomponent sequence
+
+
+def sequence_multi(P: FloatVectorLike,
+                   k: Optional[IntOrArrayLike] = None,
+                   ) -> FloatOrArray:
+    r"""Calculate the instantaneous sequence length probability or the
+    number-average sequence length.
+
+    For a multicomponent system, the probability of finding $k$ consecutive
+    units of monomer $i$ in a chain is:
+
+    $$ S_{i,k} = (1 - P_{ii})P_{ii}^{k-1} $$
+
+    and the corresponding number-average sequence length is:
+
+    $$ \bar{S}_i = \sum_k k S_{i,k} = \frac{1}{1 - P_{ii}} $$
+
+    where $P_{ii}$ is the self-transition probability $i \rightarrow i$, which
+    is a function of the monomer composition and the reactivity ratios.
+
+    **References**
+
+    * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
+    process modeling, Wiley, 1996, p. 177.
+
+    Parameters
+    ----------
+    P : FloatVectorLike
+        Vector (N) of self-transition probabilities, $P_{ii}$.
+    k : int | None
+        Sequence length, i.e., number of consecutive units in a chain.
+        If `None`, the number-average sequence length will be computed.
+
+    Returns
+    -------
+    FloatOrArray
+        If `k is None`, the number-average sequence lengths, $\bar{S}_i$.
+        Otherwise, the sequence probabilities, $S_{i,k}$.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import sequence_multi
+    >>> from polykin.copolymerization import transitions_multi
+    >>> import numpy as np
+    >>> N = 3
+    >>> r = np.ones((N, N))
+    >>> r[0, 1] = 0.2
+    >>> r[1, 0] = 2.3
+    >>> r[0, 2] = 3.0
+    >>> r[2, 0] = 0.9
+    >>> r[1, 2] = 0.4
+    >>> r[2, 1] = 1.5
+
+    Self-transition probabilities:
+    >>> f = [0.5, 0.3, 0.2]
+    >>> P = transitions_multi(f, r).diagonal()
+    >>> P
+    array([0.24193548, 0.29487179, 0.20930233])
+
+    Number-average sequence lengths for all monomers:
+    >>> S = sequence_multi(P)
+    >>> S
+    array([1.31914894, 1.41818182, 1.26470588])
+
+    Probabilities for certain sequences lengths:
+    >>> S = sequence_multi(P, k=[1, 5])
+    >>> S
+    array([[0.75806452, 0.00259719],
+           [0.70512821, 0.00533091],
+           [0.79069767, 0.00151742]])
+
+    """
+
+    P = np.asarray(P)
+
+    if k is None:
+        S = 1/(1. - P + eps)
+    else:
+        if isinstance(k, (list, tuple)):
+            k = np.array(k, dtype=np.int32)
+        if isinstance(k, np.ndarray):
+            P = P.reshape(-1, 1)
+        S = (1. - P)*P**(k - 1)
+
+    return S
+
+# %% Triads multicomponent
 
 # def triads_multi(f: FloatVectorLike,
 #                  r: FloatSquareMatrix
@@ -415,88 +506,6 @@ def transitions_multi(f: FloatVectorLike,
 #     # result[]
 #     return result
 
-# %% Multicomponent sequence
-
-
-def sequence_multi(f: FloatVectorLike,
-                   r: FloatSquareMatrix,
-                   k: Optional[IntOrArrayLike] = None,
-                   ) -> FloatOrArray:
-    r"""Calculate the instantaneous sequence length probability or the
-    number-average sequence length.
-
-    For a multicomponent system, the probability of finding $k$ consecutive
-    units of monomer $i$ in a chain is:
-
-    $$ S_{i,k} = (1 - P_{ii})P_{ii}^{k-1} $$
-
-    and the corresponding number-average sequence length is:
-
-    $$ \bar{S}_i = \sum_k k S_{i,k} = \frac{1}{1 - P_{ii}} $$
-
-    where $P_{ii}$ is the transition probability $i \rightarrow i$, which
-    is a function of the monomer composition and the reactivity ratios.
-
-    **References**
-
-    * NA Dotson, R Galván, RL Laurence, and M Tirrel. Polymerization
-    process modeling, Wiley, 1996, p. 177.
-
-    Parameters
-    ----------
-    f : FloatVectorLike
-        Vector (N) of instantaneous monomer composition.
-    r : FloatSquareMatrix
-        Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
-    k : int | None
-        Sequence length, i.e., number of consecutive units in a chain.
-        If `None`, the number-average sequence length will be computed.
-
-    Returns
-    -------
-    FloatOrArray
-        If `k is None`, the number-average sequence lengths, $\bar{S}_i$.
-        Otherwise, the sequence probabilities, $S_{i,k}$.
-
-    Examples
-    --------
-    >>> from polykin.copolymerization import sequence_multi
-    >>> import numpy as np
-    >>> N = 3
-    >>> r = np.ones((N, N))
-    >>> r[0, 1] = 0.2
-    >>> r[1, 0] = 2.3
-    >>> r[0, 2] = 3.0
-    >>> r[2, 0] = 0.9
-    >>> r[1, 2] = 0.4
-    >>> r[2, 1] = 1.5
-
-    Number-average sequence lengths for all monomers:
-    >>> S = sequence_multi([0.5, 0.3, 0.2], r)
-    >>> S
-    array([1.31914894, 1.41818182, 1.26470588])
-
-    Probabilities for certain sequences lengths:
-    >>> S = sequence_multi([0.5, 0.3, 0.2], r, k=[1, 5])
-    >>> S
-    array([[0.75806452, 0.00259719],
-           [0.70512821, 0.00533091],
-           [0.79069767, 0.00151742]])
-
-    """
-
-    P = transitions_multi(f, r).diagonal()
-
-    if k is None:
-        result = 1/(1. - P + eps)
-    else:
-        P = P.reshape(-1, 1)
-        if isinstance(k, (list, tuple)):
-            k = np.array(k, dtype=np.int32)
-        result = (1. - P)*P**(k - 1)
-
-    return result
-
 # %% Multicomponent Q-e
 
 
@@ -544,11 +553,14 @@ def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
            [2.42325444e-02, 1.08066091e-02, 1.00000000e+00]])
 
     """
+
     Q = [x[0] for x in Qe_values]
     e = [x[1] for x in Qe_values]
     N = len(Q)
+
     r = np.empty((N, N))
     for i in range(N):
         for j in range(N):
             r[i, j] = Q[i]/Q[j]*exp(-e[i]*(e[i] - e[j]))
+
     return r
