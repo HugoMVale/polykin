@@ -2,11 +2,14 @@
 #
 # Copyright Hugo Vale 2023
 
-from numpy import abs, asarray, dot, exp, sqrt, where
+from typing import Union
+
+import numpy as np
+from numpy import abs, dot, exp, sqrt
 from scipy.constants import R
 
 from polykin.properties.mixing_rules import pseudocritical_properties
-from polykin.utils.types import FloatOrArray, FloatVectorLike
+from polykin.utils.types import FloatArray, FloatVectorLike
 
 __all__ = ['MUVMX2_Herning_Zipperer',
            'MUVPC_Jossi',
@@ -69,9 +72,9 @@ def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
     1.12e-05 Pa·s
 
     """
-    y = asarray(y)
-    mu = asarray(mu)
-    M = asarray(M)
+    y = np.asarray(y)
+    mu = np.asarray(mu)
+    M = np.asarray(M)
 
     a = y*sqrt(M)
     a /= a.sum()
@@ -203,11 +206,11 @@ def MUVMXPC_Dean_Stiel(v: float,
 
     """
 
-    y = asarray(y)
-    M = asarray(M)
-    Tc = asarray(Tc)
-    Pc = asarray(Pc)
-    Zc = asarray(Zc)
+    y = np.asarray(y)
+    M = np.asarray(M)
+    Tc = np.asarray(Tc)
+    Pc = np.asarray(Pc)
+    Zc = np.asarray(Zc)
 
     # Mixing rules recommended in paper
     M_mix = dot(y, M)
@@ -341,12 +344,12 @@ def MUVMX_Lucas(T: float,
     1.45e-05 Pa·s
 
     """
-    y = asarray(y)
-    M = asarray(M)
-    Tc = asarray(Tc)
-    Pc = asarray(Pc)
-    Zc = asarray(Zc)
-    dm = asarray(dm)
+    y = np.asarray(y)
+    M = np.asarray(M)
+    Tc = np.asarray(Tc)
+    Pc = np.asarray(Pc)
+    Zc = np.asarray(Zc)
+    dm = np.asarray(dm)
 
     Tc_mix = dot(y, Tc)
     M_mix = dot(y, M)
@@ -409,16 +412,16 @@ def _MUV_Lucas_mu(Tr: float,
     return Z2*FP/xi
 
 
-def _MUV_Lucas_FP0(Tr: FloatOrArray,
-                   Tc: FloatOrArray,
-                   Pc: FloatOrArray,
-                   Zc: FloatOrArray,
-                   dm: FloatOrArray
-                   ) -> FloatOrArray:
+def _MUV_Lucas_FP0(Tr: Union[float, FloatArray],
+                   Tc: Union[float, FloatArray],
+                   Pc: Union[float, FloatArray],
+                   Zc: Union[float, FloatArray],
+                   dm: Union[float, FloatArray]
+                   ) -> Union[float, FloatArray]:
     "Compute FP0 for Lucas method of estimating gas viscosity."
     dmr = 52.46 * dm**2 * (Pc / 1e5) / Tc**2
-    FP0 = where(dmr <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
-    FP0 = where(dmr >= 0.075, FP0*abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
+    FP0 = np.where(dmr <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
+    FP0 = np.where(dmr >= 0.075, FP0*abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
     FP0 += 1.0
     return FP0
 

@@ -6,12 +6,14 @@
 of pure components.
 """
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
-from numpy import asarray, log, log10
+import numpy as np
+
+from numpy import log, log10
 from scipy.constants import R
 
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils.types import FloatArray, FloatArrayLike
 
 __all__ = ['DHVL_Pitzer',
            'DHVL_Vetere',
@@ -20,10 +22,10 @@ __all__ = ['DHVL_Pitzer',
            ]
 
 
-def DHVL_Pitzer(T: FloatOrArrayLike,
+def DHVL_Pitzer(T: Union[float, FloatArrayLike],
                 Tc: float,
                 w: float
-                ) -> FloatOrArray:
+                ) -> Union[float, FloatArray]:
     r"""Calculate the enthalpy of vaporization of a pure compound at a given
     temperature, $\Delta H_v(T)$, using the Pitzer acentric factor method.
 
@@ -42,7 +44,7 @@ def DHVL_Pitzer(T: FloatOrArrayLike,
 
     Parameters
     ----------
-    T : FloatOrArrayLike
+    T : float | FloatArrayLike
         Temperature. Unit = K.
     Tc : float
         Critical temperature. Unit = K.
@@ -51,7 +53,7 @@ def DHVL_Pitzer(T: FloatOrArrayLike,
 
     Returns
     -------
-    FloatOrArray
+    float | FloatArray
         Vaporization enthalpy. Unit = J/mol.
 
     !!! note annotate "See also"
@@ -68,7 +70,7 @@ def DHVL_Pitzer(T: FloatOrArrayLike,
     17.5 kJ/mol
 
     """
-    T = asarray(T)
+    T = np.asarray(T)
     Tr = T/Tc
     return R*Tc*(7.08*(1. - Tr)**0.354 + 10.95*w*(1. - Tr)**0.456)
 
