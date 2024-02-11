@@ -21,7 +21,7 @@ from polykin.utils.types import (FloatOrArray, FloatOrArrayLike,
                                  FloatOrVectorLike, FloatVector,
                                  IntOrArrayLike)
 
-from .binary import average_kp_binary, inst_copolymer_binary
+from .binary import inst_copolymer_binary, kp_average_binary
 from .copodataset import CopoDataset, DriftDataset, MayoDataset, kpDataset
 from .multicomponent import convert_Qe_to_r
 
@@ -114,7 +114,7 @@ class CopoModel(ABC):
         r"""Calculate the average propagation rate coefficient, $\bar{k}_p$.
 
         The calculation is handled by
-        [`average_kp_binary`](average_kp_binary.md).
+        [`kp_average_binary`](kp_average_binary.md).
 
         !!! note
 
@@ -138,7 +138,7 @@ class CopoModel(ABC):
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0., 1., 'f1')
-        return average_kp_binary(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
+        return kp_average_binary(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
     @property
     def azeotrope(self) -> Optional[float]:
@@ -532,7 +532,7 @@ class TerminalModel(CopoModel):
         as primary input instead of the reactivity ratios.
 
         The conversion from Q-e to r is handled by
-        [`convert_Qe_to_r`](../multicomponent/convert_Qe_to_r.md).
+        [`convert_Qe_to_r`](convert_Qe_to_r.md).
 
         Parameters
         ----------
