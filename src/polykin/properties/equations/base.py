@@ -276,7 +276,7 @@ class PropertyEquationT(PropertyEquation):
                              ydata=log(Y) if logY else Y,
                              p0=p0,
                              sigma=sigmaY,
-                             absolute_sigma=True,
+                             absolute_sigma=False,
                              full_output=True)
         result = {}
         result['success'] = bool(solution[4])
