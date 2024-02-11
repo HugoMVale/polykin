@@ -4,14 +4,14 @@
 
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 
 from polykin.kinetics import Arrhenius
 from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike, IntOrArrayLike
+from polykin.utils.types import FloatArray, FloatArrayLike, IntArrayLike
 
 from .terminal import CopoModel, TerminalModel
 
@@ -117,8 +117,8 @@ class PenultimateModel(CopoModel):
         super().__init__(k1, k2, M1, M2, name)
 
     def ri(self,
-            f1: FloatOrArray
-           ) -> tuple[FloatOrArray, FloatOrArray]:
+            f1: Union[float, FloatArray]
+           ) -> tuple[Union[float, FloatArray], Union[float, FloatArray]]:
         r"""Pseudoreactivity ratios.
 
         In the penultimate model, the pseudoreactivity ratios depend on the
@@ -133,7 +133,7 @@ class PenultimateModel(CopoModel):
 
         Parameters
         ----------
-        f1 : FloatOrArray
+        f1 : float | FloatArray
             Molar fraction of M1.
 
         Returns
@@ -151,10 +151,10 @@ class PenultimateModel(CopoModel):
         return (r1, r2)
 
     def kii(self,
-            f1: FloatOrArray,
+            f1: Union[float, FloatArray],
             T: float,
             Tunit: Literal['C', 'K'] = 'K',
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+            ) -> tuple[Union[float, FloatArray], Union[float, FloatArray]]:
         r"""Pseudohomopropagation rate coefficients.
 
         In the penultimate model, the pseudohomopropagation rate coefficients
@@ -171,7 +171,7 @@ class PenultimateModel(CopoModel):
 
         Parameters
         ----------
-        f1 : FloatOrArray
+        f1 : float | FloatArray
             Molar fraction of M1.
         T : float
             Temperature. Unit = `Tunit`.
@@ -180,7 +180,7 @@ class PenultimateModel(CopoModel):
 
         Returns
         -------
-        tuple[FloatOrArray, FloatOrArray]
+        tuple[float | FloatArray, float | FloatArray]
             Pseudohomopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
@@ -199,8 +199,8 @@ class PenultimateModel(CopoModel):
         return (k11, k22)
 
     def transitions(self,
-                    f1: FloatOrArrayLike
-                    ) -> dict[str, FloatOrArray]:
+                    f1: Union[float, FloatArrayLike]
+                    ) -> dict[str, Union[float, FloatArray]]:
         r"""Calculate the instantaneous transition probabilities.
 
         For a binary system, the transition probabilities are given by:
@@ -221,12 +221,12 @@ class PenultimateModel(CopoModel):
 
         Parameters
         ----------
-        f1 : FloatOrArrayLike
+        f1 : float | FloatArrayLike
             Molar fraction of M1.
 
         Returns
         -------
-        dict[str, FloatOrArray]
+        dict[str, float | FloatArray]
             Transition probabilities,
             {'111': $P_{111}$, '211': $P_{211}$, '121': $P_{121}$, ... }.
         """
@@ -263,8 +263,8 @@ class PenultimateModel(CopoModel):
         return result
 
     def triads(self,
-               f1: FloatOrArrayLike
-               ) -> dict[str, FloatOrArray]:
+               f1: Union[float, FloatArrayLike],
+               ) -> dict[str, Union[float, FloatArray]]:
         r"""Calculate the instantaneous triad fractions.
 
         For a binary system, the triad fractions are given by:
@@ -286,12 +286,12 @@ class PenultimateModel(CopoModel):
 
         Parameters
         ----------
-        f1 : FloatOrArrayLike
+        f1 : float | FloatArrayLike
             Molar fraction of M1.
 
         Returns
         -------
-        dict[str, FloatOrArray]
+        dict[str, float | FloatArray]
             Triad fractions,
             {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
@@ -324,9 +324,9 @@ class PenultimateModel(CopoModel):
         return result
 
     def sequence(self,
-                 f1: FloatOrArrayLike,
-                 k: Optional[IntOrArrayLike] = None,
-                 ) -> dict[str, FloatOrArray]:
+                 f1: Union[float, FloatArrayLike],
+                 k: Optional[Union[int, IntArrayLike]] = None,
+                 ) -> dict[str, Union[float, FloatArray]]:
         r"""Calculate the instantaneous sequence length probability or the
         number-average sequence length.
 
@@ -353,15 +353,15 @@ class PenultimateModel(CopoModel):
 
         Parameters
         ----------
-        k : int | None
+        f1 : float | FloatArrayLike
+            Molar fraction of M1.
+        k : int | IntArrayLike | None
             Sequence length, i.e., number of consecutive units in a chain.
             If `None`, the number-average sequence length will be computed.
-        f1 : FloatOrArrayLike
-            Molar fraction of M1.
 
         Returns
         -------
-        dict[str, FloatOrArray]
+        dict[str, float | FloatArray]
             If `k is None`, the number-average sequence lengths,
             {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
             sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
@@ -462,10 +462,10 @@ class ImplicitPenultimateModel(TerminalModel):
         super().__init__(r1, r2, k1, k2, M1, M2, name)
 
     def kii(self,
-            f1: FloatOrArray,
+            f1: Union[float, FloatArray],
             T: float,
             Tunit: Literal['C', 'K'] = 'K',
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+            ) -> tuple[Union[float, FloatArray], Union[float, FloatArray]]:
         r"""Pseudo-homopropagation rate coefficients.
 
         In the implicit penultimate model, the pseudohomopropagation rate
@@ -483,7 +483,7 @@ class ImplicitPenultimateModel(TerminalModel):
 
         Parameters
         ----------
-        f1 : FloatOrArray
+        f1 : float | FloatArray
             Molar fraction of M1.
         T : float
             Temperature. Unit = `Tunit`.
@@ -492,7 +492,7 @@ class ImplicitPenultimateModel(TerminalModel):
 
         Returns
         -------
-        tuple[FloatOrArray, FloatOrArray]
+        tuple[float | FloatArray, float | FloatArray]
             Tuple of pseudohomopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
