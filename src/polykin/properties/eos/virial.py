@@ -3,14 +3,15 @@
 # Copyright Hugo Vale 2023
 
 import functools
+from typing import Union
 
 import numpy as np
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector
-from polykin.utils.types import (FloatOrArray, FloatOrVectorLike,
-                                 FloatSquareMatrix, FloatVector)
+from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector,
+                                 FloatVectorLike)
 
 from ..mixing_rules import quadratic_mixing
 from .base import GasEoS
@@ -46,13 +47,13 @@ class Virial(GasEoS):
 
     Parameters
     ----------
-    Tc : FloatVector
+    Tc : float | FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : float | FloatVectorLike
         Critical pressures of all components. Unit = Pa.
-    Zc : FloatVector
+    Zc : float | FloatVectorLike
         Critical compressibility factors of all components.
-    w : FloatVector
+    w : float | FloatVectorLike
         Acentric factors of all components.
     """
 
@@ -62,10 +63,10 @@ class Virial(GasEoS):
     w: FloatVector
 
     def __init__(self,
-                 Tc: FloatOrVectorLike,
-                 Pc: FloatOrVectorLike,
-                 Zc: FloatOrVectorLike,
-                 w: FloatOrVectorLike
+                 Tc: Union[float, FloatVectorLike],
+                 Pc: Union[float, FloatVectorLike],
+                 Zc: Union[float, FloatVectorLike],
+                 w: Union[float, FloatVectorLike]
                  ) -> None:
         """Construct `Virial` with the given parameters."""
 
@@ -234,10 +235,11 @@ class Virial(GasEoS):
 # %% Second virial coefficient
 
 
-def B_pure(T: FloatOrArray,
+def B_pure(T: Union[float, FloatArray],
            Tc: float,
            Pc: float,
-           w: float) -> FloatOrArray:
+           w: float
+           ) -> Union[float, FloatArray]:
     r"""Estimate the second virial coefficient of a nonpolar or slightly polar
     gas.
 
@@ -254,7 +256,7 @@ def B_pure(T: FloatOrArray,
 
     Parameters
     ----------
-    T : FloatOrArray
+    T : float | FloatArray
         Temperature. Unit = K.
     Tc : float
         Critical temperature. Unit = K.
@@ -265,7 +267,7 @@ def B_pure(T: FloatOrArray,
 
     Returns
     -------
-    FloatOrArray
+    float | FloatArray
         Second virial coefficient, $B$. Unit = m³/mol.
     """
     Tr = T/Tc

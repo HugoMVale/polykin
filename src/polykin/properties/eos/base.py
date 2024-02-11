@@ -27,7 +27,8 @@ class GasOrLiquidEoS(EoS):
     def v(self,
           T: float,
           P: float,
-          y: FloatVector) -> FloatVector:
+          y: FloatVector
+          ) -> FloatVector:
         r"""Calculate the molar volumes of the coexisting phases a fluid.
 
         $$ v = \frac{Z R T}{P} $$
