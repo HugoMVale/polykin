@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Iterable, Literal, Optional
+from typing import Iterable, Literal, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,7 +13,7 @@ from scipy.constants import R as Rgas
 
 from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
                                  convert_check_temperature)
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils.types import FloatArray, FloatArrayLike
 
 # %%
 
@@ -205,21 +205,21 @@ class VrentasDudaBinary():
         )
 
     def __call__(self,
-                 w1: FloatOrArrayLike,
-                 T: FloatOrArrayLike,
+                 w1: Union[float, FloatArrayLike],
+                 T: Union[float, FloatArrayLike],
                  Tunit: Literal['C', 'K'] = 'K',
                  selfd: bool = False
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Evaluate solvent self-diffusion, $D_1$, or mutual diffusion
         coefficient, $D$, at given solvent content and temperature, including
         unit conversion and range check.
 
         Parameters
         ----------
-        w1 : FloatOrArrayLike
+        w1 : float | FloatArrayLike
             Mass fraction of solvent.
             Unit = kg/kg.
-        T : FloatOrArrayLike
+        T : float | FloatArrayLike
             Temperature.
             Unit = `Tunit`.
         Tunit : Literal['C', 'K']
@@ -230,7 +230,7 @@ class VrentasDudaBinary():
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Solvent self-diffusion or mutual diffusion coefficient.
         """
         if isinstance(w1, (list, tuple)):
@@ -245,24 +245,24 @@ class VrentasDudaBinary():
             return self.mutual(w1, TK)
 
     def selfd(self,
-              w1: FloatOrArray,
-              T: FloatOrArray
-              ) -> FloatOrArray:
+              w1: Union[float, FloatArray],
+              T: Union[float, FloatArray]
+              ) -> Union[float, FloatArray]:
         r"""Evaluate solvent self-diffusion coefficient, $D_1$, at given SI
         conditions, without unit conversions or checks.
 
         Parameters
         ----------
-        w1 : FloatOrArray
+        w1 : float | FloatArray
             Mass fraction of solvent.
             Unit = kg/kg.
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Solvent self-diffusion coefficient, $D_1$.
         """
 
@@ -286,24 +286,24 @@ class VrentasDudaBinary():
         return D1
 
     def mutual(self,
-               w1: FloatOrArray,
-               T: FloatOrArray
-               ) -> FloatOrArray:
+               w1: Union[float, FloatArray],
+               T: Union[float, FloatArray]
+               ) -> Union[float, FloatArray]:
         r"""Evaluate mutual diffusion coefficient, $D$, at given SI conditions,
         without unit conversions or checks.
 
         Parameters
         ----------
-        w1 : FloatOrArray
+        w1 : float | FloatArray
             Mass fraction of solvent.
             Unit = kg/kg.
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Mutual diffusion coefficient, $D$.
         """
         D1 = self.selfd(w1, T)
@@ -312,7 +312,7 @@ class VrentasDudaBinary():
         return D
 
     def plot(self,
-             T: FloatOrArrayLike,
+             T: Union[float, FloatArrayLike],
              w1range: tuple[float, float] = (0., 0.5),
              Tunit: Literal['C', 'K'] = 'K',
              selfd: bool = False,
@@ -326,7 +326,7 @@ class VrentasDudaBinary():
 
         Parameters
         ----------
-        T : FloatOrArrayLike
+        T : float | FloatArrayLike
             Temperature.
             Unit = `Tunit`.
         w1range : tuple[float, float]
