@@ -6,15 +6,15 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 import numpy as np
 import pandas as pd
 
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils.math import eps
 from polykin.utils.tools import (check_bounds, convert_check_pressure,
                                  convert_check_temperature)
-from polykin.utils.math import eps
+from polykin.utils.types import FloatArray, FloatArrayLike
 
 from ..equations.base import PropertyEquation
 
@@ -42,8 +42,8 @@ def load_PVT_parameters(method: str) -> pd.DataFrame:
 class PolymerPVTEquation(PropertyEquation):
     r"""_Abstract_ polymer PVT equation, $\hat{V}(T, P)$"""
 
-    Trange: tuple[FloatOrArray, FloatOrArray]
-    Prange: tuple[FloatOrArray, FloatOrArray]
+    Trange: tuple[Union[float, FloatArray], Union[float, FloatArray]]
+    Prange: tuple[Union[float, FloatArray], Union[float, FloatArray]]
     symbol = r"$\hat{V}$"
     unit = "m³/kg"
 
@@ -68,20 +68,20 @@ class PolymerPVTEquation(PropertyEquation):
         self.name = name
 
     def V(self,
-          T: FloatOrArrayLike,
-          P: FloatOrArrayLike,
+          T: Union[float, FloatArrayLike],
+          P: Union[float, FloatArrayLike],
           Tunit: Literal['C', 'K'] = 'K',
           Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
-          ) -> FloatOrArray:
+          ) -> Union[float, FloatArray]:
         r"""Evaluate the specific volume, $\hat{V}$, at given temperature and
         pressure, including unit conversion and range check.
 
         Parameters
         ----------
-        T : FloatOrArrayLike
+        T : float | FloatArrayLike
             Temperature.
             Unit = `Tunit`.
-        P : FloatOrArrayLike
+        P : float | FloatArrayLike
             Pressure.
             Unit = `Punit`.
         Tunit : Literal['C', 'K']
@@ -91,7 +91,7 @@ class PolymerPVTEquation(PropertyEquation):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Specific volume.
             Unit = m³/kg.
         """
@@ -100,73 +100,84 @@ class PolymerPVTEquation(PropertyEquation):
         return self.eval(TK, Pa)
 
     @abstractmethod
-    def eval(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
+    def eval(self,
+             T: Union[float, FloatArray],
+             P: Union[float, FloatArray]
+             ) -> Union[float, FloatArray]:
         r"""Evaluate specific volume, $\hat{V}$, at given SI conditions without
         unit conversions or checks.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Specific volume.
             Unit = m³/kg.
         """
         pass
 
     @abstractmethod
-    def alpha(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
+    def alpha(self,
+              T: Union[float, FloatArray],
+              P: Union[float, FloatArray]
+              ) -> Union[float, FloatArray]:
         r"""Calculate thermal expansion coefficient, $\alpha$.
 
         $$\alpha=\frac{1}{V}\left(\frac{\partial V}{\partial T}\right)_{P}$$
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Thermal expansion coefficient, $\alpha$.
         """
         pass
 
     @abstractmethod
-    def beta(self, T: FloatOrArray, P: FloatOrArray) -> FloatOrArray:
+    def beta(self,
+             T: Union[float, FloatArray],
+             P: Union[float, FloatArray]
+             ) -> Union[float, FloatArray]:
         r"""Calculate isothermal compressibility coefficient, $\beta$.
 
         $$\beta=-\frac{1}{V}\left(\frac{\partial V}{\partial P}\right)_{T}$$
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Isothermal compressibility coefficient, $\beta$.
         """
         pass
 
     @classmethod
-    def from_database(cls, name: str) -> Optional[PolymerPVTEquation]:
+    def from_database(cls,
+                      name: str
+                      ) -> Optional[PolymerPVTEquation]:
         r"""Construct `PolymerPVTEquation` with parameters from the database.
 
         Parameters

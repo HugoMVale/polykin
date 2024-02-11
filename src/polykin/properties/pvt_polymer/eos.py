@@ -3,14 +3,15 @@
 # Copyright Hugo Vale 2023
 
 from abc import abstractmethod
+from typing import Union
 
 import numpy as np
 from numpy import log
 from scipy.optimize import root_scalar
 
 from polykin.utils.math import vectorize
-from polykin.utils.types import FloatOrArray
 from polykin.utils.tools import check_bounds
+from polykin.utils.types import FloatArray
 
 from .base import PolymerPVTEquation
 
@@ -50,24 +51,24 @@ class PolymerPVTEoS(PolymerPVTEquation):
 
     @vectorize
     def eval(self,
-             T: FloatOrArray,
-             P: FloatOrArray
-             ) -> FloatOrArray:
+             T: Union[float, FloatArray],
+             P: Union[float, FloatArray]
+             ) -> Union[float, FloatArray]:
         r"""Evaluate specific volume, $\hat{V}$, at given SI conditions without
         unit conversions or checks.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Specific volume.
             Unit = m³/kg.
         """
@@ -90,25 +91,25 @@ class PolymerPVTEoS(PolymerPVTEquation):
         return V
 
     def alpha(self,
-              T: FloatOrArray,
-              P: FloatOrArray
-              ) -> FloatOrArray:
+              T: Union[float, FloatArray],
+              P: Union[float, FloatArray]
+              ) -> Union[float, FloatArray]:
         r"""Calculate thermal expansion coefficient, $\alpha$.
 
         $$\alpha=\frac{1}{V}\left(\frac{\partial V}{\partial T}\right)_{P}$$
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Thermal expansion coefficient, $\alpha$.
             Unit = 1/K.
         """
@@ -118,25 +119,25 @@ class PolymerPVTEoS(PolymerPVTEquation):
         return (V2 - V1)/dT/(V1 + V2)
 
     def beta(self,
-             T: FloatOrArray,
-             P: FloatOrArray
-             ) -> FloatOrArray:
+             T: Union[float, FloatArray],
+             P: Union[float, FloatArray]
+             ) -> Union[float, FloatArray]:
         r"""Calculate isothermal compressibility coefficient, $\beta$.
 
         $$\beta=-\frac{1}{V}\left(\frac{\partial V}{\partial P}\right)_{T}$$
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Isothermal compressibility coefficient, $\beta$.
             Unit = 1/Pa.
         """
@@ -213,7 +214,10 @@ class Flory(PolymerPVTEoS):
     """
 
     @staticmethod
-    def equation(v: float, t: float, p: float) -> tuple[float, float, float]:
+    def equation(v: float,
+                 t: float,
+                 p: float
+                 ) -> tuple[float, float, float]:
         r"""Flory equation of state and its volume derivatives.
 
         Parameters
@@ -280,7 +284,10 @@ class HartmannHaque(PolymerPVTEoS):
     """
 
     @staticmethod
-    def equation(v: float, t: float, p: float) -> tuple[float, float, float]:
+    def equation(v: float,
+                 t: float,
+                 p: float
+                 ) -> tuple[float, float, float]:
         """Hartmann-Haque equation of state and its volume derivatives.
 
         Parameters
@@ -348,7 +355,10 @@ class SanchezLacombe(PolymerPVTEoS):
     """
 
     @staticmethod
-    def equation(v: float, t: float, p: float) -> tuple[float, float, float]:
+    def equation(v: float,
+                 t: float,
+                 p: float
+                 ) -> tuple[float, float, float]:
         """Sanchez-Lacombe equation of state and its volume derivatives.
 
         Parameters
