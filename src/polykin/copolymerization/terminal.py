@@ -733,7 +733,7 @@ class TerminalModel(CopoModel):
 
         Returns
         -------
-        dict[str, FloatOrArray]
+        dict[str, float | FloatArray]
             If `k is None`, the number-average sequence lengths,
             {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
             sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
