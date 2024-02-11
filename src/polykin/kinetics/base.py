@@ -5,10 +5,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Optional, Union
 
 from polykin.properties.equations.base import PropertyEquationT
-from polykin.utils.types import FloatOrArray
+from polykin.utils.types import FloatArray
 
 
 class KineticCoefficientT(PropertyEquationT):
@@ -27,10 +27,10 @@ class KineticCoefficientCLD(ABC):
     name: str
 
     @abstractmethod
-    def __call__(self, T, i, *args) -> FloatOrArray:
+    def __call__(self, T, i, *args) -> Union[float, FloatArray]:
         pass
 
     @staticmethod
     @abstractmethod
-    def equation(T, i, *args) -> FloatOrArray:
+    def equation(T, i, *args) -> Union[float, FloatArray]:
         pass

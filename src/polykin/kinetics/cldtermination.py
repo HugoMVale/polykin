@@ -131,7 +131,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
                  i: Union[int, IntArrayLike],
                  j: Union[int, IntArrayLike],
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> Union[float, FloatArrayLike]:
+                 ) -> Union[float, FloatArray]:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 

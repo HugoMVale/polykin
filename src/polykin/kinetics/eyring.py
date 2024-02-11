@@ -4,6 +4,8 @@
 
 from __future__ import annotations
 
+from typing import Union
+
 import numpy as np
 from numpy import exp
 from scipy.constants import Boltzmann as kB
@@ -11,7 +13,7 @@ from scipy.constants import R, h
 
 from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils.types import FloatArray, FloatArrayLike
 
 from .base import KineticCoefficientT
 
@@ -36,18 +38,18 @@ class Eyring(KineticCoefficientT):
 
     Parameters
     ----------
-    DSa : FloatOrArrayLike
+    DSa : float | FloatArrayLike
         Entropy of activation, $\Delta S^\ddagger$.
         Unit = J/(mol·K).
-    DHa : FloatOrArrayLike
+    DHa : float | FloatArrayLike
         Enthalpy of activation, $\Delta H^\ddagger$.
         Unit = J/mol.
-    kappa : FloatOrArrayLike
+    kappa : float | FloatArrayLike
         Transmission coefficient.
-    Tmin : FloatOrArrayLike
+    Tmin : float | FloatArrayLike
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float | FloatArrayLike
         Upper temperature bound.
         Unit = K.
     symbol : str
@@ -65,11 +67,11 @@ class Eyring(KineticCoefficientT):
               'DHa': ('J/mol', True), 'kappa': ('', False)}
 
     def __init__(self,
-                 DSa: FloatOrArrayLike,
-                 DHa: FloatOrArrayLike,
-                 kappa: FloatOrArrayLike = 1.0,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 DSa: Union[float, FloatArrayLike],
+                 DHa: Union[float, FloatArrayLike],
+                 kappa: Union[float, FloatArrayLike] = 1.0,
+                 Tmin: Union[float, FloatArrayLike] = 0.0,
+                 Tmax: Union[float, FloatArrayLike] = np.inf,
                  symbol: str = 'k',
                  name: str = ''
                  ) -> None:
@@ -92,30 +94,30 @@ class Eyring(KineticCoefficientT):
         super().__init__((Tmin, Tmax), '1/s', symbol, name)
 
     @staticmethod
-    def equation(T: FloatOrArray,
-                 DSa: FloatOrArray,
-                 DHa: FloatOrArray,
-                 kappa: FloatOrArray,
-                 ) -> FloatOrArray:
+    def equation(T: Union[float, FloatArray],
+                 DSa: Union[float, FloatArray],
+                 DHa: Union[float, FloatArray],
+                 kappa: Union[float, FloatArray],
+                 ) -> Union[float, FloatArray]:
         r"""Eyring equation.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        DSa : FloatOrArray
+        DSa : float | FloatArray
             Entropy of activation, $\Delta S^\ddagger$.
             Unit = J/(mol·K).
-        DHa : FloatOrArray
+        DHa : float | FloatArray
             Enthalpy of activation, $\Delta H^\ddagger$.
             Unit = J/mol.
-        kappa : FloatOrArray
+        kappa : float | FloatArray
             Transmission coefficient.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Coefficient value. Unit = 1/s.
         """
         return kappa * kB*T/h * exp((DSa - DHa/T)/R)

@@ -12,7 +12,7 @@ from numpy import exp
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike
+from polykin.utils.types import FloatArray, FloatArrayLike
 
 from .base import KineticCoefficientT
 
@@ -36,19 +36,19 @@ class Arrhenius(KineticCoefficientT):
 
     Parameters
     ----------
-    k0 : FloatOrArrayLike
+    k0 : float | FloatArrayLike
         Coefficient value at the reference temperature, $k_0=k(T_0)$.
         Unit = `unit`.
-    EaR : FloatOrArrayLike
+    EaR : float | FloatArrayLike
         Energy of activation, $E_a/R$.
         Unit = K.
-    T0 : FloatOrArrayLike
+    T0 : float | FloatArrayLike
         Reference temperature, $T_0$.
         Unit = K.
-    Tmin : FloatOrArrayLike
+    Tmin : float | FloatArrayLike
         Lower temperature bound.
         Unit = K.
-    Tmax : FloatOrArrayLike
+    Tmax : float | FloatArrayLike
         Upper temperature bound.
         Unit = K.
     unit : str
@@ -67,11 +67,11 @@ class Arrhenius(KineticCoefficientT):
     _pinfo = {'k0': ('#', True), 'EaR': ('K', True), 'T0': ('K', False)}
 
     def __init__(self,
-                 k0: FloatOrArrayLike,
-                 EaR: FloatOrArrayLike,
-                 T0: FloatOrArrayLike = np.inf,
-                 Tmin: FloatOrArrayLike = 0.0,
-                 Tmax: FloatOrArrayLike = np.inf,
+                 k0: Union[float, FloatArrayLike],
+                 EaR: Union[float, FloatArrayLike],
+                 T0: Union[float, FloatArrayLike] = np.inf,
+                 Tmin: Union[float, FloatArrayLike] = 0.0,
+                 Tmax: Union[float, FloatArrayLike] = np.inf,
                  unit: str = '-',
                  symbol: str = 'k',
                  name: str = ''
@@ -94,37 +94,37 @@ class Arrhenius(KineticCoefficientT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: FloatOrArray,
-                 k0: FloatOrArray,
-                 EaR: FloatOrArray,
-                 T0: FloatOrArray,
-                 ) -> FloatOrArray:
+    def equation(T: Union[float, FloatArray],
+                 k0: Union[float, FloatArray],
+                 EaR: Union[float, FloatArray],
+                 T0: Union[float, FloatArray],
+                 ) -> Union[float, FloatArray]:
         r"""Arrhenius equation.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        k0 : FloatOrArray
+        k0 : float | FloatArray
             Coefficient value at the reference temperature, $k_0=k(T_0)$.
             Unit = Any.
-        EaR : FloatOrArray
+        EaR : float | FloatArray
             Energy of activation, $E_a/R$.
             Unit = K.
-        T0 : FloatOrArray
+        T0 : float | FloatArray
             Reference temperature, $T_0$.
             Unit = K.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Coefficient value. Unit = [k0].
         """
         return k0 * exp(-EaR*(1/T - 1/T0))
 
     @property
-    def A(self) -> FloatOrArray:
+    def A(self) -> Union[float, FloatArray]:
         r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
         return self.__call__(np.inf)
 
@@ -248,7 +248,7 @@ class Arrhenius(KineticCoefficientT):
 
         Parameters
         ----------
-        other : float | int
+        other : int | float
             Exponent.
 
         Returns
