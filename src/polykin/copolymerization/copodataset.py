@@ -3,11 +3,11 @@
 # Copyright Hugo Vale 2023
 
 from abc import ABC
-from typing import Any, Literal
+from typing import Any, Literal, Union
 
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatOrVector
 from polykin.utils.tools import check_shapes
-from polykin.utils.types import FloatOrVectorLike, FloatVectorLike
+from polykin.utils.types import FloatVectorLike
 
 # from dataclasses import dataclass
 
@@ -26,8 +26,8 @@ class CopoDataset(ABC):
                  M2: str,
                  x: FloatVectorLike,
                  y: FloatVectorLike,
-                 sigma_x: FloatOrVectorLike,
-                 sigma_y: FloatOrVectorLike,
+                 sigma_x: Union[float, FloatVectorLike],
+                 sigma_y: Union[float, FloatVectorLike],
                  weight: float,
                  T: float,
                  Tunit: Literal['C', 'K'],
@@ -115,8 +115,8 @@ class MayoDataset(CopoDataset):
                  M2: str,
                  f1: FloatVectorLike,
                  F1: FloatVectorLike,
-                 sigma_f1: FloatOrVectorLike = 1e-2,
-                 sigma_F1: FloatOrVectorLike = 5e-2,
+                 sigma_f1: Union[float, FloatVectorLike] = 1e-2,
+                 sigma_F1: Union[float, FloatVectorLike] = 5e-2,
                  weight: float = 1,
                  T: float = 298.,
                  Tunit: Literal['C', 'K'] = 'K',
@@ -166,8 +166,8 @@ class DriftDataset(CopoDataset):
                  M2: str,
                  x: FloatVectorLike,
                  f1: FloatVectorLike,
-                 sigma_x: FloatOrVectorLike = 5e-2,
-                 sigma_f1: FloatOrVectorLike = 5e-2,
+                 sigma_x: Union[float, FloatVectorLike] = 5e-2,
+                 sigma_f1: Union[float, FloatVectorLike] = 5e-2,
                  weight: float = 1,
                  T: float = 298.,
                  Tunit: Literal['C', 'K'] = 'K',
@@ -219,8 +219,8 @@ class kpDataset(CopoDataset):
                  M2: str,
                  f1: FloatVectorLike,
                  kp: FloatVectorLike,
-                 sigma_f1: FloatOrVectorLike = 5e-2,
-                 sigma_kp: FloatOrVectorLike = 1e2,
+                 sigma_f1: Union[float, FloatVectorLike] = 5e-2,
+                 sigma_kp: Union[float, FloatVectorLike] = 1e2,
                  weight: float = 1,
                  T: float = 298.,
                  Tunit: Literal['C', 'K'] = 'K',
