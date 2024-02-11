@@ -4,7 +4,7 @@
 
 import functools
 from abc import abstractmethod
-from typing import Optional
+from typing import Optional, Union
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -14,8 +14,7 @@ from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
-from polykin.utils.types import (FloatOrVectorLike, FloatSquareMatrix,
-                                 FloatVector)
+from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
 from ..mixing_rules import geometric_interaction_mixing
 from .base import GasAndLiquidEoS
@@ -38,9 +37,9 @@ class Cubic(GasAndLiquidEoS):
     _Ωb: float
 
     def __init__(self,
-                 Tc: FloatOrVectorLike,
-                 Pc: FloatOrVectorLike,
-                 w: FloatOrVectorLike,
+                 Tc: Union[float, FloatVectorLike],
+                 Pc: Union[float, FloatVectorLike],
+                 w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix]
                  ) -> None:
         """Construct `Cubic` with the given parameters."""
@@ -335,9 +334,9 @@ class RedlichKwong(Cubic):
 
     Parameters
     ----------
-    Tc : FloatVector
+    Tc : float | FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : float | FloatVectorLike
         Critical pressures of all components. Unit = Pa.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
@@ -348,8 +347,8 @@ class RedlichKwong(Cubic):
     _Ωb = 0.08664
 
     def __init__(self,
-                 Tc: FloatOrVectorLike,
-                 Pc: FloatOrVectorLike,
+                 Tc: Union[float, FloatVectorLike],
+                 Pc: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `RedlichKwong` with the given parameters."""
@@ -390,11 +389,11 @@ class Soave(Cubic):
 
     Parameters
     ----------
-    Tc : FloatVector
+    Tc : float | FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : float | FloatVectorLike
         Critical pressures of all components. Unit = Pa.
-    w : FloatVector
+    w : float | FloatVectorLike
         Acentric factors of all components.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
@@ -405,9 +404,9 @@ class Soave(Cubic):
     _Ωb = 0.08664
 
     def __init__(self,
-                 Tc: FloatOrVectorLike,
-                 Pc: FloatOrVectorLike,
-                 w: FloatOrVectorLike,
+                 Tc: Union[float, FloatVectorLike],
+                 Pc: Union[float, FloatVectorLike],
+                 w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `Soave` with the given parameters."""
@@ -451,11 +450,11 @@ class PengRobinson(Cubic):
 
     Parameters
     ----------
-    Tc : FloatVector
+    Tc : float | FloatVectorLike
         Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
+    Pc : float | FloatVectorLike
         Critical pressures of all components. Unit = Pa.
-    w : FloatVector
+    w : float | FloatVectorLike
         Acentric factors of all components.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
@@ -466,9 +465,9 @@ class PengRobinson(Cubic):
     _Ωb = 0.07780
 
     def __init__(self,
-                 Tc: FloatOrVectorLike,
-                 Pc: FloatOrVectorLike,
-                 w: FloatOrVectorLike,
+                 Tc: Union[float, FloatVectorLike],
+                 Pc: Union[float, FloatVectorLike],
+                 w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
         """Construct `PengRobinson` with the given parameters."""
