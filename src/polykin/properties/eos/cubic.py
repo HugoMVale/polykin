@@ -417,7 +417,7 @@ class Soave(Cubic):
         w = self.w
         Tr = T/self.Tc
         fw = 0.48 + 1.574*w - 0.176*w**2
-        return (1 + fw*(1 - sqrt(Tr)))**2
+        return (1. + fw*(1. - sqrt(Tr)))**2
 
 
 class PengRobinson(Cubic):
@@ -478,7 +478,7 @@ class PengRobinson(Cubic):
         w = self.w
         Tr = T/self.Tc
         fw = 0.37464 + 1.54226*w - 0.26992*w**2
-        return (1 + fw*(1 - sqrt(Tr)))**2
+        return (1. + fw*(1. - sqrt(Tr)))**2
 
 # %%
 
