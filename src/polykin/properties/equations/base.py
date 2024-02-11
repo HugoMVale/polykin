@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from abc import ABC, abstractmethod
-from typing import Any, Literal, Optional
+from typing import Any, Literal, Optional, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +15,7 @@ from scipy.optimize import curve_fit
 from polykin.utils.math import eps
 from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
                                  convert_check_temperature)
-from polykin.utils.types import FloatOrArray, FloatOrArrayLike, FloatVectorLike
+from polykin.utils.types import FloatArray, FloatArrayLike, FloatVectorLike
 
 
 class PropertyEquation(ABC):
@@ -41,10 +41,11 @@ class PropertyEquationT(PropertyEquation):
 
     _pinfo: dict[str, tuple[str, bool]]
     p: dict[str, Any]
-    Trange: tuple[FloatOrArray, FloatOrArray]
+    Trange: tuple[Union[float, FloatArray], Union[float, FloatArray]]
 
     def __init__(self,
-                 Trange: tuple[FloatOrArray, FloatOrArray],
+                 Trange: tuple[Union[float, FloatArray],
+                               Union[float, FloatArray]],
                  unit: str,
                  symbol: str,
                  name: str
@@ -58,15 +59,15 @@ class PropertyEquationT(PropertyEquation):
         super().__init__(unit, symbol, name)
 
     def __call__(self,
-                 T: FloatOrArrayLike,
+                 T: Union[float, FloatArrayLike],
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Evaluate property equation at given temperature, including unit
         conversion and range check.
 
         Parameters
         ----------
-        T : FloatOrArrayLike
+        T : float | FloatArrayLike
             Temperature.
             Unit = `Tunit`.
         Tunit : Literal['C', 'K']
@@ -74,7 +75,7 @@ class PropertyEquationT(PropertyEquation):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Correlation value.
         """
         TK = convert_check_temperature(T, Tunit, self.Trange)
@@ -82,7 +83,9 @@ class PropertyEquationT(PropertyEquation):
 
     @staticmethod
     @abstractmethod
-    def equation(T: FloatOrArray, *args) -> FloatOrArray:
+    def equation(T: Union[float, FloatArray],
+                 *args
+                 ) -> Union[float, FloatArray]:
         """Property equation, $Y(T,p...)$."""
         pass
 

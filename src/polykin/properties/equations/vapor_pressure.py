@@ -4,11 +4,12 @@
 
 # This module implements commonly used equations to evaluate the vapor
 # pressure of pure components.
+from typing import Union
 
 import numpy as np
 from numpy import exp
 
-from polykin.utils.types import FloatOrArray
+from polykin.utils.types import FloatArray
 
 from .base import PropertyEquationT
 
@@ -86,17 +87,17 @@ class Antoine(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: FloatOrArray,
+    def equation(T: Union[float, FloatArray],
                  A: float,
                  B: float,
                  C: float,
                  base10: bool
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Antoine equation.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
         A : float
@@ -110,7 +111,7 @@ class Antoine(PropertyEquationT):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Vapor pressure. Unit = Any.
         """
         x = A - B/(T + C)
@@ -197,19 +198,19 @@ class Wagner(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: FloatOrArray,
+    def equation(T: Union[float, FloatArray],
                  a: float,
                  b: float,
                  c: float,
                  d: float,
                  Pc: float,
                  Tc: float,
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Wagner equation.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature. Unit = K.
         a : float
             Parameter of equation.
@@ -228,7 +229,7 @@ class Wagner(PropertyEquationT):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Vapor pressure. Unit = [Pc].
         """
         Tr = T/Tc

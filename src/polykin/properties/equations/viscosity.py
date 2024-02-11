@@ -5,10 +5,12 @@
 # This module implements commonly used equations to evaluate the viscosity of
 # pure components.
 
+from typing import Union
+
 import numpy as np
 from numpy import exp
 
-from polykin.utils.types import FloatOrArray
+from polykin.utils.types import FloatArray
 
 from .base import PropertyEquationT
 
@@ -76,18 +78,18 @@ class Yaws(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: FloatOrArray,
+    def equation(T: Union[float, FloatArray],
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  base10: bool
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Yaws equation.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature. Unit = K.
         A : float
             Parameter of equation.
@@ -105,7 +107,7 @@ class Yaws(PropertyEquationT):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Viscosity. Unit = Any.
         """
         x = A + B/T + C*T + D*T**2
