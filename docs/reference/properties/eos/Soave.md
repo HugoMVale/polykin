@@ -14,9 +14,9 @@ Estimate the compressibility factor of a 50 mol% ethylene/nitrogen gas mixture a
 from polykin.properties.eos import Soave
 import numpy as np
 
-Tc = np.array([282.4, 126.2])    # K
-Pc = np.array([50.4e5, 33.9e5])  # Pa
-w = np.array([0.089, 0.039])
+Tc = [282.4, 126.2]    # K
+Pc = [50.4e5, 33.9e5]  # Pa
+w = [0.089, 0.039]
 
 eos = Soave(Tc, Pc, w)
 Z = eos.Z(T=300., P=100e5, y=np.array([0.5, 0.5]))
