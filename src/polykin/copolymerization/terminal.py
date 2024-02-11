@@ -17,9 +17,8 @@ from scipy.optimize import root_scalar
 from polykin.kinetics import Arrhenius
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.tools import check_bounds, check_in_set, custom_repr
-from polykin.utils.types import (FloatOrArray, FloatOrArrayLike,
-                                 FloatOrVectorLike, FloatVector,
-                                 IntOrArrayLike)
+from polykin.utils.types import (FloatArray, FloatArrayLike, FloatVectorLike,
+                                 IntArrayLike)
 
 from .binary import inst_copolymer_binary, kp_average_binary
 from .copodataset import CopoDataset, DriftDataset, MayoDataset, kpDataset
@@ -67,24 +66,26 @@ class CopoModel(ABC):
 
     @abstractmethod
     def ri(self,
-           f1: FloatOrArray
-           ) -> tuple[FloatOrArray, FloatOrArray]:
+           f1: Union[float, FloatArray]
+           ) -> tuple[Union[float, FloatArray],
+                      Union[float, FloatArray]]:
         """Return the evaluated reactivity ratios at the given conditions."""
         pass
 
     @abstractmethod
     def kii(self,
-            f1: FloatOrArray,
+            f1: Union[float, FloatArray],
             T: float,
             Tunit,
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+            ) -> tuple[Union[float, FloatArray],
+                       Union[float, FloatArray]]:
         """Return the evaluated homopropagation rate coefficients at the given
         conditions."""
         pass
 
     def F1(self,
-           f1: FloatOrArrayLike
-           ) -> FloatOrArray:
+           f1: Union[float, FloatArrayLike]
+           ) -> Union[float, FloatArray]:
         r"""Calculate the instantaneous copolymer composition, $F_1$.
 
         The calculation is handled by
@@ -92,12 +93,12 @@ class CopoModel(ABC):
 
         Parameters
         ----------
-        f1 : FloatOrArrayLike
+        f1 : float | FloatArrayLike
             Molar fraction of M1.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Instantaneous copolymer composition, $F_1$.
         """
 
@@ -107,10 +108,10 @@ class CopoModel(ABC):
         return inst_copolymer_binary(f1, *self.ri(f1))
 
     def kp(self,
-           f1: FloatOrArrayLike,
+           f1: Union[float, FloatArrayLike],
            T: float,
            Tunit: Literal['C', 'K'] = 'K'
-           ) -> FloatOrArray:
+           ) -> Union[float, FloatArray]:
         r"""Calculate the average propagation rate coefficient, $\bar{k}_p$.
 
         The calculation is handled by
@@ -122,7 +123,7 @@ class CopoModel(ABC):
 
         Parameters
         ----------
-        f1 : FloatOrArrayLike
+        f1 : float | FloatArrayLike
             Molar fraction of M1.
         T : float
             Temperature. Unit = `Tunit`.
@@ -131,7 +132,7 @@ class CopoModel(ABC):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Average propagation rate coefficient. Unit = L/(mol·s)
         """
 
@@ -175,9 +176,9 @@ class CopoModel(ABC):
         return result
 
     def drift(self,
-              f10: FloatOrVectorLike,
-              x: FloatOrVectorLike
-              ) -> FloatVector:
+              f10: Union[float, FloatVectorLike],
+              x: Union[float, FloatVectorLike]
+              ) -> FloatArray:
         r"""Calculate drift of comonomer composition in a closed system for a
         given total monomer conversion.
 
@@ -192,15 +193,15 @@ class CopoModel(ABC):
 
         Parameters
         ----------
-        f10 : FloatOrVectorLike
+        f10 : float | FloatVectorLike
             Initial molar fraction of M1, $f_{1,0}=f_1(0)$.
-        x : FloatOrVectorLike
+        x : float | FloatVectorLike
             Value(s) of total monomer conversion values where the drift is to
             be evaluated.
 
         Returns
         -------
-        FloatVector
+        FloatArray
             Monomer fraction of M1 at a given conversion, $f_1(x)$.
         """
         f10, x = convert_FloatOrVectorLike_to_FloatVector([f10, x], False)
@@ -232,7 +233,7 @@ class CopoModel(ABC):
              kind: Literal['drift', 'kp', 'Mayo', 'triads'],
              show: Literal['auto', 'all', 'data', 'model'] = 'auto',
              M: Literal[1, 2] = 1,
-             f0: Optional[FloatOrVectorLike] = None,
+             f0: Optional[Union[float, FloatVectorLike]] = None,
              T: Optional[float] = None,
              Tunit: Literal['C', 'K'] = 'K',
              title: Optional[str] = None,
@@ -252,7 +253,7 @@ class CopoModel(ABC):
             Index of the monomer to be used in input argument `f0` and in
             output results. Specifically, if `M=i`, then `f0` stands for
             $f_i(0)$ and plots will be generated in terms of $f_i$ and $F_i$.
-        f0 : FloatOrVectorLike | None
+        f0 : float | FloatVectorLike | None
             Initial monomer composition, $f_i(0)$, as required for a monomer
             composition drift plot.
         T : float | None
@@ -582,22 +583,24 @@ class TerminalModel(CopoModel):
             result = None
         return result
 
-    def ri(self, _) -> tuple[FloatOrArray, FloatOrArray]:
+    def ri(self,
+           _
+           ) -> tuple[Union[float, FloatArray], Union[float, FloatArray]]:
         return (self.r1, self.r2)
 
     def kii(self,
             _,
             T: float,
             Tunit: Literal['C', 'K'] = 'K'
-            ) -> tuple[FloatOrArray, FloatOrArray]:
+            ) -> tuple[Union[float, FloatArray], Union[float, FloatArray]]:
         if self.k1 is None or self.k2 is None:
             raise ValueError(
                 "To use this feature, `k1` and `k2` cannot be `None`.")
         return (self.k1(T, Tunit), self.k2(T, Tunit))
 
     def transitions(self,
-                    f1: FloatOrArrayLike
-                    ) -> dict[str, FloatOrArray]:
+                    f1: Union[float, FloatArrayLike]
+                    ) -> dict[str, Union[float, FloatArray]]:
         r"""Calculate the instantaneous transition probabilities.
 
         For a binary system, the transition probabilities are given by:
@@ -616,12 +619,12 @@ class TerminalModel(CopoModel):
 
         Parameters
         ----------
-        f1 : FloatOrArrayLike
+        f1 : float | FloatArrayLike
             Molar fraction of M1.
 
         Returns
         -------
-        dict[str, FloatOrArray]
+        dict[str, float | FloatArray]
             Transition probabilities, {'11': $P_{11}$, '12': $P_{12}$, ... }.
         """
 
@@ -645,8 +648,8 @@ class TerminalModel(CopoModel):
         return result
 
     def triads(self,
-               f1: FloatOrArrayLike
-               ) -> dict[str, FloatOrArray]:
+               f1: Union[float, FloatArrayLike]
+               ) -> dict[str, Union[float, FloatArray]]:
         r"""Calculate the instantaneous triad fractions.
 
         For a binary system, the triad fractions are given by:
@@ -667,12 +670,12 @@ class TerminalModel(CopoModel):
 
         Parameters
         ----------
-        f1 : FloatOrArrayLike
+        f1 : float | FloatArrayLike
             Molar fraction of M1.
 
         Returns
         -------
-        dict[str, FloatOrArray]
+        dict[str, float | FloatArray]
             Triad fractions,
             {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
@@ -697,9 +700,9 @@ class TerminalModel(CopoModel):
         return result
 
     def sequence(self,
-                 f1: FloatOrArrayLike,
-                 k: Optional[IntOrArrayLike] = None,
-                 ) -> dict[str, FloatOrArray]:
+                 f1: Union[float, FloatArrayLike],
+                 k: Optional[Union[int, IntArrayLike]] = None,
+                 ) -> dict[str, Union[float, FloatArray]]:
         r"""Calculate the instantaneous sequence length probability or the
         number-average sequence length.
 
@@ -722,11 +725,11 @@ class TerminalModel(CopoModel):
 
         Parameters
         ----------
-        k : int | None
+        f1 : float | FloatArrayLike
+            Molar fraction of M1.
+        k : int | IntArrayLike | None
             Sequence length, i.e., number of consecutive units in a chain.
             If `None`, the number-average sequence length will be computed.
-        f1 : FloatOrArrayLike
-            Molar fraction of M1.
 
         Returns
         -------
@@ -748,4 +751,3 @@ class TerminalModel(CopoModel):
                       for i, P in enumerate([P11, P22])}
 
         return result
-# %% Penultimate model
