@@ -3,4 +3,4 @@
 ::: polykin.copolymerization.binary
     options:
         members:
-            - average_kp_binary
+            - kp_average_binary

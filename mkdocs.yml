@@ -172,21 +172,20 @@ nav:
   - API Reference:
       - polykin.copolymerization:
           - reference/copolymerization/index.md
-          - Binary:
-              # - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
-              - ImplicitPenultimateModel: reference/copolymerization/binary/ImplicitPenultimateModel.md
-              - PenultimateModel: reference/copolymerization/binary/PenultimateModel.md
-              - TerminalModel: reference/copolymerization/binary/TerminalModel.md
-              - average_kp_binary: reference/copolymerization/binary/average_kp_binary.md
-              - fit_Finemann_Ross: reference/copolymerization/binary/fit_Finemann_Ross.md
-              - inst_copolymer_binary: reference/copolymerization/binary/inst_copolymer_binary.md
-          - Multicomponent:
-              - convert_Qe_to_r: reference/copolymerization/multicomponent/convert_Qe_to_r.md
-              - inst_copolymer_ternary: reference/copolymerization/multicomponent/inst_copolymer_ternary.md
-              - inst_copolymer_multi: reference/copolymerization/multicomponent/inst_copolymer_multi.md
-              - monomer_drift_multi: reference/copolymerization/multicomponent/monomer_drift_multi.md
-              - sequence_multi: reference/copolymerization/multicomponent/sequence_multi.md
-              - transitions_multi: reference/copolymerization/multicomponent/transitions_multi.md
+            # - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
+          - ImplicitPenultimateModel: reference/copolymerization/ImplicitPenultimateModel.md
+          - PenultimateModel: reference/copolymerization/PenultimateModel.md
+          - TerminalModel: reference/copolymerization/TerminalModel.md
+          - convert_Qe_to_r: reference/copolymerization/convert_Qe_to_r.md
+          - fit_Finemann_Ross: reference/copolymerization/fit_Finemann_Ross.md
+          - inst_copolymer_binary: reference/copolymerization/inst_copolymer_binary.md
+          - inst_copolymer_ternary: reference/copolymerization/inst_copolymer_ternary.md
+          - inst_copolymer_multi: reference/copolymerization/inst_copolymer_multi.md
+          - kp_average_binary: reference/copolymerization/kp_average_binary.md
+          - monomer_drift_multi: reference/copolymerization/monomer_drift_multi.md
+          - sequence_multi: reference/copolymerization/sequence_multi.md
+          - transitions_multi: reference/copolymerization/transitions_multi.md
+          - tuples_multi: reference/copolymerization/tuples_multi.md
       - polykin.distributions:
           - reference/distributions/index.md
           - DataDistribution: reference/distributions/DataDistribution.md
