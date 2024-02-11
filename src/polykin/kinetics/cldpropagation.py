@@ -9,8 +9,8 @@ from numpy import exp, log
 
 from polykin.utils.tools import (check_bounds, check_type,
                                  convert_check_temperature, custom_repr)
-from polykin.utils.types import (FloatOrArray, FloatOrArrayLike, IntOrArray,
-                                 IntOrArrayLike)
+from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
+                                 IntArrayLike)
 
 from .arrhenius import Arrhenius
 from .base import KineticCoefficientCLD
@@ -75,18 +75,18 @@ class PropagationHalfLength(KineticCoefficientCLD):
         return custom_repr(self, ('name', 'C', 'ihalf', 'kp'))
 
     @staticmethod
-    def equation(i: IntOrArray,
-                 kp: FloatOrArray,
+    def equation(i: Union[int, IntArray],
+                 kp: Union[float, FloatArray],
                  C: float,
                  ihalf: float
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Half-length model chain-length dependence equation.
 
         Parameters
         ----------
-        i : IntOrArray
+        i : int | IntArray
             Chain length of radical.
-        kp : FloatOrArray
+        kp : float | FloatArray
             Long-chain value of the propagation rate coefficient, $k_p$.
         C : float
             Ratio of the propagation coefficients of a monomeric radical and a
@@ -96,33 +96,33 @@ class PropagationHalfLength(KineticCoefficientCLD):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Coefficient value.
         """
 
         return kp*(1 + (C - 1)*exp(-log(2)*(i - 1)/ihalf))
 
     def __call__(self,
-                 T: FloatOrArrayLike,
-                 i: IntOrArrayLike,
+                 T: Union[float, FloatArrayLike],
+                 i: Union[int, IntArrayLike],
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 
         Parameters
         ----------
-        T : FloatOrArrayLike
+        T : float | FloatArrayLike
             Temperature.
             Unit = `Tunit`.
-        i : IntOrArrayLike
+        i : int | IntArrayLike
             Chain length of radical.
         Tunit : Literal['C', 'K']
             Temperature unit.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Coefficient value.
         """
         TK = convert_check_temperature(T, Tunit, self.kp.Trange)

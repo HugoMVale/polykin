@@ -9,8 +9,8 @@ from numpy import sqrt
 
 from polykin.utils.tools import (check_bounds, check_type,
                                  convert_check_temperature, custom_repr)
-from polykin.utils.types import (FloatOrArray, FloatOrArrayLike, IntOrArray,
-                                 IntOrArrayLike)
+from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
+                                 IntArrayLike)
 
 from .arrhenius import Arrhenius
 from .base import KineticCoefficientCLD
@@ -88,22 +88,22 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         return custom_repr(self, ('name', 'icrit', 'aS', 'aL', 'kt11'))
 
     @staticmethod
-    def equation(i: IntOrArray,
-                 j: IntOrArray,
-                 kt11: FloatOrArray,
+    def equation(i: Union[int, IntArray],
+                 j: Union[int, IntArray],
+                 kt11: Union[float, FloatArray],
                  icrit: int,
                  aS: float,
                  aL: float,
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArray]:
         r"""Composite model chain-length dependence equation.
 
         Parameters
         ----------
-        i : IntOrArray
+        i : int | IntArray
             Chain length of 1st radical.
-        j : IntOrArray
+        j : int | IntArray
             Chain length of 2nd radical.
-        kt11 : FloatOrArray
+        kt11 : float | FloatArray
             Temperature-dependent termination rate coefficient between two
             monomeric radicals, $k_t(1,1)$.
         icrit : int
@@ -115,7 +115,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Coefficient value.
         """
 
@@ -127,29 +127,29 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         return sqrt(ktii(i)*ktii(j))
 
     def __call__(self,
-                 T: FloatOrArrayLike,
-                 i: IntOrArrayLike,
-                 j: IntOrArrayLike,
+                 T: Union[float, FloatArrayLike],
+                 i: Union[int, IntArrayLike],
+                 j: Union[int, IntArrayLike],
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> FloatOrArray:
+                 ) -> Union[float, FloatArrayLike]:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 
         Parameters
         ----------
-        T : FloatOrArrayLike
+        T : float | FloatArrayLike
             Temperature.
             Unit = `Tunit`.
-        i : IntOrArrayLike
+        i : int | IntArrayLike
             Chain length of 1st radical.
-        j : IntOrArrayLike
+        j : int | IntArrayLike
             Chain length of 2nd radical.
         Tunit : Literal['C', 'K']
             Temperature unit.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Coefficient value.
         """
         TK = convert_check_temperature(T, Tunit, self.kt11.Trange)
