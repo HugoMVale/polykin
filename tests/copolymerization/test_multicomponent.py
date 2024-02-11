@@ -3,14 +3,16 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
+import pytest
 from numpy import all, isclose
 
 from polykin.copolymerization import (TerminalModel, convert_Qe_to_r,
                                       inst_copolymer_binary,
                                       inst_copolymer_multi,
                                       inst_copolymer_ternary,
-                                      monomer_drift_multi,
+                                      monomer_drift_multi, sequence_multi,
                                       transitions_multi)
+from polykin.utils.exceptions import ShapeError
 
 
 def test_inst_copolymer_ternary():
@@ -58,6 +60,10 @@ def test_inst_copolymer_multicomponent():
     r[2, 1] = r32
     F_m = inst_copolymer_multi(np.array([f1, f2, 1 - f1 - f2]), r)
     assert all(isclose(F_t, F_m,))  # type: ignore
+    with pytest.raises(ValueError):
+        _ = inst_copolymer_multi([0.1, 0.5, 0.4], r, P=r)
+    with pytest.raises(ValueError):
+        _ = inst_copolymer_multi([0.1, 0.5, 0.4], None, P=r)
 
 
 def test_monomer_drift_multi():
@@ -72,6 +78,8 @@ def test_monomer_drift_multi():
         sol_b = m.drift(f10, x)
         sol_m = monomer_drift_multi([f10, 1. - f10], r, x)
         assert all(isclose(sol_b, sol_m[:, 0], rtol=1e-4))
+    with pytest.raises(ShapeError):
+        _ = monomer_drift_multi([f10, 1. - f10], np.ones((3, 3)), x)
 
 
 def test_convert_Qe():
@@ -94,9 +102,10 @@ def test_transitions_multi():
     f = [0.5, 0.3, 0.2]
     P = transitions_multi(f, r)
     assert all(isclose(P.diagonal(), [0.241, 0.295, 0.209], rtol=1e-2))
+    assert all(isclose(P.sum(axis=-1), np.ones(3)))
 
 
-def test_monomer_drift_multi_2():
+def test_transitions_multi_2():
     r1 = 0.4
     r2 = 0.7
     r = np.ones((2, 2))
@@ -109,3 +118,26 @@ def test_monomer_drift_multi_2():
         for i in range(2):
             for j in range(2):
                 assert (isclose(sol_b[f"{i+1}{j+1}"], sol_m[i, j]))
+
+
+def test_sequence_multi():
+    r1 = 0.4
+    r2 = 0.7
+    r = np.ones((2, 2))
+    r[0, 1] = r1
+    r[1, 0] = r2
+    m = TerminalModel(r1, r2)
+    for f1 in [0.2, 0.5, 0.9]:
+        f = [f1, 1. - f1]
+        k = [1, 3, 5]
+        P = transitions_multi(f, r)
+        # Savg
+        sol_b = list(m.sequence(f1).values())
+        sol_m = sequence_multi(P.diagonal())
+        assert np.all(isclose(sol_b, sol_m))  # type: ignore
+        # SLD
+        sol_b = m.sequence(f1, k)
+        sol_m = sequence_multi(P.diagonal(), k)
+        assert np.all(isclose(sol_b['1'], sol_m[0]))
+
+# add test tuples
