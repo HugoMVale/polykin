@@ -567,27 +567,23 @@ def tuples_multi(P: FloatSquareMatrix,
     if F is None:
         F = inst_copolymer_multi(f=None, r=None, P=P)
 
-    # Get all tuple combinations
+    # Generate all tuple combinations
     N = P.shape[0]
-    M = N**n
     indexes = list(itertools.product(range(N), repeat=n))
 
-    # Compute probability of each tuple
-    A = np.empty(M)
-    for i, idx in enumerate(indexes):
+    result = {}
+    for idx in indexes:
+        # Compute tuple probability
         Pprod = 1.
         for j in range(n-1):
             Pprod *= P[idx[j], idx[j+1]]
-        A[i] = F[idx[0]]*Pprod
-
-    # Combine symmetric tuples: 12 <- 12 + 21
-    result = {}
-    for i, idx in enumerate(indexes):
+        A = F[idx[0]]*Pprod
+        # Add probability to dict, but combine symmetric tuples: 12 <- 12 + 21
         reversed_idx = idx[::-1]
         if reversed_idx in result.keys():
-            result[reversed_idx] += A[i]
+            result[reversed_idx] += A
         else:
-            result[idx] = A[i]
+            result[idx] = A
 
     return result
 
