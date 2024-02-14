@@ -655,13 +655,13 @@ class TerminalModel(CopoModel):
         For a binary system, the triad fractions are given by:
 
         \begin{aligned}
-            F_{iii} &= P_{ii}^2 \\
-            F_{iij} &= 2 P_{ii} P_{ij} \\
-            F_{jij} &= P_{ij}^2
+            A_{iii} &= F_i P_{ii}^2 \\
+            A_{iij} &= 2 F_i P_{ii} P_{ij} \\
+            A_{jij} &= F_i P_{ij}^2
         \end{aligned}
 
-        where $P_{ij}$ is the transition probability $i \rightarrow j$, which
-        is a function of the monomer composition and the reactivity ratios.
+        where $P_{ij}$ is the transition probability $i \rightarrow j$ and
+        $F_i$ is the instantaneous copolymer composition.
 
         **References**
 
@@ -677,25 +677,28 @@ class TerminalModel(CopoModel):
         -------
         dict[str, float | FloatArray]
             Triad fractions,
-            {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
+            {'111': $A_{111}$, '112': $A_{112}$, '212': $A_{212}$, ... }.
         """
 
         P11, P12, P21, P22 = self.transitions(f1).values()
 
-        F111 = P11**2
-        F112 = 2*P11*P12
-        F212 = P12**2
+        F1 = P21/(P12 + P21)
+        F2 = 1. - F1
 
-        F222 = P22**2
-        F221 = 2*P22*P21
-        F121 = P21**2
+        A111 = F1*P11**2
+        A112 = F1*2*P11*P12
+        A212 = F1*P12**2
 
-        result = {'111': F111,
-                  '112': F112,
-                  '212': F212,
-                  '222': F222,
-                  '221': F221,
-                  '121': F121}
+        A222 = F2*P22**2
+        A221 = F2*2*P22*P21
+        A121 = F2*P21**2
+
+        result = {'111': A111,
+                  '112': A112,
+                  '212': A212,
+                  '222': A222,
+                  '221': A221,
+                  '121': A121}
 
         return result
 

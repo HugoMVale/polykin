@@ -57,8 +57,13 @@ def test_TerminalModel_kp():
 def test_TerminalModel_triads():
     "Example 4.1, p. 179, Dotson-Galván-Laurence-Tirell"
     m = TerminalModel(r1=0.48, r2=0.42, M1='ST', M2='MMA')
-    assert all(isclose(list(m.triads(f1=0.75).values()),
-                       [0.348, 0.484, 0.168, 0.0151, 0.215, 0.769], rtol=1e-2))  # type: ignore
+    f1 = 0.75
+    F1 = m.F1(f1)
+    triads = np.array(list(m.triads(f1=0.75).values()))
+    triads1 = triads[0:3]
+    triads2 = triads[3:]
+    assert all(isclose(triads1/F1, [0.348, 0.484, 0.168], rtol=1e-2))
+    assert all(isclose(triads2/(1. - F1), [0.0151, 0.215, 0.769], rtol=1e-2))
 
 
 def test_TerminalModel_sld():

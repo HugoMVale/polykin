@@ -11,7 +11,7 @@ from polykin.copolymerization import (TerminalModel, convert_Qe_to_r,
                                       inst_copolymer_multi,
                                       inst_copolymer_ternary,
                                       monomer_drift_multi, sequence_multi,
-                                      transitions_multi)
+                                      transitions_multi, tuples_multi)
 from polykin.utils.exceptions import ShapeError
 
 
@@ -140,4 +140,25 @@ def test_sequence_multi():
         sol_m = sequence_multi(P.diagonal(), k)
         assert np.all(isclose(sol_b['1'], sol_m[0]))
 
-# add test tuples
+
+def test_tuples_multi():
+    r1 = 0.4
+    r2 = 0.7
+    r = np.ones((2, 2))
+    r[0, 1] = r1
+    r[1, 0] = r2
+    m = TerminalModel(r1, r2)
+    for f1 in [0.2, 0.5, 0.9]:
+        f = [f1, 1. - f1]
+        P = transitions_multi(f, r)
+        sol_b = m.triads(f1)
+        sol_m = tuples_multi(P, 3)
+        for idx in sol_m.keys():
+            idx_str = f"{idx[0]+1}{idx[1]+1}{idx[2]+1}"
+            try:
+                sol = sol_b[idx_str]
+            except KeyError:
+                idx_str = idx_str[::-1]
+                sol = sol_b[idx_str]
+            assert (
+                isclose(sol_m[idx], sol))
