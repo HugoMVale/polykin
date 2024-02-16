@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.viscosity import MUVPC_Jossi, MUVMXPC_Dean_Stiel, \
-    MUVMX2_Herning_Zipperer, MULMX2_Perry, \
-    MUV_Lucas, MUVMX_Lucas
-
 import numpy as np
 from scipy.constants import R
+
+from polykin.properties.viscosity import (MULMX2_Perry, MUV_Lucas,
+                                          MUVMX2_Herning_Zipperer, MUVMX_Lucas,
+                                          MUVMXPC_Dean_Stiel, MUVPC_Jossi)
 
 
 def test_MUVMX2_herning_zipperer():

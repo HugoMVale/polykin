@@ -2,11 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.vaporization_enthalpy import \
-    DHVL_Pitzer, DHVL_Vetere, DHVL_Watson, DHVL_Kistiakowsky_Vetere
-
 import numpy as np
 import pytest
+
+from polykin.properties.vaporization_enthalpy import (DHVL_Kistiakowsky_Vetere,
+                                                      DHVL_Pitzer, DHVL_Vetere,
+                                                      DHVL_Watson)
 
 
 def test_hvap_pitzer():

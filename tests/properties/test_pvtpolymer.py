@@ -9,8 +9,8 @@ from polykin.properties.pvt_polymer import (Flory, HartmannHaque,
                                             SanchezLacombe, Tait)
 from polykin.utils.exceptions import RangeError
 
-atol = 0e0
-rtol = 1e-4
+ATOL = 0e0
+RTOL = 1e-4
 
 # %% Tait
 
@@ -67,32 +67,32 @@ def test_Tait_repr(tait_instance):
 
 def test_Tait_V0(tait_instance):
     V0 = tait_instance.eval(432.15, 0)
-    assert np.isclose(V0, 8.9019e-4, atol=atol, rtol=rtol)
+    assert np.isclose(V0, 8.9019e-4, atol=ATOL, rtol=RTOL)
 
 
 def test_Tait_B(tait_instance):
     B = tait_instance._B(432.15)
-    assert np.isclose(B, 1.4855e8, atol=atol, rtol=rtol)
+    assert np.isclose(B, 1.4855e8, atol=ATOL, rtol=RTOL)
 
 
 def test_Tait_eval(tait_instance):
     V = tait_instance.eval(432.15, 2e8)
-    assert np.isclose(V, 8.2232e-4, atol=atol, rtol=rtol)
+    assert np.isclose(V, 8.2232e-4, atol=ATOL, rtol=RTOL)
 
 
 def test_Tait_V(tait_instance):
     V = tait_instance.V(159., 2000, Tunit='C', Punit='bar')
-    assert np.isclose(V, 8.2232e-4, atol=atol, rtol=rtol)
+    assert np.isclose(V, 8.2232e-4, atol=ATOL, rtol=RTOL)
 
 
 def test_Tait_alpha(tait_instance):
     alpha = tait_instance.alpha(432.15, 2e8)
-    assert np.isclose(alpha, 3.5012e-4, atol=atol, rtol=rtol)
+    assert np.isclose(alpha, 3.5012e-4, atol=ATOL, rtol=RTOL)
 
 
 def test_Tait_beta(tait_instance):
     beta = tait_instance.beta(432.15, 2e8)
-    assert np.isclose(beta, 2.7765e-10, atol=atol, rtol=rtol)
+    assert np.isclose(beta, 2.7765e-10, atol=ATOL, rtol=RTOL)
 
 
 # %% Flory

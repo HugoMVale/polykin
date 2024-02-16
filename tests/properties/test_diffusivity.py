@@ -2,11 +2,11 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.diffusion import VrentasDudaBinary, \
-    DL_Wilke_Chang, DL_Hayduk_Minhas, DV_Wilke_Lee
-
 import numpy as np
 import pytest
+
+from polykin.properties.diffusion import (DL_Hayduk_Minhas, DL_Wilke_Chang,
+                                          DV_Wilke_Lee, VrentasDudaBinary)
 
 # %% VrentasDudaBinary
 

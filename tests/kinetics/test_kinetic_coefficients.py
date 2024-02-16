@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.kinetics import Arrhenius, Eyring, \
-    TerminationCompositeModel, PropagationHalfLength
-from polykin.utils.exceptions import RangeError, ShapeError
-
-import pytest
 import numpy as np
+import pytest
+
+from polykin.kinetics import (Arrhenius, Eyring, PropagationHalfLength,
+                              TerminationCompositeModel)
+from polykin.utils.exceptions import RangeError, ShapeError
 
 # %% Arrhenius and Eyring
 

@@ -2,12 +2,14 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.properties.thermal_conductivity import KLMX2_Li, \
-    KVPC_Stiel_Thodos, KVMXPC_Stiel_Thodos, KVMX2_Wassilijewa
-
 import numpy as np
-from scipy.constants import R
 import pytest
+from scipy.constants import R
+
+from polykin.properties.thermal_conductivity import (KLMX2_Li,
+                                                     KVMX2_Wassilijewa,
+                                                     KVMXPC_Stiel_Thodos,
+                                                     KVPC_Stiel_Thodos)
 
 
 def test_KLMX2_li():

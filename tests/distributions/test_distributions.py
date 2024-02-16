@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-from polykin.distributions import \
-    Flory, Poisson, LogNormal, SchulzZimm, DataDistribution, plotdists
-
 import numpy as np
-import scipy.integrate as integrate
 import pytest
+import scipy.integrate as integrate
+
+from polykin.distributions import (DataDistribution, Flory, LogNormal, Poisson,
+                                   SchulzZimm, plotdists)
 
 
 @pytest.fixture
