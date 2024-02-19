@@ -42,7 +42,7 @@ def test_properties(dist1, dist2):
 
 def test_inputs():
     with pytest.raises(ValueError):
-        d = Poisson(1)
+        d = Poisson(0.99)
     with pytest.raises(ValueError):
         d = LogNormal(10, 1)
     with pytest.raises(ValueError):
