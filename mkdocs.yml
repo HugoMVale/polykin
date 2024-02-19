@@ -246,5 +246,7 @@ nav:
               - MUVPC_Jossi: reference/properties/viscosity/MUVPC_Jossi.md
               - MUVMXPC_Dean_Stiel: reference/properties/viscosity/MUVMXPC_Dean_Stiel.md
           #- Activity Coefficient Models: reference/properties/acm.md
+      - polykin.stepgrowth:
+          - Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:
           - Types: reference/types.md
