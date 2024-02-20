@@ -4,7 +4,10 @@
 
 from typing import Union
 
-from polykin.utils.types import FloatArray
+import numpy as np
+from numpy import dot
+
+from polykin.utils.types import FloatArray, FloatArrayLike, FloatVectorLike
 
 __all__ = ['Case_1',
            'Case_3',
@@ -14,10 +17,11 @@ __all__ = ['Case_1',
            'Case_8',
            'Case_9',
            'Case_10',
-           'Case_11']
+           'Case_11',
+           'Stockmayer']
 
 
-def Case_1(pB: Union[float, FloatArray],
+def Case_1(pB: Union[float, FloatArrayLike],
            r_BB_AA: float,
            MAA: float,
            MBB: float
@@ -46,7 +50,7 @@ def Case_1(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
     r_BB_AA : float
         Initial molar ratio of BB/AA molecules (or, equivalently, B/A groups).
@@ -61,6 +65,8 @@ def Case_1(pB: Union[float, FloatArray],
         Tuple of molar mass averages, ($M_n$, $M_w$).
     """
 
+    pB = np.asarray(pB)
+
     b = pB
     a = b*r_BB_AA
 
@@ -72,8 +78,8 @@ def Case_1(pB: Union[float, FloatArray],
     return (Mn, Mw)
 
 
-def Case_3(pB: Union[float, FloatArray],
-           pC: Union[float, FloatArray],
+def Case_3(pB: Union[float, FloatArrayLike],
+           pC: Union[float, FloatArrayLike],
            r_BC_AA: float,
            MAA: float,
            MBC: float
@@ -114,9 +120,9 @@ def Case_3(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
     r_BC_AA : float
         Initial molar ratio of BC/AA molecules.
@@ -131,6 +137,9 @@ def Case_3(pB: Union[float, FloatArray],
         Tuple of molar mass averages, ($M_n$, $M_w$).
     """
 
+    pB = np.asarray(pB)
+    pC = np.asarray(pC)
+
     b = pB
     c = pC
     a = r_BC_AA*(b + c)/2
@@ -144,8 +153,8 @@ def Case_3(pB: Union[float, FloatArray],
     return (Mn, Mw)
 
 
-def Case_5(pB: Union[float, FloatArray],
-           pC: Union[float, FloatArray],
+def Case_5(pB: Union[float, FloatArrayLike],
+           pC: Union[float, FloatArrayLike],
            r_BC_A: float,
            r_C_B: float,
            MAA: float,
@@ -180,9 +189,9 @@ def Case_5(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
     r_BC_A : float
         Initial molar ratio of (B + C)/A groups.
@@ -201,6 +210,9 @@ def Case_5(pB: Union[float, FloatArray],
         Number-average molar mass, $M_n$.
     """
 
+    pB = np.asarray(pB)
+    pC = np.asarray(pC)
+
     b = pB
     c = pC
     v = r_C_B
@@ -212,7 +224,7 @@ def Case_5(pB: Union[float, FloatArray],
     return Mn
 
 
-def Case_6(pC: Union[float, FloatArray],
+def Case_6(pC: Union[float, FloatArrayLike],
            r_BC_AA: float,
            MAA: float,
            MBC: float
@@ -248,7 +260,7 @@ def Case_6(pC: Union[float, FloatArray],
 
     Parameters
     ----------
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
     r_BC_AA : float
         Initial molar ratio of BC/AA molecules.
@@ -262,6 +274,8 @@ def Case_6(pC: Union[float, FloatArray],
     float | FloatArray
         Number-average molar mass, $M_n$.
     """
+
+    pC = np.asarray(pC)
 
     # a = pA
     # b = pB
@@ -278,8 +292,8 @@ def Case_6(pC: Union[float, FloatArray],
     return Mn
 
 
-def Case_7(pA: Union[float, FloatArray],
-           pC: Union[float, FloatArray],
+def Case_7(pA: Union[float, FloatArrayLike],
+           pC: Union[float, FloatArrayLike],
            r_CD_AB: float,
            MAB: float,
            MCD: float) -> Union[float, FloatArray]:
@@ -308,9 +322,9 @@ def Case_7(pA: Union[float, FloatArray],
 
     Parameters
     ----------
-    pA : float | FloatArray
+    pA : float | FloatArrayLike
         Conversion of A groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
     r_CD_AB : float
         Initial molar ratio of CD/AB molecules.
@@ -325,6 +339,9 @@ def Case_7(pA: Union[float, FloatArray],
         Number-average molar mass, $M_n$.
     """
 
+    pA = np.asarray(pA)
+    pC = np.asarray(pC)
+
     a = pA
     c = pC
     v = r_CD_AB
@@ -334,8 +351,8 @@ def Case_7(pA: Union[float, FloatArray],
     return Mn
 
 
-def Case_8(pB: Union[float, FloatArray],
-           pC: Union[float, FloatArray],
+def Case_8(pB: Union[float, FloatArrayLike],
+           pC: Union[float, FloatArrayLike],
            r_BC_A: float,
            r_CC_BB: float,
            MAA: float,
@@ -369,9 +386,9 @@ def Case_8(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
     r_BC_A : float
         Initial molar ratio of (B + C)/A groups.
@@ -390,6 +407,9 @@ def Case_8(pB: Union[float, FloatArray],
         Number-average molar mass, $M_n$.
     """
 
+    pB = np.asarray(pB)
+    pC = np.asarray(pC)
+
     b = pB
     c = pC
     v = r_CC_BB
@@ -400,9 +420,9 @@ def Case_8(pB: Union[float, FloatArray],
     return Mn
 
 
-def Case_9(pB: Union[float, FloatArray],
-           pC: Union[float, FloatArray],
-           pD: Union[float, FloatArray],
+def Case_9(pB: Union[float, FloatArrayLike],
+           pC: Union[float, FloatArrayLike],
+           pD: Union[float, FloatArrayLike],
            r_CD_AB: float,
            r_BB_AA: float,
            r_DD_CC: float,
@@ -440,11 +460,11 @@ def Case_9(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
-    pD : float | FloatArray
+    pD : float | FloatArrayLike
         Conversion of D groups.
     r_CD_AB : float
         Initial molar ratio of (C+D)/(A+B) groups.
@@ -467,6 +487,10 @@ def Case_9(pB: Union[float, FloatArray],
         Number-average molar mass, $M_n$.
     """
 
+    pB = np.asarray(pB)
+    pC = np.asarray(pC)
+    pD = np.asarray(pD)
+
     b = pB
     c = pC
     d = pD
@@ -480,9 +504,9 @@ def Case_9(pB: Union[float, FloatArray],
     return Mn
 
 
-def Case_10(pB: Union[float, FloatArray],
-            pC: Union[float, FloatArray],
-            pD: Union[float, FloatArray],
+def Case_10(pB: Union[float, FloatArrayLike],
+            pC: Union[float, FloatArrayLike],
+            pD: Union[float, FloatArrayLike],
             r_BCD_A: float,
             r_BC_DD: float,
             MAA: float,
@@ -518,11 +542,11 @@ def Case_10(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
-    pD : float | FloatArray
+    pD : float | FloatArrayLike
         Conversion of D groups.
     r_BCD_A : float
         Initial molar ratio of (B + C + D)/A groups.
@@ -541,6 +565,10 @@ def Case_10(pB: Union[float, FloatArray],
         Number-average molar mass, $M_n$.
     """
 
+    pB = np.asarray(pB)
+    pC = np.asarray(pC)
+    pD = np.asarray(pD)
+
     b = pB
     c = pC
     d = pD
@@ -553,9 +581,9 @@ def Case_10(pB: Union[float, FloatArray],
     return Mn
 
 
-def Case_11(pB: Union[float, FloatArray],
-            pC: Union[float, FloatArray],
-            pD: Union[float, FloatArray],
+def Case_11(pB: Union[float, FloatArrayLike],
+            pC: Union[float, FloatArrayLike],
+            pD: Union[float, FloatArrayLike],
             r_BC_AA: float,
             r_DD_AA: float,
             MAA: float,
@@ -590,11 +618,11 @@ def Case_11(pB: Union[float, FloatArray],
 
     Parameters
     ----------
-    pB : float | FloatArray
+    pB : float | FloatArrayLike
         Conversion of B groups.
-    pC : float | FloatArray
+    pC : float | FloatArrayLike
         Conversion of C groups.
-    pD : float | FloatArray
+    pD : float | FloatArrayLike
         Conversion of D groups.
     r_BC_AA : float
         Initial molar ratio of BC/AA molecules.
@@ -613,6 +641,10 @@ def Case_11(pB: Union[float, FloatArray],
         Number-average molar mass, $M_n$.
     """
 
+    pB = np.asarray(pB)
+    pC = np.asarray(pC)
+    pD = np.asarray(pD)
+
     b = pB
     c = pC
     d = pD
@@ -623,3 +655,89 @@ def Case_11(pB: Union[float, FloatArray],
         (1 - 2*a + 2*v*(1 - b) + (a + v*(b - c))/d)
 
     return Mn
+
+
+def Stockmayer(A: FloatVectorLike,
+               B: FloatVectorLike,
+               f: FloatVectorLike,
+               g: FloatVectorLike,
+               MA: FloatVectorLike,
+               MB: FloatVectorLike,
+               pB: Union[float, FloatArrayLike]
+               ) -> tuple[Union[float, FloatArray],
+                          Union[float, FloatArray]]:
+    """Stockmayer's analytical solution for an arbitrary mixture of A-type
+    monomers reacting with an arbitry mixture of B-type monomers.
+
+    **References**
+
+    *   Stockmayer, W.H. (1952), Molecular distribution in condensation
+        polymers. J. Polym. Sci., 9: 69-71. https://doi.org/10.1002/pol.1952.120090106
+
+    Parameters
+    ----------
+    A : FloatVectorLike
+        Vector (N) with relative mole amounts of A monomers.
+    B : FloatVectorLike
+        Vector (M) with relative mole amounts of B monomers.
+    f : FloatVectorLike
+        Vector (N) with functionality of A monomers.
+    g : FloatVectorLike
+        Vector (M) with functionality of B monomers.
+    MA : FloatVectorLike
+        Vector (N) with molar mass of reacted A monomers.
+    MB : FloatVectorLike
+        Vector (M) with molar mass of reacted B monomers.
+    pB : float | FloatArrayLike
+        Overall conversion of B groups.
+
+    Returns
+    -------
+    float | FloatArray
+        Mass-average molar mass, $M_w$.
+
+    Examples
+    --------
+    Calculate Mn and Mw for a mixture with 1 mol of A2 (100 g/mol), 0.01 mol of
+    A3 (150 g/mol), 1.01 mol of B2 (80 g/mol) and 0.03 mol of B (40 g/mol) at
+    99% conversion of B groups.
+    >>> from polykin.stepgrowth.solutions import Stockmayer
+    >>> Mn, Mw = Stockmayer(A=[1, 0.01], B=[1.01, 0.03], f=[2, 3], g=[2, 1],
+    ...                     MA=[100, 150], MB=[80, 40], pB=0.99)
+    >>> print(f"{Mn:.0f}")
+    8951
+    >>> print(f"{Mw:.0f}")
+    34722
+    """
+
+    A = np.asarray(A)
+    B = np.asarray(B)
+    f = np.asarray(f)
+    g = np.asarray(g)
+    MA = np.asarray(MA)
+    MB = np.asarray(MB)
+    pB = np.asarray(pB)
+
+    sMA = dot(MA, A)
+    sM2A = dot(MA**2, A)
+    sfA = dot(f, A)
+    sf2A = dot(f**2, A)
+    sMB = dot(MB, B)
+    sM2B = dot(MB**2, B)
+    sgB = dot(g, B)
+    sg2B = dot(g**2, B)
+
+    fe = sf2A/sfA
+    ge = sg2B/sgB
+    Ma = np.sum(MA*f*A)/sfA
+    Mb = np.sum(MB*g*B)/sgB
+
+    pA = pB*sgB/sfA
+
+    Mn = (sMA + sMB)/(A.sum() + B.sum() - pA*sfA)
+
+    Mw = (pB*(sM2A/sfA) + pA*(sM2B/sgB) + pA*pB *
+          (pA*(fe - 1)*Mb**2 + pB*(ge - 1)*Ma**2 + 2*Ma*Mb) /
+          (1 - pA*pB*(fe - 1)*(ge - 1)))/(pB*(sMA/sfA) + pA*(sMB/sgB))
+
+    return (Mn, Mw)

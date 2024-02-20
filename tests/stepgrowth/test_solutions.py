@@ -5,7 +5,7 @@
 from numpy import all, isclose
 
 from polykin.stepgrowth import (Case_1, Case_3, Case_5, Case_6, Case_7, Case_8,
-                                Case_9, Case_10, Case_11)
+                                Case_9, Case_10, Case_11, Stockmayer)
 
 
 def test_Case_1():
@@ -163,3 +163,36 @@ def test_Case_11():
     Mn = Case_11(pB=0, pC=0., pD=pD, r_BC_AA=0, r_DD_AA=r_DD_AA,
                  MAA=MAA, MBC=MBC, MDD=MDD)
     assert isclose(Mn0, Mn)
+
+
+def test_StockMayer():
+    # AA + BB
+    MAA = 123.
+    MBB = 83.
+    pB = 0.998
+    r_BB_AA = 0.98
+    A = [1.]
+    f = [2.]
+    MA = [MAA]
+    B = [r_BB_AA]
+    g = [2.]
+    MB = [MBB]
+    Mn0, Mw0 = Case_1(pB, r_BB_AA, MAA, MBB)
+    Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
+    assert isclose(Mn0, Mn)
+    assert isclose(Mw0, Mw)
+    # AA + B
+    MAA = 83.
+    MBC = 36.
+    pB = 0.978
+    r_BC_AA = 0.95
+    A = [1.]
+    f = [2.]
+    MA = [MAA]
+    B = [r_BC_AA]
+    g = [1.]
+    MB = [MBC]
+    Mn0, Mw0 = Case_3(pB, 0, r_BC_AA, MAA, MBC)
+    Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
+    assert isclose(Mn0, Mn)
+    assert isclose(Mw0, Mw)
