@@ -666,8 +666,26 @@ def Stockmayer(A: FloatVectorLike,
                pB: Union[float, FloatArrayLike]
                ) -> tuple[Union[float, FloatArray],
                           Union[float, FloatArray]]:
-    """Stockmayer's analytical solution for an arbitrary mixture of A-type
+    r"""Stockmayer's analytical solution for an arbitrary mixture of A-type
     monomers reacting with an arbitry mixture of B-type monomers.
+
+    The expressions for the number- and mass-average molar masses are:
+
+    \begin{aligned}
+    M_n &= \frac{\sum_i M_{A,i}A_i + \sum_j M_{B,j}B_j}{\sum_i A_i + \sum_j B_j -p_A\sum_i f_iA_i} \\
+    M_w &= \frac{p_B\frac{\sum_i M_{A,i}^2A_i}{\sum_i f_i A_i}+p_A\frac{\sum_j M_{B,j}^2B_j}
+    {\sum_j g_j B_j}+\frac{p_Ap_B[p_A(f_e-1)M_b^2+p_B(g_e-1)M_a^2+2M_aM_b)]}{1-p_A p_B(f_e-1)(g_e-1)}}
+    {p_B\frac{\sum_i M_{A,i}A_i}{\sum_i f_i A_i}+p_A\frac{\sum_j M_{B,j}B_j}{\sum_j g_j B_j}}
+    \end{aligned}
+
+    where:
+
+    \begin{aligned}
+    f_e &= \frac{\sum_i f_i^2 A_i}{\sum_i f_i A_i}  \\
+    g_e &= \frac{\sum_j g_j^2 B_j}{\sum_j g_j B_j} \\
+    M_a &= \frac{\sum_i M_{A,i}f_i A_i}{\sum_i f_i A_i}  \\
+    M_b &= \frac{\sum_j M_{B,j}g_j B_j}{\sum_j g_j B_j}
+    \end{aligned}
 
     **References**
 
@@ -693,13 +711,13 @@ def Stockmayer(A: FloatVectorLike,
 
     Returns
     -------
-    float | FloatArray
-        Mass-average molar mass, $M_w$.
+    tuple[float | FloatArray, float | FloatArray]
+        Tuple of molar mass averages, ($M_n$, $M_w$).
 
     Examples
     --------
-    Calculate Mn and Mw for a mixture with 1 mol of A2 (100 g/mol), 0.01 mol of
-    A3 (150 g/mol), 1.01 mol of B2 (80 g/mol) and 0.03 mol of B (40 g/mol) at
+    Calculate Mn and Mw for a mixture with 1 mol of A₂ (100 g/mol), 0.01 mol of
+    A₃ (150 g/mol), 1.01 mol of B₂ (80 g/mol) and 0.03 mol of B (40 g/mol) at
     99% conversion of B groups.
     >>> from polykin.stepgrowth.solutions import Stockmayer
     >>> Mn, Mw = Stockmayer(A=[1, 0.01], B=[1.01, 0.03], f=[2, 3], g=[2, 1],
