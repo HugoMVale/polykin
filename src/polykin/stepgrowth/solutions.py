@@ -19,6 +19,7 @@ __all__ = ['Case_1',
            'Case_9',
            'Case_10',
            'Case_11',
+           'Flory_Af',
            'Stockmayer']
 
 
