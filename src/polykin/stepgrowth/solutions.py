@@ -7,7 +7,8 @@ from typing import Union
 import numpy as np
 from numpy import dot
 
-from polykin.utils.types import FloatArray, FloatArrayLike, FloatVectorLike
+from polykin.utils.types import FloatArray, FloatArrayLike, FloatVectorLike, \
+    IntVectorLike
 
 __all__ = ['Case_1',
            'Case_3',
@@ -659,8 +660,8 @@ def Case_11(pB: Union[float, FloatArrayLike],
 
 def Stockmayer(A: FloatVectorLike,
                B: FloatVectorLike,
-               f: FloatVectorLike,
-               g: FloatVectorLike,
+               f: IntVectorLike,
+               g: IntVectorLike,
                MA: FloatVectorLike,
                MB: FloatVectorLike,
                pB: Union[float, FloatArrayLike]
@@ -698,9 +699,9 @@ def Stockmayer(A: FloatVectorLike,
         Vector (N) with relative mole amounts of A monomers.
     B : FloatVectorLike
         Vector (M) with relative mole amounts of B monomers.
-    f : FloatVectorLike
+    f : IntVectorLike
         Vector (N) with functionality of A monomers.
-    g : FloatVectorLike
+    g : IntVectorLike
         Vector (M) with functionality of B monomers.
     MA : FloatVectorLike
         Vector (N) with molar mass of reacted A monomers.
@@ -759,3 +760,49 @@ def Stockmayer(A: FloatVectorLike,
           (1 - pA*pB*(fe - 1)*(ge - 1)))/(pB*(sMA/sfA) + pA*(sMB/sgB))
 
     return (Mn, Mw)
+
+
+def Flory_Af(f: int,
+             MA: float,
+             p: Union[float, FloatArrayLike]
+             ) -> tuple[Union[float, FloatArray],
+                        Union[float, FloatArray],
+                        Union[float, FloatArray]]:
+    r"""Flory's analytical solution for the hopolymerization of an Af monomer.
+
+    The expressions for the number-, mass-, and z-average molar masses are:
+
+    \begin{aligned}
+    M_n &= M_{A_f}\frac{1}{1 - (f/2)p} \\
+    M_w &= M_{A_f}\frac{1 + p}{1 - (f-1)p} \\
+    M_z &= M_{A_f}\frac{(1 + p)^3 - f(3 + p)p^2}{(1 + p)[1 - (f-1)p]^2}
+    \end{aligned}
+
+    **References**
+
+    *   P. J. Flory, Molecular Size Distribution in Three Dimensional
+        Polymers. I. Gelation, J. Am. Chem. Soc. 1941, 63, 11, 3083.
+    *   M. Gordon, Proc. R. Soc. London, Ser. A, 1962, 268, 240.
+
+    Parameters
+    ----------
+    f : int
+        Functionality.
+    MA : float
+        Molar mass of reacted Af monomer.
+    p : float | FloatArrayLike
+        Conversion of A groups. 
+
+    Returns
+    -------
+    tuple[float | FloatArray, ...]
+        Tuple of molar mass averages, ($M_n$, $M_w$, $M_z$).
+    """
+
+    p = np.asarray(p)
+
+    Mn = MA/(1 - (f/2)*p)
+    Mw = MA*(1 + p)/(1 - p*(f - 1))
+    Mz = MA*((1 + p)**3 - (3 + p)*f*p**2)/((1 + p)*(1 - p*(f-1))**2)
+
+    return (Mn, Mw, Mz)

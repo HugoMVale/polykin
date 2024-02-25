@@ -172,10 +172,10 @@ def test_StockMayer():
     pB = 0.998
     r_BB_AA = 0.98
     A = [1.]
-    f = [2.]
+    f = [2]
     MA = [MAA]
     B = [r_BB_AA]
-    g = [2.]
+    g = [2]
     MB = [MBB]
     Mn0, Mw0 = Case_1(pB, r_BB_AA, MAA, MBB)
     Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
@@ -187,10 +187,10 @@ def test_StockMayer():
     pB = 0.978
     r_BC_AA = 0.95
     A = [1.]
-    f = [2.]
+    f = [2]
     MA = [MAA]
     B = [r_BC_AA]
-    g = [1.]
+    g = [1]
     MB = [MBC]
     Mn0, Mw0 = Case_3(pB, 0, r_BC_AA, MAA, MBC)
     Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
