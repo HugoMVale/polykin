@@ -5,7 +5,8 @@
 from numpy import all, isclose
 
 from polykin.stepgrowth import (Case_1, Case_3, Case_5, Case_6, Case_7, Case_8,
-                                Case_9, Case_10, Case_11, Stockmayer)
+                                Case_9, Case_10, Case_11, Stockmayer, Flory_Af)
+from polykin.distributions import Flory
 
 
 def test_Case_1():
@@ -165,7 +166,7 @@ def test_Case_11():
     assert isclose(Mn0, Mn)
 
 
-def test_StockMayer():
+def test_Stockmayer():
     # AA + BB
     MAA = 123.
     MBB = 83.
@@ -196,3 +197,13 @@ def test_StockMayer():
     Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
     assert isclose(Mn0, Mn)
     assert isclose(Mw0, Mw)
+
+
+def test_Flory_Af():
+    MAf = 67
+    p = 0.98
+    Mn, Mw, Mz = Flory_Af(f=2, MA=MAf, p=p)
+    d = Flory(1/(1 - p), MAf)
+    assert isclose(Mn, d.Mn)
+    assert isclose(Mw, d.Mw)
+    assert isclose(Mz, d.Mz)
