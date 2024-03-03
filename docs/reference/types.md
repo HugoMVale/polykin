@@ -7,6 +7,8 @@
             - IntArrayLike
             - IntOrArray
             - IntOrArrayLike
+            - IntVector
+            - IntVectorLike
             - FloatArray
             - FloatArrayLike
             - FloatOrArray
