@@ -2,11 +2,14 @@
 #
 # Copyright Hugo Vale 2023
 
+from math import comb
+
 from numpy import all, isclose
 
-from polykin.stepgrowth import (Case_1, Case_3, Case_5, Case_6, Case_7, Case_8,
-                                Case_9, Case_10, Case_11, Stockmayer, Flory_Af)
 from polykin.distributions import Flory
+from polykin.stepgrowth import (Case_1, Case_3, Case_5, Case_6, Case_7, Case_8,
+                                Case_9, Case_10, Case_11, Flory_Af, Miller_1,
+                                Miller_2, Stockmayer)
 
 
 def test_Case_1():
@@ -172,14 +175,14 @@ def test_Stockmayer():
     MBB = 83.
     pB = 0.998
     r_BB_AA = 0.98
-    A = [1.]
+    nA = [1.]
     f = [2]
     MA = [MAA]
-    B = [r_BB_AA]
+    nB = [r_BB_AA]
     g = [2]
     MB = [MBB]
     Mn0, Mw0 = Case_1(pB, r_BB_AA, MAA, MBB)
-    Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
+    Mn, Mw = Stockmayer(nA, nB, f, g, MA, MB, pB)
     assert isclose(Mn0, Mn)
     assert isclose(Mw0, Mw)
     # AA + B
@@ -187,14 +190,14 @@ def test_Stockmayer():
     MBC = 36.
     pB = 0.978
     r_BC_AA = 0.95
-    A = [1.]
+    nA = [1.]
     f = [2]
     MA = [MAA]
-    B = [r_BC_AA]
+    nB = [r_BC_AA]
     g = [1]
     MB = [MBC]
     Mn0, Mw0 = Case_3(pB, 0, r_BC_AA, MAA, MBC)
-    Mn, Mw = Stockmayer(A, B, f, g, MA, MB, pB)
+    Mn, Mw = Stockmayer(nA, nB, f, g, MA, MB, pB)
     assert isclose(Mn0, Mn)
     assert isclose(Mw0, Mw)
 
@@ -202,8 +205,41 @@ def test_Stockmayer():
 def test_Flory_Af():
     MAf = 67
     p = 0.98
-    Mn, Mw, Mz = Flory_Af(f=2, MA=MAf, p=p)
+    Mn, Mw, Mz = Flory_Af(f=2, MAf=MAf, p=p)
     d = Flory(1/(1 - p), MAf)
     assert isclose(Mn, d.Mn)
     assert isclose(Mw, d.Mw)
     assert isclose(Mz, d.Mz)
+
+
+def test_Miller_1():
+    # Af + A2 + B2, ideal case
+    MAf = 80.
+    MA2 = 50.
+    MB2 = 70.
+    nAf = 0.5
+    nA2 = 1.0
+    nB2 = 2.0
+    for f in range(1, 4):
+        pB = 0.4
+        Mn0, Mw0 = Stockmayer([nAf, nA2], [nB2], [f, 2],
+                              [2], [MAf, MA2], [MB2], pB)
+        Mn, Mw = Miller_1(nAf, nA2, nB2, f, MAf, MA2, MB2, pB, pB)
+        assert isclose(Mn0, Mn)
+        assert isclose(Mw0, Mw)
+
+
+def test_Miller_2():
+    # Af + B2, ideal case
+    MAf = 80.
+    MB2 = 70.
+    nAf = 1.0
+    nB2 = 1.5
+    for f in range(1, 5):
+        pA = 0.3
+        pB = pA*(f*nAf)/(2*nB2)
+        Mn0, Mw0 = Stockmayer([nAf], [nB2], [f], [2], [MAf], [MB2], pB)
+        p = [comb(f, i)*(pA**i)*(1 - pA)**(f - i) for i in range(1, f+1)]
+        Mn, Mw = Miller_2(nAf, nB2, f, MAf, MB2, p)
+        assert isclose(Mn0, Mn)
+        assert isclose(Mw0, Mw)
