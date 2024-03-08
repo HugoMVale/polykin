@@ -204,6 +204,8 @@ nav:
       - polykin.math:
           - confidence_ellipse: reference/math/confidence_ellipse.md
           - confidence_region: reference/math/confidence_region.md
+          - derivative_centered: reference/math/derivative_centered.md
+          - derivative_complex: reference/math/derivative_complex.md
       - polykin.properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md
@@ -245,8 +247,12 @@ nav:
               - MUVMX2_Herning_Zipperer: reference/properties/viscosity/MUVMX2_Herning_Zipperer.md
               - MUVPC_Jossi: reference/properties/viscosity/MUVPC_Jossi.md
               - MUVMXPC_Dean_Stiel: reference/properties/viscosity/MUVMXPC_Dean_Stiel.md
-          #- Activity Coefficient Models: reference/properties/acm.md
+      - polykin.thermo:
+          #- reference/thermo/index.md
+          - IdealSolution: reference/thermo/acm/IdealSolution.md
+          - NRTL: reference/thermo/acm/NRTL.md
       - polykin.stepgrowth:
           - Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:
-          - Types: reference/types.md
+          - Exceptions: reference/utils/exceptions.md
+          - Types: reference/utils/types.md

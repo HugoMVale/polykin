@@ -14,17 +14,17 @@ __all__ = ['IdealSolution']
 class IdealSolution(ActivityCoefficientModel):
     r"""Ideal solution model."""
 
-    def gE(self, x: FloatVector, T: float) -> float:
+    def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.
 
         $$ g^{E} = 0 $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
@@ -33,17 +33,17 @@ class IdealSolution(ActivityCoefficientModel):
         """
         return 0.
 
-    def gamma(self, x: FloatVector, T: float) -> FloatVector:
+    def gamma(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activity coefficients, $\gamma_i$.
 
         $$ \gamma_i = 1 $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
