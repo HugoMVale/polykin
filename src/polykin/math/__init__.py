@@ -8,3 +8,4 @@ This module implements auxiliary mathematical methods.
 """
 
 from .jcr import *
+from .derivatives import *
