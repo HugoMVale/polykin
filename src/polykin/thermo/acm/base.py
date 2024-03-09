@@ -8,99 +8,99 @@ import numpy as np
 from numpy import log, sqrt
 from scipy.constants import R
 
-from polykin.utils.types import FloatVector
 from polykin.utils.math import eps
+from polykin.utils.types import FloatVector
 
 
 class ActivityCoefficientModel(ABC):
 
-    def Dgmix(self, x: FloatVector, T: float) -> float:
+    def Dgmix(self, T: float, x: FloatVector) -> float:
         r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.
 
         $$ \Delta g_{mix} = \Delta h_{mix} -T \Delta s_{mix} $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         float
             Molar Gibbs energy of mixing. Unit = J/mol.
         """
-        return self.Dhmix(x, T) - T*self.Dsmix(x, T)
+        return self.Dhmix(T, x) - T*self.Dsmix(T, x)
 
-    def Dsmix(self, x: FloatVector, T: float) -> float:
+    def Dsmix(self, T: float, x: FloatVector) -> float:
         r"""Molar entropy of mixing, $\Delta s_{mix}$.
 
         $$ \Delta s_{mix} = s^{E} + R \sum_i {x_i \ln{x_i}} $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         float
             Molar entropy of mixing. Unit = J/(mol·K).
         """
-        return self.sE(x, T) + R*np.dot(x, log(x))
+        return self.sE(T, x) + R*np.dot(x, log(x))
 
-    def Dhmix(self, x: FloatVector, T: float) -> float:
+    def Dhmix(self, T: float, x: FloatVector) -> float:
         r"""Molar enthalpy of mixing, $\Delta h_{mix}$.
 
         $$ \Delta h_{mix} = h^{E} $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         float
             Molar enthalpy of mixing. Unit = J/mol.
         """
-        return self.hE(x, T)
+        return self.hE(T, x)
 
-    def hE(self, x: FloatVector, T: float) -> float:
+    def hE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess enthalpy, $h^{E}$.
 
         $$ h^{E} = g^{E} + T s^{E} $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         float
             Molar excess enthalpy. Unit = J/mol.
         """
-        return self.gE(x, T) + T*self.sE(x, T)
+        return self.gE(T, x) + T*self.sE(T, x)
 
-    def sE(self, x: FloatVector, T: float) -> float:
+    def sE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess entropy, $s^{E}$.
 
         $$ s^{E} = -\left(\frac{\partial g^{E}}{\partial T}\right)_{P,x_i} $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
@@ -108,31 +108,31 @@ class ActivityCoefficientModel(ABC):
             Molar excess entropy. Unit = J/(mol·K).
         """
         dT = 2*sqrt(eps)*T
-        gE_plus = self.gE(x, T + dT)
-        gE_minus = self.gE(x, T - dT)
+        gE_plus = self.gE(T + dT, x)
+        gE_minus = self.gE(T - dT, x)
         return (gE_minus - gE_plus)/(2*dT)
 
-    def a(self, x: FloatVector, T: float) -> FloatVector:
+    def a(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activities, $a_i$.
 
         $$ a_i = x_i \gamma_i $$
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
             Activities.
         """
-        return x*self.gamma(x, T)
+        return x*self.gamma(T, x)
 
     @abstractmethod
-    def gE(self, x: FloatVector, T: float) -> float:
+    def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.
 
         Parameters
@@ -150,7 +150,7 @@ class ActivityCoefficientModel(ABC):
         pass
 
     @abstractmethod
-    def gamma(self, x: FloatVector, T: float) -> FloatVector:
+    def gamma(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activity coefficients, $\gamma_i$.
 
         Parameters
