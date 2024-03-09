@@ -7,9 +7,9 @@ from typing import Any, Iterable, Union
 
 import numpy as np
 
-from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVector,
-                    FloatOrVectorLike, FloatVector)
 from .tools import check_shapes
+from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVector,
+                    FloatOrVectorLike, FloatSquareMatrix, FloatVector)
 
 # %% Maths
 
@@ -90,3 +90,17 @@ def convert_FloatOrVectorLike_to_FloatVector(a: list[FloatOrVectorLike],
     if equal_shapes:
         check_shapes(result)
     return result
+
+
+def enforce_symmetry(matrix: FloatSquareMatrix) -> None:
+    r"""Make a matrix symmetrical based on its upper triangle.
+
+    Parameters
+    ----------
+    matrix : FloatSquareMatrix
+        Matrix to be transformed in-place.
+    """
+    N = matrix.shape[0]
+    mask = np.tril(np.ones((N, N), dtype=bool), k=-1)
+    matrix[mask] = matrix.T[mask]
+    return
