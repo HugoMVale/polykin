@@ -12,12 +12,14 @@ __all__ = ['IdealSolution']
 
 
 class IdealSolution(ActivityCoefficientModel):
-    r"""Ideal solution model."""
+    r"""Ideal solution model.
+
+    $$ g^{E} = 0 $$
+
+    """
 
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.
-
-        $$ g^{E} = 0 $$
 
         Parameters
         ----------
