@@ -251,6 +251,7 @@ nav:
           #- reference/thermo/index.md
           - IdealSolution: reference/thermo/acm/IdealSolution.md
           - NRTL: reference/thermo/acm/NRTL.md
+          - UNIQUAC: reference/thermo/acm/UNIQUAC.md
       - polykin.stepgrowth:
           - Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:
