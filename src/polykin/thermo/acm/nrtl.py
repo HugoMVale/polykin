@@ -23,7 +23,7 @@ class NRTL(ActivityCoefficientModel):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     activity coefficient model.
 
-    This ACM model is based on the following molar excess Gibbs energy
+    This model is based on the following molar excess Gibbs energy
     expression:
 
     $$ \frac{g^{E}}{RT} = 
@@ -36,7 +36,7 @@ class NRTL(ActivityCoefficientModel):
     $\tau_{ii}=0$, and $\alpha_{ij}=\alpha_{ji}$.
 
     In this particular implementation, the model parameters are allowed to
-    depend on temperature according to the following empirical relationships
+    depend on temperature according to the following empirical relationship
     (as used in Aspen Plus):
 
     \begin{aligned}
@@ -44,24 +44,29 @@ class NRTL(ActivityCoefficientModel):
     \alpha_{ij} &= c_{ij} + d_{ij}(T - 273.15)
     \end{aligned}
 
+    **References**
+
+    *   Renon, H. and Prausnitz, J.M. (1968), Local compositions in thermodynamic
+        excess functions for liquid mixtures. AIChE J., 14: 135-144.
+
     Parameters
     ----------
     N : int
         Number of components.
     a : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
+        Matrix (NxN) of parameters, by default 0.
     b : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
+        Matrix (NxN) of parameters, by default 0.
     c : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.3. Only the upper triangle
+        Matrix (NxN) of parameters, by default 0.3. Only the upper triangle
         must be supplied.
     d : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle
+        Matrix (NxN) of parameters, by default 0. Only the upper triangle
         must be supplied.
     e : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
+        Matrix (NxN) of parameters, by default 0.
     f : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
+        Matrix (NxN) of parameters, by default 0.
 
     """
 
@@ -166,12 +171,6 @@ class NRTL(ActivityCoefficientModel):
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.
 
-        $$ \frac{g^{E}}{RT} = 
-        \sum_i x_i \frac{\displaystyle\sum_j x_j \tau_{ji} G_{ji}}
-        {\displaystyle\sum_j x_j G_{ji}} $$
-
-        where $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
-
         Parameters
         ----------
         x : FloatVector
@@ -222,7 +221,14 @@ def NRTL_gamma(x: FloatVector,
     {\left ({\tau_{ij}-\frac{\displaystyle\sum_{k}{x_{k}\tau_{kj}G_{kj}}}
     {\displaystyle\sum_{k}{x_{k}G_{kj}}}}\right )} $$
 
-    where $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
+    where $\tau_{ij}$ are the dimensionless interaction parameters,
+    $\alpha_{ij}$ are the non-randomness parameters, and
+    $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
+
+    **References**
+
+    *   Renon, H. and Prausnitz, J.M. (1968), Local compositions in thermodynamic
+        excess functions for liquid mixtures. AIChE J., 14: 135-144.
 
     Parameters
     ----------
