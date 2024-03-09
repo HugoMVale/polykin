@@ -29,7 +29,7 @@ class IdealSolution(ActivityCoefficientModel):
         Returns
         -------
         float
-            Excess Gibbs energy. Unit = J/mol.
+            Molar excess Gibbs energy. Unit = J/mol.
         """
         return 0.
 
