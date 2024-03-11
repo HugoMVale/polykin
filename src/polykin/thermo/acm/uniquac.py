@@ -171,7 +171,8 @@ class UNIQUAC(ActivityCoefficientModel):
         phi = x*r/dot(x, r)
         theta = x*q/dot(x, q)
 
-        gC = np.sum(x*(log(phi/x) + 5*q*log(theta/phi)))
+        p = x > 0.
+        gC = np.sum(x[p]*(log(phi[p]/x[p]) + 5*q[p]*log(theta[p]/phi[p])))
         gR = -np.sum(q*x*log(dot(theta, tau)))
 
         return R*T*(gC + gR)
