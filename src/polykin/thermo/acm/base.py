@@ -4,12 +4,12 @@
 
 from abc import ABC, abstractmethod
 
-import numpy as np
-from numpy import log, sqrt
+from numpy import dot, log, sqrt
 from scipy.constants import R
 
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
+from polykin.math import derivative_centered
 
 
 class ActivityCoefficientModel(ABC):
@@ -31,26 +31,7 @@ class ActivityCoefficientModel(ABC):
         float
             Molar Gibbs energy of mixing. Unit = J/mol.
         """
-        return self.Dhmix(T, x) - T*self.Dsmix(T, x)
-
-    def Dsmix(self, T: float, x: FloatVector) -> float:
-        r"""Molar entropy of mixing, $\Delta s_{mix}$.
-
-        $$ \Delta s_{mix} = s^{E} + R \sum_i {x_i \ln{x_i}} $$
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        float
-            Molar entropy of mixing. Unit = J/(mol·K).
-        """
-        return self.sE(T, x) + R*np.dot(x, log(x))
+        return self.gE(T, x) - T*self._Dsmix_ideal(T, x)
 
     def Dhmix(self, T: float, x: FloatVector) -> float:
         r"""Molar enthalpy of mixing, $\Delta h_{mix}$.
@@ -70,6 +51,45 @@ class ActivityCoefficientModel(ABC):
             Molar enthalpy of mixing. Unit = J/mol.
         """
         return self.hE(T, x)
+
+    def Dsmix(self, T: float, x: FloatVector) -> float:
+        r"""Molar entropy of mixing, $\Delta s_{mix}$.
+
+        $$ \Delta s_{mix} = s^{E} - R \sum_i {x_i \ln{x_i}} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Molar entropy of mixing. Unit = J/(mol·K).
+        """
+        return self.sE(T, x) + self._Dsmix_ideal(T, x)
+
+    def _Dsmix_ideal(self, T: float, x: FloatVector) -> float:
+        r"""Molar entropy of mixing of ideal solution, $\Delta s_{mix}^{ideal}$.
+
+        $$ \Delta s_{mix}^{ideal} = - R \sum_i {x_i \ln{x_i}} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        x : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Molar entropy of mixing. Unit = J/(mol·K).
+        """
+        xp = x[x > 0]
+        return -R*dot(xp, log(xp))
 
     def hE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess enthalpy, $h^{E}$.
@@ -107,10 +127,7 @@ class ActivityCoefficientModel(ABC):
         float
             Molar excess entropy. Unit = J/(mol·K).
         """
-        dT = 2*sqrt(eps)*T
-        gE_plus = self.gE(T + dT, x)
-        gE_minus = self.gE(T - dT, x)
-        return (gE_minus - gE_plus)/(2*dT)
+        return derivative_centered(lambda t: self.gE(t, x), T)[0]
 
     def a(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activities, $a_i$.
