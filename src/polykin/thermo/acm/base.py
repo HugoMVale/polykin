@@ -4,12 +4,11 @@
 
 from abc import ABC, abstractmethod
 
-from numpy import dot, log, sqrt
+from numpy import dot, log
 from scipy.constants import R
 
-from polykin.utils.math import eps
-from polykin.utils.types import FloatVector
 from polykin.math import derivative_centered
+from polykin.utils.types import FloatVector
 
 
 class ActivityCoefficientModel(ABC):
@@ -88,8 +87,8 @@ class ActivityCoefficientModel(ABC):
         float
             Molar entropy of mixing. Unit = J/(mol·K).
         """
-        xp = x[x > 0]
-        return -R*dot(xp, log(xp))
+        p = x > 0
+        return -R*dot(x[p], log(x[p]))
 
     def hE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess enthalpy, $h^{E}$.
