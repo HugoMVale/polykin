@@ -143,7 +143,7 @@ class ACM(ABC):
         Returns
         -------
         FloatVector
-            Activities.
+            Activities of all components.
         """
         return x*self.gamma(T, x)
 
@@ -179,6 +179,6 @@ class ACM(ABC):
         Returns
         -------
         FloatVector
-            Activity coefficients.
+            Activity coefficients of all components.
         """
         pass
