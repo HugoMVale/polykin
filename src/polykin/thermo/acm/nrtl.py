@@ -203,7 +203,7 @@ class NRTL(ACM):
         Returns
         -------
         FloatVector
-            Activity coefficients.
+            Activity coefficients of all components.
         """
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 
@@ -242,7 +242,7 @@ def NRTL_gamma(x: FloatVector,
     Returns
     -------
     FloatVector
-        Activity coefficients.
+        Activity coefficients of all components.
     """
 
     G = exp(-alpha*tau)

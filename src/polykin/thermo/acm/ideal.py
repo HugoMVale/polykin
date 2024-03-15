@@ -50,6 +50,6 @@ class IdealSolution(ACM):
         Returns
         -------
         FloatVector
-            Activity coefficients.
+            Activity coefficients of all components.
         """
         return np.ones_like(x)
