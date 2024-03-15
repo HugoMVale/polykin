@@ -6,12 +6,12 @@ import numpy as np
 
 from polykin.utils.types import FloatVector
 
-from .base import ActivityCoefficientModel
+from .base import ACM
 
 __all__ = ['IdealSolution']
 
 
-class IdealSolution(ActivityCoefficientModel):
+class IdealSolution(ACM):
     r"""Ideal solution model.
 
     $$ g^{E} = 0 $$

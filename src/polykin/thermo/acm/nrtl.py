@@ -9,17 +9,17 @@ import numpy as np
 from numpy import dot, exp, log
 from scipy.constants import gas_constant as R
 
-from polykin.utils.tools import check_bounds
 from polykin.utils.exceptions import ShapeError
-from polykin.utils.types import FloatSquareMatrix, FloatVector
 from polykin.utils.math import enforce_symmetry
+from polykin.utils.tools import check_bounds
+from polykin.utils.types import FloatSquareMatrix, FloatVector
 
-from .base import ActivityCoefficientModel
+from .base import ACM
 
 __all__ = ['NRTL', 'NRTL_gamma']
 
 
-class NRTL(ActivityCoefficientModel):
+class NRTL(ACM):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     activity coefficient model.
 
@@ -235,9 +235,9 @@ def NRTL_gamma(x: FloatVector,
     x : FloatVector
         Mole fractions of all components. Unit = mol/mol.
     tau : FloatSquareMatrix
-        Matrix (N,N) of dimensionless interaction parameters.
+        Matrix (NxN) of dimensionless interaction parameters.
     alpha : FloatSquareMatrix
-        Matrix (N,N) of non-randomness parameters.
+        Matrix (NxN) of non-randomness parameters.
 
     Returns
     -------

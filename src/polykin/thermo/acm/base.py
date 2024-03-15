@@ -11,7 +11,7 @@ from polykin.math import derivative_centered
 from polykin.utils.types import FloatVector
 
 
-class ActivityCoefficientModel(ABC):
+class ACM(ABC):
 
     def Dgmix(self, T: float, x: FloatVector) -> float:
         r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.

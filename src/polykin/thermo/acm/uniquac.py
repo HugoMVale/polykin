@@ -13,12 +13,12 @@ from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
-from .base import ActivityCoefficientModel
+from .base import ACM
 
 __all__ = ['UNIQUAC', 'UNIQUAC_gamma']
 
 
-class UNIQUAC(ActivityCoefficientModel):
+class UNIQUAC(ACM):
     r"""[UNIQUAC](https://en.wikipedia.org/wiki/UNIQUAC) activity coefficient
     model.
 
