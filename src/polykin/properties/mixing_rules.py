@@ -47,7 +47,7 @@ def quadratic_mixing(y: FloatVector,
     float
         Mixture parameter, $Q_m$. Unit = [Q].
     """
-    return dot(y, dot(Q, y))
+    return dot(y, dot(y, Q))
 
 
 def geometric_interaction_mixing(y: FloatVector,
