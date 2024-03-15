@@ -190,7 +190,7 @@ class UNIQUAC(ACM):
         Returns
         -------
         FloatVector
-            Activity coefficients.
+            Activity coefficients of all components.
         """
         return UNIQUAC_gamma(x, self.q, self.r, self.tau(T))
 
@@ -243,7 +243,7 @@ def UNIQUAC_gamma(x: FloatVector,
     Returns
     -------
     FloatVector
-        Activity coefficients.
+        Activity coefficients of all components.
     """
 
     J = r/dot(x, r)
@@ -251,5 +251,4 @@ def UNIQUAC_gamma(x: FloatVector,
     theta = x*L
     s = dot(theta, tau)
 
-    return exp(1 - J + log(J) - 5*q*(1 - J/L + log(J/L)) +
-               q*(1 - log(s) - dot(tau, theta/s)))
+    return J*exp(1 - J + q*(1 - log(s) - dot(tau, theta/s) - 5*(1 - J/L + log(J/L))))
