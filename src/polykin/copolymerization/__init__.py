@@ -3,7 +3,8 @@
 # Copyright Hugo Vale 2023
 
 """
-This module implements classes to analyze and fit copolymerization data.
+This module implements methods and classes to model and analyze binary and
+multicomponent copolymerization systems.
 
 """
 

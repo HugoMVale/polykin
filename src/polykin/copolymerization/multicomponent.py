@@ -65,9 +65,9 @@ def inst_copolymer_ternary(f1: Union[float, FloatArrayLike],
 
     Parameters
     ----------
-    f1 : float | FloatArray
+    f1 : float | FloatArrayLike
         Molar fraction of M1.
-    f2 : float | FloatArray
+    f2 : float | FloatArrayLike
         Molar fraction of M2.
     r12 : float
         Reactivity ratio.
@@ -346,7 +346,7 @@ def transitions_multi(f: FloatVectorLike,
     f : FloatVectorLike
         Vector (N) of instantaneous monomer composition.
     r : FloatSquareMatrix
-        Reactivity ratio matrix(NxN), $r_{ij}=k_{ii}/k_{ij}$.
+        Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
