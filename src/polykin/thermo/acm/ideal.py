@@ -12,11 +12,17 @@ __all__ = ['IdealSolution']
 
 
 class IdealSolution(ACM):
-    r"""Ideal solution model.
+    r"""[Ideal solution](https://en.wikipedia.org/wiki/Ideal_solution) model.
+
+    This model is based on the following trivial molar excess Gibbs energy
+    expression:
 
     $$ g^{E} = 0 $$
 
     """
+
+    def __init__(self) -> None:
+        """Construct `IdealSolution`."""
 
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.
