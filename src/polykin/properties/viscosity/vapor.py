@@ -26,7 +26,7 @@ def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
                             M: FloatVectorLike
                             ) -> float:
     r"""Calculate the viscosity of a gas mixture from the viscosities of the
-    pure components using the mixing rule Wilke with the approximation of
+    pure components using the mixing rule of Wilke with the approximation of
     Herning and Zipperer.
 
     $$ \mu_m = \frac{\sum _i y_i M_i^{1/2} \mu_i}{\sum _i y_i M_i^{1/2}} $$
@@ -357,6 +357,7 @@ def MUVMX_Lucas(T: float,
     FP0_mix = dot(y, _MUV_Lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
     mu = _MUV_Lucas_mu(
         T/Tc_mix, P/Pc_mix, M_mix, Tc_mix, Pc_mix, FP0_mix)
+
     return mu
 
 
