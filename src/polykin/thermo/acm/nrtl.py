@@ -235,9 +235,11 @@ def NRTL_gamma(x: FloatVector,
     x : FloatVector
         Mole fractions of all components. Unit = mol/mol.
     tau : FloatSquareMatrix
-        Matrix (NxN) of dimensionless interaction parameters.
+        Matrix (NxN) of dimensionless interaction parameters, $\tau_{ij}$. It
+        is expected (but not checked) that $\tau_{ii}=0$.
     alpha : FloatSquareMatrix
-        Matrix (NxN) of non-randomness parameters.
+        Matrix (NxN) of non-randomness parameters, $\alpha_{ij}$. It is
+        expected (but not checked) that $\alpha_{ij}=\alpha_{ji}$.
 
     Returns
     -------

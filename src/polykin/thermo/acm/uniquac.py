@@ -239,7 +239,8 @@ def UNIQUAC_gamma(x: FloatVector,
     r : FloatVector
         Vector (N) of pure-component relative volumes.
     tau : FloatSquareMatrix
-        Matrix (NxN) of dimensionless interaction parameters.
+        Matrix (NxN) of dimensionless interaction parameters, $\tau_{ij}$. It
+        is expected (but not checked) that $\tau_{ii}=1$.
 
     Returns
     -------
@@ -252,4 +253,5 @@ def UNIQUAC_gamma(x: FloatVector,
     theta = x*L
     s = dot(theta, tau)
 
-    return J*exp(1 - J + q*(1 - log(s) - dot(tau, theta/s) - 5*(1 - J/L + log(J/L))))
+    return J*exp(1 - J + q*(1 - log(s) - dot(tau, theta/s)
+                            - 5*(1 - J/L + log(J/L))))
