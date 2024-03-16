@@ -38,13 +38,14 @@ class UNIQUAC(ACM):
     \theta_i =\frac{x_i q_i}{\sum_j x_j q_j}
     \end{aligned}
 
-    where $q_i$ (a relative surface) and $r_i$ (a relative volume) denote the
-    pure-component parameters, and $\tau_{ij}$ are the interaction parameters.
-    Moreover, $\tau_{ij} \neq \tau_{ji}$ and $\tau_{ii}=1$.
+    where $x_i$ are the mole fractions, $q_i$ (a relative surface) and $r_i$
+    (a relative volume) denote the pure-component parameters, and $\tau_{ij}$
+    are the interaction parameters. Moreover, $\tau_{ij} \neq \tau_{ji}$ and
+    $\tau_{ii}=1$.
 
     In this particular implementation, the interaction parameters are allowed
     to depend on temperature according to the following empirical relationships
-    (as used in Aspen Plus):
+    (as done in Aspen Plus):
 
     $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
 
@@ -200,8 +201,8 @@ def UNIQUAC_gamma(x: FloatVector,
                   r: FloatVector,
                   tau: FloatSquareMatrix
                   ) -> FloatVector:
-    r"""Compute the activity coefficients of a multicomponent mixture according
-    to the UNIQUAC model.
+    r"""Calculate the activity coefficients of a multicomponent mixture
+    according to the UNIQUAC model.
 
     \begin{aligned}
     \ln{\gamma_i} &= \ln{\gamma_i^R} + \ln{\gamma_i^C} \\
@@ -218,8 +219,8 @@ def UNIQUAC_gamma(x: FloatVector,
     s_i &= \sum_j \theta_j \tau_{ji}
     \end{aligned}
 
-    where $q_i$ and $r_i$ denote the pure-component parameters, and
-    $\tau_{ij}$ are the interaction parameters.
+    where $x_i$ are the mole fractions, $q_i$ and $r_i$ denote the pure-component
+    parameters, and $\tau_{ij}$ are the interaction parameters.
 
     **References**
 

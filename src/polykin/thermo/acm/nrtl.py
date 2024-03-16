@@ -30,14 +30,14 @@ class NRTL(ACM):
         \sum_i x_i \frac{\displaystyle\sum_j x_j \tau_{ji} G_{ji}}
         {\displaystyle\sum_j x_j G_{ji}} $$
 
-    where $\tau_{ij}$ are the dimensionless interaction parameters,
-    $\alpha_{ij}$ are the non-randomness parameters, and
-    $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. Moreover, $\tau_{ij}\neq\tau_{ji}$,
-    $\tau_{ii}=0$, and $\alpha_{ij}=\alpha_{ji}$.
+    where $x_i$ are the mole fractions, $\tau_{ij}$ are the dimensionless
+    interaction parameters, $\alpha_{ij}$ are the non-randomness parameters,
+    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. Moreover,
+    $\tau_{ij}\neq\tau_{ji}$, $\tau_{ii}=0$, and $\alpha_{ij}=\alpha_{ji}$.
 
     In this particular implementation, the model parameters are allowed to
     depend on temperature according to the following empirical relationship
-    (as used in Aspen Plus):
+    (as done in Aspen Plus):
 
     \begin{aligned}
     \tau_{ij} &= a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T \\
@@ -212,8 +212,8 @@ def NRTL_gamma(x: FloatVector,
                tau: FloatSquareMatrix,
                alpha: FloatSquareMatrix
                ) -> FloatVector:
-    r"""Compute the activity coefficients of a multicomponent mixture according
-    to the NRTL model.
+    r"""Calculate the activity coefficients of a multicomponent mixture
+    according to the NRTL model.
 
     $$ \ln{\gamma_i} =
     \frac{\displaystyle\sum_{k}{x_{k}\tau_{ki}G_{ki}}}{\displaystyle\sum_{k}{x_{k}G_{ki}}}
@@ -221,9 +221,9 @@ def NRTL_gamma(x: FloatVector,
     {\left ({\tau_{ij}-\frac{\displaystyle\sum_{k}{x_{k}\tau_{kj}G_{kj}}}
     {\displaystyle\sum_{k}{x_{k}G_{kj}}}}\right )} $$
 
-    where $\tau_{ij}$ are the dimensionless interaction parameters,
-    $\alpha_{ij}$ are the non-randomness parameters, and
-    $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
+    where $x_i$ are the mole fractions, $\tau_{ij}$ are the dimensionless
+    interaction parameters, $\alpha_{ij}$ are the non-randomness parameters,
+    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
 
     **References**
 
