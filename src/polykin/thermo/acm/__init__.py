@@ -6,6 +6,7 @@
 This module implements activity models often used in polymer reactor models.
 """
 
+from .floryhuggins import *
 from .ideal import *
 from .nrtl import *
 from .uniquac import *
