@@ -75,13 +75,13 @@ class NRTL(ACM):
 
     """
 
-    N: int
-    a: FloatSquareMatrix
-    b: FloatSquareMatrix
-    c: FloatSquareMatrix
-    d: FloatSquareMatrix
-    e: FloatSquareMatrix
-    f: FloatSquareMatrix
+    _N: int
+    _a: FloatSquareMatrix
+    _b: FloatSquareMatrix
+    _c: FloatSquareMatrix
+    _d: FloatSquareMatrix
+    _e: FloatSquareMatrix
+    _f: FloatSquareMatrix
 
     def __init__(self,
                  N: int,
@@ -129,13 +129,13 @@ class NRTL(ACM):
             np.fill_diagonal(array, 0.)
             enforce_symmetry(array)
 
-        self.N = N
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.e = e
-        self.f = f
+        self._N = N
+        self._a = a
+        self._b = b
+        self._c = c
+        self._d = d
+        self._e = e
+        self._f = f
 
     @functools.cache
     def alpha(self, T: float) -> FloatSquareMatrix:
@@ -153,7 +153,7 @@ class NRTL(ACM):
         FloatSquareMatrix
             Matrix of non-randomness parameters.
         """
-        return self.c + self.d*(T - 273.15)
+        return self._c + self._d*(T - 273.15)
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
@@ -171,7 +171,7 @@ class NRTL(ACM):
         FloatSquareMatrix
             Matrix of dimensionless interaction parameters.
         """
-        return self.a + self.b/T + self.e*log(T) + self.f*T
+        return self._a + self._b/T + self._e*log(T) + self._f*T
 
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.

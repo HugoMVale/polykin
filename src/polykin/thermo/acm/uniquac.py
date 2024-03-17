@@ -79,13 +79,13 @@ class UNIQUAC(ACM):
 
     """
 
-    N: int
-    q: FloatVector
-    r: FloatVector
-    a: FloatSquareMatrix
-    b: FloatSquareMatrix
-    c: FloatSquareMatrix
-    d: FloatSquareMatrix
+    _N: int
+    _q: FloatVector
+    _r: FloatVector
+    _a: FloatSquareMatrix
+    _b: FloatSquareMatrix
+    _c: FloatSquareMatrix
+    _d: FloatSquareMatrix
 
     def __init__(self,
                  N: int,
@@ -128,13 +128,13 @@ class UNIQUAC(ACM):
         for array in [a, b, c, d]:
             np.fill_diagonal(array, 0.)
 
-        self.N = N
-        self.q = q
-        self.r = r
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
+        self._N = N
+        self._q = q
+        self._r = r
+        self._a = a
+        self._b = b
+        self._c = c
+        self._d = d
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
@@ -152,7 +152,7 @@ class UNIQUAC(ACM):
         FloatSquareMatrix
             Matrix of dimensionless interaction parameters.
         """
-        return exp(self.a + self.b/T + self.c*log(T) + self.d*T)
+        return exp(self._a + self._b/T + self._c*log(T) + self._d*T)
 
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.
@@ -170,8 +170,8 @@ class UNIQUAC(ACM):
             Molar excess Gibbs energy. Unit = J/mol.
         """
 
-        r = self.r
-        q = self.q
+        r = self._r
+        q = self._q
         tau = self.tau(T)
 
         phi = x*r/dot(x, r)
@@ -198,7 +198,7 @@ class UNIQUAC(ACM):
         FloatVector
             Activity coefficients of all components.
         """
-        return UNIQUAC_gamma(x, self.q, self.r, self.tau(T))
+        return UNIQUAC_gamma(x, self._q, self._r, self.tau(T))
 
 
 def UNIQUAC_gamma(x: FloatVector,
