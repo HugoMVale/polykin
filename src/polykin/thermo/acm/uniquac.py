@@ -19,8 +19,8 @@ __all__ = ['UNIQUAC', 'UNIQUAC_gamma']
 
 
 class UNIQUAC(ACM):
-    r"""[UNIQUAC](https://en.wikipedia.org/wiki/UNIQUAC) activity coefficient
-    model.
+    r"""[UNIQUAC](https://en.wikipedia.org/wiki/UNIQUAC) multicomponent
+    activity coefficient model.
 
     This model is based on the following molar excess Gibbs energy
     expression:

@@ -21,7 +21,7 @@ __all__ = ['NRTL', 'NRTL_gamma']
 
 class NRTL(ACM):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
-    activity coefficient model.
+    multicomponent activity coefficient model.
 
     This model is based on the following molar excess Gibbs energy
     expression:
