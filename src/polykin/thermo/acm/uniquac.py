@@ -72,6 +72,11 @@ class UNIQUAC(ACM):
     d : FloatSquareMatrix | None
         Matrix (NxN) of parameters, by default 0.
 
+    !!! note annotate "See also"
+
+        * [`UNIQUAC_gamma`](UNIQUAC_gamma.md): related activity coefficient
+          method.
+
     """
 
     N: int
@@ -206,8 +211,10 @@ def UNIQUAC_gamma(x: FloatVector,
 
     \begin{aligned}
     \ln{\gamma_i} &= \ln{\gamma_i^R} + \ln{\gamma_i^C} \\
-    \ln{\gamma_i^R} &= q_i \left(1 - \ln{s_i} - \sum_j \theta_j\frac{\tau_{ij}}{s_j} \right) \\
-    \ln{\gamma_i^C} &= 1 - J_i + \ln{J_i} - 5 q_i \left(1 - \frac{J_i}{L_i} + \ln{\frac{J_i}{L_i}} \right)
+    \ln{\gamma_i^R} &= q_i \left(1 - \ln{s_i} - 
+                       \sum_j \theta_j\frac{\tau_{ij}}{s_j} \right) \\
+    \ln{\gamma_i^C} &= 1 - J_i + \ln{J_i} - 5 q_i \left(1 - \frac{J_i}{L_i} +
+                      \ln{\frac{J_i}{L_i}} \right)
     \end{aligned}
 
     with:
@@ -219,8 +226,8 @@ def UNIQUAC_gamma(x: FloatVector,
     s_i &= \sum_j \theta_j \tau_{ji}
     \end{aligned}
 
-    where $x_i$ are the mole fractions, $q_i$ and $r_i$ denote the pure-component
-    parameters, and $\tau_{ij}$ are the interaction parameters.
+    where $x_i$ are the mole fractions, $q_i$ and $r_i$ denote the
+    pure-component parameters, and $\tau_{ij}$ are the interaction parameters.
 
     **References**
 
@@ -246,6 +253,11 @@ def UNIQUAC_gamma(x: FloatVector,
     -------
     FloatVector
         Activity coefficients of all components.
+
+    !!! note annotate "See also"
+
+        * [`UNIQUAC`](UNIQUAC.md): related class.
+
     """
 
     J = r/dot(x, r)

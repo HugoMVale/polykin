@@ -46,8 +46,9 @@ class NRTL(ACM):
 
     **References**
 
-    *   Renon, H. and Prausnitz, J.M. (1968), Local compositions in thermodynamic
-        excess functions for liquid mixtures. AIChE J., 14: 135-144.
+    *   Renon, H. and Prausnitz, J.M. (1968), Local compositions in
+        thermodynamic excess functions for liquid mixtures. AIChE J.,
+        14: 135-144.
 
     Parameters
     ----------
@@ -67,6 +68,10 @@ class NRTL(ACM):
         Matrix (NxN) of parameters, by default 0.
     f : FloatSquareMatrix | None
         Matrix (NxN) of parameters, by default 0.
+
+    !!! note annotate "See also"
+
+        * [`NRTL_gamma`](NRTL_gamma.md): related activity coefficient method.
 
     """
 
@@ -215,8 +220,8 @@ def NRTL_gamma(x: FloatVector,
     r"""Calculate the activity coefficients of a multicomponent mixture
     according to the NRTL model.
 
-    $$ \ln{\gamma_i} =
-    \frac{\displaystyle\sum_{k}{x_{k}\tau_{ki}G_{ki}}}{\displaystyle\sum_{k}{x_{k}G_{ki}}}
+    $$ \ln{\gamma_i} = \frac{\displaystyle\sum_{k}{x_{k}\tau_{ki}G_{ki}}}
+    {\displaystyle\sum_{k}{x_{k}G_{ki}}}
     +\sum_{j}{\frac{x_{j}G_{ij}}{\displaystyle\sum_{k}{x_{k}G_{kj}}}}
     {\left ({\tau_{ij}-\frac{\displaystyle\sum_{k}{x_{k}\tau_{kj}G_{kj}}}
     {\displaystyle\sum_{k}{x_{k}G_{kj}}}}\right )} $$
@@ -227,8 +232,9 @@ def NRTL_gamma(x: FloatVector,
 
     **References**
 
-    *   Renon, H. and Prausnitz, J.M. (1968), Local compositions in thermodynamic
-        excess functions for liquid mixtures. AIChE J., 14: 135-144.
+    *   Renon, H. and Prausnitz, J.M. (1968), Local compositions in
+        thermodynamic excess functions for liquid mixtures. AIChE J.,
+        14: 135-144.
 
     Parameters
     ----------
@@ -245,6 +251,10 @@ def NRTL_gamma(x: FloatVector,
     -------
     FloatVector
         Activity coefficients of all components.
+
+    !!! note annotate "See also"
+
+        * [`NRTL`](NRTL.md): related class.
     """
 
     G = exp(-alpha*tau)
