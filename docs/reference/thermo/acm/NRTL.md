@@ -4,4 +4,3 @@
     options:
         members:
             - NRTL
-            - NRTL_gamma

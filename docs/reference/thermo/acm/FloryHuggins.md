@@ -3,4 +3,4 @@
 ::: polykin.thermo.acm
     options:
         members:
-            - UNIQUAC
+            - FloryHuggins
