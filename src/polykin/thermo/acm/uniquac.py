@@ -138,7 +138,7 @@ class UNIQUAC(ACM):
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
-        r"""Compute matrix of dimensionless interaction parameters.
+        r"""Compute the matrix of dimensionless interaction parameters.
 
         $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
 

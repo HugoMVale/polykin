@@ -157,7 +157,7 @@ class NRTL(ACM):
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
-        r"""Compute matrix of dimensionless interaction parameters.
+        r"""Compute the matrix of dimensionless interaction parameters.
 
         $$ \tau_{ij} = a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T $$
 
