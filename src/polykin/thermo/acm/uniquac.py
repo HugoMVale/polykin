@@ -44,7 +44,7 @@ class UNIQUAC(ACM):
     $\tau_{ii}=1$.
 
     In this particular implementation, the interaction parameters are allowed
-    to depend on temperature according to the following empirical relationships
+    to depend on temperature according to the following empirical relationship
     (as done in Aspen Plus):
 
     $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
