@@ -7,6 +7,13 @@
 PolyKin is an open-source polymerization kinetics library for Python. It is still at an early
 development stage, but the following modules can already be used:
 
+- Activity coefficient models
+  - [50%] Cubic (Redlich-Kwong, Soave, Peng-Robinson)
+  - [x] Ideal solution
+  - [x] Flory-Huggins
+  - [x] NRTL
+  - [ ] Poly-NRTL
+  - [x] UNIQUAC
 - Copolymerization
   - [x] Implicit penultimate model
   - [x] Penultimate model
@@ -31,12 +38,16 @@ development stage, but the following modules can already be used:
   - [x] Eyring
   - [x] Propagation half-length
   - [x] Termination composite model
+- Math
+  - [x] Joint confidence regions
 - [ ] Models
 - Physical property correlations
   - [x] Antoine
   - [x] DIPPR
   - [x] Wagner
   - [x] Yaws
+- Step-growth polymerization
+  - [x] Analytical solutions for $M_n$ and $M_w$
 - Transport properties (estimation methods, mixing rules, etc.)
   - Diffusivity
     - [x] Binary gas mixtures
