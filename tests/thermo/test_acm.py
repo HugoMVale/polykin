@@ -5,7 +5,8 @@
 import numpy as np
 from numpy import isclose
 
-from polykin.thermo.acm import IdealSolution, NRTL, UNIQUAC
+from polykin.thermo.acm import (NRTL, UNIQUAC, FloryHuggins2_a, FloryHuggins_a,
+                                IdealSolution)
 
 
 def test_IdealSolution():
@@ -66,3 +67,32 @@ def test_UNIQUAC_2():
     assert np.all(isclose(m.gamma(T, np.array([1., 0.])),
                           [1., 4.604476], rtol=1e-2))
     assert isclose(m.Dgmix(T, np.array([0.5, 0.5])), -0.98972e3, rtol=1e-2)
+
+
+def test_FloryHuggins2_a():
+    chi = 0.29
+    gamma = FloryHuggins2_a(np.array([0., 0.25, 1.]), 1e10, chi)
+    assert np.all(isclose(gamma, [0., 0.623, 1.], rtol=1e-2))
+
+
+def test_FloryHuggins_a():
+    # binary system
+    chi = 0.4
+    m = 10.
+    phi1 = 0.25
+    a1 = FloryHuggins2_a(phi1, m, chi)
+    a = FloryHuggins_a(np.array([phi1, 1 - phi1]),
+                       np.array([1, m]),
+                       np.array([[0, chi], [chi, 0]]))
+    assert isclose(a1, a[0])
+    # ternary
+    chi = 0.4
+    m = 10.
+    phi1 = 0.25
+    a2 = FloryHuggins_a(np.array([phi1, 1 - phi1]),
+                        np.array([1, m]),
+                        np.array([[0, chi], [chi, 0]]))
+    a3 = FloryHuggins_a(np.array([phi1/2, phi1/2, 1 - phi1]),
+                        np.array([1, 1, m]),
+                        np.array([[0, 0, chi], [0, 0, chi], [chi, chi, 0]]))
+    assert np.all(isclose(a2, [a3[0:2].sum(), a3[-1]]))
