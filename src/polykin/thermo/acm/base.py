@@ -13,6 +13,18 @@ from polykin.utils.types import FloatVector
 
 class ACM(ABC):
 
+    _N: int
+
+    def __init__(self,
+                 N: int
+                 ) -> None:
+        self._N = N
+
+    @property
+    def N(self) -> int:
+        "Number of components."
+        return self._N
+
     def Dgmix(self, T: float, x: FloatVector) -> float:
         r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.
 

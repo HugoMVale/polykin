@@ -40,14 +40,15 @@ class UNIQUAC(ACM):
 
     where $x_i$ are the mole fractions, $q_i$ (a relative surface) and $r_i$
     (a relative volume) denote the pure-component parameters, and $\tau_{ij}$
-    are the interaction parameters. Moreover, $\tau_{ij} \neq \tau_{ji}$ and
-    $\tau_{ii}=1$.
+    are the interaction parameters. 
 
     In this particular implementation, the interaction parameters are allowed
     to depend on temperature according to the following empirical relationship
     (as done in Aspen Plus):
 
     $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
+
+    Moreover, $\tau_{ij} \neq \tau_{ji}$ and $\tau_{ii}=1$.
 
     **References**
 
@@ -79,7 +80,6 @@ class UNIQUAC(ACM):
 
     """
 
-    _N: int
     _q: FloatVector
     _r: FloatVector
     _a: FloatSquareMatrix
@@ -128,7 +128,7 @@ class UNIQUAC(ACM):
         for array in [a, b, c, d]:
             np.fill_diagonal(array, 0.)
 
-        self._N = N
+        super().__init__(N)
         self._q = q
         self._r = r
         self._a = a

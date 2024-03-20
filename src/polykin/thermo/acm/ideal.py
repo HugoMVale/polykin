@@ -19,10 +19,18 @@ class IdealSolution(ACM):
 
     $$ g^{E} = 0 $$
 
+    Parameters
+    ----------
+    N : int
+        Number of components.
+
     """
 
-    def __init__(self) -> None:
+    def __init__(self,
+                 N: int
+                 ) -> None:
         """Construct `IdealSolution`."""
+        super().__init__(N)
 
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.

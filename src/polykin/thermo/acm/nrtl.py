@@ -32,8 +32,7 @@ class NRTL(ACM):
 
     where $x_i$ are the mole fractions, $\tau_{ij}$ are the dimensionless
     interaction parameters, $\alpha_{ij}$ are the non-randomness parameters,
-    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. Moreover,
-    $\tau_{ij}\neq\tau_{ji}$, $\tau_{ii}=0$, and $\alpha_{ij}=\alpha_{ji}$.
+    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. 
 
     In this particular implementation, the model parameters are allowed to
     depend on temperature according to the following empirical relationship
@@ -43,6 +42,9 @@ class NRTL(ACM):
     \tau_{ij} &= a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T \\
     \alpha_{ij} &= c_{ij} + d_{ij}(T - 273.15)
     \end{aligned}
+
+    Moreover, $\tau_{ij}\neq\tau_{ji}$, $\tau_{ii}=0$, and
+    $\alpha_{ij}=\alpha_{ji}$.
 
     **References**
 
@@ -75,7 +77,6 @@ class NRTL(ACM):
 
     """
 
-    _N: int
     _a: FloatSquareMatrix
     _b: FloatSquareMatrix
     _c: FloatSquareMatrix
@@ -129,7 +130,7 @@ class NRTL(ACM):
             np.fill_diagonal(array, 0.)
             enforce_symmetry(array)
 
-        self._N = N
+        super().__init__(N)
         self._a = a
         self._b = b
         self._c = c
