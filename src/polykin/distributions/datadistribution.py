@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 import numpy as np
 from numpy import log10
@@ -15,7 +15,7 @@ from polykin.utils.types import FloatVectorLike
 
 from .analyticaldistributions import Flory, LogNormal, Poisson, SchulzZimm
 from .base import (AnalyticalDistribution, AnalyticalDistributionP2,
-                   IndividualDistribution, Kind, MixtureDistribution)
+                   IndividualDistribution, MixtureDistribution)
 
 __all__ = ['DataDistribution']
 
@@ -45,7 +45,7 @@ class DataDistribution(IndividualDistribution):
     def __init__(self,
                  size_data: FloatVectorLike,
                  pdf_data: FloatVectorLike,
-                 kind: Kind = 'mass',
+                 kind: Literal['number', 'mass', 'gpc'] = 'mass',
                  sizeasmass: bool = False,
                  M0: float = 0.1,
                  name: str = ''

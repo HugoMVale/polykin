@@ -1,6 +1,6 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
 import functools
 from abc import ABC, abstractmethod
@@ -17,16 +17,10 @@ from scipy import integrate
 from polykin.utils.math import add_dicts, vectorize
 from polykin.utils.tools import (check_bounds, check_in_set, check_type,
                                  check_valid_range, custom_error)
-from polykin.utils.types import (FloatOrArray, FloatOrArrayLike,
-                                 FloatRangeArray, IntOrArray)
+from polykin.utils.types import (FloatArray, FloatArrayLike, FloatRangeArray,
+                                 IntArray)
 
 __all__ = ['plotdists']
-
-# %% Types
-
-Kind = Literal['number', 'mass', 'gpc']
-
-# %% Classes
 
 
 class Distribution(ABC):
@@ -98,25 +92,25 @@ class Distribution(ABC):
         return self.Mn / self.DPn
 
     def pdf(self,
-            size: FloatOrArrayLike,
-            kind: Kind = 'mass',
+            size: Union[float, FloatArrayLike],
+            kind: Literal['number', 'mass', 'gpc'] = 'mass',
             sizeasmass: bool = False,
-            ) -> FloatOrArray:
+            ) -> Union[float, FloatArray]:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
         ----------
-        size : FloatOrArrayLike
+        size : float | FloatArrayLike
             Chain length or molar mass.
         kind : Literal['number', 'mass', 'gpc']
             Kind of distribution.
         sizeasmass : bool
-            Switch size input between chain-*length* (if `False`) or molar
-            *mass* (if `True`).
+            Switch size input between chain-length (if `False`) or molar
+            mass (if `True`).
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Probability density.
         """
         # Check inputs
@@ -129,10 +123,10 @@ class Distribution(ABC):
         return self._pdf(size, order, sizeasmass)
 
     def cdf(self,
-            size: FloatOrArrayLike,
+            size: Union[float, FloatArrayLike],
             kind: Literal['number', 'mass'] = 'mass',
             sizeasmass: bool = False,
-            ) -> FloatOrArray:
+            ) -> Union[float, FloatArray]:
         r"""Evaluate the cumulative distribution function:
 
         $$
@@ -150,17 +144,17 @@ class Distribution(ABC):
 
         Parameters
         ----------
-        size : FloatOrArrayLike
+        size : float | FloatArrayLike
             Chain length or molar mass.
         kind : Literal['number', 'mass']
             Kind of distribution.
         sizeasmass : bool
-            Switch size input between chain-*length* (if `False`) or molar
-            *mass* (if `True`).
+            Switch size input between chain-length (if `False`) or molar
+            mass (if `True`).
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Cumulative probability.
         """
         # Check inputs
@@ -178,7 +172,8 @@ class Distribution(ABC):
         return result
 
     def plot(self,
-             kind: Union[Kind, list[Kind]] = 'mass',
+             kind: Union[Literal['number', 'mass', 'gpc'],
+                         list[Literal['number', 'mass', 'gpc']]] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
              xrange: Union[tuple[float, float], None] = None,
@@ -194,8 +189,8 @@ class Distribution(ABC):
         kind : Literal['number', 'mass', 'gpc']
             Kind(s) of distribution.
         sizeasmass : bool
-            Switch size input between chain-*length* (if `False`) or molar
-            *mass* (if `True`).
+            Switch size input between chain-length (if `False`) or molar
+            mass (if `True`).
         xscale : Literal['auto', 'linear', 'log']
             x-axis scale.
         xrange : tuple[float, float] | None
@@ -345,20 +340,20 @@ class Distribution(ABC):
 
     @abstractmethod
     def _pdf(self,
-             size: FloatOrArray,
+             size: Union[float, FloatArray],
              order: int,
              sizeasmass: bool = False
-             ) -> FloatOrArray:
+             ) -> Union[float, FloatArray]:
         """$m$-th order chain-length / molar mass probability density
         function."""
         pass
 
     @abstractmethod
     def _cdf(self,
-             size: FloatOrArray,
+             size: Union[float, FloatArray],
              order: int,
              sizeasmass: bool = False
-             ) -> FloatOrArray:
+             ) -> Union[float, FloatArray]:
         """$m$-th order chain-length / molar mass cumulative distribution
         function."""
         pass
@@ -498,9 +493,9 @@ class IndividualDistribution(Distribution):
         return result
 
     def _cdf_length(self,
-                    x: FloatOrArray,
+                    x: Union[float, FloatArray],
                     order: int
-                    ) -> FloatOrArray:
+                    ) -> Union[float, FloatArray]:
         r"""Cumulative distribution function.
 
         This implementation is a general low-performance fallback solution.
@@ -510,14 +505,14 @@ class IndividualDistribution(Distribution):
 
         Parameters
         ----------
-        x : FloatOrArray
+        x : float | FloatArray
             Chain length.
         order : int
             Order of the distribution (0: number, 1: mass).
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Cumulative distribution value.
         """
         return self._moment_quadrature(np.zeros_like(x), x, order) \
@@ -549,8 +544,8 @@ class IndividualDistribution(Distribution):
 
     @abstractmethod
     def _pdf0_length(self,
-                     k: FloatOrArray
-                     ) -> FloatOrArray:
+                     k: Union[float, FloatArray]
+                     ) -> Union[float, FloatArray]:
         r"""Probability density/mass function.
 
         Each child class must implement a method delivering the _number_
@@ -558,12 +553,12 @@ class IndividualDistribution(Distribution):
 
         Parameters
         ----------
-        k : FloatOrArray
+        k : float | FloatArray
             Chain length.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Probability density/mass value.
         """
         pass
@@ -607,8 +602,8 @@ class AnalyticalDistribution(IndividualDistribution):
         return (self.DPn,)
 
     def random(self,
-               size: Union[int, tuple[int, ...], None] = None
-               ) -> IntOrArray:
+               size: Optional[Union[int, tuple[int, ...]]] = None
+               ) -> Union[int, IntArray]:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -619,7 +614,7 @@ class AnalyticalDistribution(IndividualDistribution):
 
         Returns
         -------
-        int | ndarray
+        int | IntArray
             Random sample of chain lengths.
         """
         if self._rng is None:
@@ -628,8 +623,8 @@ class AnalyticalDistribution(IndividualDistribution):
 
     @abstractmethod
     def _random_length(self,
-                       size: Union[int, tuple[int, ...], None],
-                       ) -> IntOrArray:
+                       size: Optional[Union[int, tuple[int, ...]]],
+                       ) -> Union[int, IntArray]:
         r"""Random chain-length generator.
 
         Each child class must implement a method to generate random chain
@@ -643,7 +638,7 @@ class AnalyticalDistribution(IndividualDistribution):
 
         Returns
         -------
-        int | ndarray
+        int | IntArray
             Random sample of chain lengths.
         """
         pass
@@ -848,7 +843,7 @@ class MixtureDistribution(Distribution):
 
 
 def plotdists(dists: list[Distribution],
-              kind: Kind,
+              kind: Literal['number', 'mass', 'gpc'],
               title: Optional[str] = None,
               **kwargs
               ) -> Figure:
@@ -856,7 +851,7 @@ def plotdists(dists: list[Distribution],
 
     Parameters
     ----------
-    dists : list[GeneralDistribution]
+    dists : list[Distribution]
         List of distributions to be ploted together.
     kind : Literal['number', 'mass', 'gpc']
         Kind of distribution.

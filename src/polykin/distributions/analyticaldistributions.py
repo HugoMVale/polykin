@@ -1,6 +1,6 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
 import functools
 
@@ -11,7 +11,10 @@ from numpy import exp, log, pi, sqrt
 
 from .base import AnalyticalDistributionP1, AnalyticalDistributionP2
 
-__all__ = ['Flory', 'Poisson', 'LogNormal', 'SchulzZimm']
+__all__ = ['Flory',
+           'Poisson',
+           'LogNormal',
+           'SchulzZimm']
 
 
 class Flory(AnalyticalDistributionP1):
