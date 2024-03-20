@@ -34,14 +34,15 @@ class FloryHuggins():
 
     where $\phi_i$ are the volume, mass or segment fractions of the
     components, $\chi_{ij}$ are the interaction parameters, and $m_i$ is the
-    characteristic size of the components. Moreover, $\chi_{ij}=\chi_{ji}$
-    and $\chi_{ii}=0$.
+    characteristic size of the components. 
 
     In this particular implementation, the interaction parameters are allowed
     to depend on temperature according to the following empirical relationship
     (as used in Aspen Plus):
 
     $$ \chi_{ij} = a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T + e_{ij} T^2 $$
+
+    Moreover, $\chi_{ij}=\chi_{ji}$ and $\chi_{ii}=0$.
 
     **References**
 
@@ -148,9 +149,6 @@ class FloryHuggins():
               phi: FloatVector,
               m: FloatVector) -> float:
         r"""Gibbs energy of mixing per mole of sites, $\Delta g_{mix}$.
-
-        $$ \frac{\Delta g_{mix}}{R T}= \sum_i \frac{\phi_i}{m_i}\ln{\phi_i}
-           + \sum_i \sum_{j>i} \phi_i \phi_j \chi_{ij} $$
 
         Parameters
         ----------
