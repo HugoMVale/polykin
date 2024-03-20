@@ -1,6 +1,6 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
 import numpy as np
 from numpy import dot, exp, sqrt

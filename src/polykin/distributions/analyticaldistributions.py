@@ -17,7 +17,8 @@ __all__ = ['Flory', 'Poisson', 'LogNormal', 'SchulzZimm']
 class Flory(AnalyticalDistributionP1):
     r"""Flory-Schulz (aka most-probable) chain-length distribution.
 
-    The Flory-Schulz _number_ probability mass function is given by:
+    This distribution is based on the following number probability density
+    function:
 
     $$ p(k) = (1-a)a^{k-1} $$
 
@@ -115,7 +116,8 @@ class Flory(AnalyticalDistributionP1):
 class Poisson(AnalyticalDistributionP1):
     r"""Poisson chain-length distribution.
 
-    The Poisson _number_ probability mass function is given by:
+    This distribution is based on the following number probability density
+    function:
 
     $$ p(k) = \frac{a^{k-1} e^{-a}}{\Gamma(k)} $$
 
@@ -213,7 +215,8 @@ class Poisson(AnalyticalDistributionP1):
 class LogNormal(AnalyticalDistributionP2):
     r"""Log-normal chain-length distribution.
 
-    The log-normal _number_ probability density function is given by:
+    This distribution is based on the following number probability density
+    function:
 
     $$ p(x) = \frac{1}{x \sigma \sqrt{2 \pi}}
     \exp\left (- \frac{(\ln{x}-\mu)^2}{2\sigma^2} \right ) $$
@@ -233,7 +236,7 @@ class LogNormal(AnalyticalDistributionP2):
 
     Examples
     --------
-    Define a LogNormal distribution and evaluate the corresponding probability
+    Define a log-normal distribution and evaluate the corresponding probability
     density function and cumulative distribution function for representative
     chain lengths.
 
@@ -319,7 +322,8 @@ class LogNormal(AnalyticalDistributionP2):
 class SchulzZimm(AnalyticalDistributionP2):
     r"""Schulz-Zimm chain-length distribution.
 
-    The Schulz-Zimm _number_ probability density function is given by:
+    This distribution is based on the following number probability density
+    function:
 
     $$ p(x) = \frac{x^{k-1} e^{-x/\theta}}{\Gamma(k) \theta^k} $$
 
@@ -340,9 +344,9 @@ class SchulzZimm(AnalyticalDistributionP2):
 
     Examples
     --------
-    Define a SchulzZimm distribution and evaluate the corresponding probability
-    density function and cumulative distribution function for representative
-    chain lengths.
+    Define a Schulz-Zimm distribution and evaluate the corresponding
+    probability density function and cumulative distribution function for
+    representative chain lengths.
 
     >>> from polykin.distributions import SchulzZimm
     >>> a = SchulzZimm(100, PDI=3., M0=0.050, name='A')

@@ -1,6 +1,6 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
 import functools
 from typing import Optional, Union
@@ -21,7 +21,7 @@ __all__ = ['DataDistribution']
 
 
 class DataDistribution(IndividualDistribution):
-    """Arbitrary numerical chain-length distribution, defined by chain size
+    r"""Arbitrary numerical chain-length distribution, defined by chain size
     and pdf data.
 
     Parameters
@@ -33,8 +33,8 @@ class DataDistribution(IndividualDistribution):
     kind : Literal['number', 'mass', 'gpc']
         Kind of distribution.
     sizeasmass : bool
-        Switch size input between chain-*length* (if `False`) or molar
-        *mass* (if `True`).
+        Switch size input between chain-length (if `False`) or molar
+        mass (if `True`).
     M0 : float
         Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
     name : str
