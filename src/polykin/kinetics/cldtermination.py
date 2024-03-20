@@ -41,7 +41,9 @@ class TerminationCompositeModel(KineticCoefficientCLD):
 
     **References**
 
-    *   [Smith & Russel (2003)](https://doi.org/10.1002/mats.200390029)
+    *   Smith, Gregory B., Gregory T. Russell, and Johan PA Heuts. "Termination
+        in dilute-solution free-radical polymerization: a composite model."
+        Macromolecular theory and simulations 12.5 (2003): 299-314.
 
     Parameters
     ----------

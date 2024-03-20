@@ -1,6 +1,6 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
 from __future__ import annotations
 
@@ -30,8 +30,8 @@ class Arrhenius(KineticCoefficientT):
     \exp\left[-\frac{E_a}{R}\left(\frac{1}{T}-\frac{1}{T_0}\right)\right]
     $$
 
-    where $T_0$ is a convenient reference temperature, $E_a$ is the activation
-    energy, and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
+    where $T_0$ is a reference temperature, $E_a$ is the activation energy,
+    and $k_0=k(T_0)$. In the limit $T\rightarrow+\infty$, the usual
     form of the Arrhenius equation with $k_0=A$ is recovered.
 
     Parameters
@@ -139,7 +139,7 @@ class Arrhenius(KineticCoefficientT):
 
         Parameters
         ----------
-        other : Arrhenius | float | int
+        other : int | float | Arrhenius
             Another Arrhenius coefficient or number.
 
         Returns
@@ -189,7 +189,7 @@ class Arrhenius(KineticCoefficientT):
 
         Parameters
         ----------
-        other : Arrhenius | float | int
+        other : int | float | Arrhenius
             Another Arrhenius coefficient or number.
 
         Returns

@@ -34,7 +34,10 @@ class PropagationHalfLength(KineticCoefficientCLD):
 
     **References**
 
-    *   [Smith et al. (2005)](https://doi.org/10.1016/j.eurpolymj.2004.09.002)
+    *   Smith, Gregory B., et al. "The effects of chain length dependent
+        propagation and termination on the kinetics of free-radical
+        polymerization at low chain lengths." European polymer journal
+        41.2 (2005): 225-230.
 
     Parameters
     ----------
