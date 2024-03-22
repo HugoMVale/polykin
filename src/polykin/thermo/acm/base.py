@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 from numpy import dot, log
 from scipy.constants import R
 
-from polykin.math import derivative_centered
-from polykin.utils.types import FloatVector
+from polykin.math import derivative_complex
+from polykin.utils.types import FloatVector, Number
 
 
 class ACM(ABC):
@@ -138,7 +138,7 @@ class ACM(ABC):
         float
             Molar excess entropy. Unit = J/(mol·K).
         """
-        return derivative_centered(lambda t: self.gE(t, x), T)[0]
+        return -derivative_complex(lambda t: self.gE(t, x), T)[0]
 
     def a(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activities, $a_i$.
@@ -160,19 +160,19 @@ class ACM(ABC):
         return x*self.gamma(T, x)
 
     @abstractmethod
-    def gE(self, T: float, x: FloatVector) -> float:
+    def gE(self, T: Number, x: FloatVector) -> Number:
         r"""Molar excess Gibbs energy, $g^{E}$.
 
         Parameters
         ----------
         x : FloatVector
             Mole fractions of all components. Unit = mol/mol.
-        T : float
+        T : Number
             Temperature. Unit = K.
 
         Returns
         -------
-        float
+        Number
             Molar excess Gibbs energy. Unit = J/mol.
         """
         pass
