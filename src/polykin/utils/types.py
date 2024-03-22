@@ -3,11 +3,11 @@
 # Copyright Hugo Vale 2023
 
 
-from typing import Any, Union
+from typing import Any, TypeVar, Union
 
 from nptyping import Float64, Int32, NDArray, Shape
 
-# %% Numeric types
+Number = TypeVar("Number", float, complex)
 
 IntArray = NDArray[Any, Int32]
 IntArrayLike = Union[list[int], tuple[int, ...], IntArray]
