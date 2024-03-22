@@ -9,11 +9,12 @@ import numpy as np
 from numpy import dot, exp, log
 from scipy.constants import gas_constant as R
 
+from polykin.math import derivative_complex
 from polykin.utils.exceptions import ShapeError
-from polykin.utils.tools import check_bounds
 from polykin.utils.math import enforce_symmetry
-from polykin.math import derivative_centered
-from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector)
+from polykin.utils.tools import check_bounds
+from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector,
+                                 Number)
 
 # from .base import ActivityCoefficientModel
 
@@ -145,9 +146,9 @@ class FloryHuggins():
         return self._a + self._b/T + self._c*log(T) + self._d*T + self._e*T**2
 
     def Dgmix(self,
-              T: float,
+              T: Number,
               phi: FloatVector,
-              m: FloatVector) -> float:
+              m: FloatVector) -> Number:
         r"""Gibbs energy of mixing per mole of sites, $\Delta g_{mix}$.
 
         Parameters
@@ -222,7 +223,7 @@ class FloryHuggins():
         float
             Entropy of mixing per mole of sites. Unit = J/(mol·K).
         """
-        return derivative_centered(lambda t: self.Dgmix(t, phi, m), T)[0]
+        return -derivative_complex(lambda t: self.Dgmix(t, phi, m), T)[0]
 
     def a(self,
           T: float,
