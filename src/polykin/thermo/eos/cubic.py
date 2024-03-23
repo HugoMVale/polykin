@@ -13,10 +13,10 @@ import numpy as np
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
+from polykin.properties.mixing_rules import geometric_interaction_mixing
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
-from ..mixing_rules import geometric_interaction_mixing
 from .base import GasAndLiquidEoS
 
 __all__ = ['RedlichKwong',

@@ -1,6 +1,6 @@
-# polykin.properties.eos
+# polykin.thermo.eos
 
-::: polykin.properties.eos
+::: polykin.thermo.eos.cubic
     options:
         members:
             - PengRobinson
@@ -11,7 +11,7 @@ Estimate the compressibility factor of a 50 mol% ethylene/nitrogen gas mixture a
 100 bar.
 
 ```python exec="on" source="material-block"
-from polykin.properties.eos import PengRobinson
+from polykin.thermo.eos import PengRobinson
 import numpy as np
 
 Tc = [282.4, 126.2]    # K

@@ -1,6 +1,6 @@
-# polykin.properties.eos
+# polykin.thermo.eos
 
-::: polykin.properties.eos
+::: polykin.thermo.eos
     options:
         members:
             - Virial
@@ -12,7 +12,7 @@
 Estimate the molar volume of a 50 mol% ethylene/nitrogen at 350 K and 10 bar.
 
 ```python exec="on" source="material-block"
-from polykin.properties.eos import Virial
+from polykin.thermo.eos import Virial
 import numpy as np
 
 Tc = [282.4, 126.2]    # K

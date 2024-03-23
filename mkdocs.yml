@@ -215,12 +215,6 @@ nav:
               - DL_Hayduk_Minhas: reference/properties/diffusion/DL_Hayduk_Minhas.md
               - DL_Wilke_Chang: reference/properties/diffusion/DL_Wilke_Chang.md
               - DV_Wilke_Lee: reference/properties/diffusion/DV_Wilke_Lee.md
-          - Equations of State:
-              - IdealGas: reference/properties/eos/IdealGas.md
-              - PengRobinson: reference/properties/eos/PengRobinson.md
-              - RedlichKwong: reference/properties/eos/RedlichKwong.md
-              - Soave: reference/properties/eos/Soave.md
-              - Virial: reference/properties/eos/Virial.md
           - PVT Polymer:
               - reference/properties/pvt_polymer/index.md
               - Flory: reference/properties/pvt_polymer/Flory.md
@@ -258,6 +252,12 @@ nav:
               - NRTL_gamma: reference/thermo/acm/NRTL_gamma.md
               - UNIQUAC: reference/thermo/acm/UNIQUAC.md
               - UNIQUAC_gamma: reference/thermo/acm/UNIQUAC_gamma.md
+          - Equations of State:
+              - IdealGas: reference/thermo/eos/IdealGas.md
+              - PengRobinson: reference/thermo/eos/PengRobinson.md
+              - RedlichKwong: reference/thermo/eos/RedlichKwong.md
+              - Soave: reference/thermo/eos/Soave.md
+              - Virial: reference/thermo/eos/Virial.md
       - polykin.stepgrowth:
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:

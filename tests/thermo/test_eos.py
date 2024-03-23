@@ -2,12 +2,14 @@
 #
 # Copyright Hugo Vale 2023
 
+from typing import Any
+
 import numpy as np
 import pytest
 from numpy import all, isclose
 
-from polykin.properties.eos import (IdealGas, PengRobinson, RedlichKwong,
-                                    Soave, Virial)
+from polykin.thermo.eos import (IdealGas, PengRobinson, RedlichKwong, Soave,
+                                Virial)
 from polykin.utils.exceptions import ShapeError
 
 
@@ -29,7 +31,7 @@ def air_parameters():
             'state': {'T': T, 'P': P, 'y': y}}
 
 
-def test_IdealGas(ideal_gas, air_parameters):
+def test_IdealGas(ideal_gas: IdealGas, air_parameters: dict[str, Any]):
     eos = ideal_gas
     state = air_parameters['state']
     assert isclose(eos.Z(**state), 1.)
@@ -38,7 +40,7 @@ def test_IdealGas(ideal_gas, air_parameters):
         **state), state['y']), state['P'], rtol=1e-2)
 
 
-def test_air(air_parameters, ideal_gas):
+def test_air(air_parameters: dict[str, Any], ideal_gas: IdealGas):
     p = air_parameters['p']
     state = air_parameters['state']
     for EOS in [Virial]:

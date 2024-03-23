@@ -1,6 +1,6 @@
-# polykin.properties.eos
+# polykin.thermo.eos
 
-::: polykin.properties.eos
+::: polykin.thermo.eos.idealgas
     options:
         members:
             - IdealGas
@@ -10,7 +10,7 @@
 Estimate the molar volume of a gas at 0°C and 1 atm.
 
 ```python exec="on" source="material-block"
-from polykin.properties.eos import IdealGas
+from polykin.thermo.eos import IdealGas
 
 eos = IdealGas()
 v = eos.v(T=273.15, P=1.01325e5, y=None)
