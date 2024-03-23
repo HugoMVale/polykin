@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "polykin"
-version = "0.5.1"
+version = "0.5.0"
 description = "A polymerization kinetics library."
 authors = ["HugoMVale <57530119+HugoMVale@users.noreply.github.com>"]
 license = "MIT"
