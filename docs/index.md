@@ -7,6 +7,7 @@ development stage, but the following modules can already be used:
 - [x] distributions
 - [x] kinetics
 - [x] properties
+- [x] thermodynamics
 
 
 <p align="center">
