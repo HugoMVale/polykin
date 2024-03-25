@@ -2,10 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-"""This module implements methods to estimate the binary diffusion
-coefficient in liquid solutions.
-"""
-
 from math import sqrt
 from typing import Literal
 

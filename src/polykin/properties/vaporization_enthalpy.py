@@ -1,15 +1,11 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
-""" This module provides correlations to estimate the enthalpy of vaporization
-of pure components.
-"""
 
 from typing import Literal, Optional, Union
 
 import numpy as np
-
 from numpy import log, log10
 from scipy.constants import R
 

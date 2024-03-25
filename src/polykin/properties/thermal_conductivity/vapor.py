@@ -195,7 +195,8 @@ def KVMX2_Wassilijewa(y: FloatVectorLike,
     conductivities of the pure components using the mixing rule of Wassilijewa,
     with the simplification of Herning and Zipperer.
 
-    $$ k_m = \frac{\sum _i y_i M_i^{1/2} k_i}{\sum _i y_i M_i^{1/2}} $$
+    $$ k_m = \frac{\displaystyle \sum_{i=1}^N y_i M_i^{1/2} k_i}
+                  {\displaystyle \sum_{i=1}^N y_i M_i^{1/2}} $$
 
     !!! note
 

@@ -163,19 +163,19 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     Parameters
     ----------
     f : FloatVectorLike | None
-        Vector (N) of instantaneous monomer composition.
+        Vector (N) of instantaneous monomer compositions, $f_i$.
     r : FloatSquareMatrix | None
-        Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
+        Matrix (NxN) of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
     P : FloatSquareMatrix | None
-        Transition probability matrix (NxN), $P_{ij}$. If `None`, it will be
-        computed internally. When calculating other quantities (e.g., sequence
-        lengths, tuples) that also depend on $P$, it is more efficient to
-        precompute $P$ once and use it in all cases.
+        Matrix (NxN) of transition probabilities, $P_{ij}$. If `None`, it will
+        be computed internally. When calculating other quantities (e.g.,
+        sequence lengths, tuples) that also depend on $P$, it is more efficient
+        to precompute $P$ once and use it in all cases.
 
     Returns
     -------
     FloatVector
-        Vector (N) of instantaneous copolymer composition.
+        Vector (N) of instantaneous copolymer compositions, $F_i$.
 
     !!! note annotate "See also"
 
@@ -251,9 +251,9 @@ def monomer_drift_multi(f0: FloatVectorLike,
     Parameters
     ----------
     f0 : FloatVectorLike
-        Vector (N) of initial instantaneous comonomer composition.
+        Vector (N) of initial instantaneous comonomer compositions.
     r : FloatSquareMatrix
-        Reactivity ratio matrix (NxN).
+        Matrix (NxN) of reactivity ratios.
     x : FloatVectorLike
         Vector (M) of total monomer conversion values where the drift is to be
         evaluated.
@@ -264,7 +264,7 @@ def monomer_drift_multi(f0: FloatVectorLike,
     -------
     FloatMatrix
         Matrix (MxN) of monomer fraction of monomer $i$ at the specified
-        total monomer conversion(s), $f_i(x)$.
+        total monomer conversion(s), $f_i(x_j)$.
 
     !!! note annotate "See also"
 
@@ -331,7 +331,8 @@ def transitions_multi(f: FloatVectorLike,
     For a multicomponent system, the transition probabilities are given
     by:
 
-    $$ P_{ij} = \frac{r_{ij}^{-1} f_j}{\sum_k r_{ik}^{-1} f_k} $$
+    $$ P_{ij} = \frac{r_{ij}^{-1} f_j}
+                     {\displaystyle \sum_{k=1}^{N} r_{ik}^{-1} f_k} $$
 
     where $f_i$ is the molar fraction of monomer $i$ and $r_{ij}=k_{ii}/k_{ij}$
     is the multicomponent reactivity ratio matrix.
@@ -344,14 +345,14 @@ def transitions_multi(f: FloatVectorLike,
     Parameters
     ----------
     f : FloatVectorLike
-        Vector (N) of instantaneous monomer composition.
+        Vector (N) of instantaneous monomer compositions, $f_i$.
     r : FloatSquareMatrix
-        Reactivity ratio matrix (NxN), $r_{ij}=k_{ii}/k_{ij}$.
+        Matrix (NxN) of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
     FloatSquareMatrix
-        Matrix (NxN) of transition probabilities.
+        Matrix (NxN) of transition probabilities, $P_{ij}$.
 
     !!! note annotate "See also"
 
@@ -410,7 +411,7 @@ def sequence_multi(Pself: FloatVectorLike,
 
     and the corresponding number-average sequence length is:
 
-    $$ \bar{S}_i = \sum_k k S_{i,k} = \frac{1}{1 - P_{ii}} $$
+    $$ \bar{S}_i = \sum_{k=1}^{\infty} k S_{i,k} = \frac{1}{1 - P_{ii}} $$
 
     where $P_{ii}$ is the self-transition probability $i \rightarrow i$, which
     is a function of the monomer composition and the reactivity ratios.
@@ -515,18 +516,19 @@ def tuples_multi(P: FloatSquareMatrix,
     Parameters
     ----------
     P : FloatSquareMatrix
-        Transition probability matrix (NxN), $P_{ij}$.
+        Matrix (NxN) of transition probabilities, $P_{ij}$.
     n : int
         Tuple length,.e.g monads(1), diads(2), triads(3), etc.
     F : FloatVectorLike | None
-        Instantaneous copolymer composition, $F_i$. If `None`, the value will
-        be computed internally. When calculating tuples of various lengths, it
-        is more efficient to precompute $F$ and use it in all tuple cases.
+        Vector (N) of instantaneous copolymer composition, $F_i$. If `None`,
+        the value will be computed internally. When calculating tuples of
+        various lengths, it is more efficient to precompute $F$ and use it in
+        all tuple cases.
 
     Returns
     -------
     dict[tuple[int, ...], float]
-        Tuple molar fractions.
+        Tuple of molar fractions.
 
     !!! note annotate "See also"
 

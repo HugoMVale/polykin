@@ -20,9 +20,10 @@ def KLMX2_Li(w: FloatVectorLike,
     thermal conductivities of the pure components using the Li mixing rule.
 
     $$ \begin{aligned}
-        k_m &= \sum_i \sum_j \phi_i \phi_j k_{ij} \\
+        k_m &= \sum_{i=1}^N \sum_{j=1}^N \phi_i \phi_j k_{ij} \\
         k_{ij} &= \frac{2}{\frac{1}{k_i} + \frac{1}{k_j}} \\
-       \phi_i &= \frac{\frac{w_i}{\rho_i}}{\sum_j \frac{w_j}{\rho_j}}
+        \phi_i &= \frac{\frac{w_i}{\rho_i}}
+                       {\sum_{j=1}^N \frac{w_j}{\rho_j}}
     \end{aligned} $$
 
     !!! note

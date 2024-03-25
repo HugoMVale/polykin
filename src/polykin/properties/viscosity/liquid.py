@@ -21,11 +21,11 @@ def MULMX2_Perry(x: FloatVectorLike,
 
     For hydrocarbon mixtures:
 
-    $$ \mu_m = \left ( \sum_i x_i \mu_i^{1/3} \right )^3 $$
+    $$ \mu_m = \left ( \sum_{i=1}^N x_i \mu_i^{1/3} \right )^3 $$
 
     and for nonhydrocarbon mixtures:
 
-    $$ \ln{\mu_m} = \sum_i x_i \ln{\mu_i} $$
+    $$ \ln{\mu_m} = \sum_{i=1}^N x_i \ln{\mu_i} $$
 
     **References**
 

@@ -29,7 +29,8 @@ def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
     pure components using the mixing rule of Wilke with the approximation of
     Herning and Zipperer.
 
-    $$ \mu_m = \frac{\sum _i y_i M_i^{1/2} \mu_i}{\sum _i y_i M_i^{1/2}} $$
+    $$ \mu_m = \frac{\displaystyle \sum_{i=1}^N y_i M_i^{1/2} \mu_i}
+                    {\displaystyle \sum_{i=1}^N y_i M_i^{1/2}} $$
 
     !!! note
 

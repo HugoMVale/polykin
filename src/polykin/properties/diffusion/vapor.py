@@ -2,10 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-"""This module implements methods to estimate the binary diffusion
-coefficient in gas solutions.
-"""
-
 from typing import Optional
 
 from numpy import exp, sqrt
