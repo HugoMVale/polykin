@@ -150,7 +150,7 @@ class UNIQUAC(ACM):
         Returns
         -------
         FloatSquareMatrix
-            Matrix of dimensionless interaction parameters.
+            Matrix (NxN) of dimensionless interaction parameters.
         """
         return exp(self._a + self._b/T + self._c*log(T) + self._d*T)
 
@@ -159,10 +159,10 @@ class UNIQUAC(ACM):
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -191,12 +191,12 @@ class UNIQUAC(ACM):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Activity coefficients of all components.
+            Vector (N) of component activity coefficients.
         """
         return UNIQUAC_gamma(x, self._q, self._r, self.tau(T))
 
@@ -240,7 +240,7 @@ def UNIQUAC_gamma(x: FloatVector,
     Parameters
     ----------
     x : FloatVector
-        Mole fractions of all components. Unit = mol/mol.
+        Vector (N) of component mole fractions. Unit = mol/mol.
     q : FloatVector
         Vector (N) of pure-component relative surface areas.
     r : FloatVector
@@ -252,7 +252,7 @@ def UNIQUAC_gamma(x: FloatVector,
     Returns
     -------
     FloatVector
-        Activity coefficients of all components.
+        Vector (N) of component activity coefficients.
 
     !!! note annotate "See also"
 

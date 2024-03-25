@@ -152,7 +152,7 @@ class NRTL(ACM):
         Returns
         -------
         FloatSquareMatrix
-            Matrix of non-randomness parameters.
+            Matrix (NxN) of non-randomness parameters.
         """
         return self._c + self._d*(T - 273.15)
 
@@ -170,7 +170,7 @@ class NRTL(ACM):
         Returns
         -------
         FloatSquareMatrix
-            Matrix of dimensionless interaction parameters.
+            Matrix (NxN) of dimensionless interaction parameters.
         """
         return self._a + self._b/T + self._e*log(T) + self._f*T
 
@@ -179,10 +179,10 @@ class NRTL(ACM):
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -204,12 +204,12 @@ class NRTL(ACM):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Activity coefficients of all components.
+            Vector (N) of component activity coefficients.
         """
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 
@@ -240,7 +240,7 @@ def NRTL_gamma(x: FloatVector,
     Parameters
     ----------
     x : FloatVector
-        Mole fractions of all components. Unit = mol/mol.
+        Vector (N) of component mole fractions. Unit = mol/mol.
     tau : FloatSquareMatrix
         Matrix (NxN) of dimensionless interaction parameters, $\tau_{ij}$. It
         is expected (but not checked) that $\tau_{ii}=0$.
@@ -251,7 +251,7 @@ def NRTL_gamma(x: FloatVector,
     Returns
     -------
     FloatVector
-        Activity coefficients of all components.
+        Vector (N) of component activity coefficients.
 
     !!! note annotate "See also"
 

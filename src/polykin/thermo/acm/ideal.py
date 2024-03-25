@@ -40,7 +40,7 @@ class IdealSolution(ACM):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -59,11 +59,11 @@ class IdealSolution(ACM):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Activity coefficients of all components.
+            Vector (N) of component activity coefficients.
         """
         return np.ones_like(x)

@@ -35,7 +35,7 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -54,7 +54,7 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -73,7 +73,7 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -92,7 +92,7 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -112,7 +112,7 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -131,14 +131,14 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
         float
             Molar excess entropy. Unit = J/(mol·K).
         """
-        return -derivative_complex(lambda t: self.gE(t, x), T)[0]
+        return -1*derivative_complex(lambda t: self.gE(t, x), T)[0]
 
     def a(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activities, $a_i$.
@@ -150,12 +150,12 @@ class ACM(ABC):
         T : float
             Temperature. Unit = K.
         x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Activities of all components.
+            Vector (N) of component activities.
         """
         return x*self.gamma(T, x)
 
@@ -165,10 +165,10 @@ class ACM(ABC):
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-        T : Number
+        T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
@@ -183,14 +183,14 @@ class ACM(ABC):
 
         Parameters
         ----------
-        x : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
         T : float
             Temperature. Unit = K.
+        x : FloatVector
+            Vector (N) of component mole fractions. Unit = mol/mol.
 
         Returns
         -------
         FloatVector
-            Activity coefficients of all components.
+            Vector (N) of component activity coefficients.
         """
         pass

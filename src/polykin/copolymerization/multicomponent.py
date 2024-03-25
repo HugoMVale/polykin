@@ -253,7 +253,7 @@ def monomer_drift_multi(f0: FloatVectorLike,
     f0 : FloatVectorLike
         Vector (N) of initial instantaneous comonomer compositions.
     r : FloatSquareMatrix
-        Matrix (NxN) of reactivity ratios.
+        Matrix (NxN) of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
     x : FloatVectorLike
         Vector (M) of total monomer conversion values where the drift is to be
         evaluated.
@@ -518,7 +518,7 @@ def tuples_multi(P: FloatSquareMatrix,
     P : FloatSquareMatrix
         Matrix (NxN) of transition probabilities, $P_{ij}$.
     n : int
-        Tuple length,.e.g monads(1), diads(2), triads(3), etc.
+        Tuple length,.e.g monads (1), diads (2), triads (3), etc.
     F : FloatVectorLike | None
         Vector (N) of instantaneous copolymer composition, $F_i$. If `None`,
         the value will be computed internally. When calculating tuples of
