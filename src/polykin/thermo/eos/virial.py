@@ -186,22 +186,22 @@ class Virial(GasEoS):
         """
         return B_mixture(T, self.Tc, self.Pc, self.Zc, self.w)
 
-    def phi(self,
-            T: float,
-            P: float,
-            y: FloatVector
-            ) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the gas
+    def phiV(self,
+             T: float,
+             P: float,
+             y: FloatVector
+             ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in the vapor
         phase.
 
         $$
         \ln \hat{\phi}_i = \left(2\sum_j {y_jB_{ij}} -B_m \right)\frac{P}{RT}
         $$
 
-        where $\phi_i$ is the fugacity coefficient, $P$ is the pressure, $T$
-        is the temperature, $B_{ij}$ is the matrix of interaction virial
+        where $\hat{\phi}_i$ is the fugacity coefficient, $P$ is the pressure,
+        $T$ is the temperature, $B_{ij}$ is the matrix of interaction virial
         coefficients, $B_m$ is the second virial coefficient of the mixture,
-        and $y_i$ is the mole fraction in the gas phase.
+        and $y_i$ is the mole fraction in the vapor phase.
 
         **References**
 

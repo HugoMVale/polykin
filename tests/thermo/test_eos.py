@@ -91,8 +91,8 @@ def test_Virial_phi():
     y = np.array([0.5, 0.5])
     T = 273.15 + 50.
     P = 25e3
-    assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-3))
-    assert all(isclose(eos.fv(T, P, y), np.array(
+    assert all(isclose(eos.phiV(T, P, y), [0.987, 0.983], rtol=1e-3))
+    assert all(isclose(eos.fV(T, P, y), np.array(
         [0.987, 0.983])*P/2, rtol=1e-3))
 
 
@@ -115,7 +115,7 @@ def test_Virial_butene():
     assert isclose(eos.Z(273.15 + 200., 70e5, y), 0.512, rtol=0.2)
     T = 273.15
     P = 1.2771e5
-    assert isclose(eos.phi(T, P, y), 0.956, rtol=0.001)
+    assert isclose(eos.phiV(T, P, y), 0.956, rtol=0.001)
     DX = eos.DX(T, P, y, P0=P)
     assert isclose(DX['S'], -0.8822, rtol=0.01)
     assert isclose(DX['H'], -344, rtol=0.01)
@@ -170,8 +170,8 @@ def test_Cubic_butene():
     for EOS in [Soave, PengRobinson]:
         eos = EOS(Tc=[420.0], Pc=[40.43e5], w=[0.191])
         assert isclose(eos.Z(T, P, y), 0.512, rtol=0.1)
-        assert isclose(eos.phi(T, P, y), 0.638, rtol=0.05)
-        assert isclose(eos.fv(T, P, y), 44.7e5, rtol=0.05)
+        assert isclose(eos.phiV(T, P, y), 0.638, rtol=0.05)
+        assert isclose(eos.fV(T, P, y), 44.7e5, rtol=0.05)
 
 
 def test_Cubic_phi():
@@ -186,7 +186,7 @@ def test_Cubic_phi():
     T = 273.15 + 50
     P = 25e3
     for eos in [rk, srk, pr]:
-        assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-2))
+        assert all(isclose(eos.phiV(T, P, y), [0.987, 0.983], rtol=1e-2))
 
 
 def test_Cubic_B():

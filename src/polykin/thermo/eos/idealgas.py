@@ -37,7 +37,7 @@ class IdealGas(GasEoS):
         Returns
         -------
         float
-            Compressibility factor of the gas.
+            Compressibility factor of the vapor.
         """
         return 1.
 
@@ -62,8 +62,8 @@ class IdealGas(GasEoS):
         """
         return R*T/v
 
-    def phi(self, T=None, P=None, y=None) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the gas
+    def phiV(self, T=None, P=None, y=None) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in the vapor
         phase.
 
         Returns

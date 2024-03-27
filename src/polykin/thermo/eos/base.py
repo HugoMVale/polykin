@@ -49,22 +49,22 @@ class GasOrLiquidEoS(EoS):
         Returns
         -------
         FloatVector
-            Molar volume of the gas and/or liquid phases. Unit = m³/mol.
+            Molar volume of the vapor and/or liquid phases. Unit = m³/mol.
         """
         return self.Z(T, P, y)*R*T/P
 
-    def fv(self,
+    def fV(self,
             T: float,
             P: float,
             y: FloatVector
            ) -> FloatVector:
-        r"""Calculate the fugacity of all components in the gas phase.
+        r"""Calculate the fugacity of all components in the vapor phase.
 
         $$ \hat{f}_i = \hat{\phi}_i y_i P $$
 
-        $\hat{f}_i$ is the fugacity in the gas phase, $\hat{\phi}_i(T,P,y)$ is
-        the fugacity coefficient, $P$ is the pressure, and $y_i$ is the mole
-        fraction in the gas phase.
+        $\hat{f}_i$ is the fugacity in the vapor phase, $\hat{\phi}_i(T,P,y)$
+        is the fugacity coefficient, $P$ is the pressure, and $y_i$ is the mole
+        fraction in the vapor phase.
 
         Parameters
         ----------
@@ -80,7 +80,7 @@ class GasOrLiquidEoS(EoS):
         FloatVector
             Fugacity coefficients of all components.
         """
-        return self.phi(T, P, y)*y*P
+        return self.phiV(T, P, y)*y*P
 
     @abstractmethod
     def P(self,
@@ -139,7 +139,7 @@ class GasOrLiquidEoS(EoS):
         Returns
         -------
         FloatVector
-            Compressibility factor of the gas and/or liquid phases.
+            Compressibility factor of the vapor and/or liquid phases.
         """
         pass
 
@@ -174,12 +174,12 @@ class GasOrLiquidEoS(EoS):
         pass
 
     @abstractmethod
-    def phi(self,
-            T: float,
-            P: float,
-            y: FloatVector
-            ) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the gas
+    def phiV(self,
+             T: float,
+             P: float,
+             y: FloatVector
+             ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in the vapor
         phase.
 
         Parameters

@@ -185,7 +185,7 @@ class Cubic(GasAndLiquidEoS):
         Returns
         -------
         FloatVector
-            Compressibility factor of the gas and/or liquid phases.
+            Compressibility factor of the vapor and/or liquid phases.
         """
         A = self.am(T, y)*P/(R*T)**2
         B = self.bm(y)*P/(R*T)
@@ -234,12 +234,12 @@ class Cubic(GasAndLiquidEoS):
         return nt*am/(bm*d)*log((2*V + nt*bm*(u - d))/(2*V + nt*bm*(u + d))) \
             - nt*R*T*log((V - nt*bm)/(nt*v0))
 
-    def phi(self,
-            T: float,
-            P: float,
-            y: FloatVector
-            ) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the gas
+    def phiV(self,
+             T: float,
+             P: float,
+             y: FloatVector
+             ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in the vapor
         phase.
 
         \begin{aligned}
