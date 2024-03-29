@@ -161,6 +161,7 @@ nav:
   # - generated/gallery
   - Tutorials:
       - "tutorials/index.md"
+      - Activity Coeff. Models: "tutorials/activity_coefficient_models.ipynb"
       - Copolymerization: "tutorials/copolymerization.ipynb"
       - Diffusion Coefficients: "tutorials/diffusion_coefficients.ipynb"
       - Distributions: "tutorials/distributions.ipynb"
@@ -244,6 +245,7 @@ nav:
       - polykin.thermo:
           #- reference/thermo/index.md
           - Activity Coeff. Models:
+              - reference/thermo/acm/index.md
               - IdealSolution: reference/thermo/acm/IdealSolution.md
               - FloryHuggins: reference/thermo/acm/FloryHuggins.md
               - FloryHuggins_a: reference/thermo/acm/FloryHuggins_a.md
