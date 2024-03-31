@@ -77,5 +77,5 @@ class IdealGas(GasEoS):
             return np.ones_like(y)
 
     def DA(self, T, V, n, v0):
-        nt = n.sum()
-        return -nt*R*T*log(V/(nt*v0))
+        nT = n.sum()
+        return -nT*R*T*log(V/(nT*v0))

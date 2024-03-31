@@ -223,16 +223,16 @@ class Cubic(GasAndLiquidEoS):
         pass
 
     def DA(self, T, V, n, v0):
-        nt = n.sum()
-        y = n/nt
+        nT = n.sum()
+        y = n/nT
         u = self._u
         w = self._w
         d = sqrt(u**2 - 4*w)
         am = self.am(T, y)
         bm = self.bm(y)
 
-        return nt*am/(bm*d)*log((2*V + nt*bm*(u - d))/(2*V + nt*bm*(u + d))) \
-            - nt*R*T*log((V - nt*bm)/(nt*v0))
+        return nT*am/(bm*d)*log((2*V + nT*bm*(u - d))/(2*V + nT*bm*(u + d))) \
+            - nT*R*T*log((V - nT*bm)/(nT*v0))
 
     def phiV(self,
              T: float,
