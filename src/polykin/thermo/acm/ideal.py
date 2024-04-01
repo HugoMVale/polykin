@@ -23,14 +23,16 @@ class IdealSolution(ACM):
     ----------
     N : int
         Number of components.
-
+    name : str
+        Name.
     """
 
     def __init__(self,
-                 N: int
+                 N: int,
+                 name: str = ''
                  ) -> None:
         """Construct `IdealSolution`."""
-        super().__init__(N)
+        super().__init__(N, name)
 
     def gE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess Gibbs energy, $g^{E}$.

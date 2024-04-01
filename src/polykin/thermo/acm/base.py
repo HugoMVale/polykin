@@ -14,11 +14,14 @@ from polykin.utils.types import FloatVector, Number
 class ACM(ABC):
 
     _N: int
+    name: str
 
     def __init__(self,
-                 N: int
+                 N: int,
+                 name: str
                  ) -> None:
         self._N = N
+        self.name = name
 
     @property
     def N(self) -> int:

@@ -57,19 +57,21 @@ class NRTL(ACM):
     N : int
         Number of components.
     a : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
     b : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
     c : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.3. Only the upper triangle
+        Matrix (N,N) of parameters, by default 0.3. Only the upper triangle
         must be supplied.
     d : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0. Only the upper triangle
+        Matrix (N,N) of parameters, by default 0. Only the upper triangle
         must be supplied.
     e : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
     f : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
+    name: str
+        Name.
 
     !!! note annotate "See also"
 
@@ -91,7 +93,8 @@ class NRTL(ACM):
                  c: Optional[FloatSquareMatrix] = None,
                  d: Optional[FloatSquareMatrix] = None,
                  e: Optional[FloatSquareMatrix] = None,
-                 f: Optional[FloatSquareMatrix] = None
+                 f: Optional[FloatSquareMatrix] = None,
+                 name: str = ''
                  ) -> None:
         """Construct `NRTL` with the given parameters."""
 
@@ -130,7 +133,7 @@ class NRTL(ACM):
             np.fill_diagonal(array, 0.)
             enforce_symmetry(array)
 
-        super().__init__(N)
+        super().__init__(N, name)
         self._a = a
         self._b = b
         self._c = c
@@ -152,7 +155,7 @@ class NRTL(ACM):
         Returns
         -------
         FloatSquareMatrix
-            Matrix (NxN) of non-randomness parameters.
+            Matrix (N,N) of non-randomness parameters.
         """
         return self._c + self._d*(T - 273.15)
 
@@ -170,7 +173,7 @@ class NRTL(ACM):
         Returns
         -------
         FloatSquareMatrix
-            Matrix (NxN) of dimensionless interaction parameters.
+            Matrix (N,N) of dimensionless interaction parameters.
         """
         return self._a + self._b/T + self._e*log(T) + self._f*T
 
@@ -242,10 +245,10 @@ def NRTL_gamma(x: FloatVector,
     x : FloatVector
         Vector (N) of component mole fractions. Unit = mol/mol.
     tau : FloatSquareMatrix
-        Matrix (NxN) of dimensionless interaction parameters, $\tau_{ij}$. It
+        Matrix (N,N) of dimensionless interaction parameters, $\tau_{ij}$. It
         is expected (but not checked) that $\tau_{ii}=0$.
     alpha : FloatSquareMatrix
-        Matrix (NxN) of non-randomness parameters, $\alpha_{ij}$. It is
+        Matrix (N,N) of non-randomness parameters, $\alpha_{ij}$. It is
         expected (but not checked) that $\alpha_{ij}=\alpha_{ji}$.
 
     Returns

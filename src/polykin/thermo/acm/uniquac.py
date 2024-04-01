@@ -65,13 +65,15 @@ class UNIQUAC(ACM):
     r : FloatVectorLike
         Vector (N) of pure-component relative volumes.
     a : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
     b : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
     c : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
     d : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0.
+        Matrix (N,N) of parameters, by default 0.
+    name : str
+        Name.
 
     !!! note annotate "See also"
 
@@ -94,7 +96,8 @@ class UNIQUAC(ACM):
                  a: Optional[FloatSquareMatrix] = None,
                  b: Optional[FloatSquareMatrix] = None,
                  c: Optional[FloatSquareMatrix] = None,
-                 d: Optional[FloatSquareMatrix] = None
+                 d: Optional[FloatSquareMatrix] = None,
+                 name: str = ''
                  ) -> None:
         """Construct `UNIQUAC` with the given parameters."""
 
@@ -128,7 +131,7 @@ class UNIQUAC(ACM):
         for array in [a, b, c, d]:
             np.fill_diagonal(array, 0.)
 
-        super().__init__(N)
+        super().__init__(N, name)
         self._q = q
         self._r = r
         self._a = a
@@ -150,7 +153,7 @@ class UNIQUAC(ACM):
         Returns
         -------
         FloatSquareMatrix
-            Matrix (NxN) of dimensionless interaction parameters.
+            Matrix (N,N) of dimensionless interaction parameters.
         """
         return exp(self._a + self._b/T + self._c*log(T) + self._d*T)
 
@@ -246,7 +249,7 @@ def UNIQUAC_gamma(x: FloatVector,
     r : FloatVector
         Vector (N) of pure-component relative volumes.
     tau : FloatSquareMatrix
-        Matrix (NxN) of dimensionless interaction parameters, $\tau_{ij}$. It
+        Matrix (N,N) of dimensionless interaction parameters, $\tau_{ij}$. It
         is expected (but not checked) that $\tau_{ii}=1$.
 
     Returns
