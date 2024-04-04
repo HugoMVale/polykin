@@ -90,6 +90,8 @@ plugins:
             merge_init_into_class: false
             show_symbol_type_toc: true
             show_category_heading: false
+            extensions:
+              - griffe_inherited_docstrings
   - mkdocs-jupyter:
       include: ["*.ipynb"]
       include_source: false
