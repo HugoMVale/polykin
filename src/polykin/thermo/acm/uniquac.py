@@ -13,12 +13,12 @@ from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
-from .base import ACM
+from .base import SmallSpeciesActivityModel
 
 __all__ = ['UNIQUAC', 'UNIQUAC_gamma']
 
 
-class UNIQUAC(ACM):
+class UNIQUAC(SmallSpeciesActivityModel):
     r"""[UNIQUAC](https://en.wikipedia.org/wiki/UNIQUAC) multicomponent
     activity coefficient model.
 
@@ -60,18 +60,18 @@ class UNIQUAC(ACM):
     ----------
     N : int
         Number of components.
-    q : FloatVectorLike
-        Vector (N) of pure-component relative surface areas.
-    r : FloatVectorLike
-        Vector (N) of pure-component relative volumes.
-    a : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
-    b : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
-    c : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
-    d : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
+    q : FloatVectorLike (N)
+        Relative surface areas of all components.
+    r : FloatVectorLike (N)
+        Relative volumes of all components.
+    a : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
+    b : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
+    c : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
+    d : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
     name : str
         Name.
 
@@ -140,7 +140,9 @@ class UNIQUAC(ACM):
         self._d = d
 
     @functools.cache
-    def tau(self, T: float) -> FloatSquareMatrix:
+    def tau(self,
+            T: float
+            ) -> FloatSquareMatrix:
         r"""Compute the matrix of dimensionless interaction parameters.
 
         $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
@@ -152,26 +154,15 @@ class UNIQUAC(ACM):
 
         Returns
         -------
-        FloatSquareMatrix
-            Matrix (N,N) of dimensionless interaction parameters.
+        FloatSquareMatrix (N,N)
+            Dimensionless interaction parameters.
         """
         return exp(self._a + self._b/T + self._c*log(T) + self._d*T)
 
-    def gE(self, T: float, x: FloatVector) -> float:
-        r"""Molar excess Gibbs energy, $g^{E}$.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Vector (N) of component mole fractions. Unit = mol/mol.
-
-        Returns
-        -------
-        float
-            Molar excess Gibbs energy. Unit = J/mol.
-        """
+    def gE(self,
+           T: float,
+           x: FloatVector
+           ) -> float:
 
         r = self._r
         q = self._q
@@ -186,21 +177,10 @@ class UNIQUAC(ACM):
 
         return R*T*(gC + gR)
 
-    def gamma(self, T: float, x: FloatVector) -> FloatVector:
-        r"""Activity coefficients, $\gamma_i$.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Vector (N) of component mole fractions. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Vector (N) of component activity coefficients.
-        """
+    def gamma(self,
+              T: float,
+              x: FloatVector
+              ) -> FloatVector:
         return UNIQUAC_gamma(x, self._q, self._r, self.tau(T))
 
 
@@ -242,20 +222,20 @@ def UNIQUAC_gamma(x: FloatVector,
 
     Parameters
     ----------
-    x : FloatVector
-        Vector (N) of component mole fractions. Unit = mol/mol.
-    q : FloatVector
-        Vector (N) of pure-component relative surface areas.
-    r : FloatVector
-        Vector (N) of pure-component relative volumes.
-    tau : FloatSquareMatrix
-        Matrix (N,N) of dimensionless interaction parameters, $\tau_{ij}$. It
-        is expected (but not checked) that $\tau_{ii}=1$.
+    x : FloatVector (N)
+        Mole fractions of all components. Unit = mol/mol.
+    q : FloatVector (N)
+        Relative surface areas of all components.
+    r : FloatVector (N)
+        Relative volumes of all components. 
+    tau : FloatSquareMatrix (N,N)
+        Dimensionless interaction parameters, $\tau_{ij}$. It is expected
+        (but not checked) that $\tau_{ii}=1$.
 
     Returns
     -------
-    FloatVector
-        Vector (N) of component activity coefficients.
+    FloatVector (N)
+        Activity coefficients of all components.
 
     !!! note annotate "See also"
 
