@@ -6,12 +6,12 @@ import numpy as np
 
 from polykin.utils.types import FloatVector
 
-from .base import ACM
+from .base import SmallSpeciesActivityModel
 
 __all__ = ['IdealSolution']
 
 
-class IdealSolution(ACM):
+class IdealSolution(SmallSpeciesActivityModel):
     r"""[Ideal solution](https://en.wikipedia.org/wiki/Ideal_solution) model.
 
     This model is based on the following trivial molar excess Gibbs energy
@@ -31,41 +31,11 @@ class IdealSolution(ACM):
                  N: int,
                  name: str = ''
                  ) -> None:
-        """Construct `IdealSolution`."""
+        """Construct `IdealSolution` with given parameters."""
         super().__init__(N, name)
 
     def gE(self, T: float, x: FloatVector) -> float:
-        r"""Molar excess Gibbs energy, $g^{E}$.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Vector (N) of component mole fractions. Unit = mol/mol.
-
-        Returns
-        -------
-        float
-            Molar excess Gibbs energy. Unit = J/mol.
-        """
         return 0.
 
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
-        r"""Activity coefficients, $\gamma_i$.
-
-        $$ \gamma_i = 1 $$
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Vector (N) of component mole fractions. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Vector (N) of component activity coefficients.
-        """
-        return np.ones_like(x)
+        return np.ones(self.N)
