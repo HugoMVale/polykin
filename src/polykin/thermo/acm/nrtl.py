@@ -14,12 +14,12 @@ from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
-from .base import ACM
+from .base import SmallSpeciesActivityModel
 
 __all__ = ['NRTL', 'NRTL_gamma']
 
 
-class NRTL(ACM):
+class NRTL(SmallSpeciesActivityModel):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     multicomponent activity coefficient model.
 
@@ -56,20 +56,20 @@ class NRTL(ACM):
     ----------
     N : int
         Number of components.
-    a : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
-    b : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
-    c : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.3. Only the upper triangle
+    a : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
+    b : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
+    c : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.3. Only the upper
+        triangle must be supplied.
+    d : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0. Only the upper triangle
         must be supplied.
-    d : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle
-        must be supplied.
-    e : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
-    f : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0.
+    e : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
+    f : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0.
     name: str
         Name.
 
@@ -142,7 +142,9 @@ class NRTL(ACM):
         self._f = f
 
     @functools.cache
-    def alpha(self, T: float) -> FloatSquareMatrix:
+    def alpha(self,
+              T: float
+              ) -> FloatSquareMatrix:
         r"""Compute matrix of non-randomness parameters.
 
         $$ \alpha_{ij} = c_{ij} + d_{ij}(T - 273.15) $$
@@ -154,13 +156,15 @@ class NRTL(ACM):
 
         Returns
         -------
-        FloatSquareMatrix
-            Matrix (N,N) of non-randomness parameters.
+        FloatSquareMatrix (N,N)
+           Non-randomness parameters.
         """
         return self._c + self._d*(T - 273.15)
 
     @functools.cache
-    def tau(self, T: float) -> FloatSquareMatrix:
+    def tau(self,
+            T: float
+            ) -> FloatSquareMatrix:
         r"""Compute the matrix of dimensionless interaction parameters.
 
         $$ \tau_{ij} = a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T $$
@@ -172,26 +176,12 @@ class NRTL(ACM):
 
         Returns
         -------
-        FloatSquareMatrix
-            Matrix (N,N) of dimensionless interaction parameters.
+        FloatSquareMatrix (N,N)
+            Dimensionless interaction parameters.
         """
         return self._a + self._b/T + self._e*log(T) + self._f*T
 
     def gE(self, T: float, x: FloatVector) -> float:
-        r"""Molar excess Gibbs energy, $g^{E}$.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Vector (N) of component mole fractions. Unit = mol/mol.
-
-        Returns
-        -------
-        float
-            Molar excess Gibbs energy. Unit = J/mol.
-        """
         tau = self.tau(T)
         alpha = self.alpha(T)
         G = exp(-alpha*tau)
@@ -200,20 +190,6 @@ class NRTL(ACM):
         return R*T*dot(x, A/B)
 
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
-        r"""Activity coefficients, $\gamma_i$.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        x : FloatVector
-            Vector (N) of component mole fractions. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Vector (N) of component activity coefficients.
-        """
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 
 
@@ -242,19 +218,19 @@ def NRTL_gamma(x: FloatVector,
 
     Parameters
     ----------
-    x : FloatVector
-        Vector (N) of component mole fractions. Unit = mol/mol.
-    tau : FloatSquareMatrix
-        Matrix (N,N) of dimensionless interaction parameters, $\tau_{ij}$. It
-        is expected (but not checked) that $\tau_{ii}=0$.
-    alpha : FloatSquareMatrix
-        Matrix (N,N) of non-randomness parameters, $\alpha_{ij}$. It is
-        expected (but not checked) that $\alpha_{ij}=\alpha_{ji}$.
+    x : FloatVector (N)
+        Mole fractions of all components. Unit = mol/mol.
+    tau : FloatSquareMatrix (N,N)
+        Dimensionless interaction parameters, $\tau_{ij}$. It is expected
+        (but not checked) that $\tau_{ii}=0$.
+    alpha : FloatSquareMatrix (N,N)
+        Non-randomness parameters, $\alpha_{ij}$. It is expected (but not
+        checked) that $\alpha_{ij}=\alpha_{ji}$.
 
     Returns
     -------
-    FloatVector
-        Vector (N) of component activity coefficients.
+    FloatVector (N)
+        Activity coefficients of all components.
 
     !!! note annotate "See also"
 
