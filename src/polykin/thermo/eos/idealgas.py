@@ -31,7 +31,10 @@ class IdealGas(GasEoS):
         low pressures and high temperatures.
     """
 
-    def Z(self, T=None, P=None, y=None):
+    def Z(self,
+          T=None,
+          P=None,
+          y=None):
         r"""Calculate the compressibility factor of the fluid.
 
         Returns
@@ -62,7 +65,11 @@ class IdealGas(GasEoS):
         """
         return R*T/v
 
-    def phiV(self, T=None, P=None, y=None) -> FloatVector:
+    def phiV(self,
+             T=None,
+             P=None,
+             y=None
+             ) -> FloatVector:
         r"""Calculate the fugacity coefficients of all components in the vapor
         phase.
 
