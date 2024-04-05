@@ -38,7 +38,7 @@ def test_NRTL():
     # activity formula <> DGmix
     x = np.array([0.3, 0.7])
     Dgmix = m.Dgmix(T, x)
-    a = m.a(T, x)
+    a = m.activity(T, x)
     assert isclose(Dgmix, R*T*np.sum(x*np.log(a)))
 
 
@@ -54,7 +54,7 @@ def test_UNIQUAC():
     assert np.all(isclose(m.gamma(T, x), [7.15, 1.25, 1.06], rtol=2e-3))
     # activity formula <> DGmix
     Dgmix = m.Dgmix(T, x)
-    a = m.a(T, x)
+    a = m.activity(T, x)
     assert isclose(Dgmix, R*T*np.sum(x*np.log(a)))
 
 
