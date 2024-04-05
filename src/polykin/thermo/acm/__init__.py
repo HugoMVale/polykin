@@ -10,3 +10,4 @@ from .floryhuggins import *
 from .ideal import *
 from .nrtl import *
 from .uniquac import *
+from .wilson import *
