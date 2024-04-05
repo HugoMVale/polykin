@@ -76,6 +76,7 @@ plugins:
           #        import:
           #          - https://docs.python.org/3/objects.inv
           options:
+            modernize_annotations: true
             docstring_section_style: spacy
             group_by_category: false
             # show_category_heading: true
@@ -256,6 +257,8 @@ nav:
               - NRTL_gamma: reference/thermo/acm/NRTL_gamma.md
               - UNIQUAC: reference/thermo/acm/UNIQUAC.md
               - UNIQUAC_gamma: reference/thermo/acm/UNIQUAC_gamma.md
+              - Wilson: reference/thermo/acm/Wilson.md
+              - Wilson_gamma: reference/thermo/acm/Wilson_gamma.md
           - Equations of State:
               - IdealGas: reference/thermo/eos/IdealGas.md
               - PengRobinson: reference/thermo/eos/PengRobinson.md
