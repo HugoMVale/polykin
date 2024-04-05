@@ -67,7 +67,7 @@ def confidence_ellipse(ax: Axes,
     *   Vugrin, K. W., L. P. Swiler, R. M. Roberts, N. J. Stucky-Mack, and
     S. P. Sullivan (2007), Confidence region estimation techniques for
     nonlinear regression in groundwater flow: Three case studies, Water
-    Resour. Res., 43, W03423, doi:10.1029/2005WR004804.
+    Resour. Res., 43.
 
     Parameters
     ----------
@@ -76,7 +76,7 @@ def confidence_ellipse(ax: Axes,
     center : tuple[float, float]
         Point estimate of the model parameters, $\hat{\beta}$.
     cov : Float2x2Matrix
-        Scaled variance-covariance matrix (2x2), $\hat{V}$.
+        Scaled variance-covariance matrix, $\hat{V}$.
     ndata : int
         Number of data points.
     alpha : float
@@ -183,11 +183,10 @@ def confidence_region(ax: Axes,
     *   Vugrin, K. W., L. P. Swiler, R. M. Roberts, N. J. Stucky-Mack, and
     S. P. Sullivan (2007), Confidence region estimation techniques for
     nonlinear regression in groundwater flow: Three case studies, Water
-    Resour. Res., 43, W03423, doi:10.1029/2005WR004804.
+    Resour. Res., 43.
 
     * Arutjunjan, R., Schaefer, B. M., Kreutz, C., Constructing Exact
-    Confidence Regions on Parameter Manifolds of Non-Linear Models, 2022,
-    https://doi.org/10.48550/arXiv.2211.03421.
+    Confidence Regions on Parameter Manifolds of Non-Linear Models, 2022.
 
     Parameters
     ----------
