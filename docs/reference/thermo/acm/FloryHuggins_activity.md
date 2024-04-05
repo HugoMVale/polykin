@@ -3,4 +3,4 @@
 ::: polykin.thermo.acm.floryhuggins
     options:
         members:
-            - FloryHuggins_a
+            - FloryHuggins_activity

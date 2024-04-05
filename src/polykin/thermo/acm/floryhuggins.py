@@ -19,8 +19,8 @@ from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector,
 # from .base import ActivityCoefficientModel
 
 __all__ = ['FloryHuggins',
-           'FloryHuggins_a',
-           'FloryHuggins2_a']
+           'FloryHuggins_activity',
+           'FloryHuggins2_activity']
 
 
 class FloryHuggins():
@@ -54,19 +54,19 @@ class FloryHuggins():
     N : int
         Number of components.
     a : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0. Only the upper triangle must
+        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
         be supplied.
     b : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0. Only the upper triangle must
+        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
         be supplied.
     c : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0. Only the upper triangle must
+        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
         be supplied.
     d : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0. Only the upper triangle must
+        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
         be supplied.
     e : FloatSquareMatrix | None
-        Matrix (NxN) of parameters, by default 0. Only the upper triangle must
+        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
         be supplied.
 
     """
@@ -248,13 +248,13 @@ class FloryHuggins():
         FloatVector
             Activities of all components.
         """
-        return FloryHuggins_a(phi, m, self.chi(T))
+        return FloryHuggins_activity(phi, m, self.chi(T))
 
 
-def FloryHuggins_a(phi: FloatVector,
-                   m: FloatVector,
-                   chi: FloatSquareMatrix
-                   ) -> FloatVector:
+def FloryHuggins_activity(phi: FloatVector,
+                          m: FloatVector,
+                          chi: FloatSquareMatrix
+                          ) -> FloatVector:
     r"""Calculate the activities of a multicomponent mixture according to the
     Flory-Huggins model.
 
@@ -295,7 +295,7 @@ def FloryHuggins_a(phi: FloatVector,
         molecules and equal to the average degree of polymerization for
         polymers.
     chi : FloatSquareMatrix
-        Matrix (NxN) of interaction parameters, $\chi_{ij}$. It is expected
+        Matrix (N,N) of interaction parameters, $\chi_{ij}$. It is expected
         (but not checked) that $\chi_{ij}=\chi_{ji}$ and $\chi_{ii}=0$.
 
     Returns
@@ -305,8 +305,8 @@ def FloryHuggins_a(phi: FloatVector,
 
     !!! note annotate "See also"
 
-        * [`FloryHuggins2_a`](FloryHuggins2_a.md): equivalent method for
-          binary solvent-polymer systems.
+        * [`FloryHuggins2_activity`](FloryHuggins2_activity.md): equivalent
+        method for binary solvent-polymer systems.
     """
     A = dot(phi, 1/m)
     B = dot(chi, phi)
@@ -314,10 +314,10 @@ def FloryHuggins_a(phi: FloatVector,
     return phi*exp(1 - m*(A - B + C))
 
 
-def FloryHuggins2_a(phi1: Union[float, FloatArray],
-                    m: Union[float, FloatArray],
-                    chi: Union[float, FloatArray]
-                    ) -> Union[float, FloatArray]:
+def FloryHuggins2_activity(phi1: Union[float, FloatArray],
+                           m: Union[float, FloatArray],
+                           chi: Union[float, FloatArray]
+                           ) -> Union[float, FloatArray]:
     r"""Calculate the solvent activity of a binary polymer solution according
     to the Flory-Huggins model.
 
@@ -363,8 +363,8 @@ def FloryHuggins2_a(phi1: Union[float, FloatArray],
 
     !!! note annotate "See also"
 
-        * [`FloryHuggins_a`](FloryHuggins_a.md): equivalent method for
-          multicomponent systems.
+        * [`FloryHuggins_activity`](FloryHuggins_activity.md): equivalent
+        method for multicomponent systems.
 
     Examples
     --------

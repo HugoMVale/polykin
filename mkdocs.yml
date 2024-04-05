@@ -251,8 +251,8 @@ nav:
               - reference/thermo/acm/index.md
               - IdealSolution: reference/thermo/acm/IdealSolution.md
               - FloryHuggins: reference/thermo/acm/FloryHuggins.md
-              - FloryHuggins_a: reference/thermo/acm/FloryHuggins_a.md
-              - FloryHuggins2_a: reference/thermo/acm/FloryHuggins2_a.md
+              - FloryHuggins_activity: reference/thermo/acm/FloryHuggins_activity.md
+              - FloryHuggins2_activity: reference/thermo/acm/FloryHuggins2_activity.md
               - NRTL: reference/thermo/acm/NRTL.md
               - NRTL_gamma: reference/thermo/acm/NRTL_gamma.md
               - UNIQUAC: reference/thermo/acm/UNIQUAC.md
