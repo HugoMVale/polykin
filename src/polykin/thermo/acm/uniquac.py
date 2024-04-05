@@ -67,7 +67,7 @@ class UNIQUAC(SmallSpeciesActivityModel):
     a : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     b : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0.
+        Matrix of interaction parameters, by default 0. Unit = K.
     c : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     d : FloatSquareMatrix (N,N) | None
@@ -143,7 +143,7 @@ class UNIQUAC(SmallSpeciesActivityModel):
     def tau(self,
             T: float
             ) -> FloatSquareMatrix:
-        r"""Compute the matrix of dimensionless interaction parameters.
+        r"""Compute the matrix of interaction parameters.
 
         $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
 
@@ -155,7 +155,7 @@ class UNIQUAC(SmallSpeciesActivityModel):
         Returns
         -------
         FloatSquareMatrix (N,N)
-            Dimensionless interaction parameters.
+            Interaction parameters.
         """
         return exp(self._a + self._b/T + self._c*log(T) + self._d*T)
 
@@ -229,8 +229,8 @@ def UNIQUAC_gamma(x: FloatVector,
     r : FloatVector (N)
         Relative volumes of all components. 
     tau : FloatSquareMatrix (N,N)
-        Dimensionless interaction parameters, $\tau_{ij}$. It is expected
-        (but not checked) that $\tau_{ii}=1$.
+        Interaction parameters, $\tau_{ij}$. It is expected (but not checked)
+        that $\tau_{ii}=1$.
 
     Returns
     -------

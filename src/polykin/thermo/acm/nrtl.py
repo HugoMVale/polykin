@@ -30,9 +30,9 @@ class NRTL(SmallSpeciesActivityModel):
         \sum_i x_i \frac{\displaystyle\sum_j x_j \tau_{ji} G_{ji}}
         {\displaystyle\sum_j x_j G_{ji}} $$
 
-    where $x_i$ are the mole fractions, $\tau_{ij}$ are the dimensionless
-    interaction parameters, $\alpha_{ij}$ are the non-randomness parameters,
-    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. 
+    where $x_i$ are the mole fractions, $\tau_{ij}$ are the interaction
+    parameters, $\alpha_{ij}$ are the non-randomness parameters, and
+    $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. 
 
     In this particular implementation, the model parameters are allowed to
     depend on temperature according to the following empirical relationship
@@ -59,13 +59,13 @@ class NRTL(SmallSpeciesActivityModel):
     a : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     b : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0.
+        Matrix of interaction parameters, by default 0. Unit = K.
     c : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.3. Only the upper
         triangle must be supplied.
     d : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0. Only the upper triangle
-        must be supplied.
+        must be supplied. Unit = 1/K.
     e : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     f : FloatSquareMatrix (N,N) | None
@@ -157,7 +157,7 @@ class NRTL(SmallSpeciesActivityModel):
         Returns
         -------
         FloatSquareMatrix (N,N)
-           Non-randomness parameters.
+            Non-randomness parameters.
         """
         return self._c + self._d*(T - 273.15)
 
@@ -165,7 +165,7 @@ class NRTL(SmallSpeciesActivityModel):
     def tau(self,
             T: float
             ) -> FloatSquareMatrix:
-        r"""Compute the matrix of dimensionless interaction parameters.
+        r"""Compute the matrix of interaction parameters.
 
         $$ \tau_{ij} = a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T $$
 
@@ -177,7 +177,7 @@ class NRTL(SmallSpeciesActivityModel):
         Returns
         -------
         FloatSquareMatrix (N,N)
-            Dimensionless interaction parameters.
+            Interaction parameters.
         """
         return self._a + self._b/T + self._e*log(T) + self._f*T
 
@@ -206,9 +206,9 @@ def NRTL_gamma(x: FloatVector,
     {\left ({\tau_{ij}-\frac{\displaystyle\sum_{k}{x_{k}\tau_{kj}G_{kj}}}
     {\displaystyle\sum_{k}{x_{k}G_{kj}}}}\right )} $$
 
-    where $x_i$ are the mole fractions, $\tau_{ij}$ are the dimensionless
-    interaction parameters, $\alpha_{ij}$ are the non-randomness parameters,
-    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
+    where $x_i$ are the mole fractions, $\tau_{ij}$ are the interaction
+    parameters, $\alpha_{ij}$ are the non-randomness parameters, and 
+    $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
 
     **References**
 
@@ -221,8 +221,8 @@ def NRTL_gamma(x: FloatVector,
     x : FloatVector (N)
         Mole fractions of all components. Unit = mol/mol.
     tau : FloatSquareMatrix (N,N)
-        Dimensionless interaction parameters, $\tau_{ij}$. It is expected
-        (but not checked) that $\tau_{ii}=0$.
+        Interaction parameters, $\tau_{ij}$. It is expected (but not checked)
+        that $\tau_{ii}=0$.
     alpha : FloatSquareMatrix (N,N)
         Non-randomness parameters, $\alpha_{ij}$. It is expected (but not
         checked) that $\alpha_{ij}=\alpha_{ji}$.
