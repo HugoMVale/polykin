@@ -10,7 +10,6 @@ from numpy import dot, exp, log
 from scipy.constants import gas_constant as R
 
 from polykin.utils.exceptions import ShapeError
-from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
@@ -100,7 +99,7 @@ class Wilson(SmallSpeciesActivityModel):
         check_bounds(a, -50., 50., 'a')
         check_bounds(b, -1.5e4, 1.5e4, 'b')
 
-        # Ensure tau_ii=0
+        # Ensure Lambda_ii=1
         for array in [a, b, c, d]:
             np.fill_diagonal(array, 0.)
 

@@ -6,16 +6,27 @@ import numpy as np
 from numpy import isclose
 from scipy.constants import gas_constant as R
 
-from polykin.thermo.acm import (NRTL, UNIQUAC, FloryHuggins, FloryHuggins2_a,
-                                FloryHuggins_a, IdealSolution)
+from polykin.thermo.acm import (NRTL, UNIQUAC, FloryHuggins,
+                                FloryHuggins2_activity, FloryHuggins_activity,
+                                IdealSolution, Wilson)
+from polykin.thermo.acm.base import SmallSpeciesActivityModel
+
+
+def check_gE_gamma(acm: SmallSpeciesActivityModel,
+                   x,
+                   T=298):
+    "Check consistency or formulas for gE and gamma"
+    Dgmix = acm.Dgmix(T, x)
+    a = acm.activity(T, x)
+    return isclose(Dgmix, R*T*np.sum(x*np.log(a)))
 
 
 def test_IdealSolution():
-    m = IdealSolution(2)
+    acm = IdealSolution(2)
     T = 298.
     x = np.array([0.5, 0.5])
-    assert isclose(m.gE(T, x), 0.)
-    assert np.all(isclose(m.gamma(T, x), [1., 1.]))
+    assert isclose(acm.gE(T, x), 0.)
+    assert np.all(isclose(acm.gamma(T, x), [1., 1.]))
 
 
 def test_NRTL():
@@ -28,18 +39,14 @@ def test_NRTL():
     a[1, 0] = -0.8009
     b[0, 1] = -586.0809
     b[1, 0] = 246.18
-    m = NRTL(N, a, b)
+    acm = NRTL(N, a, b)
     T = 298.15
-    assert np.all(isclose(m.gamma(T, np.array([0., 1.])),
+    assert np.all(isclose(acm.gamma(T, np.array([0., 1.])),
                           [2.660317, 1.], rtol=1e-6))
-    assert np.all(isclose(m.gamma(T, np.array([1., 0.])),
+    assert np.all(isclose(acm.gamma(T, np.array([1., 0.])),
                           [1., 4.557085], rtol=1e-6))
-    assert isclose(m.Dgmix(T, np.array([0.5, 0.5])), -0.98183e3, rtol=1e-4)
-    # activity formula <> DGmix
-    x = np.array([0.3, 0.7])
-    Dgmix = m.Dgmix(T, x)
-    a = m.activity(T, x)
-    assert isclose(Dgmix, R*T*np.sum(x*np.log(a)))
+    assert isclose(acm.Dgmix(T, np.array([0.5, 0.5])), -0.98183e3, rtol=1e-4)
+    assert check_gE_gamma(acm, np.array([0.3, 0.7]))
 
 
 def test_UNIQUAC():
@@ -52,10 +59,7 @@ def test_UNIQUAC():
     x = np.array([.1311, .0330, .8359])
     T = 45 + 273.15
     assert np.all(isclose(m.gamma(T, x), [7.15, 1.25, 1.06], rtol=2e-3))
-    # activity formula <> DGmix
-    Dgmix = m.Dgmix(T, x)
-    a = m.activity(T, x)
-    assert isclose(Dgmix, R*T*np.sum(x*np.log(a)))
+    assert check_gE_gamma(m, x)
 
 
 def test_UNIQUAC_2():
@@ -81,7 +85,7 @@ def test_UNIQUAC_2():
 
 def test_FloryHuggins2_a():
     chi = 0.29
-    gamma = FloryHuggins2_a(np.array([0., 0.25, 1.]), 1e10, chi)
+    gamma = FloryHuggins2_activity(np.array([0., 0.25, 1.]), 1e10, chi)
     assert np.all(isclose(gamma, [0., 0.623, 1.], rtol=1e-2))
 
 
@@ -90,21 +94,21 @@ def test_FloryHuggins_a():
     chi = 0.4
     m = 10.
     phi1 = 0.25
-    a1 = FloryHuggins2_a(phi1, m, chi)
-    a = FloryHuggins_a(np.array([phi1, 1 - phi1]),
-                       np.array([1, m]),
-                       np.array([[0, chi], [chi, 0]]))
+    a1 = FloryHuggins2_activity(phi1, m, chi)
+    a = FloryHuggins_activity(np.array([phi1, 1 - phi1]),
+                              np.array([1, m]),
+                              np.array([[0, chi], [chi, 0]]))
     assert isclose(a1, a[0])
     # ternary
     chi = 0.4
     m = 10.
     phi1 = 0.25
-    a2 = FloryHuggins_a(np.array([phi1, 1 - phi1]),
-                        np.array([1, m]),
-                        np.array([[0, chi], [chi, 0]]))
-    a3 = FloryHuggins_a(np.array([phi1/2, phi1/2, 1 - phi1]),
-                        np.array([1, 1, m]),
-                        np.array([[0, 0, chi], [0, 0, chi], [chi, chi, 0]]))
+    a2 = FloryHuggins_activity(np.array([phi1, 1 - phi1]),
+                               np.array([1, m]),
+                               np.array([[0, chi], [chi, 0]]))
+    a3 = FloryHuggins_activity(np.array([phi1/2, phi1/2, 1 - phi1]),
+                               np.array([1, 1, m]),
+                               np.array([[0, 0, chi], [0, 0, chi], [chi, chi, 0]]))
     assert np.all(isclose(a2, [a3[0:2].sum(), a3[-1]]))
 
 
@@ -136,3 +140,22 @@ def test_FloryHuggins():
     Dgmix = fh.Dgmix(T, phi, m)
     a = fh.a(T, phi, m)
     assert isclose(Dgmix, R*T*np.sum(phi/m*np.log(a)))
+
+
+def test_Wilson():
+    # water: 0
+    # ethanol: 1
+    N = 2
+    a = np.zeros((N, N))
+    b = np.zeros((N, N))
+    a[0, 1] = -0.0503
+    a[1, 0] = -2.5035
+    b[0, 1] = -69.6372
+    b[1, 0] = 346.151
+    m = Wilson(N, a, b)
+    T = 298.15
+    assert np.all(isclose(m.gamma(T, np.array([0., 1.])),
+                          [2.78062, 1.], rtol=1e-6))
+    assert np.all(isclose(m.gamma(T, np.array([1., 0.])),
+                          [1., 4.90196], rtol=1e-6))
+    assert isclose(m.Dgmix(T, np.array([0.5, 0.5])), -0.983275e3, rtol=1e-4)
