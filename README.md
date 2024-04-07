@@ -13,6 +13,7 @@ development stage, but the following modules can already be used:
   - [x] NRTL
   - [ ] Poly-NRTL
   - [x] UNIQUAC
+  - [x] Wilson
 - Copolymerization
   - [x] Implicit penultimate model
   - [x] Penultimate model
