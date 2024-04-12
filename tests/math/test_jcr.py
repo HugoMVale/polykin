@@ -90,14 +90,14 @@ def test_confidence_region():
     beta = (0.15, -0.05)
     Y = model(X, beta) + np.random.normal(0., 0.05, len(X))
 
-    def sse(beta: tuple[float, float]) -> float:
+    def sse(beta) -> float:
         Ye = model(X, beta)
         return sum((Ye - Y)**2)
 
     sol = minimize(sse, (-1., 1))
     beta_est = sol.x
 
-    _, ax = plt.subplots()
-    assert len(ax.get_lines()) == 0
-    confidence_region(ax, beta_est, sse, ndata)
-    assert len(ax.get_lines()) == 1
+    jcr = confidence_region(beta_est,
+                            sse=lambda x, y: sse((x, y)),
+                            ndata=ndata)
+    assert len(jcr[0]) > 1
