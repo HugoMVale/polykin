@@ -1,9 +1,9 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
-# Copyright Hugo Vale 2023
+# Copyright Hugo Vale 2024
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal, Optional, Sequence, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,13 +15,12 @@ from scipy.stats import linregress
 from scipy.stats.distributions import t as tdist
 
 from polykin.copolymerization.binary import inst_copolymer_binary
-from polykin.math import confidence_ellipse
+from polykin.math import confidence_ellipse, confidence_region
 from polykin.utils.exceptions import FitError
 from polykin.utils.math import (convert_FloatOrVectorLike_to_FloatOrVector,
                                 convert_FloatOrVectorLike_to_FloatVector)
 from polykin.utils.tools import check_bounds, check_shapes
-from polykin.utils.types import (Float2x2Matrix, FloatOrVectorLike,
-                                 FloatVectorLike)
+from polykin.utils.types import (Float2x2Matrix, FloatVectorLike)
 
 __all__ = ['fit_Finemann_Ross',
            'fit_reactivity_ratios']
@@ -56,6 +55,7 @@ class CopoFitResult():
             f"r2:         {self.r2:.2E}\n"
         if self.se_r1 is not None:
             s2 = \
+                f"alpha:   {self.alpha:.2f}\n" \
                 f"se_r1:   {self.se_r1:.2E}\n" \
                 f"se_r2:   {self.se_r2:.2E}\n" \
                 f"ci_r1:   {self.ci_r1:.2E}\n" \
@@ -65,34 +65,85 @@ class CopoFitResult():
             s2 = ""
         return s1 + s2
 
-# %%
+# %% Fit functions
 
 
 def fit_reactivity_ratios(
         f1: FloatVectorLike,
         F1: FloatVectorLike,
-        sigma_f: FloatOrVectorLike,
-        sigma_F: FloatOrVectorLike,
+        scale_f: Union[float, FloatVectorLike] = 1.,
+        scale_F: Union[float, FloatVectorLike] = 1.,
         method: Literal['NLLS', 'ODR'] = 'NLLS',
         alpha: float = 0.05,
-        plot_Mayo: bool = True,
-        plot_JCR: bool = True) -> CopoFitResult:
+        Mayo_plot: bool = True,
+        JCR_method: list[Literal['linear', 'exact']] = ['linear'],
+        rtol: float = 1e-5
+) -> CopoFitResult:
+    r"""Fit the reactivity ratios of the terminal model from instantaneous
+    copolymer composition data.
+
+    This function employs rigorous nonlinear algorithms to estimate the
+    reactivity ratios from experimental $F(f)$ data obtained at low monomer
+    conversion.
+
+    In well-designed experiments, when the uncertainty in $F >> f$, the
+    classical nonlinear least squares (NLLS) method should suffice. However,
+    if this condition is not met, the orthogonal distance regression (ODR)
+    method can be utilized to consider errors in both variables in a
+    statistically correct manner.
+
+    The joint confidence region (JCR) of the reactivity ratios can be generated
+    using approximate (linear) and/or exact methods. In most cases, the linear
+    method should be sufficiently accurate. Nonetheless, for these types of
+    fits, the exact method is computationally inexpensive, making it perhaps a
+    preferable choice.
+
+    Parameters
+    ----------
+    f1 : FloatVectorLike (N)
+        Molar fraction of M1.
+    F1 : FloatVectorLike (N)
+        Instantaneous copolymer composition of M1.
+    scale_f : FloatOrVectorLike
+        Absolute scale for f1.
+    scale_F : FloatOrVectorLike, optional
+        Absolute scale for F1.
+    method : Literal['NLLS', 'ODR']
+        Optimization method. `NLLS` for nonlinear least squares or `ODR` for
+        orthogonal distance regression. 
+    alpha : float
+        Significance level, $\alpha$.
+    Mayo_plot : bool
+        If `True` a Mayo-Lewis plot will be generated.
+    JCR_method : list[Literal['linear', 'exact']
+        Method used to compute the joint confidence region of the reactivity
+        ratios.
+    rtol : float
+        Relative tolerance of ODE solver for exact JCR method. The default
+        value may be decreased by one or more orders of magnitude if the
+        resolution of the JCR appears insufficient.
+
+    Returns
+    -------
+    CopoFitResult
+        Object with all fit results.
+    """
 
     f1, F1 = convert_FloatOrVectorLike_to_FloatVector([f1, F1])
-    sigma_f, sigma_F = convert_FloatOrVectorLike_to_FloatOrVector(
-        [sigma_f, sigma_F])
+    scale_f, scale_F = convert_FloatOrVectorLike_to_FloatOrVector(
+        [scale_f, scale_F])
 
     # Check inputs
-    check_shapes([f1, F1], [sigma_f, sigma_F])
+    check_shapes([f1, F1], [scale_f, scale_F])
     check_bounds(f1, 0., 1., 'f1')
     check_bounds(F1, 0., 1., 'F1')
 
     # Convert sigma to vectors
     ndata = f1.size
-    if isinstance(sigma_f, float):
-        sigma_f = np.full(ndata, sigma_f)
-    if isinstance(sigma_F, float):
-        sigma_F = np.full(ndata, sigma_F)
+    if not isinstance(scale_f, Sequence):
+        scale_f = np.full(ndata, scale_f)
+    if not isinstance(scale_F, Sequence):
+        scale_F = np.full(ndata, scale_F)
 
     r1, r2, cov, = None, None, None
     error_message = ''
@@ -102,7 +153,7 @@ def fit_reactivity_ratios(
                              xdata=f1,
                              ydata=F1,
                              p0=(1., 1.),
-                             sigma=sigma_F,
+                             sigma=scale_F,
                              absolute_sigma=False,  # for scaled cov
                              bounds=(0., np.inf),
                              full_output=True)
@@ -115,13 +166,15 @@ def fit_reactivity_ratios(
     elif method == 'ODR':
 
         odr_Model = odr.Model(lambda beta, x: inst_copolymer_binary(x, *beta))
-        odr_Data = odr.RealData(x=f1, y=F1, sx=sigma_f, sy=sigma_F)
+        odr_Data = odr.RealData(x=f1, y=F1, sx=scale_f, sy=scale_F)
         odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=(1., 1.))
         solution = odr_ODR.run()
         if (solution.info < 5):  # type: ignore
             r1, r2 = solution.beta
             # cov_beta is absolute, so rescaling is required
             cov = solution.cov_beta*solution.res_var  # type: ignore
+            # estimated f1
+            f1plus = solution.xplus  # type: ignore
         else:
             error_message = solution.stopreason
 
@@ -137,7 +190,7 @@ def fit_reactivity_ratios(
 
     # Mayo plot
     Mayo = None
-    if plot_Mayo:
+    if Mayo_plot:
         Mayo = plt.subplots()
         ax = Mayo[1]
         ax.set_xlabel(r"$f_1$")
@@ -151,12 +204,39 @@ def fit_reactivity_ratios(
 
     # Joint confidence region
     JCR = None
-    if plot_JCR:
+    if JCR_method:
         JCR = plt.subplots()
         ax = JCR[1]
         ax.set_xlabel(r"$r_1$")
         ax.set_ylabel(r"$r_2$")
-        confidence_ellipse(ax, (r1, r2), cov, ndata, alpha, 'tab:blue')
+        colors = ['tab:blue', 'tab:orange']
+        idx = 0
+
+        if 'linear' in JCR_method:
+            confidence_ellipse(ax, (r1, r2), cov, ndata, alpha=alpha,
+                               color=colors[idx], label='linear JCR')
+            idx += 1
+
+        if 'exact' in JCR_method:
+
+            def sse_NLLS(r1, r2):
+                ey = (F1 - inst_copolymer_binary(f1, r1, r2))/scale_F
+                return np.dot(ey, ey)
+
+            def sse_ODR(r1, r2):
+                ey = (F1 - inst_copolymer_binary(f1plus, r1, r2))/scale_F
+                ex = (f1 - f1plus)/scale_f
+                return np.dot(ey, ey) + np.dot(ex, ex)
+
+            sse = sse_NLLS if method == 'NLLS' else sse_ODR
+
+            jcr = confidence_region((r1, r2), sse, ndata, alpha=alpha,
+                                    width=ci_r[0], rtol=rtol)
+
+            ax.scatter(r1, r2, c=colors[idx], s=5)
+            ax.plot(jcr[0], jcr[1], color=colors[idx], label='exact JCR')
+
+        ax.legend(loc="best")
 
     result = CopoFitResult(r1=r1, r2=r2,
                            cov=cov,
@@ -167,8 +247,6 @@ def fit_reactivity_ratios(
                            Mayo=Mayo, JCR=JCR)
 
     return result
-
-# %% Fit functions
 
 
 def fit_Finemann_Ross(f1: FloatVectorLike,

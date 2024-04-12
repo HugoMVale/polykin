@@ -166,6 +166,7 @@ nav:
       - "tutorials/index.md"
       - Activity Coeff. Models: "tutorials/activity_coefficient_models.ipynb"
       - Copolymerization: "tutorials/copolymerization.ipynb"
+      - Copolymerization Fit: "tutorials/copolymerization_fit.ipynb"
       - Diffusion Coefficients: "tutorials/diffusion_coefficients.ipynb"
       - Distributions: "tutorials/distributions.ipynb"
       - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
