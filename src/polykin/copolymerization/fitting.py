@@ -84,13 +84,25 @@ def fit_reactivity_ratios(
 
     This function employs rigorous nonlinear algorithms to estimate the
     reactivity ratios from experimental $F(f)$ data obtained at low monomer
-    conversion.
+    conversion. The parameters are estimated by minimizing the sum of squared
+    errors: 
 
-    In well-designed experiments, when the uncertainty in $F >> f$, the
-    classical nonlinear least squares (NLLS) method should suffice. However,
-    if this condition is not met, the orthogonal distance regression (ODR)
-    method can be utilized to consider errors in both variables in a
-    statistically correct manner.
+    $$ SSE = \sum_i \left[ \left(\frac{f_i - \hat{f_i}}{s_{f_i}}\right)^2 +
+             \left(\frac{F_i - \hat{F_i}}{s_{F_i}}\right)^2 \right]   $$
+
+    where $s_{f_i}$ and $s_{F_i}$ are the scale factors for the monomer and the
+    copolymer composition, respectively.
+
+    The optimization is done using one of two methods: NLLS or ODR. The
+    nonlinear least squares (NLLS) method neglects the first term of the
+    summation, i.e. it only considers the observational errors in $F$. In
+    contrast, the orthogonal distance regression (ODR) method can take the
+    errors in both variables into account. 
+
+    In well-designed experiments, when the uncertainty in $f \ll F$, the NLLS
+    method should suffice. However, if this condition is not met, the ODR
+    method can be utilized to consider the uncertainty on both $f$ and $F$ in
+    a statistically correct manner.
 
     The joint confidence region (JCR) of the reactivity ratios can be generated
     using approximate (linear) and/or exact methods. In most cases, the linear
@@ -98,15 +110,24 @@ def fit_reactivity_ratios(
     fits, the exact method is computationally inexpensive, making it perhaps a
     preferable choice.
 
+    **Reference**
+
+    *   Van Herk, A.M. and Dröge, T. (1997), Nonlinear least squares fitting
+        applied to copolymerization modeling. Macromol. Theory Simul.,
+        6: 1263-1276.
+    *   Boggs, Paul T., et al. "Algorithm 676: ODRPACK: software for weighted
+        orthogonal distance regression." ACM Transactions on Mathematical
+        Software (TOMS) 15.4 (1989): 348-364.
+
     Parameters
     ----------
     f1 : FloatVectorLike (N)
         Molar fraction of M1.
     F1 : FloatVectorLike (N)
         Instantaneous copolymer composition of M1.
-    scale_f : FloatOrVectorLike
+    scale_f : float | FloatVectorLike (N)
         Absolute scale for f1.
-    scale_F : FloatOrVectorLike, optional
+    scale_F : float | FloatVectorLike (N)
         Absolute scale for F1.
     method : Literal['NLLS', 'ODR']
         Optimization method. `NLLS` for nonlinear least squares or `ODR` for
@@ -119,14 +140,22 @@ def fit_reactivity_ratios(
         Method used to compute the joint confidence region of the reactivity
         ratios.
     rtol : float
-        Relative tolerance of ODE solver for exact JCR method. The default
-        value may be decreased by one or more orders of magnitude if the
-        resolution of the JCR appears insufficient.
+        Relative tolerance of the ODE solver for the exact JCR method. The
+        default value may be decreased by one or more orders of magnitude if
+        the resolution of the JCR appears insufficient.
 
     Returns
     -------
     CopoFitResult
-        Object with all fit results.
+        Dataclass with all fit results.
+
+    !!! note annotate "See also"
+
+        * [`confidence_ellipse`](../math/confidence_ellipse.md): linear method
+        used to calculate the joint confidence region.
+        * [`confidence_region`](../math/confidence_region.md): exact method
+        used to calculate the joint confidence region.
+        * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
     """
 
     f1, F1 = convert_FloatOrVectorLike_to_FloatVector([f1, F1])
@@ -138,7 +167,7 @@ def fit_reactivity_ratios(
     check_bounds(f1, 0., 1., 'f1')
     check_bounds(F1, 0., 1., 'F1')
 
-    # Convert sigma to vectors
+    # Convert scale to vectors
     ndata = f1.size
     if not isinstance(scale_f, Sequence):
         scale_f = np.full(ndata, scale_f)
@@ -173,7 +202,7 @@ def fit_reactivity_ratios(
             r1, r2 = solution.beta
             # cov_beta is absolute, so rescaling is required
             cov = solution.cov_beta*solution.res_var  # type: ignore
-            # estimated f1
+            # estimated f1, needed for sse
             f1plus = solution.xplus  # type: ignore
         else:
             error_message = solution.stopreason
@@ -282,6 +311,11 @@ def fit_Finemann_Ross(f1: FloatVectorLike,
     -------
     tuple[float, float]
         Point estimates of the reactivity ratios $(r_1, r_2)$.
+
+    !!! note annotate "See also"
+
+        * [`fit_reactivity_ratios`](fit_reactivity_ratios.md): alternative
+        (recommended) method.  
 
     Examples
     --------

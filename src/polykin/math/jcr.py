@@ -202,6 +202,11 @@ def confidence_region(center: tuple[float, float],
         by one or more orders of magnitude if the resolution of the JCR appears
         insufficient.
 
+    Returns
+    -------
+    tuple[FloatVector, FloatVector]
+        Coordinates (x, y) of the confidence region.
+
     !!! note annotate "See also"
 
         * [`confidence_ellipse`](confidence_ellipse.md): alternative method

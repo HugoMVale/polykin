@@ -183,6 +183,7 @@ nav:
           - TerminalModel: reference/copolymerization/TerminalModel.md
           - convert_Qe_to_r: reference/copolymerization/convert_Qe_to_r.md
           - fit_Finemann_Ross: reference/copolymerization/fit_Finemann_Ross.md
+          - fit_reactivity_ratios: reference/copolymerization/fit_reactivity_ratios.md
           - inst_copolymer_binary: reference/copolymerization/inst_copolymer_binary.md
           - inst_copolymer_ternary: reference/copolymerization/inst_copolymer_ternary.md
           - inst_copolymer_multi: reference/copolymerization/inst_copolymer_multi.md
