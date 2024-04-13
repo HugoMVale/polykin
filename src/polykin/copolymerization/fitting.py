@@ -126,15 +126,15 @@ def fit_reactivity_ratios(
     The optimization is done using one of two methods: NLLS or ODR. The
     nonlinear least squares (NLLS) method neglects the first term of the
     summation, i.e. it only considers the observational errors in $F$. In
-    contrast, the orthogonal distance regression (ODR) method can take the
-    errors in both variables into account. 
+    contrast, the orthogonal distance regression (ODR) method takes the errors
+    in both variables into account. 
 
-    In well-designed experiments, when the uncertainty in $f \ll F$, the NLLS
+    In well-designed experiments, the uncertainty in $f \ll F$, and so the NLLS
     method should suffice. However, if this condition is not met, the ODR
     method can be utilized to consider the uncertainty on both $f$ and $F$ in
     a statistically correct manner.
 
-    The joint confidence region (JCR) of the reactivity ratios can be generated
+    The joint confidence region (JCR) of the reactivity ratios is generated
     using approximate (linear) and/or exact methods. In most cases, the linear
     method should be sufficiently accurate. Nonetheless, for these types of
     fits, the exact method is computationally inexpensive, making it perhaps a
@@ -163,7 +163,7 @@ def fit_reactivity_ratios(
         Optimization method. `NLLS` for nonlinear least squares or `ODR` for
         orthogonal distance regression. 
     alpha : float
-        Significance level, $\alpha$.
+        Significance level.
     Mayo_plot : bool
         If `True` a Mayo-Lewis plot will be generated.
     JCR_method : list[Literal['linear', 'exact']
