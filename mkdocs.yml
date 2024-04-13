@@ -178,6 +178,7 @@ nav:
       - polykin.copolymerization:
           - reference/copolymerization/index.md
             # - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
+          - CopoFitResult: reference/copolymerization/CopoFitResult.md
           - ImplicitPenultimateModel: reference/copolymerization/ImplicitPenultimateModel.md
           - PenultimateModel: reference/copolymerization/PenultimateModel.md
           - TerminalModel: reference/copolymerization/TerminalModel.md
