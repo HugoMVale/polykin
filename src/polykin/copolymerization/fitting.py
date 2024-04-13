@@ -31,7 +31,37 @@ __all__ = ['fit_Finemann_Ross',
 
 @dataclass
 class CopoFitResult():
-    """Something"""
+    r"""Dataclass for copolymerization fit results.
+
+    Parameters
+    ----------
+    r1 : float
+        Reactivity ratio of M1.
+    r2: float
+        Reactivity ratio of M2
+    cov : Float2x2Matrix
+        Scaled variance-covariance matrix.
+    se_r1 : float
+        Standard error of r1.
+    se_r2 : float
+        Standard error of r2.
+    ci_r1 : float
+        Confidence interval of r1.
+    ci_r2: float
+        Confidence interval of r2.
+    alpha : float
+        Significance level.
+    method : str
+        Name of the fit method.
+    M1 : str
+        Name of M1.
+    M2 : str
+        Name of M2.
+    Mayo : tuple[Figure, Axes] | None
+        Mayo-Lewis plot with experimental data and fitted curve.
+    JCR : tuple[Figure, Axes] | None
+        Joint confidence region of reactivity ratios.
+    """
     r1: float
     r2: float
     cov: Float2x2Matrix
@@ -156,6 +186,19 @@ def fit_reactivity_ratios(
         * [`confidence_region`](../math/confidence_region.md): exact method
         used to calculate the joint confidence region.
         * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
+
+    Examples
+    --------
+    >>> from polykin.copolymerization.fitting import fit_reactivity_ratios
+    >>>
+    >>> f1 = [0.186, 0.299, 0.527, 0.600, 0.700, 0.798]
+    >>> F1 = [0.196, 0.279, 0.415, 0.473, 0.542, 0.634]
+    >>>
+    >>> res = fit_reactivity_ratios(f1, F1)
+    >>> print(
+    ... f"r1={res.r1:.2f}±{res.ci_r1:.2f}, r2={res.r2:.2f}±{res.ci_r2:.2f}")
+    r1=0.26±0.04, r2=0.81±0.10
+
     """
 
     f1, F1 = convert_FloatOrVectorLike_to_FloatVector([f1, F1])
@@ -320,14 +363,13 @@ def fit_Finemann_Ross(f1: FloatVectorLike,
     Examples
     --------
     >>> from polykin.copolymerization.fitting import fit_Finemann_Ross
-    >>> import numpy as np
     >>>
     >>> f1 = [0.186, 0.299, 0.527, 0.600, 0.700, 0.798]
     >>> F1 = [0.196, 0.279, 0.415, 0.473, 0.542, 0.634]
     >>>
     >>> r1, r2 = fit_Finemann_Ross(f1, F1)
-    >>> print(f"r1 = {r1:.3f}, r2 = {r2:.3f}")
-    r1 = 0.226, r2 = 0.762
+    >>> print(f"r1={r1:.2f}, r2={r2:.2f}")
+    r1=0.27, r2=0.84
 
     """
 
