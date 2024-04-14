@@ -99,7 +99,6 @@ class PenultimateModel(CopoModel):
                  M2: str = 'M2',
                  name: str = ''
                  ) -> None:
-        """Construct `PenultimateModel` with the given parameters."""
 
         check_bounds(r11, 0., np.inf, 'r11')
         check_bounds(r12, 0., np.inf, 'r12')
@@ -452,7 +451,6 @@ class ImplicitPenultimateModel(TerminalModel):
                  M2: str = 'M2',
                  name: str = ''
                  ) -> None:
-        """Construct `ImplicitPenultimateModel` with the given parameters."""
 
         check_bounds(s1, 0., np.inf, 's1')
         check_bounds(s2, 0., np.inf, 's2')

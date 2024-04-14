@@ -77,7 +77,6 @@ class Wilson(SmallSpeciesActivityModel):
                  d: Optional[FloatSquareMatrix] = None,
                  name: str = ''
                  ) -> None:
-        """Construct `Wilson` with the given parameters."""
 
         # Set default values
         if a is None:

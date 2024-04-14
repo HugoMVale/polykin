@@ -47,7 +47,6 @@ class CopoModel(ABC):
                  M2: str,
                  name: str
                  ) -> None:
-        """Construct `CopoModel` with the given parameters."""
 
         if M1 and M2 and M1.lower() != M2.lower():
             self.M1 = M1
@@ -501,7 +500,6 @@ class TerminalModel(CopoModel):
                  M2: str = 'M2',
                  name: str = ''
                  ) -> None:
-        """Construct `TerminalCopoModel` with the given parameters."""
 
         check_bounds(r1, 0., np.inf, 'r1')
         check_bounds(r2, 0., np.inf, 'r2')

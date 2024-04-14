@@ -30,7 +30,7 @@ class PropertyEquation(ABC):
                  symbol: str,
                  name: str
                  ) -> None:
-        """Construct `PropertyEquation` with the given inputs."""
+
         self.unit = unit
         self.symbol = symbol
         self.name = name
@@ -50,7 +50,6 @@ class PropertyEquationT(PropertyEquation):
                  symbol: str,
                  name: str
                  ) -> None:
-        """Construct `PropertyEquationT` with the given inputs."""
 
         check_bounds(Trange[0], 0, np.inf, 'Tmin')
         check_bounds(Trange[1], 0, np.inf, 'Tmax')

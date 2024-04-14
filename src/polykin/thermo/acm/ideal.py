@@ -31,7 +31,7 @@ class IdealSolution(SmallSpeciesActivityModel):
                  N: int,
                  name: str = ''
                  ) -> None:
-        """Construct `IdealSolution` with given parameters."""
+
         super().__init__(N, name)
 
     def gE(self, T: float, x: FloatVector) -> float:

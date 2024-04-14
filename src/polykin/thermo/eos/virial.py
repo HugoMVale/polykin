@@ -68,7 +68,6 @@ class Virial(GasEoS):
                  Zc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike]
                  ) -> None:
-        """Construct `Virial` with the given parameters."""
 
         Tc, Pc, Zc, w = \
             convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, Zc, w])

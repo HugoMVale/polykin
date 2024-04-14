@@ -42,7 +42,6 @@ class Cubic(GasAndLiquidEoS):
                  w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix]
                  ) -> None:
-        """Construct `Cubic` with the given parameters."""
 
         Tc, Pc, w = convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, w])
 
@@ -351,7 +350,6 @@ class RedlichKwong(Cubic):
                  Pc: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
-        """Construct `RedlichKwong` with the given parameters."""
 
         super().__init__(Tc, Pc, np.zeros_like(Tc), k)
 
@@ -409,7 +407,6 @@ class Soave(Cubic):
                  w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
-        """Construct `Soave` with the given parameters."""
 
         super().__init__(Tc, Pc, w, k)
 
@@ -470,7 +467,6 @@ class PengRobinson(Cubic):
                  w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None
                  ) -> None:
-        """Construct `PengRobinson` with the given parameters."""
 
         super().__init__(Tc, Pc, w, k)
 

@@ -96,7 +96,6 @@ class NRTL(SmallSpeciesActivityModel):
                  f: Optional[FloatSquareMatrix] = None,
                  name: str = ''
                  ) -> None:
-        """Construct `NRTL` with the given parameters."""
 
         # Set default values
         if a is None:

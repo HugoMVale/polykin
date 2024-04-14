@@ -99,7 +99,6 @@ class UNIQUAC(SmallSpeciesActivityModel):
                  d: Optional[FloatSquareMatrix] = None,
                  name: str = ''
                  ) -> None:
-        """Construct `UNIQUAC` with the given parameters."""
 
         # Set default values
         if a is None:
