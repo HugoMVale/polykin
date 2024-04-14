@@ -75,7 +75,6 @@ class Eyring(KineticCoefficientT):
                  symbol: str = 'k',
                  name: str = ''
                  ) -> None:
-        """Construct `Eyring` with the given parameters."""
 
         # Convert lists to arrays
         DSa, DHa, kappa, Tmin, Tmax = \

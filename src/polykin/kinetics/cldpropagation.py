@@ -63,7 +63,6 @@ class PropagationHalfLength(KineticCoefficientCLD):
                  ihalf: float = 1.0,
                  name: str = ''
                  ) -> None:
-        """Construct `PropagationHalfLength` with the given parameters."""
 
         check_type(kp, (Arrhenius, Eyring), 'kp')
         check_bounds(C, 1., 100., 'C')

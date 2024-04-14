@@ -81,7 +81,6 @@ class Antoine(PropertyEquationT):
                  symbol: str = 'P^*',
                  name: str = ''
                  ) -> None:
-        """Construct `Antoine` with the given parameters."""
 
         self.p = {'A': A, 'B': B, 'C': C, 'base10': base10}
         super().__init__((Tmin, Tmax), unit, symbol, name)
@@ -192,7 +191,6 @@ class Wagner(PropertyEquationT):
                  symbol: str = 'P^*',
                  name: str = ''
                  ) -> None:
-        """Construct `Wagner` with the given parameters."""
 
         self.p = {'a': a, 'b': b, 'c': c, 'd': d, 'Pc': Pc, 'Tc': Tc}
         super().__init__((Tmin, Tmax), unit, symbol, name)

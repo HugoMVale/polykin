@@ -76,7 +76,6 @@ class Arrhenius(KineticCoefficientT):
                  symbol: str = 'k',
                  name: str = ''
                  ) -> None:
-        """Construct `Arrhenius` with the given parameters."""
 
         # Convert lists to arrays
         k0, EaR, T0, Tmin, Tmax = \

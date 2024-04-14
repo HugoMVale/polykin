@@ -37,7 +37,6 @@ class PolymerPVTEoS(PolymerPVTEquation):
                  Pmax: float = np.inf,
                  name: str = ''
                  ) -> None:
-        """Construct `PolymerEoSReduced` with the given parameters."""
 
         # Check bounds
         check_bounds(V0, 0, np.inf, 'V0')
