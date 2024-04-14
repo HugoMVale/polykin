@@ -63,10 +63,10 @@ class VrentasDudaBinary():
         Activation energy required to overcome the atractive forces
         between neighboring molecules.
         Units = J/mol/K.
-    V1star : float
+    v1star : float
         Specific volume of solvent at 0 K.
         Unit = L³/M.
-    V2star : float
+    v2star : float
         Specific volume of polymer at 0 K.
         Unit = L³/M.
     z : float
@@ -106,7 +106,7 @@ class VrentasDudaBinary():
 
     >>> from polykin.properties.diffusion import VrentasDudaBinary
     >>> d = VrentasDudaBinary(
-    ...     D0=4.82e-4, E=0., V1star=0.917, V2star=0.728, z=0.82,
+    ...     D0=4.82e-4, E=0., v1star=0.917, v2star=0.728, z=0.82,
     ...     K11=1.45e-3, K12=4.33e-4, K21=-86.32, K22=-258.2, X=0.5,
     ...     unit='cm²/s',
     ...     name='Tol(1)/PVAc(2)')
@@ -123,8 +123,8 @@ class VrentasDudaBinary():
 
     D0: float
     E: float
-    V1star: float
-    V2star: float
+    v1star: float
+    v2star: float
     z: float
     K11: float
     K12: float
@@ -139,8 +139,8 @@ class VrentasDudaBinary():
     def __init__(self,
                  D0: float,
                  E: float,
-                 V1star: float,
-                 V2star: float,
+                 v1star: float,
+                 v2star: float,
                  z: float,
                  K11: float,
                  K12: float,
@@ -153,12 +153,11 @@ class VrentasDudaBinary():
                  unit: str = 'm²/s',
                  name: str = ''
                  ) -> None:
-        r"""Construct `VrentasDuda` with the given parameters."""
 
         check_bounds(D0, 0., np.inf, 'D0')
         check_bounds(E, 0., np.inf, 'E')
-        check_bounds(V1star, 0., np.inf, 'V1star')
-        check_bounds(V2star, 0., np.inf, 'V2star')
+        check_bounds(v1star, 0., np.inf, 'v1star')
+        check_bounds(v2star, 0., np.inf, 'v2star')
         check_bounds(z, 0., np.inf, 'z')
         check_bounds(K11, 0., np.inf, 'K11')
         check_bounds(K12, 0., np.inf, 'K12')
@@ -171,8 +170,8 @@ class VrentasDudaBinary():
 
         self.D0 = D0
         self.E = E
-        self.V1star = V1star
-        self.V2star = V2star
+        self.v1star = v1star
+        self.v2star = v2star
         self.z = z
         self.K11 = K11
         self.K12 = K12
@@ -191,8 +190,8 @@ class VrentasDudaBinary():
             f"unit: {self.unit}\n"
             f"D0:   {self.D0}\n"
             f"E:    {self.E}\n"
-            f"V1*:  {self.V1star}\n"
-            f"V2*:  {self.V2star}\n"
+            f"v1*:  {self.v1star}\n"
+            f"v2*:  {self.v2star}\n"
             f"ξ:    {self.z}\n"
             f"K11:  {self.K11}\n"
             f"K12:  {self.K12}\n"
@@ -268,8 +267,8 @@ class VrentasDudaBinary():
 
         D0 = self.D0
         E = self.E
-        V1star = self.V1star
-        V2star = self.V2star
+        V1star = self.v1star
+        V2star = self.v2star
         z = self.z
         K11 = self.K11
         K12 = self.K12

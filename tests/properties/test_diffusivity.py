@@ -16,8 +16,8 @@ def vrentas_instance():
     return VrentasDudaBinary(
         D0=4.82e-4,
         E=0.,
-        V1star=0.917,
-        V2star=0.850,
+        v1star=0.917,
+        v2star=0.850,
         z=0.58,
         K11=1.45e-3,
         K12=5.82e-4,
