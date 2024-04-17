@@ -13,7 +13,8 @@ from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
                                  FloatVector, FloatVectorLike)
 
 __all__ = ['inst_copolymer_binary',
-           'kp_average_binary']
+           'kp_average_binary',
+           'monomer_drift_binary']
 
 
 def inst_copolymer_binary(f1: Union[float, FloatArrayLike],
@@ -162,8 +163,7 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
     f10 : float | FloatVectorLike (N)
         Initial molar fraction of M1, $f_{1,0}=f_1(0)$.
     x : FloatVectorLike (M)
-        Value(s) of total monomer conversion values where the drift is to
-        be evaluated.
+        Total monomer conversion values where the drift is to be evaluated.
     r1 : float | FloatArray
         Reactivity ratio of M1.
     r2 : float | FloatArray
@@ -180,6 +180,22 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
 
         * [`monomer_drift_multi`](monomer_drift_multi.md): generic method for
           multicomponent systems.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import monomer_drift_binary
+
+    An example with f10 as scalar.
+    >>> f1 = monomer_drift_binary(f10=0.5, x=[0.1, 0.5, 0.9], r1=0.16, r2=0.70)
+    >>> f1
+    array([0.51023191, 0.57767922, 0.87582407])
+
+    An example with f10 as list.
+    >>> f1 = monomer_drift_binary(f10=[0.2, 0.8], x=[0.1, 0.5, 0.9],
+    ...                           r1=0.16, r2=0.70)
+    >>> f1
+    array([[0.19841275, 0.18899831, 0.15856595],
+           [0.82313595, 0.94377326, 0.99995879]])
     """
 
     def df1dx(x: float, f1: FloatVector) -> FloatVector:
@@ -204,4 +220,4 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
     else:
         raise ODESolverError(sol.message)
 
-    return f
+    return result
