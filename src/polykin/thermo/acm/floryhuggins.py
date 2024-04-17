@@ -303,10 +303,11 @@ def FloryHuggins_activity(phi: FloatVector,
     FloatVector
         Activities of all components.
 
-    !!! note annotate "See also"
+    See also
+    --------
+    * [`FloryHuggins2_activity`](FloryHuggins2_activity.md): equivalent
+      method for binary solvent-polymer systems.
 
-        * [`FloryHuggins2_activity`](FloryHuggins2_activity.md): equivalent
-        method for binary solvent-polymer systems.
     """
     A = dot(phi, 1/m)
     B = dot(chi, phi)
@@ -361,10 +362,10 @@ def FloryHuggins2_activity(phi1: Union[float, FloatArray],
     FloatVector
         Activity of the solvent.
 
-    !!! note annotate "See also"
-
-        * [`FloryHuggins_activity`](FloryHuggins_activity.md): equivalent
-        method for multicomponent systems.
+    See also
+    --------
+    * [`FloryHuggins_activity`](FloryHuggins_activity.md): equivalent method
+      for multicomponent systems.
 
     Examples
     --------

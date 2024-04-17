@@ -52,12 +52,12 @@ def inst_copolymer_binary(f1: Union[float, FloatArrayLike],
     float | FloatArray
         Instantaneous copolymer composition, $F_1$.
 
-    !!! note annotate "See also"
-
-        * [`inst_copolymer_ternary`](inst_copolymer_ternary.md):
-          specific method for terpolymer systems.
-        * [`inst_copolymer_multi`](inst_copolymer_multi.md):
-          generic method for multicomponent systems.
+    See also
+    --------
+    * [`inst_copolymer_ternary`](inst_copolymer_ternary.md):
+      specific method for terpolymer systems.
+    * [`inst_copolymer_multi`](inst_copolymer_multi.md):
+      generic method for multicomponent systems.
 
     Examples
     --------
@@ -176,10 +176,10 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
     FloatMatrix (M, N)
         Monomer fraction of M1 at a given conversion, $f_1(x)$.
 
-    !!! note annotate "See also"
-
-        * [`monomer_drift_multi`](monomer_drift_multi.md): generic method for
-          multicomponent systems.
+    See also
+    --------
+    * [`monomer_drift_multi`](monomer_drift_multi.md):
+      generic method for multicomponent systems.
 
     Examples
     --------

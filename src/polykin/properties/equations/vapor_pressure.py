@@ -59,12 +59,13 @@ class Antoine(PropertyEquationT):
     name : str
         Name.
 
-    !!! note annotate "See also"
+    See also
+    --------
+    * [`DIPPR101`](./#polykin.properties.equations.dippr.DIPPR101):
+      alternative method, applicable to wider temperature ranges.
+    * [`Wagner`](./#polykin.properties.equations.vapor_pressure.Wagner):
+      alternative method, applicable to wider temperature ranges.
 
-        * [`DIPPR101`](./#polykin.properties.equations.dippr.DIPPR101):
-        alternative method, applicable to wider temperature ranges.
-        * [`Wagner`](./#polykin.properties.equations.vapor_pressure.Wagner):
-        alternative method, applicable to wider temperature ranges.
     """
 
     _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K', True),

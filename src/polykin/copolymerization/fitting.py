@@ -179,13 +179,13 @@ def fit_reactivity_ratios(
     CopoFitResult
         Dataclass with all fit results.
 
-    !!! note annotate "See also"
-
-        * [`confidence_ellipse`](../math/confidence_ellipse.md): linear method
-        used to calculate the joint confidence region.
-        * [`confidence_region`](../math/confidence_region.md): exact method
-        used to calculate the joint confidence region.
-        * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
+    See also
+    --------
+    * [`confidence_ellipse`](../math/confidence_ellipse.md): linear method
+      used to calculate the joint confidence region.
+    * [`confidence_region`](../math/confidence_region.md): exact method
+      used to calculate the joint confidence region.
+    * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
 
     Examples
     --------
@@ -355,10 +355,10 @@ def fit_Finemann_Ross(f1: FloatVectorLike,
     tuple[float, float]
         Point estimates of the reactivity ratios $(r_1, r_2)$.
 
-    !!! note annotate "See also"
-
-        * [`fit_reactivity_ratios`](fit_reactivity_ratios.md): alternative
-        (recommended) method.  
+    See also
+    --------
+    * [`fit_reactivity_ratios`](fit_reactivity_ratios.md): alternative
+      (recommended) method.  
 
     Examples
     --------

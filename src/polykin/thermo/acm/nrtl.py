@@ -73,9 +73,9 @@ class NRTL(SmallSpeciesActivityModel):
     name: str
         Name.
 
-    !!! note annotate "See also"
-
-        * [`NRTL_gamma`](NRTL_gamma.md): related activity coefficient method.
+    See also
+    --------
+    * [`NRTL_gamma`](NRTL_gamma.md): related activity coefficient method.
 
     """
 
@@ -231,9 +231,10 @@ def NRTL_gamma(x: FloatVector,
     FloatVector (N)
         Activity coefficients of all components.
 
-    !!! note annotate "See also"
+    See also
+    --------
+    * [`NRTL`](NRTL.md): related class.
 
-        * [`NRTL`](NRTL.md): related class.
     """
 
     G = exp(-alpha*tau)

@@ -75,10 +75,9 @@ class UNIQUAC(SmallSpeciesActivityModel):
     name : str
         Name.
 
-    !!! note annotate "See also"
-
-        * [`UNIQUAC_gamma`](UNIQUAC_gamma.md): related activity coefficient
-          method.
+    See also
+    --------
+    * [`UNIQUAC_gamma`](UNIQUAC_gamma.md): related activity coefficient method.
 
     """
 
@@ -236,9 +235,9 @@ def UNIQUAC_gamma(x: FloatVector,
     FloatVector (N)
         Activity coefficients of all components.
 
-    !!! note annotate "See also"
-
-        * [`UNIQUAC`](UNIQUAC.md): related class.
+    See also
+    --------
+    * [`UNIQUAC`](UNIQUAC.md): related class.
 
     """
 

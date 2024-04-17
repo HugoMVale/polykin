@@ -89,10 +89,11 @@ def confidence_ellipse(ax: Axes,
         If `True` the _individual_ confidence intervals of the parameters are
         represented as lines.
 
-    !!! note annotate "See also"
+    See also
+    --------
+    * [`confidence_region`](confidence_region.md): alternative method based on
+    rigorous approach for non-linear models.
 
-        * [`confidence_region`](confidence_region.md): alternative method
-        based on rigorous approach for non-linear models.
     """
 
     # Method implementation is specific for 2D
@@ -207,10 +208,10 @@ def confidence_region(center: tuple[float, float],
     tuple[FloatVector, FloatVector]
         Coordinates (x, y) of the confidence region.
 
-    !!! note annotate "See also"
-
-        * [`confidence_ellipse`](confidence_ellipse.md): alternative method
-        based on linear approximation.
+    See also
+    --------
+    * [`confidence_ellipse`](confidence_ellipse.md): alternative method based
+      on linear approximation.
 
     """
 

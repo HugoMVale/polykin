@@ -57,9 +57,9 @@ class Eyring(KineticCoefficientT):
     name : str
         Name.
 
-    !!! note annotate "See also"
-
-        * [`Arrhenius`](Arrhenius.md): alternative method.
+    See also
+    --------
+    * [`Arrhenius`](Arrhenius.md): alternative method.
 
     """
 

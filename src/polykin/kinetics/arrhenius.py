@@ -58,9 +58,9 @@ class Arrhenius(KineticCoefficientT):
     name : str
         Name.
 
-    !!! note annotate "See also"
-
-        * [`Eyring`](Eyring.md): alternative method.
+    See also
+    --------
+    * [`Eyring`](Eyring.md): alternative method.
 
     """
 

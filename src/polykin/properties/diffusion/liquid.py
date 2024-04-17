@@ -59,9 +59,9 @@ def DL_Wilke_Chang(T: float,
     float
         Diffusion coefficient of A in B at infinite dilution. Unit = m²/s.
 
-    !!! note annotate "See also"
-
-        * [`DL_Hayduk_Minhas`](DL_Hayduk_Minhas.md): alternative method.
+    See also
+    --------
+    * [`DL_Hayduk_Minhas`](DL_Hayduk_Minhas.md): alternative method.
 
     Examples
     --------
@@ -116,9 +116,9 @@ def DL_Hayduk_Minhas(T: float,
     float
         Diffusion coefficient of A in B at infinite dilution. Unit = m²/s.
 
-    !!! note annotate "See also"
-
-        * [`DL_Wilke_Chang`](DL_Wilke_Chang.md): alternative method.
+    See also
+    --------
+    * [`DL_Wilke_Chang`](DL_Wilke_Chang.md): alternative method.
 
     Examples
     --------

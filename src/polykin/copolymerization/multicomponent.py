@@ -87,12 +87,12 @@ def inst_copolymer_ternary(f1: Union[float, FloatArrayLike],
     tuple[float | FloatArray, ...]
         Instantaneous terpolymer composition, $(F_1, F_2, F_3)$.
 
-    !!! note annotate "See also"
-
-        * [`inst_copolymer_binary`](inst_copolymer_binary.md):
-          specific method for binary systems.
-        * [`inst_copolymer_multi`](inst_copolymer_multi.md):
-          generic method for multicomponent systems.
+    See also
+    --------
+    * [`inst_copolymer_binary`](inst_copolymer_binary.md):
+      specific method for binary systems.
+    * [`inst_copolymer_multi`](inst_copolymer_multi.md):
+      generic method for multicomponent systems.
 
     Examples
     --------
@@ -160,6 +160,11 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     where $P_{ij}$ are the transition probabilitites, which can be computed
     from the instantaneous monomer composition and the reactivity matrix.
 
+    **References**
+
+    *   H. K. Frensdorff, R. Pariser; Copolymerization as a Markov Chain.
+        J. Chem. Phys. 1 November 1963; 39 (9): 2303-2309.
+
     Parameters
     ----------
     f : FloatVectorLike (N) | None
@@ -177,21 +182,16 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     FloatVector (N)
         Vector of instantaneous copolymer compositions, $F_i$.
 
-    !!! note annotate "See also"
-
-        * [`inst_copolymer_binary`](inst_copolymer_binary.md):
-          specific method for binary systems.
-        * [`inst_copolymer_ternary`](inst_copolymer_ternary.md):
-          specific method for terpolymer systems.
-        * [`monomer_drift_multi`](monomer_drift_multi.md):
-          monomer composition drift.
-        * [`transitions_multi`](transitions_multi.md):
-          instantaneous transition probabilities.
-
-    **References**
-
-    *   H. K. Frensdorff, R. Pariser; Copolymerization as a Markov Chain.
-        J. Chem. Phys. 1 November 1963; 39 (9): 2303-2309.
+    See also
+    --------
+    * [`inst_copolymer_binary`](inst_copolymer_binary.md):
+      specific method for binary systems.
+    * [`inst_copolymer_ternary`](inst_copolymer_ternary.md):
+      specific method for terpolymer systems.
+    * [`monomer_drift_multi`](monomer_drift_multi.md):
+      monomer composition drift.
+    * [`transitions_multi`](transitions_multi.md):
+      instantaneous transition probabilities.
 
     Examples
     --------
@@ -266,12 +266,12 @@ def monomer_drift_multi(f0: FloatVectorLike,
         Matrix of monomer fraction of monomer $i$ at the specified total
         monomer conversions, $f_i(x_j)$.
 
-    !!! note annotate "See also"
-
-        * [`inst_copolymer_multi`](inst_copolymer_multi.md): 
-          instantaneous copolymer composition.
-        * [`monomer_drift_multi`](monomer_drift_multi.md):
-          specific method for binary systems.
+    See also
+    --------
+    * [`inst_copolymer_multi`](inst_copolymer_multi.md): 
+      instantaneous copolymer composition.
+    * [`monomer_drift_multi`](monomer_drift_multi.md):
+      specific method for binary systems.
 
     Examples
     --------
@@ -356,14 +356,14 @@ def transitions_multi(f: FloatVectorLike,
     FloatSquareMatrix (N, N)
         Matrix of transition probabilities, $P_{ij}$.
 
-    !!! note annotate "See also"
-
-        * [`inst_copolymer_multi`](inst_copolymer_multi.md):
-          instantaneous copolymer composition.
-        * [`sequence_multi`](sequence_multi.md):
-          instantaneous sequence lengths.
-        * [`tuples_multi`](tuples_multi.md):
-          instantaneous tuple fractions.
+    See also
+    --------
+    * [`inst_copolymer_multi`](inst_copolymer_multi.md):
+      instantaneous copolymer composition.
+    * [`sequence_multi`](sequence_multi.md):
+      instantaneous sequence lengths.
+    * [`tuples_multi`](tuples_multi.md):
+      instantaneous tuple fractions.
 
     Examples
     --------
@@ -438,12 +438,12 @@ def sequence_multi(Pself: FloatVectorLike,
         If `k is None`, the number-average sequence lengths, $\bar{S}_i$.
         Otherwise, the sequence probabilities, $S_{i,k}$.
 
-    !!! note annotate "See also"
-
-        * [`transitions_multi`](transitions_multi.md):
-          instantaneous transition probabilities.
-        * [`tuples_multi`](tuples_multi.md):
-          instantaneous tuple fractions.
+    See also
+    --------
+    * [`transitions_multi`](transitions_multi.md):
+      instantaneous transition probabilities.
+    * [`tuples_multi`](tuples_multi.md):
+      instantaneous tuple fractions.
 
     Examples
     --------
@@ -532,12 +532,12 @@ def tuples_multi(P: FloatSquareMatrix,
     dict[tuple[int, ...], float]
         Tuple of molar fractions.
 
-    !!! note annotate "See also"
-
-        * [`sequence_multi`](sequence_multi.md):
-          instantaneous sequence lengths.
-        * [`transitions_multi`](transitions_multi.md):
-          instantaneous transition probabilities.
+    See also
+    --------
+    * [`sequence_multi`](sequence_multi.md):
+      instantaneous sequence lengths.
+    * [`transitions_multi`](transitions_multi.md):
+      instantaneous transition probabilities.
 
     Examples
     --------

@@ -57,10 +57,10 @@ class Wilson(SmallSpeciesActivityModel):
     name: str
         Name.
 
-    !!! note annotate "See also"
-
-        * [`Wilson_gamma`](Wilson_gamma.md): related activity coefficient
-        method.
+    See also
+    --------
+    * [`Wilson_gamma`](Wilson_gamma.md): related activity coefficient
+    method.
 
     """
 
@@ -166,9 +166,10 @@ def Wilson_gamma(x: FloatVector,
     FloatVector (N)
         Activity coefficients of all components.
 
-    !!! note annotate "See also"
+    See also
+    --------
+    * [`Wilson`](Wilson.md): related class.
 
-        * [`Wilson`](Wilson.md): related class.
     """
     A = dot(Lambda, x)
     return exp(1. - dot(x/A, Lambda))/A
