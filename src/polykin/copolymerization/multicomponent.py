@@ -162,20 +162,20 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
 
     Parameters
     ----------
-    f : FloatVectorLike | None
-        Vector (N) of instantaneous monomer compositions, $f_i$.
-    r : FloatSquareMatrix | None
-        Matrix (NxN) of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
-    P : FloatSquareMatrix | None
-        Matrix (NxN) of transition probabilities, $P_{ij}$. If `None`, it will
+    f : FloatVectorLike (N) | None
+        Vector of instantaneous monomer compositions, $f_i$.
+    r : FloatSquareMatrix (N, N) | None
+        Matrix of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
+    P : FloatSquareMatrix (N, N) | None
+        Matrix of transition probabilities, $P_{ij}$. If `None`, it will
         be computed internally. When calculating other quantities (e.g.,
         sequence lengths, tuples) that also depend on $P$, it is more efficient
         to precompute $P$ once and use it in all cases.
 
     Returns
     -------
-    FloatVector
-        Vector (N) of instantaneous copolymer compositions, $F_i$.
+    FloatVector (N)
+        Vector of instantaneous copolymer compositions, $F_i$.
 
     !!! note annotate "See also"
 
@@ -250,26 +250,28 @@ def monomer_drift_multi(f0: FloatVectorLike,
 
     Parameters
     ----------
-    f0 : FloatVectorLike
-        Vector (N) of initial instantaneous comonomer compositions.
-    r : FloatSquareMatrix
-        Matrix (NxN) of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
-    x : FloatVectorLike
-        Vector (M) of total monomer conversion values where the drift is to be
+    f0 : FloatVectorLike (N)
+        Vector of initial instantaneous comonomer compositions.
+    r : FloatSquareMatrix (N, N)
+        Matrix of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
+    x : FloatVectorLike (M)
+        Vector of total monomer conversion values where the drift is to be
         evaluated.
     rtol : float
-        Relative tolerance of ODE solver.
+        Relative tolerance of the ODE solver.
 
     Returns
     -------
-    FloatMatrix
-        Matrix (MxN) of monomer fraction of monomer $i$ at the specified
-        total monomer conversion(s), $f_i(x_j)$.
+    FloatMatrix (M, N)
+        Matrix of monomer fraction of monomer $i$ at the specified total
+        monomer conversions, $f_i(x_j)$.
 
     !!! note annotate "See also"
 
-        * [`inst_copolymer_multi`](inst_copolymer_multi.md):
+        * [`inst_copolymer_multi`](inst_copolymer_multi.md): 
           instantaneous copolymer composition.
+        * [`monomer_drift_multi`](monomer_drift_multi.md):
+          specific method for binary systems.
 
     Examples
     --------
@@ -344,15 +346,15 @@ def transitions_multi(f: FloatVectorLike,
 
     Parameters
     ----------
-    f : FloatVectorLike
-        Vector (N) of instantaneous monomer compositions, $f_i$.
-    r : FloatSquareMatrix
-        Matrix (NxN) of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
+    f : FloatVectorLike (N)
+        Vector of instantaneous monomer compositions, $f_i$.
+    r : FloatSquareMatrix (N, N)
+        Matrix of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
 
     Returns
     -------
-    FloatSquareMatrix
-        Matrix (NxN) of transition probabilities, $P_{ij}$.
+    FloatSquareMatrix (N, N)
+        Matrix of transition probabilities, $P_{ij}$.
 
     !!! note annotate "See also"
 
@@ -423,16 +425,16 @@ def sequence_multi(Pself: FloatVectorLike,
 
     Parameters
     ----------
-    Pself : FloatVectorLike
-        Vector (N) of self-transition probabilities, $P_{ii}$, corresponding to
+    Pself : FloatVectorLike (N)
+        Vector of self-transition probabilities, $P_{ii}$, corresponding to
         the diagonal of the matrix of transition probabilities.
-    k : int | IntArrayLike | None
+    k : int | IntArrayLike (M) | None
         Sequence length, i.e., number of consecutive units in a chain.
         If `None`, the number-average sequence length will be computed.
 
     Returns
     -------
-    FloatArray
+    FloatArray (N, M)
         If `k is None`, the number-average sequence lengths, $\bar{S}_i$.
         Otherwise, the sequence probabilities, $S_{i,k}$.
 
@@ -515,12 +517,12 @@ def tuples_multi(P: FloatSquareMatrix,
 
     Parameters
     ----------
-    P : FloatSquareMatrix
-        Matrix (NxN) of transition probabilities, $P_{ij}$.
+    P : FloatSquareMatrix (N, N)
+        Matrix of transition probabilities, $P_{ij}$.
     n : int
         Tuple length,.e.g monads (1), diads (2), triads (3), etc.
-    F : FloatVectorLike | None
-        Vector (N) of instantaneous copolymer composition, $F_i$. If `None`,
+    F : FloatVectorLike (N) | None
+        Vector of instantaneous copolymer composition, $F_i$. If `None`,
         the value will be computed internally. When calculating tuples of
         various lengths, it is more efficient to precompute $F$ and use it in
         all tuple cases.
@@ -613,8 +615,8 @@ def convert_Qe_to_r(Qe_values: list[tuple[float, float]]
 
     Returns
     -------
-    FloatSquareMatrix
-        Reactivity ratio matrix (NxN).
+    FloatSquareMatrix (N, N)
+        Reactivity ratio matrix.
 
     Examples
     --------

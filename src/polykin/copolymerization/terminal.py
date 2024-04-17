@@ -212,8 +212,8 @@ class CopoModel(ABC):
         sol = solve_ivp(df1dx,
                         (0., max(x)),
                         f10,
-                        method='LSODA',
                         t_eval=x,
+                        method='LSODA',
                         vectorized=True,
                         rtol=1e-4)
         if sol.success:
