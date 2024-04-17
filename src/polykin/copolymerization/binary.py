@@ -5,8 +5,12 @@
 from typing import Union
 
 import numpy as np
+from scipy.integrate import solve_ivp
 
-from polykin.utils.types import FloatArray, FloatArrayLike
+from polykin.utils.exceptions import ODESolverError
+from polykin.utils.math import eps
+from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
+                                 FloatVector, FloatVectorLike)
 
 __all__ = ['inst_copolymer_binary',
            'kp_average_binary']
@@ -134,3 +138,70 @@ def kp_average_binary(f1: Union[float, FloatArrayLike],
     f1 = np.asarray(f1)
     f2 = 1 - f1
     return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
+
+
+def monomer_drift_binary(f10: Union[float, FloatVectorLike],
+                         x: FloatVectorLike,
+                         r1: float,
+                         r2: float,
+                         rtol: float = 1e-4
+                         ) -> FloatMatrix:
+    r"""Compute the monomer composition drift for a binary system.
+
+    In a closed binary system, the drift in monomer composition is given by
+    the solution of the following differential equation:
+
+    $$ \frac{\textup{d} f_1}{\textup{d}x} = \frac{f_1 - F_1}{1 - x} $$
+
+    with initial condition $f_1(0)=f_{1,0}$, where $f_1$ and $F_1$ are,
+    respectively, the instantaneous comonomer and copolymer composition of
+    M1, and $x$ is the total molar monomer conversion.
+
+    Parameters
+    ----------
+    f10 : float | FloatVectorLike (N)
+        Initial molar fraction of M1, $f_{1,0}=f_1(0)$.
+    x : FloatVectorLike (M)
+        Value(s) of total monomer conversion values where the drift is to
+        be evaluated.
+    r1 : float | FloatArray
+        Reactivity ratio of M1.
+    r2 : float | FloatArray
+        Reactivity ratio of M2.
+    rtol : float
+        Relative tolerance of ODE solver.
+
+    Returns
+    -------
+    FloatMatrix (M, N)
+        Monomer fraction of M1 at a given conversion, $f_1(x)$.
+
+    !!! note annotate "See also"
+
+        * [`monomer_drift_multi`](monomer_drift_multi.md): generic method for
+          multicomponent systems.
+    """
+
+    def df1dx(x: float, f1: FloatVector) -> FloatVector:
+        return (f1 - inst_copolymer_binary(f1, r1, r2))/(1. - x + eps)
+
+    if isinstance(f10, (int, float)):
+        f10 = [f10]
+
+    sol = solve_ivp(df1dx,
+                    (0., x[-1]),
+                    f10,
+                    t_eval=x,
+                    method='LSODA',
+                    vectorized=True,
+                    rtol=rtol)
+
+    if sol.success:
+        result = sol.y
+        result = np.maximum(0., result)
+        if result.shape[0] == 1:
+            result = result[0]
+    else:
+        raise ODESolverError(sol.message)
+
+    return f

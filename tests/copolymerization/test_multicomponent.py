@@ -11,7 +11,7 @@ from polykin.copolymerization import (TerminalModel, convert_Qe_to_r,
                                       inst_copolymer_multi,
                                       inst_copolymer_ternary,
                                       monomer_drift_multi, sequence_multi,
-                                      transitions_multi, tuples_multi)
+                                      transitions_multi, tuples_multi, monomer_drift_binary)
 from polykin.utils.exceptions import ShapeError
 
 
@@ -73,13 +73,15 @@ def test_monomer_drift_multi():
     r[0, 1] = r1
     r[1, 0] = r2
     x = [0.1, 0.4, 0.8, 0.99]
-    m = TerminalModel(r1, r2)
+    m1 = TerminalModel(r1, r2)
     for f10 in [0.2, 0.5, 0.9]:
-        sol_b = m.drift(f10, x)
-        sol_m = monomer_drift_multi([f10, 1. - f10], r, x)
-        assert all(isclose(sol_b, sol_m[:, 0], rtol=1e-4))
+        sol_b1 = m1.drift(f10, x)
+        sol_b2 = monomer_drift_binary(f10, x, r1, r2)
+        sol_m = monomer_drift_multi([f10, 1. - f10], x, r)
+        assert all(isclose(sol_b1, sol_b2, rtol=1e-4))
+        assert all(isclose(sol_b2, sol_m[:, 0], rtol=1e-4))
     with pytest.raises(ShapeError):
-        _ = monomer_drift_multi([f10, 1. - f10], np.ones((3, 3)), x)
+        _ = monomer_drift_multi([f10, 1. - f10], x, np.ones((3, 3)))
 
 
 def test_convert_Qe():

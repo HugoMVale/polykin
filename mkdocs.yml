@@ -189,6 +189,7 @@ nav:
           - inst_copolymer_ternary: reference/copolymerization/inst_copolymer_ternary.md
           - inst_copolymer_multi: reference/copolymerization/inst_copolymer_multi.md
           - kp_average_binary: reference/copolymerization/kp_average_binary.md
+          - monomer_drift_binary: reference/copolymerization/monomer_drift_binary.md
           - monomer_drift_multi: reference/copolymerization/monomer_drift_multi.md
           - sequence_multi: reference/copolymerization/sequence_multi.md
           - transitions_multi: reference/copolymerization/transitions_multi.md
