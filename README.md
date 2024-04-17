@@ -19,7 +19,7 @@ development stage, but the following modules can already be used:
   - [x] Penultimate model
   - [x] Terminal model
   - [x] Mayo-Lewis equation (binary, ternary and multicomponent)
-  - [x] Monomer dift equation (multicomponent)
+  - [x] Monomer drift equation (binary and multicomponent)
   - [ ] Fitting methods
 - Equations of state
   - [50%] Cubic (Redlich-Kwong, Soave, Peng-Robinson)
