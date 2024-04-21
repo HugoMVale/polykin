@@ -26,14 +26,14 @@ def test_fit_reactivity_ratios_1():
     F1 = np.array([0.059, 0.243, 0.364, 0.486, 0.583, 0.721, 0.824])
     # const error
     for method in ['NLLS', 'ODR']:
-        result = fit_reactivity_ratios(f1, F1, 1e-10, 0.05, method)
+        result = fit_reactivity_ratios(f1, F1, 1e-10, 0.05, method=method)
         assert result
         r1 = result.r1
         r2 = result.r2
         assert all(isclose([r1, r2], [1.43, 1.67], rtol=0.01))
     # relative error
     for method in ['NLLS', 'ODR']:
-        result = fit_reactivity_ratios(f1, F1, 1e-10, 0.05*F1, method)
+        result = fit_reactivity_ratios(f1, F1, 1e-10, 0.05*F1, method=method)
         assert result
         r1 = result.r1
         r2 = result.r2
