@@ -101,8 +101,9 @@ class CopoFitResult():
 def fit_reactivity_ratios(
         f1: FloatVectorLike,
         F1: FloatVectorLike,
-        scale_f: Union[float, FloatVectorLike] = 1.,
-        scale_F: Union[float, FloatVectorLike] = 1.,
+        scale_f: Union[float, FloatVectorLike] = 1.0,
+        scale_F: Union[float, FloatVectorLike] = 1.0,
+        initial_guess: tuple[float, float] = (1.0, 1.0),
         method: Literal['NLLS', 'ODR'] = 'NLLS',
         alpha: float = 0.05,
         Mayo_plot: bool = True,
@@ -159,6 +160,8 @@ def fit_reactivity_ratios(
         Absolute scale for f1.
     scale_F : float | FloatVectorLike (N)
         Absolute scale for F1.
+    initial_guess : tuple[float, float]
+        Initial guess for the reactivity ratios.
     method : Literal['NLLS', 'ODR']
         Optimization method. `NLLS` for nonlinear least squares or `ODR` for
         orthogonal distance regression. 
@@ -224,7 +227,7 @@ def fit_reactivity_ratios(
         solution = curve_fit(inst_copolymer_binary,
                              xdata=f1,
                              ydata=F1,
-                             p0=(1., 1.),
+                             p0=initial_guess,
                              sigma=scale_F,
                              absolute_sigma=False,  # for scaled cov
                              bounds=(0., np.inf),
@@ -239,7 +242,7 @@ def fit_reactivity_ratios(
 
         odr_Model = odr.Model(lambda beta, x: inst_copolymer_binary(x, *beta))
         odr_Data = odr.RealData(x=f1, y=F1, sx=scale_f, sy=scale_F)
-        odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=(1., 1.))
+        odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=initial_guess)
         solution = odr_ODR.run()
         if (solution.info < 5):  # type: ignore
             r1, r2 = solution.beta
@@ -257,8 +260,12 @@ def fit_reactivity_ratios(
         raise FitError(error_message)
 
     # Standard parameter errors and confidence intervals
-    se_r = np.sqrt(np.diag(cov))
-    ci_r = se_r*tdist.ppf(1. - alpha/2, ndata - 2)
+    if ndata > 2:
+        se_r = np.sqrt(np.diag(cov))
+        ci_r = se_r*tdist.ppf(1. - alpha/2, ndata - 2)
+    else:
+        se_r = [np.nan, np.nan]
+        ci_r = [np.nan, np.nan]
 
     # Mayo plot
     Mayo = None
@@ -336,12 +343,12 @@ def fit_Finemann_Ross(f1: FloatVectorLike,
 
     *   Fineman, M.; Ross, S. D. J. Polymer Sci. 1950, 5, 259.
 
-    !!! note
+    Note
+    ----
+    The Finemann-Ross method relies on a linearization procedure that can lead
+    to significant statistical bias. The method is provided for its historical
+    significance, but should no longer be used for fitting reactivity ratios.
 
-        The Finemann-Ross method relies on a linearization procedure that can
-        lead to significant statistical bias. The method is provided for its
-        historical significance, but should no longer be used for fitting
-        reactivity ratios.
 
     Parameters
     ----------
