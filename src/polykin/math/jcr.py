@@ -299,7 +299,9 @@ def confidence_region(center: tuple[float, float],
             print("Warning: offset between start and end positions of JCR > 10*rtol.")
 
     # Convert to cartesian coordinates
-    x = center[0] + r*cos(theta)
-    y = center[1] + r*sin(theta)
+    theta_interp = np.linspace(0, 2*np.pi, 1000)
+    r_interp = np.interp(theta_interp, theta, r)
+    x = center[0] + r_interp*cos(theta_interp)
+    y = center[1] + r_interp*sin(theta_interp)
 
     return (x, y)
