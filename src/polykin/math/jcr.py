@@ -92,8 +92,16 @@ def confidence_ellipse(ax: Axes,
     See also
     --------
     * [`confidence_region`](confidence_region.md): alternative method based on
-    rigorous approach for non-linear models.
+    a rigorous approach for non-linear models.
 
+    Examples
+    --------
+    >>> from polykin.math.jcr import confidence_ellipse
+    >>> import matplotlib.pyplot as plt
+    >>> import numpy as np
+    >>> fig, ax = plt.subplots()
+    >>> confidence_ellipse(ax=ax, center=(0.3,0.8),
+    ...                    cov=np.array([[2e-4, 3e-4], [3e-4, 2e-3]]), ndata=9)
     """
 
     # Method implementation is specific for 2D
@@ -175,7 +183,7 @@ def confidence_region(center: tuple[float, float],
         applicability of this method depends on the cost of evaluating
         $S(\beta)$.
 
-    **Reference**
+    **References**
 
     * Arutjunjan, R., Schaefer, B. M., Kreutz, C., Constructing Exact
     Confidence Regions on Parameter Manifolds of Non-Linear Models, 2022.
@@ -211,8 +219,18 @@ def confidence_region(center: tuple[float, float],
     See also
     --------
     * [`confidence_ellipse`](confidence_ellipse.md): alternative method based
-      on linear approximation.
+      on a linear approximation.
 
+    Examples
+    --------
+    Let's generate a confidence region for a non-quadratic sse function.
+    >>> from polykin.math import confidence_region
+    >>> import matplotlib.pyplot as plt
+    >>> def sse(x, y):
+    ...     return 1. + ((x-10)**2 + (y-20)**2 + (x-10)*np.sin((y-20)**2))
+    >>> x, y = confidence_region(center=(10, 20.), sse=sse, ndata=10, alpha=0.10)
+    >>> fig, ax = plt.subplots()
+    >>> ax.plot(x,y)
     """
 
     # Method implementation is specific for 2D
@@ -225,8 +243,12 @@ def confidence_region(center: tuple[float, float],
     check_bounds(ndata, npar + 1, np.inf, 'ndata')
 
     # Boundary
+    sse_center = sse(*center)
+    if abs(sse_center) < eps:
+        raise ValueError(
+            "`sse(center)` is close to zero. Without residual error, there is no JCR.")
     Fval = Fdist.ppf(1. - alpha, npar, ndata - npar)
-    sse_boundary = sse(*center)*(1. + npar/(ndata - npar)*Fval)
+    sse_boundary = sse_center*(1. + npar/(ndata - npar)*Fval)
 
     # Find boundary radius at 3 o'clock
     sol = root_scalar(
