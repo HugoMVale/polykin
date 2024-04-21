@@ -298,10 +298,20 @@ def confidence_region(center: tuple[float, float],
         if not np.isclose(r[0], r[-1], atol=min(*center), rtol=10*rtol):
             print("Warning: offset between start and end positions of JCR > 10*rtol.")
 
+    # Interpolate in radial coordinates, without loosing the original points
+    dim = theta.shape[0]
+    npoints = 1000
+    if dim < npoints:
+        theta_interp = np.linspace(0, 2*np.pi, npoints)
+        r_interp = np.interp(theta_interp, theta, r)
+        theta = np.concatenate((theta, theta_interp))
+        r = np.concatenate((r, r_interp))
+        idx_sorted = np.argsort(theta)
+        theta[:] = theta[idx_sorted]
+        r[:] = r[idx_sorted]
+
     # Convert to cartesian coordinates
-    theta_interp = np.linspace(0, 2*np.pi, 1000)
-    r_interp = np.interp(theta_interp, theta, r)
-    x = center[0] + r_interp*cos(theta_interp)
-    y = center[1] + r_interp*sin(theta_interp)
+    x = center[0] + r*cos(theta)
+    y = center[1] + r*sin(theta)
 
     return (x, y)
