@@ -116,9 +116,9 @@ class CopoModel(ABC):
         The calculation is handled by
         [`kp_average_binary`](kp_average_binary.md).
 
-        !!! note
-
-            This feature requires the attributes `k11` and `k22` to be defined.
+        Note
+        ----
+        This feature requires the attributes `k11` and `k22` to be defined.
 
         Parameters
         ----------
