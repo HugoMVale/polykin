@@ -235,7 +235,7 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
 def monomer_drift_multi(f0: FloatVectorLike,
                         x: FloatVectorLike,
                         r: FloatSquareMatrix,
-                        rtol: float = 1e-4
+                        atol: float = 1e-4
                         ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a multicomponent system.
 
@@ -257,8 +257,8 @@ def monomer_drift_multi(f0: FloatVectorLike,
         evaluated.
     r : FloatSquareMatrix (N, N)
         Matrix of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
-    rtol : float
-        Relative tolerance of the ODE solver.
+    atol : float
+        Absolute tolerance of the ODE solver.
 
     Returns
     -------
@@ -292,10 +292,10 @@ def monomer_drift_multi(f0: FloatVectorLike,
     >>> x = [0.1, 0.5, 0.9, 0.99]
     >>> f = monomer_drift_multi(f0, x, r)
     >>> f
-    array([[5.19230749e-01, 2.87888151e-01, 1.92881100e-01],
-           [6.38387269e-01, 2.04571229e-01, 1.57041502e-01],
-           [8.31725111e-01, 5.64177982e-03, 1.62633109e-01],
-           [5.00285275e-01, 1.93845681e-07, 4.99714531e-01]])
+    array([[5.19272893e-01, 2.87851432e-01, 1.92875675e-01],
+           [6.38613228e-01, 2.04334321e-01, 1.57052451e-01],
+           [8.31122266e-01, 5.58847454e-03, 1.63289259e-01],
+           [4.98294381e-01, 1.22646553e-07, 5.01705497e-01]])
 
     """
 
@@ -308,10 +308,11 @@ def monomer_drift_multi(f0: FloatVectorLike,
         return (f - F[:-1]) / (1. - x + eps)
 
     sol = solve_ivp(dfdx,
-                    t_span=(0., x[-1]),
+                    t_span=(0., max(x)),
                     y0=f0[:-1],
                     t_eval=x,
-                    rtol=rtol,
+                    atol=atol,
+                    rtol=1e-4,
                     method='LSODA')
 
     if sol.success:

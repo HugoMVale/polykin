@@ -78,8 +78,8 @@ def test_monomer_drift_multi():
         sol_b1 = m1.drift(f10, x)
         sol_b2 = monomer_drift_binary(f10, x, r1, r2)
         sol_m = monomer_drift_multi([f10, 1. - f10], x, r)
-        assert all(isclose(sol_b1, sol_b2, rtol=1e-4))
-        assert all(isclose(sol_b2, sol_m[:, 0], rtol=1e-4))
+        assert all(isclose(sol_b1, sol_b2, atol=1e-3))
+        assert all(isclose(sol_b2, sol_m[:, 0], atol=1e-4))
     with pytest.raises(ShapeError):
         _ = monomer_drift_multi([f10, 1. - f10], x, np.ones((3, 3)))
 

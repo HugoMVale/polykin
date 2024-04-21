@@ -215,6 +215,7 @@ class CopoModel(ABC):
                         t_eval=x,
                         method='LSODA',
                         vectorized=True,
+                        atol=1e-4,
                         rtol=1e-4)
         if sol.success:
             result = sol.y

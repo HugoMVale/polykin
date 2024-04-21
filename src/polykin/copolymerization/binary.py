@@ -145,7 +145,7 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
                          x: FloatVectorLike,
                          r1: float,
                          r2: float,
-                         rtol: float = 1e-4
+                         atol: float = 1e-4
                          ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a binary system.
 
@@ -168,8 +168,8 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
         Reactivity ratio of M1.
     r2 : float | FloatArray
         Reactivity ratio of M2.
-    rtol : float
-        Relative tolerance of ODE solver.
+    atol : float
+        Absolute tolerance of ODE solver.
 
     Returns
     -------
@@ -188,29 +188,30 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
     An example with f10 as scalar.
     >>> f1 = monomer_drift_binary(f10=0.5, x=[0.1, 0.5, 0.9], r1=0.16, r2=0.70)
     >>> f1
-    array([0.51023191, 0.57767922, 0.87582407])
+    array([0.51026241, 0.57810678, 0.87768138])
 
     An example with f10 as list.
     >>> f1 = monomer_drift_binary(f10=[0.2, 0.8], x=[0.1, 0.5, 0.9],
     ...                           r1=0.16, r2=0.70)
     >>> f1
-    array([[0.19841275, 0.18899831, 0.15856595],
-           [0.82313595, 0.94377326, 0.99995879]])
+    array([[0.19841009, 0.18898084, 0.15854395],
+           [0.82315475, 0.94379024, 0.99996457]])
     """
 
     def df1dx(x: float, f1: FloatVector) -> FloatVector:
-        return (f1 - inst_copolymer_binary(f1, r1, r2))/(1. - x + eps)
+        return (f1 - inst_copolymer_binary(f1, r1, r2))/(1 - x + eps)
 
     if isinstance(f10, (int, float)):
         f10 = [f10]
 
     sol = solve_ivp(df1dx,
-                    (0., x[-1]),
+                    (0., max(x)),
                     f10,
                     t_eval=x,
-                    method='LSODA',
+                    method='LSODA',  # LSODA is by far the fastest solver
                     vectorized=True,
-                    rtol=rtol)
+                    atol=atol,
+                    rtol=1e-4)
 
     if sol.success:
         result = sol.y
@@ -221,3 +222,12 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
         raise ODESolverError(sol.message)
 
     return result
+
+# %% Jacobian for monomer_drift_binary
+# Tried, but does not really accelerate computation
+
+# def jac(x: float, f1: FloatVector) -> FloatVector:
+#     f2 = 1 - f1
+#     dF1df1 = (r1*f1**2 + r2*f2*(1 + (-1 + 2*r1)*f1)) / \
+#         (r2*f2**2 + f1*(2 + (-2 + r1)*f1))**2
+#     return (1 - dF1df1)/(1 - x + eps)
