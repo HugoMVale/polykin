@@ -380,7 +380,7 @@ class Distribution(ABC):
 class IndividualDistribution(Distribution):
     """_Abstract_ class for all individual chain-length distributions."""
 
-    _continuous = True
+    _continuous: bool = True
 
     def __mul__(self, other):
         if isinstance(other, (int, float)):
