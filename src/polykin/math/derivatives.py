@@ -4,12 +4,14 @@
 
 from typing import Callable
 
-from numpy import cbrt
+import numpy as np
+from numpy import cbrt, sqrt
 
 from polykin.utils.math import eps
 
 __all__ = ['derivative_complex',
-           'derivative_centered']
+           'derivative_centered',
+           'hessian2']
 
 
 def derivative_complex(f: Callable[[complex], complex],
@@ -89,11 +91,81 @@ def derivative_centered(f: Callable[[float], float],
     >>> from polykin.math import derivative_centered
     >>> def f(x): return x**3
     >>> derivative_centered(f, 1.)
-    (3.000000000069477, 1.0000000002288205)
+    (3.0000000003141882, 1.0000000009152836)
     """
-    h = cbrt(3*eps)
+    h0 = cbrt(3*eps)  # ~ 1e-5
+    h = h0*(1 + abs(x))
     fp = f(x + h)
     fm = f(x - h)
     df = (fp - fm)/(2*h)
     fx = (fp + fm)/2
     return (df, fx)
+
+
+def hessian2(f: Callable[[tuple[float, float]], float],
+             x: tuple[float, float]
+             ) -> np.ndarray:
+    r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
+    centered finite-difference scheme.
+
+    $$
+    H=\begin{bmatrix}
+    \frac{\partial^2f}{\partial x^2} & \frac{\partial^2f}{\partial x \partial y} \\ 
+    \frac{\partial^2f}{\partial y \partial x} & \frac{\partial^2f}{\partial y^2} 
+    \end{bmatrix}
+    $$
+
+    where
+
+    \begin{aligned}
+    \frac{\partial^2f(x,y)}{\partial x^2} &= 
+            \frac{f(x+2h,y)-f(x,y)+f(x-2h,y)}{4 h^2} + O(h^2) \\
+    \frac{\partial^2f(x,y)}{\partial x \partial y} &=
+            \frac{f(x+h,y+h)-f(x+h,y-h)-f(x-h,y+h)+f(x-h,y-h)}{4 h^2} + O(h^2)
+    \end{aligned}
+
+    In total, 9 function evaluations are performed.
+
+    **References**
+
+    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge
+    University Press, 2021.
+
+    Parameters
+    ----------
+    f : Callable[[tuple[float, float]], float]
+        Function to be diferentiated.
+    x : tuple[float, float]
+        Differentiation point.
+
+    Returns
+    -------
+    np.ndarray (2, 2)
+        Hessian matrix.
+
+    Examples
+    --------
+    Evaluate the numerical Hessian of f(x,y)=(x**2)*(y**3) at (2., -2.).
+    >>> from polykin.math import hessian2
+    >>> def fnc(x): return x[0]**2 * x[1]**3
+    >>> hessian2(fnc, (2., -2.))
+    array([[-15.99999951,  47.99999983],
+           [ 47.99999983, -47.99999983]])
+    """
+
+    x0 = x[0]
+    x1 = x[1]
+
+    h0 = cbrt(3*eps)
+    h = h0*(1 + sqrt(abs(x0*x1)))
+
+    H = np.empty((2, 2))
+    f0 = f(x)
+    H[0, 0] = f((x0 + 2*h, x1)) - 2*f0 + f((x0 - 2*h, x1))
+    H[1, 1] = f((x0, x1 + 2*h)) - 2*f0 + f((x0, x1 - 2*h))
+    H[0, 1] = f((x0 + h, x1 + h)) - f((x0 + h, x1 - h)) - f((x0 - h, x1 + h)) \
+        + f((x0 - h, x1 - h))
+    H[1, 0] = H[0, 1]
+    H /= 4*h**2
+
+    return H

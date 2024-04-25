@@ -214,6 +214,7 @@ nav:
           - confidence_region: reference/math/confidence_region.md
           - derivative_centered: reference/math/derivative_centered.md
           - derivative_complex: reference/math/derivative_complex.md
+          - hessian2: reference/math/hessian2.md
       - polykin.properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md
