@@ -151,7 +151,7 @@ def confidence_ellipse(ax: Axes,
 
 
 def confidence_region(center: tuple[float, float],
-                      sse: Callable[[float, float], float],
+                      sse: Callable[[tuple[float, float]], float],
                       ndata: int,
                       alpha: float = 0.05,
                       width: Optional[float] = None,
@@ -197,7 +197,7 @@ def confidence_region(center: tuple[float, float],
     ----------
     center : tuple[float, float]
         Point estimate of the model parameters, $\hat{\beta}$.
-    sse : Callable[[float, float], float]
+    sse : Callable[[tuple[float, float]], float]
         Error sum of squares function, $S(\beta_1, \beta_2)$.
     ndata : int
         Number of data points.
@@ -226,8 +226,8 @@ def confidence_region(center: tuple[float, float],
     Let's generate a confidence region for a non-quadratic sse function.
     >>> from polykin.math import confidence_region
     >>> import matplotlib.pyplot as plt
-    >>> def sse(x, y):
-    ...     return 1. + ((x-10)**2 + (y-20)**2 + (x-10)*np.sin((y-20)**2))
+    >>> def sse(x):
+    ...     return 1. + ((x[0]-10)**2 + (x[1]-20)**2 + (x[0]-10)*np.sin((x[1]-20)**2))
     >>> x, y = confidence_region(center=(10, 20.), sse=sse, ndata=10, alpha=0.10)
     >>> fig, ax = plt.subplots()
     >>> ax.plot(x,y)
@@ -243,7 +243,7 @@ def confidence_region(center: tuple[float, float],
     check_bounds(ndata, npar + 1, np.inf, 'ndata')
 
     # Boundary
-    sse_center = sse(*center)
+    sse_center = sse(center)
     if abs(sse_center) < eps:
         raise ValueError(
             "`sse(center)` is close to zero. Without residual error, there is no JCR.")
@@ -252,7 +252,7 @@ def confidence_region(center: tuple[float, float],
 
     # Find boundary radius at 3 o'clock
     sol = root_scalar(
-        f=lambda r: sse(center[0] + r, center[1]) - sse_boundary,
+        f=lambda r: sse((center[0] + r, center[1])) - sse_boundary,
         method='secant',
         x0=0,
         x1=width/2 if width is not None else 0.25*center[0])
@@ -266,16 +266,18 @@ def confidence_region(center: tuple[float, float],
         r = exp(s)
         x = center[0] + r*cos(q)
         y = center[1] + r*sin(q)
-        return sse(x, y)
+        return sse((x, y))
 
     # Move along boundary using radial coordinates
     # Imagine a particle transported by a velocity field orthogonal to 'sse'
     def dydt(t: float, y: np.ndarray) -> np.ndarray:
         s = y[0]
         q = y[1]
-        h = 2*sqrt(eps)
-        f_s = (f(s + h, q) - f(s - h, q))/h
-        f_q = (f(s, q + h) - f(s, q - h))/h
+        h0 = 1e-5
+        hs = h0*(1. + abs(s))
+        hq = h0*(1. + abs(q))
+        f_s = (f(s + hs, q) - f(s - hs, q))/(2*hs)
+        f_q = (f(s, q + hq) - f(s, q - hq))/(2*hq)
         ydot = np.empty_like(y)
         ydot[0] = -f_q
         ydot[1] = f_s
@@ -289,7 +291,7 @@ def confidence_region(center: tuple[float, float],
     sol = solve_ivp(dydt, (0., 1e10), (log(r0), 0.),
                     method='LSODA',
                     events=event,
-                    atol=[0, 1*rtol], rtol=rtol)
+                    atol=[0., 1*rtol], rtol=rtol)
     if not sol.success:
         raise ODESolverError(sol.message)
     else:
@@ -297,18 +299,6 @@ def confidence_region(center: tuple[float, float],
         theta = sol.y[1, :]
         if not np.isclose(r[0], r[-1], atol=min(*center), rtol=10*rtol):
             print("Warning: offset between start and end positions of JCR > 10*rtol.")
-
-    # Interpolate in radial coordinates, without loosing the original points
-    dim = theta.shape[0]
-    npoints = 1000
-    if dim < npoints:
-        theta_interp = np.linspace(0, 2*np.pi, npoints)
-        r_interp = np.interp(theta_interp, theta, r)
-        theta = np.concatenate((theta, theta_interp))
-        r = np.concatenate((r, r_interp))
-        idx_sorted = np.argsort(theta)
-        theta[:] = theta[idx_sorted]
-        r[:] = r[idx_sorted]
 
     # Convert to cartesian coordinates
     x = center[0] + r*cos(theta)
