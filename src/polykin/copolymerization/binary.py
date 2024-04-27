@@ -2,9 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Union
+from typing import Literal, Union
 
 import numpy as np
+from numba import jit
 from scipy.integrate import solve_ivp
 
 from polykin.utils.exceptions import ODESolverError
@@ -17,6 +18,7 @@ __all__ = ['inst_copolymer_binary',
            'monomer_drift_binary']
 
 
+@jit
 def inst_copolymer_binary(f1: Union[float, FloatArrayLike],
                           r1: Union[float, FloatArray],
                           r2: Union[float, FloatArray]
@@ -145,7 +147,8 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
                          x: FloatVectorLike,
                          r1: float,
                          r2: float,
-                         atol: float = 1e-4
+                         atol: float = 1e-4,
+                         method: Literal['LSODA', 'RK45'] = 'LSODA'
                          ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a binary system.
 
@@ -170,6 +173,8 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
         Reactivity ratio of M2.
     atol : float
         Absolute tolerance of ODE solver.
+    method : Literal['LSODA', 'RK45']
+        ODE solver.
 
     Returns
     -------
@@ -198,17 +203,15 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
            [0.82315475, 0.94379024, 0.99996457]])
     """
 
-    def df1dx(x: float, f1: FloatVector) -> FloatVector:
-        return (f1 - inst_copolymer_binary(f1, r1, r2))/(1 - x + eps)
-
     if isinstance(f10, (int, float)):
         f10 = [f10]
 
     sol = solve_ivp(df1dx,
                     (0., max(x)),
                     f10,
+                    args=(r1, r2),
                     t_eval=x,
-                    method='LSODA',  # LSODA is by far the fastest solver
+                    method=method,
                     vectorized=True,
                     atol=atol,
                     rtol=1e-4)
@@ -223,10 +226,33 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
 
     return result
 
+
+@jit
+def df1dx(x: float, f1: FloatArray, r1: float, r2: float) -> FloatArray:
+    """Skeist equation for a binary system.
+
+    Parameters
+    ----------
+    x : float
+        Total monomer conversion.
+    f1 : FloatArray
+        Molar fraction of M1.
+    r1 : float
+        Reactivity ratio of M1.
+    r2 : float
+        Reactivity ratio of M2.
+
+    Returns
+    -------
+    FloatVector
+        df1/dx.
+    """
+    return (f1 - inst_copolymer_binary(f1, r1, r2))/(1 - x + eps)
+
 # %% Jacobian for monomer_drift_binary
 # Tried, but does not really accelerate computation
-
-# def jac(x: float, f1: FloatVector) -> FloatVector:
+# @jit
+# def jac(x: float, f1: FloatVector, r1, r2) -> FloatVector:
 #     f2 = 1 - f1
 #     dF1df1 = (r1*f1**2 + r2*f2*(1 + (-1 + 2*r1)*f1)) / \
 #         (r2*f2**2 + f1*(2 + (-2 + r1)*f1))**2
