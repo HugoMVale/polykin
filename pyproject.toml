@@ -29,7 +29,7 @@ matplotlib = "^3.7.1"
 nptyping = "^2.5.0"
 pandas = ">=1.5.3"
 # sqlalchemy = "^2.0.22"
-# numba = "^0.58.1"
+numba = "^0.59.1"
 
 [tool.poetry.group.docs]
 optional = true
