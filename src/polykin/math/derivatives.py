@@ -93,8 +93,8 @@ def derivative_centered(f: Callable[[float], float],
     >>> derivative_centered(f, 1.)
     (3.0000000003141882, 1.0000000009152836)
     """
-    h0 = cbrt(3*eps)  # ~ 1e-5
-    h = h0*(1 + abs(x))
+    heps = cbrt(3*eps)  # ~ 1e-5
+    h = heps*(1 + abs(x))
     fp = f(x + h)
     fm = f(x - h)
     df = (fp - fm)/(2*h)
@@ -109,13 +109,14 @@ def hessian2(f: Callable[[tuple[float, float]], float],
     centered finite-difference scheme.
 
     $$
-    H=\begin{bmatrix}
+    H(x,y)=\begin{bmatrix}
     \frac{\partial^2f}{\partial x^2} & \frac{\partial^2f}{\partial x \partial y} \\ 
     \frac{\partial^2f}{\partial y \partial x} & \frac{\partial^2f}{\partial y^2} 
     \end{bmatrix}
     $$
 
-    where
+    where the partial derivatives are computed using the centered
+    finite-difference schemes:
 
     \begin{aligned}
     \frac{\partial^2f(x,y)}{\partial x^2} &= 
@@ -124,7 +125,8 @@ def hessian2(f: Callable[[tuple[float, float]], float],
             \frac{f(x+h,y+h)-f(x+h,y-h)-f(x-h,y+h)+f(x-h,y-h)}{4 h^2} + O(h^2)
     \end{aligned}
 
-    In total, 9 function evaluations are performed.
+    Although the matrix only contains 4 elements and is symmetric, a total of
+    9 function evaluations are performed.
 
     **References**
 
@@ -153,19 +155,18 @@ def hessian2(f: Callable[[tuple[float, float]], float],
            [ 47.99999983, -47.99999983]])
     """
 
-    x0 = x[0]
-    x1 = x[1]
+    x0, x1 = x
 
-    h0 = cbrt(3*eps)
-    h = h0*(1 + sqrt(abs(x0*x1)))
+    heps = cbrt(3*eps)  # ~ 1e-5
+    h0 = heps*(1 + abs(x0))
+    h1 = heps*(1 + abs(x1))
 
     H = np.empty((2, 2))
     f0 = f(x)
-    H[0, 0] = f((x0 + 2*h, x1)) - 2*f0 + f((x0 - 2*h, x1))
-    H[1, 1] = f((x0, x1 + 2*h)) - 2*f0 + f((x0, x1 - 2*h))
-    H[0, 1] = f((x0 + h, x1 + h)) - f((x0 + h, x1 - h)) - f((x0 - h, x1 + h)) \
-        + f((x0 - h, x1 - h))
+    H[0, 0] = (f((x0 + 2*h0, x1)) - 2*f0 + f((x0 - 2*h0, x1)))/(4*h0**2)
+    H[1, 1] = (f((x0, x1 + 2*h1)) - 2*f0 + f((x0, x1 - 2*h1)))/(4*h1**2)
+    H[0, 1] = (f((x0 + h0, x1 + h1)) - f((x0 + h0, x1 - h1)) - f((x0 - h0, x1 + h1))
+               + f((x0 - h0, x1 - h1)))/(4*h0*h1)
     H[1, 0] = H[0, 1]
-    H /= 4*h**2
 
     return H
