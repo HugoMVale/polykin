@@ -148,6 +148,7 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
                          r1: float,
                          r2: float,
                          atol: float = 1e-4,
+                         rtol: float = 1e-4,
                          method: Literal['LSODA', 'RK45'] = 'LSODA'
                          ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a binary system.
@@ -173,6 +174,8 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
         Reactivity ratio of M2.
     atol : float
         Absolute tolerance of ODE solver.
+    rtol : float
+        Relative tolerance of ODE solver.
     method : Literal['LSODA', 'RK45']
         ODE solver.
 
@@ -214,7 +217,7 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
                     method=method,
                     vectorized=True,
                     atol=atol,
-                    rtol=1e-4)
+                    rtol=rtol)
 
     if sol.success:
         result = sol.y
