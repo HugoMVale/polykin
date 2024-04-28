@@ -3,18 +3,22 @@
 # Copyright Hugo Vale 2023
 
 from abc import ABC
+from dataclasses import dataclass
 from typing import Any, Literal, Union
 
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatOrVector
 from polykin.utils.tools import check_shapes
-from polykin.utils.types import FloatVectorLike
+from polykin.utils.types import FloatVector, FloatVectorLike
 
 # from dataclasses import dataclass
 
 
 __all__ = ['MayoDataset',
            'DriftDataset',
-           'kpDataset']
+           'kpDataset',
+           'CopoDataset_Ff',
+           'CopoDataset_fx',
+           'CopoDataset_Fx']
 
 
 class CopoDataset(ABC):
@@ -230,3 +234,38 @@ class kpDataset(CopoDataset):
         """Construct `DriftDataset` with the given parameters."""
         super().__init__(M1, M2, f1, kp, sigma_f1, sigma_kp, weight, T, Tunit,
                          name, source)
+
+
+@dataclass(frozen=True)
+class CopoDataset_Ff():
+    """Dataclass for instantaneous copolymerization data of the form F(f)."""
+    name: str
+    f1: FloatVector
+    F1: FloatVector
+    scale_f1: Union[FloatVector, float]
+    scale_F1: Union[FloatVector, float]
+    weight: float = 1.
+
+
+@dataclass(frozen=True)
+class CopoDataset_fx():
+    """Dataclass for drift copolymerization data of the form f1(x)."""
+    name: str
+    f10: float
+    x: FloatVector
+    f1: FloatVector
+    scale_x: Union[FloatVector, float]
+    scale_f1: Union[FloatVector, float]
+    weight: float = 1.
+
+
+@dataclass(frozen=True)
+class CopoDataset_Fx():
+    """Dataclass for drift copolymerization data of the form F1(x)."""
+    name: str
+    f10: float
+    x: FloatVector
+    F1: FloatVector
+    scale_x: Union[FloatVector, float]
+    scale_F1: Union[FloatVector, float]
+    weight: float = 1.
