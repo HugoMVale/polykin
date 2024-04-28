@@ -101,7 +101,7 @@ def confidence_ellipse(ax: Axes,
     >>> import numpy as np
     >>> fig, ax = plt.subplots()
     >>> confidence_ellipse(ax=ax, center=(0.3,0.8),
-    ...                    cov=np.array([[2e-4, 3e-4], [3e-4, 2e-3]]), ndata=9)
+    ...     cov=np.array([[2e-4, 3e-4], [3e-4, 2e-3]]), ndata=9)
     """
 
     # Method implementation is specific for 2D
