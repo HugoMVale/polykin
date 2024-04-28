@@ -3,86 +3,87 @@
 # Copyright Hugo Vale 2024
 
 from dataclasses import dataclass
-from typing import Literal, Optional, Sequence, Union
+from typing import Literal, Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes._axes import Axes
 from matplotlib.figure import Figure
+from numpy import dot
 from scipy import odr
-from scipy.optimize import curve_fit
+from scipy.optimize import minimize
 from scipy.stats import linregress
 from scipy.stats.distributions import t as tdist
 
-from polykin.copolymerization.binary import inst_copolymer_binary
-from polykin.math import confidence_ellipse, confidence_region
+from polykin.copolymerization.binary import (inst_copolymer_binary,
+                                             monomer_drift_binary)
+from polykin.copolymerization.copodataset import (CopoDataset_Ff,
+                                                  CopoDataset_fx,
+                                                  CopoDataset_Fx)
+from polykin.math import confidence_ellipse, confidence_region, hessian2
 from polykin.utils.exceptions import FitError
-from polykin.utils.math import (convert_FloatOrVectorLike_to_FloatOrVector,
-                                convert_FloatOrVectorLike_to_FloatVector)
-from polykin.utils.tools import check_bounds, check_shapes
-from polykin.utils.types import (Float2x2Matrix, FloatVectorLike)
+from polykin.utils.types import Float2x2Matrix, FloatVectorLike
 
 __all__ = ['fit_Finemann_Ross',
-           'fit_reactivity_ratios']
+           'fit_copo_data',
+           'CopoFitResult']
 
 
 # %% CopoFitResult
-
 
 @dataclass
 class CopoFitResult():
     r"""Dataclass for copolymerization fit results.
 
-    Parameters
+    Attributes
     ----------
+    method : str
+        Name of the fit method.
     r1 : float
         Reactivity ratio of M1.
     r2: float
         Reactivity ratio of M2
-    cov : Float2x2Matrix
-        Scaled variance-covariance matrix.
-    se_r1 : float
-        Standard error of r1.
-    se_r2 : float
-        Standard error of r2.
+    alpha : float
+        Significance level.
+
     ci_r1 : float
         Confidence interval of r1.
     ci_r2: float
         Confidence interval of r2.
-    alpha : float
-        Significance level.
-    method : str
-        Name of the fit method.
+    se_r1 : float
+        Standard error of r1.
+    se_r2 : float
+        Standard error of r2.
+    cov : Float2x2Matrix
+        Scaled variance-covariance matrix.
+    plots : dict[str, tuple[Figure, Axes]]
+        Dictionary of plots.
     M1 : str
         Name of M1.
     M2 : str
         Name of M2.
-    Mayo : tuple[Figure, Axes] | None
-        Mayo-Lewis plot with experimental data and fitted curve.
-    JCR : tuple[Figure, Axes] | None
-        Joint confidence region of reactivity ratios.
     """
+
+    method: str
     r1: float
     r2: float
-    cov: Float2x2Matrix
-    se_r1: float
-    se_r2: float
+    alpha: float
     ci_r1: float
     ci_r2: float
-    alpha: float
-    method: str
+    se_r1: float
+    se_r2: float
+    cov: Optional[Float2x2Matrix]
+    plots: dict[str, tuple[Figure, Axes]]
     M1: str = 'M1'
     M2: str = 'M2'
-    Mayo: Optional[tuple[Figure, Axes]] = None
-    JCR: Optional[tuple[Figure, Axes]] = None
 
     def __repr__(self):
         s1 = \
-            f"method:     {self.method}\n" \
-            f"M1:         {self.M1}\n" \
-            f"M2:         {self.M2}\n" \
-            f"r1:         {self.r1:.2E}\n" \
-            f"r2:         {self.r2:.2E}\n"
+            f"method:  {self.method}\n" \
+            f"M1:      {self.M1}\n" \
+            f"M2:      {self.M2}\n" \
+            f"r1:      {self.r1:.2E}\n" \
+            f"r2:      {self.r2:.2E}\n"
         if self.se_r1 is not None:
             s2 = \
                 f"alpha:   {self.alpha:.2f}\n" \
@@ -95,238 +96,8 @@ class CopoFitResult():
             s2 = ""
         return s1 + s2
 
+
 # %% Fit functions
-
-
-def fit_reactivity_ratios(
-        f1: FloatVectorLike,
-        F1: FloatVectorLike,
-        scale_f: Union[float, FloatVectorLike] = 1.0,
-        scale_F: Union[float, FloatVectorLike] = 1.0,
-        initial_guess: tuple[float, float] = (1.0, 1.0),
-        method: Literal['NLLS', 'ODR'] = 'NLLS',
-        alpha: float = 0.05,
-        Mayo_plot: bool = True,
-        JCR_method: list[Literal['linear', 'exact']] = ['linear'],
-        rtol: float = 1e-5
-) -> CopoFitResult:
-    r"""Fit the reactivity ratios of the terminal model from instantaneous
-    copolymer composition data.
-
-    This function employs rigorous nonlinear algorithms to estimate the
-    reactivity ratios from experimental $F(f)$ data obtained at low monomer
-    conversion. The parameters are estimated by minimizing the sum of squared
-    errors: 
-
-    $$ SSE = \sum_i \left[ \left(\frac{f_i - \hat{f_i}}{s_{f_i}}\right)^2 +
-             \left(\frac{F_i - \hat{F_i}}{s_{F_i}}\right)^2 \right]   $$
-
-    where $s_{f_i}$ and $s_{F_i}$ are the scale factors for the monomer and the
-    copolymer composition, respectively.
-
-    The optimization is done using one of two methods: NLLS or ODR. The
-    nonlinear least squares (NLLS) method neglects the first term of the
-    summation, i.e. it only considers the observational errors in $F$. In
-    contrast, the orthogonal distance regression (ODR) method takes the errors
-    in both variables into account. 
-
-    In well-designed experiments, the uncertainty in $f \ll F$, and so the NLLS
-    method should suffice. However, if this condition is not met, the ODR
-    method can be utilized to consider the uncertainty on both $f$ and $F$ in
-    a statistically correct manner.
-
-    The joint confidence region (JCR) of the reactivity ratios is generated
-    using approximate (linear) and/or exact methods. In most cases, the linear
-    method should be sufficiently accurate. Nonetheless, for these types of
-    fits, the exact method is computationally inexpensive, making it perhaps a
-    preferable choice.
-
-    **Reference**
-
-    *   Van Herk, A.M. and Dröge, T. (1997), Nonlinear least squares fitting
-        applied to copolymerization modeling. Macromol. Theory Simul.,
-        6: 1263-1276.
-    *   Boggs, Paul T., et al. "Algorithm 676: ODRPACK: software for weighted
-        orthogonal distance regression." ACM Transactions on Mathematical
-        Software (TOMS) 15.4 (1989): 348-364.
-
-    Parameters
-    ----------
-    f1 : FloatVectorLike (N)
-        Molar fraction of M1.
-    F1 : FloatVectorLike (N)
-        Instantaneous copolymer composition of M1.
-    scale_f : float | FloatVectorLike (N)
-        Absolute scale for f1.
-    scale_F : float | FloatVectorLike (N)
-        Absolute scale for F1.
-    initial_guess : tuple[float, float]
-        Initial guess for the reactivity ratios.
-    method : Literal['NLLS', 'ODR']
-        Optimization method. `NLLS` for nonlinear least squares or `ODR` for
-        orthogonal distance regression. 
-    alpha : float
-        Significance level.
-    Mayo_plot : bool
-        If `True` a Mayo-Lewis plot will be generated.
-    JCR_method : list[Literal['linear', 'exact']
-        Method used to compute the joint confidence region of the reactivity
-        ratios.
-    rtol : float
-        Relative tolerance of the ODE solver for the exact JCR method. The
-        default value may be decreased by one or more orders of magnitude if
-        the resolution of the JCR appears insufficient.
-
-    Returns
-    -------
-    CopoFitResult
-        Dataclass with all fit results.
-
-    See also
-    --------
-    * [`confidence_ellipse`](../math/confidence_ellipse.md): linear method
-      used to calculate the joint confidence region.
-    * [`confidence_region`](../math/confidence_region.md): exact method
-      used to calculate the joint confidence region.
-    * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
-
-    Examples
-    --------
-    >>> from polykin.copolymerization.fitting import fit_reactivity_ratios
-    >>>
-    >>> f1 = [0.186, 0.299, 0.527, 0.600, 0.700, 0.798]
-    >>> F1 = [0.196, 0.279, 0.415, 0.473, 0.542, 0.634]
-    >>>
-    >>> res = fit_reactivity_ratios(f1, F1)
-    >>> print(
-    ... f"r1={res.r1:.2f}±{res.ci_r1:.2f}, r2={res.r2:.2f}±{res.ci_r2:.2f}")
-    r1=0.26±0.04, r2=0.81±0.10
-
-    """
-
-    f1, F1 = convert_FloatOrVectorLike_to_FloatVector([f1, F1])
-    scale_f, scale_F = convert_FloatOrVectorLike_to_FloatOrVector(
-        [scale_f, scale_F])
-
-    # Check inputs
-    check_shapes([f1, F1], [scale_f, scale_F])
-    check_bounds(f1, 0., 1., 'f1')
-    check_bounds(F1, 0., 1., 'F1')
-
-    # Convert scale to vectors
-    ndata = f1.size
-    if not isinstance(scale_f, Sequence):
-        scale_f = np.full(ndata, scale_f)
-    if not isinstance(scale_F, Sequence):
-        scale_F = np.full(ndata, scale_F)
-
-    r1, r2, cov, = None, None, None
-    error_message = ''
-    if method == 'NLLS':
-
-        solution = curve_fit(inst_copolymer_binary,
-                             xdata=f1,
-                             ydata=F1,
-                             p0=initial_guess,
-                             sigma=scale_F,
-                             absolute_sigma=False,  # for scaled cov
-                             bounds=(0., np.inf),
-                             full_output=True)
-        if solution[4]:
-            r1, r2 = solution[0]
-            cov = solution[1]
-        else:
-            error_message = solution[3]
-
-    elif method == 'ODR':
-
-        odr_Model = odr.Model(lambda beta, x: inst_copolymer_binary(x, *beta))
-        odr_Data = odr.RealData(x=f1, y=F1, sx=scale_f, sy=scale_F)
-        odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=initial_guess)
-        solution = odr_ODR.run()
-        if (solution.info < 5):  # type: ignore
-            r1, r2 = solution.beta
-            # cov_beta is absolute, so rescaling is required
-            cov = solution.cov_beta*solution.res_var  # type: ignore
-            # estimated f1, needed for sse
-            f1plus = solution.xplus  # type: ignore
-        else:
-            error_message = solution.stopreason
-
-    else:
-        raise ValueError(f"Invalid method `{method}`.")
-
-    if r1 is None or r2 is None or cov is None:
-        raise FitError(error_message)
-
-    # Standard parameter errors and confidence intervals
-    if ndata > 2:
-        se_r = np.sqrt(np.diag(cov))
-        ci_r = se_r*tdist.ppf(1. - alpha/2, ndata - 2)
-    else:
-        se_r = [np.nan, np.nan]
-        ci_r = [np.nan, np.nan]
-
-    # Mayo plot
-    Mayo = None
-    if Mayo_plot:
-        Mayo = plt.subplots()
-        ax = Mayo[1]
-        ax.set_xlabel(r"$f_1$")
-        ax.set_ylabel(r"$F_1$")
-        ax.scatter(f1, F1)
-        ax.set_xlim(0., 1.)
-        ax.set_ylim(0., 1.)
-        x = np.linspace(0., 1., 200)
-        y = inst_copolymer_binary(x, r1, r2)
-        ax.plot(x, y)
-
-    # Joint confidence region
-    JCR = None
-    if JCR_method:
-        JCR = plt.subplots()
-        ax = JCR[1]
-        ax.set_xlabel(r"$r_1$")
-        ax.set_ylabel(r"$r_2$")
-        colors = ['tab:blue', 'tab:orange']
-        idx = 0
-
-        if 'linear' in JCR_method:
-            confidence_ellipse(ax, (r1, r2), cov, ndata, alpha=alpha,
-                               color=colors[idx], label='linear JCR')
-            idx += 1
-
-        if 'exact' in JCR_method:
-
-            def sse_NLLS(r1, r2):
-                ey = (F1 - inst_copolymer_binary(f1, r1, r2))/scale_F
-                return np.dot(ey, ey)
-
-            def sse_ODR(r1, r2):
-                ey = (F1 - inst_copolymer_binary(f1plus, r1, r2))/scale_F
-                ex = (f1 - f1plus)/scale_f
-                return np.dot(ey, ey) + np.dot(ex, ex)
-
-            sse = sse_NLLS if method == 'NLLS' else sse_ODR
-
-            jcr = confidence_region((r1, r2), sse, ndata, alpha=alpha,
-                                    width=ci_r[0], rtol=rtol)
-
-            ax.scatter(r1, r2, c=colors[idx], s=5)
-            ax.plot(jcr[0], jcr[1], color=colors[idx], label='exact JCR')
-
-        ax.legend(loc="best")
-
-    result = CopoFitResult(r1=r1, r2=r2,
-                           cov=cov,
-                           se_r1=se_r[0], se_r2=se_r[1],
-                           ci_r1=ci_r[0], ci_r2=ci_r[1],
-                           alpha=alpha,
-                           method=method,
-                           Mayo=Mayo, JCR=JCR)
-
-    return result
-
 
 def fit_Finemann_Ross(f1: FloatVectorLike,
                       F1: FloatVectorLike
@@ -395,3 +166,326 @@ def fit_Finemann_Ross(f1: FloatVectorLike,
     r2 = - solution.intercept  # type: ignore
 
     return (r1, r2)
+
+
+def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
+                  data_fx: list[CopoDataset_fx] = [],
+                  data_Fx: list[CopoDataset_Fx] = [],
+                  r_guess: tuple[float, float] = (1.0, 1.0),
+                  method: Literal['NLLS', 'ODR'] = 'NLLS',
+                  alpha: float = 0.05,
+                  plot_data: bool = True,
+                  JCR_linear: bool = True,
+                  JCR_exact: bool = False,
+                  rtol: float = 1e-4
+                  ):
+    r"""Fit copolymer composition data and estimate reactivity ratios.
+
+    This function employs rigorous nonlinear algorithms to estimate the
+    reactivity ratios from experimental copolymer composition data of type
+    $F(f)$, $f(x;f_0)$, and $F(x,f_0)$. 
+
+    The fitting is performed using one of two methods: nonlinear least squares
+    (NLLS) or orthogonal distance regression (ODR). NLLS considers only
+    observational errors in the dependent variable, whereas ODR takes into
+    account observational errors in both the dependent and independent
+    variables. Although the ODR method is statistically more general, it is
+    also more complex and can (at present) only be used for fitting $F(f)$
+    data. Whenever composition drift data is provided, NLLS must be utilized.
+
+    The joint confidence region (JCR) of the reactivity ratios is generated
+    using approximate (linear) and/or exact methods. In most cases, the linear
+    method should be sufficiently accurate. Nonetheless, for these types of
+    fits, the exact method is computationally inexpensive, making it perhaps a
+    preferable choice.
+
+    **Reference**
+
+    *   Van Herk, A.M. and Dröge, T. (1997), Nonlinear least squares fitting
+        applied to copolymerization modeling. Macromol. Theory Simul.,
+        6: 1263-1276.
+    *   Boggs, Paul T., et al. "Algorithm 676: ODRPACK: software for weighted
+        orthogonal distance regression." ACM Transactions on Mathematical
+        Software (TOMS) 15.4 (1989): 348-364.
+
+    Parameters
+    ----------
+    data_Ff : list[CopoDataset_Ff]
+        F(f) instantaneous composition datasets.
+    data_fx : list[CopoDataset_fx]
+        f(x) composition drift datasets.
+    data_Fx : list[CopoDataset_Fx]
+        F(x) composition drift datasets
+    r_guess : tuple[float, float]
+        Initial guess for the reactivity ratios.
+    method : Literal['NLLS', 'ODR']
+        Optimization method. `NLLS` for nonlinear least squares or `ODR` for
+        orthogonal distance regression. The `ODR` method is only available for
+        F(f) data.
+    alpha : float
+        Significance level.
+    plot_data : bool
+        If `True`, comparisons between experimental and fitted data will be
+        plotted.
+    JCR_linear : bool, optional
+        If `True`, the JCR will be computed using the linear method.
+    JCR_exact : bool, optional
+        If `True`, the JCR will be computed using the exact method.
+    rtol : float
+        Relative tolerance of the ODE solver for the exact JCR method. Lowering
+        `rtol` can help improve the resolution of the JCR, but may also cause
+        the method to fail.
+
+    Returns
+    -------
+    CopoFitResult
+        Dataclass with all fit results.
+
+    See also
+    --------
+    * [`confidence_ellipse`](../math/confidence_ellipse.md): linear method
+      used to calculate the joint confidence region.
+    * [`confidence_region`](../math/confidence_region.md): exact method
+      used to calculate the joint confidence region.
+    * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
+
+    """
+
+    # Calculate and check 'ndata'
+    npar = 2
+    ndata = 0
+    for dataset in data_Ff:
+        ndata += len(dataset.f1)
+    for dataset in data_fx:
+        ndata += len(dataset.x)
+    for dataset in data_Fx:
+        ndata += len(dataset.x)
+    if ndata < npar:
+        raise FitError("Not enough data to estimate reactivity ratios.")
+
+    # Check method choice
+    if method == 'ODR' and (len(data_fx) > 0 or len(data_Fx) > 0):
+        raise FitError("ODR method not implemented for drift data.")
+
+    # Fit data
+    if method == 'NLLS':
+
+        r_opt, cov, sse = _fit_copo_NLLS(data_Ff, data_fx, data_Fx, r_guess,
+                                         ndata)
+
+    elif method == 'ODR':
+
+        r_opt, cov, sse = _fit_copo_ODR(data_Ff, r_guess)
+
+    else:
+        raise ValueError(f"Method {method} is not valid.")
+
+    # Standard parameter errors and confidence intervals
+    if ndata > npar and cov is not None:
+        se_r = np.sqrt(np.diag(cov))
+        ci_r = se_r*tdist.ppf(1. - alpha/2, ndata - npar)
+    else:
+        se_r = [np.nan, np.nan]
+        ci_r = [np.nan, np.nan]
+
+    # Plot data vs model
+    plots = {}
+    if plot_data:
+        xmax = 1.
+        npoints = 200
+        # Plot F(f) data
+        if data_Ff:
+            plots['Ff'] = plt.subplots()
+            ax = plots['Ff'][1]
+            ax.set_xlabel(r"$f_1$")
+            ax.set_ylabel(r"$F_1$")
+            ax.set_xlim(0., 1.)
+            ax.set_ylim(0., 1.)
+            for dataset in data_Ff:
+                ax.scatter(dataset.f1, dataset.F1, label=dataset.name)
+            f1 = np.linspace(0., 1., npoints)
+            F1_est = inst_copolymer_binary(f1, *r_opt)
+            ax.plot(f1, F1_est)
+            ax.legend(loc="best")
+
+        # Plot f(x) data
+        if data_fx:
+            plots['fx'] = plt.subplots()
+            ax = plots['fx'][1]
+            ax.set_xlabel(r"$x$")
+            ax.set_ylabel(r"$f_1$")
+            ax.set_xlim(0., 1.)
+            ax.set_ylim(0., 1.)
+            x = np.linspace(0., xmax, npoints)
+            for dataset in data_fx:
+                ax.scatter(dataset.x, dataset.f1, label=dataset.name)
+                f1_est = monomer_drift_binary(dataset.f10, x, *r_opt)
+                ax.plot(x, f1_est)
+            ax.legend(loc="best")
+
+        # Plot F(x) data
+        if data_Fx:
+            plots['Fx'] = plt.subplots()
+            ax = plots['Fx'][1]
+            ax.set_xlabel(r"$x$")
+            ax.set_ylabel(r"$F_1$")
+            ax.set_xlim(0., 1.)
+            ax.set_ylim(0., 1.)
+            x = np.linspace(0., xmax, npoints)
+            for dataset in data_Fx:
+                ax.scatter(dataset.x, dataset.F1, label=dataset.name)
+                f1_est = monomer_drift_binary(dataset.f10, x, *r_opt)
+                F1_est = f1_est + (dataset.f10 - f1_est)/(x + 1e-10)
+                ax.plot(x, F1_est)
+            ax.legend(loc="best")
+
+    # Joint confidence region
+    if (JCR_linear or JCR_exact) and cov is not None:
+
+        plots['JCR'] = plt.subplots()
+        ax = plots['JCR'][1]
+        ax.set_xlabel(r"$r_1$")
+        ax.set_ylabel(r"$r_2$")
+        colors = ['tab:blue', 'tab:orange']
+        idx = 0
+
+        if JCR_linear:
+            confidence_ellipse(ax,
+                               center=r_opt,
+                               cov=cov,
+                               ndata=ndata,
+                               alpha=alpha,
+                               color=colors[idx], label='linear JCR')
+            idx += 1
+
+        if JCR_exact:
+            jcr = confidence_region(center=r_opt,
+                                    sse=sse,
+                                    ndata=ndata,
+                                    alpha=alpha,
+                                    width=2*ci_r[0],
+                                    rtol=rtol)
+
+            # ax.scatter(r1, r2, c=colors[idx], s=5)
+            ax.plot(*jcr, color=colors[idx], label='exact JCR')
+
+        ax.legend(loc="best")
+
+    result = CopoFitResult(method=method,
+                           r1=r_opt[0], r2=r_opt[1],
+                           alpha=alpha,
+                           ci_r1=ci_r[0], ci_r2=ci_r[1],
+                           se_r1=se_r[0], se_r2=se_r[1],
+                           cov=cov,
+                           plots=plots)
+
+    return result
+
+
+def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
+                   data_fx: list[CopoDataset_fx],
+                   data_Fx: list[CopoDataset_Fx],
+                   r_guess: tuple[float, float],
+                   ndata: int):
+    """Fit copolymerization data using NLLS."""
+
+    def sse(r: tuple[float, float], method='LSODA') -> float:
+        "Total sum of squared errors, for optimizer and exact JCR."
+        result = 0.
+        # F1(f1) datasets
+        for dataset in data_Ff:
+            F1_est = inst_copolymer_binary(dataset.f1, *r)
+            rx = (dataset.F1 - F1_est)/dataset.scale_F1
+            result += dataset.weight*dot(rx, rx)
+
+        # f1(x, f10) datasets
+        for dataset in data_fx:
+            f1_est = monomer_drift_binary(dataset.f10, dataset.x, *r,
+                                          method=method)
+            rx = (dataset.f1 - f1_est)/dataset.scale_f1
+            result += dataset.weight*dot(rx, rx)
+
+        # F1(x, f10) datasets
+        for dataset in data_Fx:
+            f10 = dataset.f10
+            x = dataset.x
+            f1_est = monomer_drift_binary(f10, x, *r, method=method)
+            F1_est = f1_est + (f10 - f1_est)/(x + 1e-10)
+            rx = (dataset.F1 - F1_est)/dataset.scale_F1
+            result += dataset.weight*dot(rx, rx)
+        return result
+
+    def sse_NLLS(r):
+        "Total sum of squared errors, for exact JCR."
+        return sse(r, method='RK45')
+
+    # Parameter estimation
+    sol = minimize(sse,
+                   x0=r_guess,
+                   bounds=((0., 1e2), (0., 1e2)),
+                   method='L-BFGS-B',  # most efficient
+                   options={'maxiter': 200})
+    if not sol.success:
+        raise FitError(sol.message)
+    r_opt = sol.x
+    sse_opt = sol.fun
+
+    # Covarance matrix
+    npar = 2
+    if ndata > npar:
+        s_sq = sse_opt/(ndata - npar)
+        H = hessian2(sse, r_opt)
+        Hinv = np.linalg.inv(H)
+        cov = 2*Hinv*s_sq
+    else:
+        cov = None
+
+    return (r_opt, cov, sse_NLLS)
+
+
+def _fit_copo_ODR(data_Ff: list[CopoDataset_Ff],
+                  r_guess: tuple[float, float]):
+    """Fit copolymerization data using ODR."""
+
+    # Concatenate all F(f) datasets
+    f1, F1, sf1, sF1 = [], [], [], []
+    for dataset in data_Ff:
+        f1.extend(dataset.f1)
+        F1.extend(dataset.F1)
+        _sf1 = dataset.scale_f1/(dataset.weight + 1e-10)
+        if isinstance(_sf1, (int, float)):
+            _sf1 = [_sf1]*len(dataset.f1)
+        sf1.extend(_sf1)
+        _sF1 = dataset.scale_F1/(dataset.weight + 1e-10)
+        if isinstance(_sF1, (int, float)):
+            _sF1 = [_sF1]*len(dataset.f1)
+        sF1.extend(_sF1)
+    f1 = np.asarray(f1)
+    F1 = np.asarray(F1)
+    sf1 = np.asarray(sf1)
+    sF1 = np.asarray(sF1)
+
+    # Parameter estimation
+    odr_Model = odr.Model(lambda beta, x: inst_copolymer_binary(x, *beta))
+    odr_Data = odr.RealData(x=f1, y=F1, sx=sf1, sy=sF1)
+    odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=r_guess)
+    solution = odr_ODR.run()
+
+    if solution.info > 4:  # type: ignore
+        raise FitError(solution.stopreason)
+
+    r_opt = solution.beta
+    f1plus = solution.xplus  # type: ignore
+    if f1.size > 2:
+        # cov_beta is absolute, so rescaling is required
+        cov = solution.cov_beta*solution.res_var  # type: ignore
+    else:
+        cov = None
+
+    def sse_ODR(r):
+        "Total sum of squared errors, for exact JCR."
+        ry = (F1 - inst_copolymer_binary(f1plus, *r))/sF1
+        rx = (f1 - f1plus)/sf1
+        return dot(ry, ry) + dot(rx, rx)
+
+    return (r_opt, cov, sse_ODR)

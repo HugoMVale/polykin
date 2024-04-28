@@ -273,7 +273,7 @@ def confidence_region(center: tuple[float, float],
     def dydt(t: float, y: np.ndarray) -> np.ndarray:
         s = y[0]
         q = y[1]
-        h0 = 1e-5
+        h0 = 1e-4  # higher values are unsuitable
         hs = h0*(1. + abs(s))
         hq = h0*(1. + abs(q))
         f_s = (f(s + hs, q) - f(s - hs, q))/(2*hs)
