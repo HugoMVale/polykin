@@ -158,8 +158,8 @@ def hessian2(f: Callable[[tuple[float, float]], float],
     x0, x1 = x
 
     heps = cbrt(3*eps)  # ~ 1e-5
-    h0 = heps*(1 + abs(x0))
-    h1 = heps*(1 + abs(x1))
+    h0 = heps*(1. + abs(x0))
+    h1 = heps*(1. + abs(x1))
 
     H = np.empty((2, 2))
     f0 = f(x)
