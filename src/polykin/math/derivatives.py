@@ -181,7 +181,4 @@ def hessian2(f: Callable[[tuple[float, float]], float],
                + f((x0 - h0, x1 - h1)))/(4*h0*h1)
     H[1, 0] = H[0, 1]
 
-    print(h, h0, h1)
-    print(H)
-
     return H
