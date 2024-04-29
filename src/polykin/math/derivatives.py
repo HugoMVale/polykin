@@ -2,10 +2,10 @@
 #
 # Copyright Hugo Vale 2024
 
-from typing import Callable
+from typing import Callable, Optional
 
 import numpy as np
-from numpy import cbrt, sqrt
+from numpy import cbrt
 
 from polykin.utils.math import eps
 
@@ -60,7 +60,8 @@ def derivative_complex(f: Callable[[complex], complex],
 
 
 def derivative_centered(f: Callable[[float], float],
-                        x: float
+                        x: float,
+                        h: Optional[float] = None
                         ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     centered finite-difference scheme.
@@ -79,6 +80,8 @@ def derivative_centered(f: Callable[[float], float],
         Function to be diferentiated.
     x : float
         Differentiation point.
+    h : float | None
+        Finite-difference step.
 
     Returns
     -------
@@ -93,17 +96,22 @@ def derivative_centered(f: Callable[[float], float],
     >>> derivative_centered(f, 1.)
     (3.0000000003141882, 1.0000000009152836)
     """
-    heps = cbrt(3*eps)  # ~ 1e-5
-    h = heps*(1 + abs(x))
+
+    if h is None:
+        h = cbrt(3*eps)  # ~ 1e-5
+        h *= (1 + abs(x))
+
     fp = f(x + h)
     fm = f(x - h)
     df = (fp - fm)/(2*h)
     fx = (fp + fm)/2
+
     return (df, fx)
 
 
 def hessian2(f: Callable[[tuple[float, float]], float],
-             x: tuple[float, float]
+             x: tuple[float, float],
+             h: Optional[float] = None
              ) -> np.ndarray:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
@@ -139,6 +147,8 @@ def hessian2(f: Callable[[tuple[float, float]], float],
         Function to be diferentiated.
     x : tuple[float, float]
         Differentiation point.
+    h : float | None
+        Finite-difference step.
 
     Returns
     -------
@@ -157,9 +167,11 @@ def hessian2(f: Callable[[tuple[float, float]], float],
 
     x0, x1 = x
 
-    heps = cbrt(3*eps)  # ~ 1e-5
-    h0 = heps*(1. + abs(x0))
-    h1 = heps*(1. + abs(x1))
+    if h is None:
+        h = cbrt(3*eps)  # ~ 1e-5
+
+    h0 = h*(1. + abs(x0))
+    h1 = h*(1. + abs(x1))
 
     H = np.empty((2, 2))
     f0 = f(x)
@@ -168,5 +180,8 @@ def hessian2(f: Callable[[tuple[float, float]], float],
     H[0, 1] = (f((x0 + h0, x1 + h1)) - f((x0 + h0, x1 - h1)) - f((x0 - h0, x1 + h1))
                + f((x0 - h0, x1 - h1)))/(4*h0*h1)
     H[1, 0] = H[0, 1]
+
+    print(h, h0, h1)
+    print(H)
 
     return H
