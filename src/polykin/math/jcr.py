@@ -255,7 +255,7 @@ def confidence_region(center: tuple[float, float],
         f=lambda r: sse((center[0] + r, center[1])) - sse_boundary,
         method='secant',
         x0=0,
-        x1=width/2 if width is not None else 0.25*center[0])
+        x1=abs(width)/2 if width is not None else 0.25*center[0])
     if not sol.converged:
         raise RootSolverError(sol.flag)
     else:
