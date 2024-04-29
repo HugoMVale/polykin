@@ -292,7 +292,7 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
     plots = {}
     if plot_data:
         xmax = 1.
-        npoints = 200
+        npoints = 500
         # Plot F(f) data
         if data_Ff:
             plots['Ff'] = plt.subplots()
@@ -333,9 +333,11 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
             ax.set_ylim(0., 1.)
             x = np.linspace(0., xmax, npoints)
             for dataset in data_Fx:
+                f10 = dataset.f10
                 ax.scatter(dataset.x, dataset.F1, label=dataset.name)
-                f1_est = monomer_drift_binary(dataset.f10, x, *r_opt)
-                F1_est = f1_est + (dataset.f10 - f1_est)/(x + 1e-10)
+                f1_est = monomer_drift_binary(f10, x, *r_opt)
+                F1_est = f1_est + (f10 - f1_est)/(x + 1e-10)
+                F1_est[0] = inst_copolymer_binary(f10, *r_opt)
                 ax.plot(x, F1_est)
             ax.legend(loc="best")
 
@@ -422,7 +424,7 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
     # Parameter estimation
     sol = minimize(sse,
                    x0=r_guess,
-                   bounds=((0., 1e2), (0., 1e2)),
+                   bounds=((1e-3, 1e2), (1e-3, 1e2)),
                    method='L-BFGS-B',  # most efficient
                    options={'maxiter': 200})
     if not sol.success:
@@ -434,7 +436,7 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
     npar = 2
     if ndata > npar:
         s_sq = sse_opt/(ndata - npar)
-        H = hessian2(sse, r_opt)
+        H = hessian2(sse, r_opt, h=1e-4)
         Hinv = np.linalg.inv(H)
         cov = 2*Hinv*s_sq
     else:
