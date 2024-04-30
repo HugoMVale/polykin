@@ -8,7 +8,7 @@ from typing import Any, Iterable, Literal, Union
 import numpy as np
 
 from .exceptions import RangeError, ShapeError
-from .types import FloatOrArray, FloatOrArrayLike
+from .types import FloatOrArray, FloatOrArrayLike, FloatMatrix
 
 # %% Check tools
 
@@ -383,3 +383,27 @@ def custom_repr(obj,
             item = "\n  ".join([attr_name + ":"] + rows)
         items.append(item)
     return "\n".join(items)
+
+
+def pprint_matrix(matrix: FloatMatrix,
+                  format_specifier="{:.2e}",
+                  nspaces: int = 0) -> str:
+    """Pretty print a matrix.
+
+    Parameters
+    ----------
+    matrix : FloatMatrix
+        Matrix to print.
+    format_specifier : str
+        Format specifier, e.g "{:.2f}".
+    nspaces : int
+        Number of white spaces placed before 2nd row and following.
+    """
+    nrows = matrix.shape[0]
+    result = ""
+    for i, row in enumerate(matrix):
+        line = "[[" if i == 0 else (" "*nspaces + " [")
+        line += " ".join(format_specifier.format(element) for element in row)
+        line += "]]\n" if i == nrows-1 else "]\n"
+        result += line
+    return result
