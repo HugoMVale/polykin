@@ -242,9 +242,9 @@ class CopoDataset_Ff():
     name: str
     f1: FloatVector
     F1: FloatVector
-    scale_f1: Union[FloatVector, float]
-    scale_F1: Union[FloatVector, float]
-    weight: float = 1.
+    scale_f1: Union[FloatVector, float] = 1.0
+    scale_F1: Union[FloatVector, float] = 1.0
+    weight: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -254,9 +254,9 @@ class CopoDataset_fx():
     f10: float
     x: FloatVector
     f1: FloatVector
-    scale_x: Union[FloatVector, float]
-    scale_f1: Union[FloatVector, float]
-    weight: float = 1.
+    # scale_x: Union[FloatVector, float] = 1.0
+    scale_f1: Union[FloatVector, float] = 1.0
+    weight: float = 1.0
 
 
 @dataclass(frozen=True)
@@ -266,6 +266,6 @@ class CopoDataset_Fx():
     f10: float
     x: FloatVector
     F1: FloatVector
-    scale_x: Union[FloatVector, float]
-    scale_F1: Union[FloatVector, float]
-    weight: float = 1.
+    # scale_x: Union[FloatVector, float] = 1.0
+    scale_F1: Union[FloatVector, float] = 1.0
+    weight: float = 1.0
