@@ -215,6 +215,8 @@ nav:
           - derivative_centered: reference/math/derivative_centered.md
           - derivative_complex: reference/math/derivative_complex.md
           - hessian2: reference/math/hessian2.md
+          - root_secant: reference/math/root_secant.md
+          - root_newton: reference/math/root_newton.md
       - polykin.properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md
