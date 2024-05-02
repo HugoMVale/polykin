@@ -3,4 +3,4 @@
 ::: polykin.copolymerization.fitting
     options:
         members:
-            - fit_reactivity_ratios
+            - fit_copo_data
