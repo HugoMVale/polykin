@@ -2,19 +2,18 @@
 #
 # Copyright Hugo Vale 2024
 
+import functools
 from typing import Callable, Optional
 
 import numpy as np
 from matplotlib.axes._axes import Axes
 from matplotlib.patches import Ellipse
 from numpy import arctan, cos, exp, log, sin, sqrt
-from scipy.integrate import solve_ivp
-from scipy.optimize import root_scalar
 from scipy.stats.distributions import f as Fdist
 from scipy.stats.distributions import t as tdist
 
-from polykin.utils.exceptions import (ODESolverError, RootSolverError,
-                                      ShapeError)
+from polykin.math.solvers import RootResult, root_secant
+from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import Float2x2Matrix, FloatVector
@@ -155,7 +154,8 @@ def confidence_region(center: tuple[float, float],
                       ndata: int,
                       alpha: float = 0.05,
                       width: Optional[float] = None,
-                      rtol: float = 1e-4
+                      npoints: int = 200,
+                      rtol: float = 1e-2
                       ) -> tuple[FloatVector, FloatVector]:
     r"""Generate a confidence region for 2 jointly estimated parameters
     using a rigorous method.
@@ -177,16 +177,13 @@ def confidence_region(center: tuple[float, float],
 
         This method is suitable for arbitrary models (linear or non-linear in
         the parameters), without making assumptions about the shape of the JCR.
-        The algorithm used to compute the JCR is very efficient in comparison
+        The algorithm used to compute the JCR is efficient in comparison
         to naive 2D mesh screening approaches, but the number of $S(\beta)$
         evaluations remains large (typically several hundreds). Therefore, the
         applicability of this method depends on the cost of evaluating
         $S(\beta)$.
 
     **References**
-
-    * Arutjunjan, R., Schaefer, B. M., Kreutz, C., Constructing Exact
-    Confidence Regions on Parameter Manifolds of Non-Linear Models, 2022.
 
     *   Vugrin, K. W., L. P. Swiler, R. M. Roberts, N. J. Stucky-Mack, and
     S. P. Sullivan (2007), Confidence region estimation techniques for
@@ -206,10 +203,13 @@ def confidence_region(center: tuple[float, float],
     width : float | None
         Initial guess of the width of the joint confidence region at its
         center. If `None`, it is assumed that `width=0.5*center[0]`.
+    npoints : int
+        Number of points where the JCR is evaluated. The computational effort
+        increases linearly with `npoints`.
     rtol : float
-        Relative tolerance of ODE solver. The default value may be decreased
-        by one or more orders of magnitude if the resolution of the JCR appears
-        insufficient.
+        Relative tolerance for the determination of the JCR. The default value
+        (1e-2) should be adequate in most cases, as it implies a 1% accuracy in
+        the JCR coordinates. 
 
     Returns
     -------
@@ -241,67 +241,56 @@ def confidence_region(center: tuple[float, float],
     # Check inputs
     check_bounds(alpha, 0.001, 0.99, 'alpha')
     check_bounds(ndata, npar + 1, np.inf, 'ndata')
+    if width is not None:
+        check_bounds(width, eps, np.inf, 'width')
+    check_bounds(npoints, 1, 500, 'npoints')
+    check_bounds(rtol, 1e-4, 1e-1, 'rtol')
 
-    # Boundary
+    # Get 'sse' at center
     sse_center = sse(center)
     if abs(sse_center) < eps:
         raise ValueError(
             "`sse(center)` is close to zero. Without residual error, there is no JCR.")
-    Fval = Fdist.ppf(1. - alpha, npar, ndata - npar)
-    sse_boundary = sse_center*(1. + npar/(ndata - npar)*Fval)
 
-    # Find boundary radius at 3 o'clock
-    sol = root_scalar(
-        f=lambda r: sse((center[0] + r, center[1])) - sse_boundary,
-        method='secant',
-        x0=0,
-        x1=abs(width)/2 if width is not None else 0.25*center[0])
-    if not sol.converged:
-        raise RootSolverError(sol.flag)
-    else:
-        r0 = sol.root
+    @functools.cache
+    def nsse(lnr: float, θ: float) -> float:
+        "Normalized 'sse' in log-radial coordinates"
+        r = exp(lnr)
+        x = center[0] + r*cos(θ)
+        y = center[1] + r*sin(θ)
+        return sse((x, y))/sse_center
 
-    # Transform 'sse' to log-radial coordinates
-    def f(s: float, q: float) -> float:
-        r = exp(s)
-        x = center[0] + r*cos(q)
-        y = center[1] + r*sin(q)
-        return sse((x, y))
+    # Boundary value
+    Fval = float(Fdist.ppf(1. - alpha, npar, ndata - npar))
+    nsse_boundary = (1. + npar/(ndata - npar)*Fval)
 
-    # Move along boundary using radial coordinates
-    # Imagine a particle transported by a velocity field orthogonal to 'sse'
-    def dydt(t: float, y: np.ndarray) -> np.ndarray:
-        s = y[0]
-        q = y[1]
-        h0 = 1e-4  # higher values are unsuitable
-        hs = h0*(1. + abs(s))
-        hq = h0*(1. + abs(q))
-        f_s = (f(s + hs, q) - f(s - hs, q))/(2*hs)
-        f_q = (f(s, q + hq) - f(s, q - hq))/(2*hq)
-        ydot = np.empty_like(y)
-        ydot[0] = -f_q
-        ydot[1] = f_s
-        return ydot
+    def find_radius(θ: float, r0: float) -> RootResult:
+        "Find boundary ln(radius) at given angle θ."
+        solution = root_secant(
+            f=lambda x: nsse(x, θ)/nsse_boundary - 1.0,
+            x0=log(r0*1.02),
+            x1=log(r0),
+            xtol=abs(log(1 + rtol)),
+            ftol=1e-4,
+            maxiter=100)
+        return solution
 
-    # Stop the trajectory after one revolution
-    def event(t: float, y: np.ndarray) -> float:
-        return y[1] - 2*np.pi
-    event.terminal = True
-
-    sol = solve_ivp(dydt, (0., 1e10), (log(r0), 0.),
-                    method='LSODA',
-                    events=event,
-                    atol=[0., 1*rtol], rtol=rtol)
-    if not sol.success:
-        raise ODESolverError(sol.message)
-    else:
-        r = exp(sol.y[0, :])
-        theta = sol.y[1, :]
-        if not np.isclose(r[0], r[-1], atol=min(*center), rtol=10*rtol):
-            print("Warning: offset between start and end positions of JCR > 10*rtol.")
+    # Find radius at each angle using previous solution as initial guess
+    angles = np.linspace(0., 2*np.pi, npoints)
+    r = np.zeros_like(angles)
+    r_guess_0 = abs(width/2) if width is not None else 0.25*center[0]
+    r_guess = r_guess_0
+    for i, θ in enumerate(angles):
+        sol = find_radius(θ, r_guess)
+        if sol.success:
+            r[i] = exp(sol.x)
+            r_guess = r[i]
+        else:
+            r[i] = np.nan
+            r_guess = r_guess_0
 
     # Convert to cartesian coordinates
-    x = center[0] + r*cos(theta)
-    y = center[1] + r*sin(theta)
+    x = center[0] + r*cos(angles)
+    y = center[1] + r*sin(angles)
 
     return (x, y)
