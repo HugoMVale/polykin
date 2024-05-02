@@ -22,6 +22,7 @@ from polykin.copolymerization.copodataset import (CopoDataset_Ff,
                                                   CopoDataset_Fx)
 from polykin.math import confidence_ellipse, confidence_region, hessian2
 from polykin.utils.exceptions import FitError
+from polykin.utils.tools import pprint_matrix
 from polykin.utils.types import Float2x2Matrix, FloatVectorLike
 
 __all__ = ['fit_Finemann_Ross',
@@ -90,11 +91,14 @@ class CopoFitResult():
                 f"se_r1:   {self.se_r1:.2E}\n" \
                 f"se_r2:   {self.se_r2:.2E}\n" \
                 f"ci_r1:   {self.ci_r1:.2E}\n" \
-                f"ci_r2:   {self.ci_r2:.2E}\n" \
-                f"cov:     {self.cov}\n"
+                f"ci_r2:   {self.ci_r2:.2E}\n"
         else:
             s2 = ""
-        return s1 + s2
+        if self.cov is not None:
+            s3 = f"cov:     {pprint_matrix(self.cov, nspaces=9)}\n"
+        else:
+            s3 = "\n"
+        return s1 + s2 + s3
 
 
 # %% Fit functions
@@ -177,8 +181,9 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
                   plot_data: bool = True,
                   JCR_linear: bool = True,
                   JCR_exact: bool = False,
-                  rtol: float = 1e-4
-                  ):
+                  JCR_npoints: int = 200,
+                  JCR_rtol: float = 1e-2
+                  ) -> CopoFitResult:
     r"""Fit copolymer composition data and estimate reactivity ratios.
 
     This function employs rigorous nonlinear algorithms to estimate the
@@ -231,10 +236,13 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
         If `True`, the JCR will be computed using the linear method.
     JCR_exact : bool, optional
         If `True`, the JCR will be computed using the exact method.
-    rtol : float
-        Relative tolerance of the ODE solver for the exact JCR method. Lowering
-        `rtol` can help improve the resolution of the JCR, but may also cause
-        the method to fail.
+    JCR_npoints : int
+        Number of points where the JCR is evaluated. The computational effort
+        increases linearly with `npoints`.
+    JCR_rtol : float
+        Relative tolerance for the determination of the JCR. The default value
+        (1e-2) should be adequate in most cases, as it implies a 1% accuracy in
+        the JCR coordinates. 
 
     Returns
     -------
@@ -341,6 +349,26 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
                 ax.plot(x, F1_est)
             ax.legend(loc="best")
 
+        # Parity plot
+        plots['parity'] = plt.subplots()
+        ax = plots['parity'][1]
+        ax.set_xlabel("Observed value")
+        ax.set_ylabel("Predicted value")
+        ax.set_xlim(0., 1.)
+        ax.set_ylim(0., 1.)
+        ax.plot([0., 1.], [0., 1.], color='black', linewidth=0.5)
+        for dataset in data_Ff:
+            F1_est = inst_copolymer_binary(dataset.f1, *r_opt)
+            ax.scatter(dataset.F1, F1_est, label=dataset.name)
+        for dataset in data_fx:
+            f1_est = monomer_drift_binary(dataset.f10, dataset.x, *r_opt)
+            ax.scatter(dataset.f1, f1_est, label=dataset.name)
+        for dataset in data_Fx:
+            f1_est = monomer_drift_binary(dataset.f10, dataset.x, *r_opt)
+            F1_est = f1_est + (dataset.f10 - f1_est)/(dataset.x + 1e-10)
+            ax.scatter(dataset.F1, F1_est, label=dataset.name)
+        ax.legend(loc="best")
+
     # Joint confidence region
     if (JCR_linear or JCR_exact) and cov is not None:
 
@@ -366,7 +394,8 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
                                     ndata=ndata,
                                     alpha=alpha,
                                     width=2*ci_r[0],
-                                    rtol=rtol)
+                                    rtol=JCR_rtol,
+                                    npoints=JCR_npoints)
 
             # ax.scatter(r1, r2, c=colors[idx], s=5)
             ax.plot(*jcr, color=colors[idx], label='exact JCR')
@@ -391,7 +420,7 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
                    ndata: int):
     """Fit copolymerization data using NLLS."""
 
-    def sse(r: tuple[float, float], method='LSODA') -> float:
+    def sse(r: tuple[float, float], atol=1e-4, rtol=1e-4) -> float:
         "Total sum of squared errors, for optimizer and exact JCR."
         result = 0.
         # F1(f1) datasets
@@ -403,7 +432,7 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
         # f1(x, f10) datasets
         for dataset in data_fx:
             f1_est = monomer_drift_binary(dataset.f10, dataset.x, *r,
-                                          method=method)
+                                          atol=atol, rtol=rtol)
             rx = (dataset.f1 - f1_est)/dataset.scale_f1
             result += dataset.weight*dot(rx, rx)
 
@@ -411,15 +440,12 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
         for dataset in data_Fx:
             f10 = dataset.f10
             x = dataset.x
-            f1_est = monomer_drift_binary(f10, x, *r, method=method)
+            f1_est = monomer_drift_binary(f10, x, *r,
+                                          atol=atol, rtol=rtol)
             F1_est = f1_est + (f10 - f1_est)/(x + 1e-10)
             rx = (dataset.F1 - F1_est)/dataset.scale_F1
             result += dataset.weight*dot(rx, rx)
         return result
-
-    def sse_NLLS(r):
-        "Total sum of squared errors, for exact JCR."
-        return sse(r, method='RK45')
 
     # Parameter estimation
     sol = minimize(sse,
@@ -441,6 +467,9 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
         cov = 2*Hinv*s_sq
     else:
         cov = None
+
+    def sse_NLLS(r):
+        return sse(r, rtol=1e-4, atol=1e-5)
 
     return (r_opt, cov, sse_NLLS)
 
