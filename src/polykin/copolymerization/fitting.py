@@ -139,7 +139,7 @@ def fit_Finemann_Ross(f1: FloatVectorLike,
 
     See also
     --------
-    * [`fit_reactivity_ratios`](fit_reactivity_ratios.md): alternative
+    * [`fit_copo_data`](fit_copo_data.md): alternative
       (recommended) method.  
 
     Examples
