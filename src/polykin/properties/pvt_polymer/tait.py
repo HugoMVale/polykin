@@ -2,11 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
+from typing import Union
+
 import numpy as np
 from numpy import exp, log
 
-from polykin.utils.types import FloatOrArray
 from polykin.utils.tools import check_bounds
+from polykin.utils.types import FloatArray
 
 from .base import PolymerPVTEquation
 
@@ -119,24 +121,24 @@ class Tait(PolymerPVTEquation):
         )
 
     def eval(self,
-             T: FloatOrArray,
-             P: FloatOrArray
-             ) -> FloatOrArray:
+             T: Union[float, FloatArray],
+             P: Union[float, FloatArray]
+             ) -> Union[float, FloatArray]:
         r"""Evaluate specific volume, $\hat{V}$, at given SI conditions without
         unit conversions or checks.
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Specific volume.
             Unit = m³/kg.
         """
@@ -147,44 +149,44 @@ class Tait(PolymerPVTEquation):
         return V
 
     def _B(self,
-           T: FloatOrArray
-           ) -> FloatOrArray:
+           T: Union[float, FloatArray]
+           ) -> Union[float, FloatArray]:
         r"""Parameter B(T).
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             B(T).
             Unit = Pa.
         """
         return self.B0*exp(-self.B1*(T - 273.15))
 
     def alpha(self,
-              T: FloatOrArray,
-              P: FloatOrArray
-              ) -> FloatOrArray:
+              T: Union[float, FloatArray],
+              P: Union[float, FloatArray]
+              ) -> Union[float, FloatArray]:
         r"""Calculate thermal expansion coefficient, $\alpha$.
 
         $$\alpha=\frac{1}{V}\left(\frac{\partial V}{\partial T}\right)_{P}$$
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Thermal expansion coefficient, $\alpha$.
             Unit = 1/K.
         """
@@ -196,25 +198,25 @@ class Tait(PolymerPVTEquation):
         return alpha0 - P*self.B1*self.beta(T, P)
 
     def beta(self,
-             T: FloatOrArray,
-             P: FloatOrArray
-             ) -> FloatOrArray:
+             T: Union[float, FloatArray],
+             P: Union[float, FloatArray]
+             ) -> Union[float, FloatArray]:
         r"""Calculate isothermal compressibility coefficient, $\beta$.
 
         $$\beta=-\frac{1}{V}\left(\frac{\partial V}{\partial P}\right)_{T}$$
 
         Parameters
         ----------
-        T : FloatOrArray
+        T : float | FloatArray
             Temperature.
             Unit = K.
-        P : FloatOrArray
+        P : float | FloatArray
             Pressure.
             Unit = Pa.
 
         Returns
         -------
-        FloatOrArray
+        float | FloatArray
             Isothermal compressibility coefficient, $\beta$.
             Unit = 1/Pa.
         """
