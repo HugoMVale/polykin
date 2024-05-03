@@ -67,7 +67,7 @@ def root_newton(f: Callable[[complex], complex],
 
     Examples
     --------
-    Find a root of the Flory-Huggings equation.
+    Find a root of the Flory-Huggins equation.
     >>> from polykin.math import root_secant
     >>> from math import log
     >>> def f(x, a=0.6, chi=0.4):
@@ -131,7 +131,7 @@ def root_secant(f: Callable[[float], float],
 
     Examples
     --------
-    Find a root of the Flory-Huggings equation.
+    Find a root of the Flory-Huggins equation.
     >>> from polykin.math import root_secant
     >>> from math import log
     >>> def f(x, a=0.6, chi=0.4):
