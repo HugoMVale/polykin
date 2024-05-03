@@ -11,7 +11,7 @@ from scipy.integrate import solve_ivp
 from polykin.utils.exceptions import ODESolverError
 from polykin.utils.math import eps
 from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
-                                 FloatVector, FloatVectorLike)
+                                 FloatVectorLike)
 
 __all__ = ['inst_copolymer_binary',
            'kp_average_binary',
