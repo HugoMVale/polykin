@@ -54,7 +54,7 @@ watch:
 plugins:
   - search
   - autolinks
-  # - autorefs
+  - autorefs
   - markdown-exec
   - table-reader
   #- bibtex:
@@ -215,8 +215,9 @@ nav:
           - derivative_centered: reference/math/derivative_centered.md
           - derivative_complex: reference/math/derivative_complex.md
           - hessian2: reference/math/hessian2.md
-          - root_secant: reference/math/root_secant.md
           - root_newton: reference/math/root_newton.md
+          - root_secant: reference/math/root_secant.md
+          - RootResult: reference/math/RootResult.md
       - polykin.properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md

@@ -9,12 +9,11 @@ from typing import Union
 import numpy as np
 from numpy import exp
 
+from polykin.kinetics.base import KineticCoefficientT
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
 from polykin.utils.types import FloatArray, FloatArrayLike
-
-from .base import KineticCoefficientT
 
 __all__ = ['Arrhenius']
 
@@ -62,6 +61,19 @@ class Arrhenius(KineticCoefficientT):
     --------
     * [`Eyring`](Eyring.md): alternative method.
 
+    Examples
+    --------
+    Define and evaluate the propagation rate coefficient of styrene.
+    >>> from polykin.kinetics import Arrhenius 
+    >>> kp = Arrhenius(
+    ...     10**7.63,       # pre-exponential factor
+    ...     32.5e3/8.314,   # Ea/R, K
+    ...     Tmin=261., Tmax=366.,
+    ...     symbol='k_p',
+    ...     unit='L/mol/s',
+    ...     name='kp of styrene')
+    >>> kp(25.,'C') 
+    86.28385101961442
     """
 
     _pinfo = {'k0': ('#', True), 'EaR': ('K', True), 'T0': ('K', False)}

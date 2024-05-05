@@ -8,6 +8,7 @@ import numpy as np
 from numpy import cbrt
 
 from polykin.utils.math import eps
+from polykin.utils.types import Float2x2Matrix
 
 __all__ = ['derivative_complex',
            'derivative_centered',
@@ -113,7 +114,7 @@ def derivative_centered(f: Callable[[float], float],
 def hessian2(f: Callable[[tuple[float, float]], float],
              x: tuple[float, float],
              h: Optional[float] = None
-             ) -> np.ndarray:
+             ) -> Float2x2Matrix:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
 
@@ -154,7 +155,7 @@ def hessian2(f: Callable[[tuple[float, float]], float],
 
     Returns
     -------
-    np.ndarray (2, 2)
+    Float2x2Matrix
         Hessian matrix.
 
     Examples

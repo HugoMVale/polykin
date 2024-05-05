@@ -39,11 +39,12 @@ def root_newton(f: Callable[[complex], complex],
                 ) -> RootResult:
     r"""Find the root of a scalar function using the newton method.
 
-    Unlike the equivalent method in scipy, this method uses complex step
-    differentiation to estimate the derivative of $f(x)$ without loss of
-    precision. Therefore, there is no need to provide $f'(x)$. It's application
-    is restricted to real functions that can be evaluated with complex inputs,
-    but which per se do not implement complex arithmetic.
+    Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-newton.html),
+    this method uses complex step differentiation to estimate the derivative of
+    $f(x)$ without loss of precision. Therefore, there is no need to provide
+    $f'(x)$. It's application is restricted to real functions that can be
+    evaluated with complex inputs, but which per se do not implement complex
+    arithmetic.
 
     Parameters
     ----------
@@ -62,7 +63,7 @@ def root_newton(f: Callable[[complex], complex],
 
     Returns
     -------
-    RootSolverResult
+    RootResult
         Dataclass with root solution results.
 
     Examples
@@ -104,8 +105,9 @@ def root_secant(f: Callable[[float], float],
                 ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
-    Unlike the equivalent method in scipy, this method also terminates based
-    on the function value. This is sometimes a more meaningful stop criterion.
+    Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-secant.html),
+    this method also terminates based on the function value. This is sometimes
+    a more meaningful stop criterion.
 
     Parameters
     ----------
@@ -126,7 +128,7 @@ def root_secant(f: Callable[[float], float],
 
     Returns
     -------
-    RootSolverResult
+    RootResult
         Dataclass with root solution results.
 
     Examples

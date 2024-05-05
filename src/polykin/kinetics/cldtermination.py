@@ -7,14 +7,13 @@ from typing import Literal, Union
 import numpy as np
 from numpy import sqrt
 
+from polykin.kinetics.arrhenius import Arrhenius
+from polykin.kinetics.base import KineticCoefficientCLD
+from polykin.kinetics.eyring import Eyring
 from polykin.utils.tools import (check_bounds, check_type,
                                  convert_check_temperature, custom_repr)
 from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
                                  IntArrayLike)
-
-from .arrhenius import Arrhenius
-from .base import KineticCoefficientCLD
-from .eyring import Eyring
 
 __all__ = ['TerminationCompositeModel']
 
@@ -58,6 +57,30 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         Long-chain exponent, $\alpha_L$.
     name : str
         Name.
+
+    Examples
+    --------
+    >>> from polykin.kinetics import TerminationCompositeModel, Arrhenius
+    >>> kt11 = Arrhenius(1e9, 2e3, T0=298.,
+    ...        symbol='k_t(T,1,1)', unit='L/mol/s', name='kt11 of Y')
+
+    >>> ktij = TerminationCompositeModel(kt11, icrit=30, name='ktij of Y')
+    >>> ktij
+    name:    ktij of Y
+    icrit:   30
+    aS:      0.5
+    aL:      0.2
+    kt11:
+      name:            kt11 of Y
+      symbol:          k_t(T,1,1)
+      unit:            L/mol/s
+      Trange [K]:      (0.0, inf)
+      k0 [L/mol/s]:    1000000000.0
+      EaR [K]:         2000.0
+      T0 [K]:          298.0
+
+    >>> ktij(T=25., i=150, j=200, Tunit='C')
+    129008375.03821689
     """
 
     kt11: Union[Arrhenius, Eyring]

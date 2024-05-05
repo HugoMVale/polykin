@@ -7,14 +7,13 @@ from typing import Literal, Union
 import numpy as np
 from numpy import exp, log
 
+from polykin.kinetics.arrhenius import Arrhenius
+from polykin.kinetics.base import KineticCoefficientCLD
+from polykin.kinetics.eyring import Eyring
 from polykin.utils.tools import (check_bounds, check_type,
                                  convert_check_temperature, custom_repr)
 from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
                                  IntArrayLike)
-
-from .arrhenius import Arrhenius
-from .base import KineticCoefficientCLD
-from .eyring import Eyring
 
 __all__ = ['PropagationHalfLength']
 
@@ -50,6 +49,31 @@ class PropagationHalfLength(KineticCoefficientCLD):
         Half-length, $i_{1/2}$.
     name : str
         Name.
+
+    Examples
+    --------
+    >>> from polykin.kinetics import PropagationHalfLength, Arrhenius
+    >>> kp = Arrhenius(
+    ...    10**7.63, 32.5e3/8.314, Tmin=261., Tmax=366.,
+    ...    symbol='k_p', unit='L/mol/s', name='kp of styrene')
+
+    >>> kpi = PropagationHalfLength(kp, C=10, ihalf=0.5,
+    ...    name='kp(T,i) of styrene')
+    >>> kpi
+    name:    kp(T,i) of styrene
+    C:       10
+    ihalf:   0.5
+    kp:
+      name:            kp of styrene
+      symbol:          k_p
+      unit:            L/mol/s
+      Trange [K]:      (261.0, 366.0)
+      k0 [L/mol/s]:    42657951.88015926
+      EaR [K]:         3909.0690401732018
+      T0 [K]:          inf
+
+    >>> kpi(T=50., i=3, Tunit='C')
+    371.75986615653215
     """
 
     kp: Union[Arrhenius, Eyring]
@@ -59,7 +83,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
 
     def __init__(self,
                  kp: Union[Arrhenius, Eyring],
-                 C: float = 10.,
+                 C: float = 10.0,
                  ihalf: float = 1.0,
                  name: str = ''
                  ) -> None:

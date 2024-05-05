@@ -11,11 +11,10 @@ from numpy import exp
 from scipy.constants import Boltzmann as kB
 from scipy.constants import R, h
 
+from polykin.kinetics.base import KineticCoefficientT
 from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
 from polykin.utils.types import FloatArray, FloatArrayLike
-
-from .base import KineticCoefficientT
 
 __all__ = ['Eyring']
 
@@ -61,6 +60,19 @@ class Eyring(KineticCoefficientT):
     --------
     * [`Arrhenius`](Arrhenius.md): alternative method.
 
+    Examples
+    --------
+    Define and evaluate a rate coefficient from transition state properties.
+    >>> from polykin.kinetics import Eyring 
+    >>> k = Eyring(
+    ...     DSa=20.,
+    ...     DHa=5e4,
+    ...     kappa=0.8,
+    ...     Tmin=273., Tmax=373.,
+    ...     symbol='k',
+    ...     name='A->B')
+    >>> k(25.,'C')
+    95808.36742009166
     """
 
     _pinfo = {'DSa': ('J/(mol·K)', True),

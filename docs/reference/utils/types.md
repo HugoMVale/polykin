@@ -7,6 +7,7 @@
             - FloatArrayLike
             - FloatVector
             - FloatVectorLike
+            - Float2x2Matrix
             - FloatMatrix
             - FloatSquareMatrix
             - FloatRangeArray
