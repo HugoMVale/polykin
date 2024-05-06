@@ -524,7 +524,7 @@ def tuples_multi(P: FloatSquareMatrix,
     P : FloatSquareMatrix (N, N)
         Matrix of transition probabilities, $P_{ij}$.
     n : int
-        Tuple length,.e.g monads (1), diads (2), triads (3), etc.
+        Tuple length, e.g. monads (1), diads (2), triads (3), etc.
     F : FloatVectorLike (N) | None
         Vector of instantaneous copolymer composition, $F_i$. If `None`,
         the value will be computed internally. When calculating tuples of
@@ -582,10 +582,10 @@ def tuples_multi(P: FloatSquareMatrix,
     result = {}
     for idx in indexes:
         # Compute tuple probability
-        Pprod = 1.
+        P_product = 1.
         for j in range(n-1):
-            Pprod *= P[idx[j], idx[j+1]]
-        A = F[idx[0]]*Pprod
+            P_product *= P[idx[j], idx[j+1]]
+        A = F[idx[0]]*P_product
         # Add probability to dict, but combine symmetric tuples: 12 <- 12 + 21
         reversed_idx = idx[::-1]
         if reversed_idx in result.keys():
