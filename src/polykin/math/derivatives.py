@@ -83,7 +83,7 @@ def derivative_centered(f: Callable[[float], float],
         Differentiation point.
     h : float | None
         Finite-difference step. If `None`, it will be set to the theoretical
-        optimum value $h = \sqrt{3\epsilon}$.
+        optimum value $h = \sqrt[3]{3\epsilon}$.
 
     Returns
     -------
@@ -151,7 +151,7 @@ def hessian2(f: Callable[[tuple[float, float]], float],
         Differentiation point.
     h : float | None
         Finite-difference step. If `None`, it will be set to the theoretical
-        optimum value $h = \sqrt{3\epsilon}$.
+        optimum value $h = \sqrt[3]{3\epsilon}$.
 
     Returns
     -------
