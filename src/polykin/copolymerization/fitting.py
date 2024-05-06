@@ -46,7 +46,6 @@ class CopoFitResult():
         Reactivity ratio of M2
     alpha : float
         Significance level.
-
     ci_r1 : float
         Confidence interval of r1.
     ci_r2: float
@@ -277,14 +276,10 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
 
     # Fit data
     if method == 'NLLS':
-
         r_opt, cov, sse = _fit_copo_NLLS(data_Ff, data_fx, data_Fx, r_guess,
                                          ndata)
-
     elif method == 'ODR':
-
         r_opt, cov, sse = _fit_copo_ODR(data_Ff, r_guess)
-
     else:
         raise ValueError(f"Method {method} is not valid.")
 
