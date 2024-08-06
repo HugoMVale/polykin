@@ -1,10 +1,13 @@
 # PolyKin: A polymerization kinetics library for Python.
 #
 # Copyright Hugo Vale 2024
+from math import exp
 
 from numpy import isclose
 
-from polykin.math.solvers import root_newton, root_secant
+from polykin.math.solvers import ode_rk2, root_newton, root_secant
+
+from numba import njit
 
 
 def f(x):
@@ -45,3 +48,21 @@ def test_root_secant():
     res = root_secant(f, 1.5, 1.4, xtol=1e-100, ftol=ftol)
     assert res.success
     assert abs(res.f) < ftol
+
+
+def test_ode_rk2():
+    @njit
+    def ydot(t, y):
+        return y + t**2
+
+    t0 = 0.
+    y0 = 1.
+    tf = 4.
+    h = 1e-2
+    yf = ode_rk2(t0, tf, y0, h, ydot)
+
+    def ysol(t):
+        c = 3.
+        return c*exp(t) - t**2 - 2*t - 2
+
+    assert isclose(yf, ysol(tf), rtol=1e-4)

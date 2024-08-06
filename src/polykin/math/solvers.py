@@ -2,12 +2,15 @@
 #
 # Copyright Hugo Vale 2024
 
+import math
 from dataclasses import dataclass
 from typing import Callable
 
+from numba import njit
+
 from polykin.math.derivatives import derivative_complex
 
-__all__ = ['root_newton', 'root_secant']
+__all__ = ['root_newton', 'root_secant', 'ode_rk2']
 
 
 @dataclass
@@ -165,3 +168,68 @@ def root_secant(f: Callable[[float], float],
         f1 = f2
 
     return RootResult(success, niter, x2, f2)
+
+
+@njit
+def ode_rk2(t0: float,
+            tf: float,
+            y0: float,
+            h: float,
+            f: Callable[[float, float], float]
+            ) -> float:
+    r"""Integrate an ODE using the 2nd-order Runge-Kutta mid-point method.
+
+    This method is intentionally simple, so that it can be used inside a
+    gradient-based optimizer without creating numerical noise and overhead.
+
+    !!! important
+
+        This method is jitted with Numba and, thus, requires a JIT-compiled
+        function.
+
+    Parameters
+    ----------
+    t0 : float
+        Initial value of `t`.
+    tf : float
+        Final value of `t`.
+    y0 : float
+        Initial value of `y`, i.e., `y(t0)`.
+    h : float
+        Step size.
+    f : Callable[[float, float], float]
+        Function to be integrated. Takes two arguments, `t` and `y`, and returns
+        the derivative of `y` with respect to `t`.
+
+    Returns
+    -------
+    float
+        Final value of `y(tf)`.
+
+    Examples
+    --------
+    Find the solution of the differential equation $y(t)'=y+t$ with initial
+    condition $y(0)=1$ at $t=2$.
+    >>> from polykin.math import ode_rk2
+    >>> from numba import njit
+    >>> def f(t, y):
+    ...     return y + t
+    >>> ode_rk2(0., 2., 1., 1e-3, njit(f))
+    """
+
+    def rk_step(t, y, h):
+        "Explicit 2nd-order mid-point step."
+        y = y + f(t + h / 2, y + f(t, y) * h / 2) * h
+        t = t + h
+        return t, y
+
+    nsteps = math.floor((tf - t0)/h)
+    hf = (tf - t0) - nsteps*h
+    t = t0
+    y = y0
+    for _ in range(nsteps):
+        t, y = rk_step(t, y, h)
+
+    t, y = rk_step(t, y, hf)
+
+    return y
