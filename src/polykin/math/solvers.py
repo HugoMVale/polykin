@@ -72,13 +72,13 @@ def root_newton(f: Callable[[complex], complex],
     Examples
     --------
     Find a root of the Flory-Huggins equation.
-    >>> from polykin.math import root_secant
-    >>> from math import log
+    >>> from polykin.math import root_newton
+    >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
-    >>> sol = root_secant(f, 0.3, 0.31)
-    >>> print(f"x= {sol.x:.2f}")
-    x= 0.21
+    >>> sol = root_newton(f, 0.3)
+    >>> print(f"x= {sol.x:.3f}")
+    x= 0.213
     """
     success = False
     niter = 0
@@ -142,8 +142,8 @@ def root_secant(f: Callable[[float], float],
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
     >>> sol = root_secant(f, 0.3, 0.31)
-    >>> print(f"x= {sol.x:.2f}")
-    x= 0.21
+    >>> print(f"x= {sol.x:.3f}")
+    x= 0.213
     """
 
     f0 = f(x0)
@@ -212,24 +212,25 @@ def ode_rk2(t0: float,
     condition $y(0)=1$ at $t=2$.
     >>> from polykin.math import ode_rk2
     >>> from numba import njit
-    >>> def f(t, y):
+    >>> def ydot(t, y):
     ...     return y + t
-    >>> ode_rk2(0., 2., 1., 1e-3, njit(f))
+    >>> ode_rk2(0., 2., 1., 1e-3, njit(ydot))
+    11.778107275517668
     """
 
     def rk_step(t, y, h):
         "Explicit 2nd-order mid-point step."
-        y = y + f(t + h / 2, y + f(t, y) * h / 2) * h
-        t = t + h
-        return t, y
+        return y + f(t + h / 2, y + f(t, y) * h / 2) * h
 
     nsteps = math.floor((tf - t0)/h)
     hf = (tf - t0) - nsteps*h
     t = t0
     y = y0
     for _ in range(nsteps):
-        t, y = rk_step(t, y, h)
+        y = rk_step(t, y, h)
+        t += h
 
-    t, y = rk_step(t, y, hf)
+    y = rk_step(t, y, hf)
+    t += hf
 
     return y
