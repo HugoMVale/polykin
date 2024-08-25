@@ -218,6 +218,7 @@ nav:
           - ode_rk2: reference/math/ode_rk2.md
           - root_newton: reference/math/root_newton.md
           - root_secant: reference/math/root_secant.md
+          - simplify_polyline: reference/math/simplify_polyline.md
           - RootResult: reference/math/RootResult.md
       - polykin.properties:
           - reference/properties/index.md
