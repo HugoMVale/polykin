@@ -3,4 +3,4 @@
 ::: polykin.math.solvers
     options:
         members:
-            - ode_rk2
+            - ode_rk
