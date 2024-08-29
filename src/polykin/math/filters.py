@@ -5,19 +5,33 @@
 import numpy as np
 from numba import njit
 
-from polykin.utils.types import FloatMatrix
+from polykin.utils.types import FloatMatrix, FloatVector
 
 __all__ = ['simplify_polyline']
 
 
-def simplify_polyline(p: FloatMatrix,
+def simplify_polyline(points: FloatMatrix,
                       tol: float
                       ) -> FloatMatrix:
-    r"""Simplify an N-dimensional polyline using the [Ramer-Douglas-Peucker algorithm](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm).
+    r"""Simplify an N-dimensional polyline using the Ramer-Douglas-Peucker
+    algorithm. ](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm).
+
+    The RDP algorithm is considered the best global polyline simplification
+    algorithm. This particular implementation is based on the (classical)
+    recursive version of the method. 
+
+    **References**
+
+    * Ramer, Urs. "An iterative procedure for the polygonal approximation of
+    plane curves." Computer graphics and image processing 1.3 (1972): 244-256.
+    * Douglas, David H., and Thomas K. Peucker. "Algorithms for the reduction
+    of the number of points required to represent a digitized line or its
+    caricature." Cartographica: the international journal for geographic
+    information and geovisualization 10.2 (1973): 112-122.
 
     Parameters
     ----------
-    p : FloatMatrix
+    points : FloatMatrix
         Matrix of point coordinates.
     tol : float
         Point-to-edge distance tolerance. Points closer than `tol` are removed.
@@ -49,75 +63,105 @@ def simplify_polyline(p: FloatMatrix,
            [ 9. ,  9. ]])
     """
 
-    # Check inputs
-    nvert, ndims = p.shape
-    if nvert < 2:
-        raise ValueError("Polyline must have at least 2 points.")
+    nvert, ndims = points.shape
+
     if ndims < 2:
         raise ValueError("Polyline must have at least 2 dimensions.")
 
-    # Find row indices that need to be kept
-    idx = [i for i in range(nvert)]
-    idx = _simplify_rdh(idx, p, tol)
-
-    return p[idx, :]
+    if nvert < 2:
+        raise ValueError("Polyline must have at least 2 points.")
+    elif nvert == 2:
+        return points
+    else:
+        idx = _ramer_douglas_peucker(points, 0, nvert - 1, tol)
+        return points[idx, :]
 
 
 @njit
-def _simplify_rdh(idx: list[int],
-                  p: np.ndarray,
-                  tol: float
-                  ) -> list[int]:
-    """Find indexes of points that need to be kept.
+def _ramer_douglas_peucker(points: FloatMatrix,
+                           istart: int,
+                           iend: int,
+                           tol: float
+                           ) -> list[int]:
+    """Recursively find indexes of points that should be kept.
 
     Parameters
     ----------
-    idx : list[int]
-        List of point indices.
-    p : np.ndarray
+    points : FloatMatrix
         Matrix of point coordinates.
+    istart : int
+        Start index of polyline segment.
+    iend : int
+        End index of polyline segment.
     tol : float
-        Simplification tolerance.
+        Point-to-edge distance tolerance.
 
     Returns
     -------
     list[int]
-        Indices of points that need to be kept.
+        Indices of points that should be kept.
     """
-    # Find most distant point
-    dmax = 0.
-    imax = 0
-    for i in range(1, len(idx) - 2):
-        d = _perpdist(p[idx[i], :], p[idx[0], :], p[idx[-1], :])
-        if d > dmax:
-            dmax = d
-            imax = i
+    # Find farthest point
+    imax, dmax = _farthest_point(points, istart, iend)
 
     # Recursively simplify
     if dmax > tol:
-        line1 = _simplify_rdh(idx[:imax+1], p, tol)
-        line2 = _simplify_rdh(idx[imax:], p, tol)
-        res = line1 + line2[1:]
+        line1 = _ramer_douglas_peucker(points, istart, imax, tol)
+        line2 = _ramer_douglas_peucker(points, imax, iend, tol)
+        result = line1 + line2[1:]
     else:
-        res = [idx[0], idx[-1]]
+        result = [istart, iend]
 
-    return res
+    return result
 
 
 @njit
-def _perpdist(pt: np.ndarray,
-              line_start: np.ndarray,
-              line_end: np.ndarray
-              ) -> float:
-    r"""Perpendicular distance between a point and a line in hyperspace.
+def _farthest_point(points: FloatVector,
+                    istart: int,
+                    iend: int
+                    ) -> tuple[int, float]:
+    """Farthest point from a line segment.
 
     Parameters
     ----------
-    pt : np.ndarray
+    points : FloatVector
+        Matrix of point coordinates.
+    istart : int
+        Start index of polyline segment.
+    iend : int
+        End index of polyline segment.
+
+    Returns
+    -------
+    tuple[int, float]
+        Index and distance of farthest point.
+    """
+    imax = 0
+    dmax = 0.
+    for i in range(istart + 1, iend):
+        d = _perpendicular_distance(
+            points[i, :], points[istart, :], points[iend, :])
+        if d > dmax:
+            imax = i
+            dmax = d
+
+    return (imax, dmax)
+
+
+@njit
+def _perpendicular_distance(point: FloatVector,
+                            line_start: FloatVector,
+                            line_end: FloatVector
+                            ) -> float:
+    """Perpendicular distance between a point and a line in hyperspace.
+
+    Parameters
+    ----------
+    point : FloatVector
         Point coordinates.
-    line_start : np.ndarray
+    line_start : FloatVector
         Line start coordinates.
-    line_end : np.ndarray
+    line_end : FloatVector
         Line end coordinates.
 
     Returns
@@ -127,7 +171,7 @@ def _perpdist(pt: np.ndarray,
     """
     d = line_end - line_start
     d /= np.linalg.norm(d)
-    pv = pt - line_start
+    pv = point - line_start
     pvdot = np.dot(d, pv)
     ds = pvdot * d
     return np.linalg.norm(pv - ds)  # type: ignore
