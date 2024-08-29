@@ -14,10 +14,10 @@ def simplify_polyline(points: FloatMatrix,
                       tol: float
                       ) -> FloatMatrix:
     r"""Simplify an N-dimensional polyline using the Ramer-Douglas-Peucker
-    algorithm. ](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm).
+    algorithm.
 
-    The RDP algorithm is considered the best global polyline simplification
-    algorithm. This particular implementation is based on the (classical)
+    The Ramer-Douglas-Peucker algorithm is considered the best global polyline
+    simplification algorithm. This particular implementation is based on the
     recursive version of the method. 
 
     **References**
