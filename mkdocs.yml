@@ -215,7 +215,7 @@ nav:
           - derivative_centered: reference/math/derivative_centered.md
           - derivative_complex: reference/math/derivative_complex.md
           - hessian2: reference/math/hessian2.md
-          - ode_rk: reference/math/ode_rk2.md
+          - ode_rk: reference/math/ode_rk.md
           - root_newton: reference/math/root_newton.md
           - root_secant: reference/math/root_secant.md
           - simplify_polyline: reference/math/simplify_polyline.md
