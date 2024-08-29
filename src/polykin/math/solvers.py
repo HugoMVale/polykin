@@ -51,7 +51,7 @@ def root_newton(f: Callable[[complex], complex],
 
     Parameters
     ----------
-    f : Callable[[complex], compley]
+    f : Callable[[complex], complex]
         Function whose root is to be found.
     x0 : float
         Inital guess.
