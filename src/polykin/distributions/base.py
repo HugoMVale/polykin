@@ -168,8 +168,7 @@ class Distribution(ABC):
         if isinstance(size, (list, tuple)):
             size = np.array(size)
         # Math is done by the corresponding subclass method
-        result = self._cdf(size, order, sizeasmass)
-        return result
+        return self._cdf(size, order, sizeasmass)
 
     def plot(self,
              kind: Union[Literal['number', 'mass', 'gpc'],
@@ -405,11 +404,12 @@ class IndividualDistribution(Distribution):
     def M0(self) -> float:
         r"""Number-average molar mass of the repeating units, $M_0=M_n/DP_n$.
         """
-        return self.__M0  # type: ignore
+        return self.__M0
 
     @M0.setter
     def M0(self, M0: float):
-        self.__M0 = check_bounds(M0, 0.0, np.Inf, 'M0')
+        check_bounds(M0, 0.0, np.inf, 'M0')
+        self.__M0 = M0
 
     def _moment_mass(self,
                      order: int,
@@ -540,7 +540,7 @@ class IndividualDistribution(Distribution):
             Moment of the number distribution.
         """
         # print("Warning: using low performance 'moment_length' method.")
-        return self._moment_quadrature(0, np.Inf, order)
+        return self._moment_quadrature(0, np.inf, order)
 
     @abstractmethod
     def _pdf0_length(self,
@@ -569,7 +569,7 @@ class AnalyticalDistribution(IndividualDistribution):
     """
 
     # (min-DPn, max-DPn)
-    _pbounds = ((1.0,), (np.Inf,))
+    _pbounds = ((1.0, np.inf), )
     _ppf_bounds = (1e-4, 0.9999)
 
     def __init__(self,
@@ -586,13 +586,12 @@ class AnalyticalDistribution(IndividualDistribution):
     @property
     def DPn(self) -> float:
         r"""Number-average degree of polymerization, $DP_n$."""
-        return self.__DPn  # type: ignore
+        return self.__DPn
 
     @DPn.setter
     def DPn(self, DPn: float):
-        self.__DPn = check_bounds(DPn,
-                                  self._pbounds[0][0], self._pbounds[1][0],
-                                  'DPn')
+        check_bounds(DPn, *self._pbounds[0], 'DPn')
+        self.__DPn = DPn
         self._update_internal_parameters()
 
     @property
@@ -654,8 +653,8 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
     r"""_Abstract_ class for 2-parameter analytical chain-length distributions.
     """
 
-    # ((min-DPn, min-PDI), (max-DPn, max-PDI))
-    _pbounds = ((1.0, 1.000001), (np.Inf, np.Inf))
+    # ((min-DPn, max-DPn), (min-PDI, max-PDI))
+    _pbounds = ((1.0, np.inf), (1.000001, np.inf))
 
     def __init__(self,
                  DPn: float,
@@ -670,13 +669,12 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
     @property
     def PDI(self) -> float:
         """Polydispersity index, $M_w/M_n$."""
-        return self.__PDI  # type: ignore
+        return self.__PDI
 
     @PDI.setter
     def PDI(self, PDI: float):
-        self.__PDI = check_bounds(PDI,
-                                  self._pbounds[0][1], self._pbounds[1][1],
-                                  'PDI')
+        check_bounds(PDI, *self._pbounds[1], 'PDI')
+        self.__PDI = PDI
         self._update_internal_parameters()
 
     @property
