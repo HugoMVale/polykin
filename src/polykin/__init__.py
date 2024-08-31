@@ -15,7 +15,10 @@ Using any of these subpackages requires an explicit import. For example,
 * copolymerization = copolymerization models
 * distributions    = chain-length distributions
 * kinetics         = kinetic coefficients
+* math             = mathematical algorithms
 * properties       = physical property methods and models
+* stepgrowth       = step-growth polymerization formulas
+* thermo           = thermodynamic models
 
 """
 import importlib.metadata
