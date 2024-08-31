@@ -63,3 +63,6 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
 addopts = ["-n=2", "--import-mode=importlib"]
+
+[tool.ruff.lint]
+select = ["NPY201"]
