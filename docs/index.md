@@ -6,8 +6,10 @@ development stage, but the following modules can already be used:
 - [x] copolymerization
 - [x] distributions
 - [x] kinetics
+- [x] math
 - [x] properties
-- [x] thermodynamics
+- [x] stepgrowth
+- [x] thermo
 
 
 <p align="center">
