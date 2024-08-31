@@ -7,7 +7,7 @@ This module implements methods to create and visualize the types of kinetic
 coefficients most often used in polymer reactor models.
 """
 
+from .arrhenius import *
 from .cldpropagation import *
 from .cldtermination import *
-from .arrhenius import *
 from .eyring import *
