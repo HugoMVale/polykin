@@ -601,15 +601,15 @@ class AnalyticalDistribution(IndividualDistribution):
         return (self.DPn,)
 
     def random(self,
-               size: Optional[Union[int, tuple[int, ...]]] = None
+               shape: Optional[Union[int, tuple[int, ...]]] = None
                ) -> Union[int, IntArray]:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
         Parameters
         ----------
-        size : int | tuple[int, ...] | None
-            Sample size.
+        shape : int | tuple[int, ...] | None
+            Sample shape.
 
         Returns
         -------
@@ -618,11 +618,11 @@ class AnalyticalDistribution(IndividualDistribution):
         """
         if self._rng is None:
             self._rng = np.random.default_rng()
-        return self._random_length(size)
+        return self._random_length(shape)
 
     @abstractmethod
     def _random_length(self,
-                       size: Optional[Union[int, tuple[int, ...]]],
+                       shape: Optional[Union[int, tuple[int, ...]]],
                        ) -> Union[int, IntArray]:
         r"""Random chain-length generator.
 
@@ -632,8 +632,8 @@ class AnalyticalDistribution(IndividualDistribution):
 
         Parameters
         ----------
-        size : int | tuple[int, ...] | None
-            Sample size.
+        shape : int | tuple[int, ...] | None
+            Sample shape.
 
         Returns
         -------
