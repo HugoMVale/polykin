@@ -3,18 +3,25 @@
 # Copyright Hugo Vale 2024
 
 import functools
+from math import factorial
+from typing import Union
 
 import numpy as np
 import scipy.special as sp
 import scipy.stats as st
 from numpy import exp, log, pi, sqrt
+from scipy.optimize import root_scalar
 
-from .base import AnalyticalDistributionP1, AnalyticalDistributionP2
+from polykin.distributions.base import (AnalyticalDistributionP1,
+                                        AnalyticalDistributionP2)
+from polykin.utils.math import eps
+from polykin.utils.types import FloatArray, IntArrayLike
 
 __all__ = ['Flory',
            'Poisson',
            'LogNormal',
-           'SchulzZimm']
+           'SchulzZimm',
+           'WeibullNycanderGold_pdf']
 
 
 class Flory(AnalyticalDistributionP1):
@@ -179,7 +186,7 @@ class Poisson(AnalyticalDistributionP1):
 
     def _pdf0_length(self, k):
         a = self._a
-        return exp((k - 1)*log(a) - a - sp.gammaln(k))
+        return poisson(k, a, False)
 
     @functools.cache
     def _moment_length(self, order):
@@ -428,3 +435,124 @@ class SchulzZimm(AnalyticalDistributionP2):
         k = self._k
         theta = self._theta
         return st.gamma.ppf(self._ppf_bounds, a=k, scale=theta, loc=1)
+
+# %% Gold distribution
+
+
+def poisson(k, a: float, k0: bool):
+    shift = 0
+    if not k0:
+        shift = -1
+    return exp((k + shift)*log(a) - a - sp.gammaln(k + 1 + shift))
+
+
+def WeibullNycanderGold_pdf(k: Union[int, IntArrayLike],
+                            v: float,
+                            r: float
+                            ) -> Union[float, FloatArray]:
+    r"""Weibull, Nycander and Golds's analytical chain-length distribution for
+    living polymerization with different initiation and polymerization rate
+    coefficients.
+
+    For a living polymerization with only initiation and propagation (i.e.,
+    constant number of chains), the number fraction of chains of length
+    $k$, can computed in two steps. First, the number fraction of unreacted 
+    initiator molecules, $p_0=p(0)$, is found by solving the equation:
+
+    $$ v + r \ln(p_0) + (r - 1)(1 - p_0) = 0 $$
+
+    where $v$ denotes the number-average degree of polymerization of all chains,
+    including unreacted initiator molecules, and $r=k_p/k_i$ is the ratio of the
+    polymerization and initiation rate coefficients. Then, the number fraction
+    of chains with $k \ge 1$ monomer units can be evaluated by:
+
+    \begin{aligned}
+    p(k) & = p_0 \frac{r^{k-1}}{(r-1)^k} \left[1- \Gamma(k,(1-r)\ln{p_0}) \right] & \text{if } r>1 \\
+    p(k) & = p_0 \frac{r^{k-1}}{(1-r)^k} (-1)^k\left[1- \Gamma(k,(1-r)\ln{p_0}) \right] & \text{if } r<1
+    \end{aligned}
+
+    where $\Gamma$ is the regularized upper incomplete gamma function. For $r>1$,
+    the argument of $\Gamma$ is always positive, while for $r<1$ it is negative. 
+    This analytical solution has an obvious singularity at $r=1$; in that case,
+    the solution reduces to the well-known Poisson distribution:
+
+    $$ p(k) = \frac{v^k}{k!}e^{-v} $$
+
+    valid for $k \ge 0$.
+
+    !!! note
+
+        * The solution is numerically unstable in certain domains, namely for
+        $r$ close to 1, and also for $k>>v$. This is an intrinsic feature  of
+        the equation.
+        * For $|r-1|<10^{-2}$, the algorithm automatically switches to the Poisson
+        distribution. Some numerical discontinuity at this boundary is to be
+        expected. 
+        * For $r<1$, no solution is currently computed, because the incomplete
+        gamma function algorithm available in SciPy is restricted to positive
+        arguments.    
+
+    **References**
+
+    * Weibull, B.; Nycander, E.. "The Distribution of Compounds Formed in the
+    Reaction." Acta Chemica Scandinavica 49 (1995): 207-216.
+    * Gold, L. "Statistics of polymer molecular size distribution for an
+    invariant number of propagating chains." The Journal of Chemical Physics
+    28.1 (1958): 91-99.
+
+    Parameters
+    ----------
+    k : int | IntArrayLike
+        Chain length (>=0).
+    v : float
+        Number-average degree of polymerization considering chains with zero
+        length.
+    r : float
+        Ratio of propagation and initiation rate coefficients.
+
+    Returns
+    -------
+    float | FloatArray
+        Number probability density.
+
+    Examples
+    --------
+    Compute the fraction of chains with lengths 0 to 2 for a system with $r=5$
+    and $v=1$.
+
+    >>> from polykin.distributions import WeibullNycanderGold_pdf
+    >>> WeibullNycanderGold_pdf([0, 1, 2], 1., 5)
+    array([0.58958989, 0.1295864 , 0.11493254])
+    """
+
+    if isinstance(k, (list, tuple)):
+        k = np.asarray(k)
+
+    # Special case where it reduces to Poisson(kmin=0)
+    if abs(r - 1.) < 1e-2:
+        return poisson(k, v, True)
+
+    # Find p0=p(k=0)
+    def find_p0(p0):
+        return v + r*log(p0) + (r - 1.)*(1. - p0)
+
+    sol = root_scalar(find_p0, method='brentq', bracket=(0. + eps, 1. - eps))
+    p0 = sol.root
+
+    # Avoid issue 'Integers to negative integer powers'
+    r = float(r)
+
+    # Weibull-Nycander-Gold solution p(k>=1)
+    if r > 1.:
+        A = sp.gammaincc(k, (1. - r)*log(p0))
+        result = p0 * r**(k - 1) / (r - 1.)**k * (1. - A)
+    else:
+        # gammaincc in scipy is restricted to positive arguments
+        # A = sp.gammaincc(k, (1. - r)*log(p0))
+        # result = p0 * r**(k - 1) / (1. - r)**k * (-1)**k * (1. - A)
+        result = NotImplemented
+
+    # Overwite p(k=0)
+    result[k == 0] = p0
+
+    return result

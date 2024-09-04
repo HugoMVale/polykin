@@ -3,11 +3,13 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
+from numpy import isclose
 import pytest
 import scipy.integrate as integrate
 
 from polykin.distributions import (DataDistribution, Flory, LogNormal, Poisson,
-                                   SchulzZimm, plotdists)
+                                   SchulzZimm, WeibullNycanderGold_pdf,
+                                   plotdists)
 
 
 @pytest.fixture
@@ -36,8 +38,8 @@ def test_properties(dist1, dist2):
         d.M0 = M0
         assert (d.name[:len(name)] == name)
         assert (d.DPn == DPn)
-        assert (np.isclose(d.M0, M0, rtol=rtol))
-        assert (np.isclose(d.Mn*d.Mw*d.Mz, M0**3*d.DPn*d.DPw*d.DPz, rtol=rtol))
+        assert (isclose(d.M0, M0, rtol=rtol))
+        assert (isclose(d.Mn*d.Mw*d.Mz, M0**3*d.DPn*d.DPw*d.DPz, rtol=rtol))
 
 
 def test_inputs():
@@ -80,7 +82,7 @@ def test_pdf_discrete_sum(dist1):
         d.DPn = DPn
         for kind in ["number", "mass", "gpc"]:
             pdf = d.pdf(x, kind=kind)
-            assert (np.isclose(sum(pdf), 1.0, rtol=rtol))
+            assert (isclose(sum(pdf), 1.0, rtol=rtol))
 
 
 def test_pdf_continuous_integral(dist2):
@@ -91,9 +93,9 @@ def test_pdf_continuous_integral(dist2):
         for kind in ["number", "mass", "gpc"]:
             pdf_integral, atol = integrate.quad(
                 lambda x: d.pdf(x, kind=kind),
-                0, np.Inf)
+                0, np.inf)
             # print(d.name, kind, pdf_integral, atol)
-            assert (np.isclose(pdf_integral, 1.0, atol=atol))
+            assert (isclose(pdf_integral, 1.0, atol=atol))
 
 
 def test_pdf_moment(dist1, dist2):
@@ -106,7 +108,7 @@ def test_pdf_moment(dist1, dist2):
             mom_analytical = d._moment_length(order)
             mom_numeric = super(type(d), d)._moment_length(order)
             # print(d.name, mom_integral, atol)
-            assert (np.isclose(mom_numeric, mom_analytical, rtol=1e-4))
+            assert (isclose(mom_numeric, mom_analytical, rtol=1e-4))
 
 
 def test_pdf_length_mass(dist2):
@@ -126,7 +128,7 @@ def test_pdf_length_mass(dist2):
                     lambda x: d.pdf(x, kind=kind, sizeasmass=sizeasmass),
                     xlimits[0], xlimits[1])
             # print(d.name, integral)
-            assert (np.isclose(integral[False], integral[True], atol=atol))
+            assert (isclose(integral[False], integral[True], atol=atol))
 
 
 def test_pfd_cdf(dist1, dist2):
@@ -141,7 +143,7 @@ def test_pfd_cdf(dist1, dist2):
             cdf_analytical = d.cdf(DPn, kind=kind)
             cdf_generic = super(type(d), d)._cdf_length(DPn, order)
             # print(type(d), kind, cdf_analytical, cdf_generic)
-            assert (np.isclose(cdf_analytical, cdf_generic, rtol=1e-6))
+            assert (isclose(cdf_analytical, cdf_generic, rtol=1e-6))
 
 
 def test_random(dist1, dist2):
@@ -161,7 +163,7 @@ def test_random(dist1, dist2):
         for order in range(1, 4):
             mom = np.sum(x**order)/num_samples
             # print(type(d), order, mom, d.moment(order))
-            assert (np.isclose(mom, d._moment_length(order), rtol=rtol[order]))
+            assert (isclose(mom, d._moment_length(order), rtol=rtol[order]))
 
 
 def test_composite_1(dist1, dist2):
@@ -172,13 +174,13 @@ def test_composite_1(dist1, dist2):
     for d in distributions:
         cases = [1*d, d*1, 2.0*d, d*3.0, d + d + d, d + 2*d + 3.0*d]
         for s in cases:
-            assert (np.isclose(s.DPn, d.DPn, rtol=rtol))
-            assert (np.isclose(s.DPw, d.DPw, rtol=rtol))
-            assert (np.isclose(s.DPz, d.DPz, rtol=rtol))
-            assert (np.isclose(s.M0, d.M0, rtol=rtol))
-            assert (np.isclose(s.Mn, d.Mn, rtol=rtol))
-            assert (np.isclose(s.Mw, d.Mw, rtol=rtol))
-            assert (np.isclose(s.Mz, d.Mz, rtol=rtol))
+            assert (isclose(s.DPn, d.DPn, rtol=rtol))
+            assert (isclose(s.DPw, d.DPw, rtol=rtol))
+            assert (isclose(s.DPz, d.DPz, rtol=rtol))
+            assert (isclose(s.M0, d.M0, rtol=rtol))
+            assert (isclose(s.Mn, d.Mn, rtol=rtol))
+            assert (isclose(s.Mw, d.Mw, rtol=rtol))
+            assert (isclose(s.Mz, d.Mz, rtol=rtol))
 
 
 def test_composite_2a():
@@ -188,7 +190,7 @@ def test_composite_2a():
     p = Poisson(DPn, 70)
     cases = [f + p + f, 1*f + p*2, f*2.0 + 3.0*p + 0.5*f]
     for s in cases:
-        assert (np.isclose(s.DPn, DPn, rtol=rtol))
+        assert (isclose(s.DPn, DPn, rtol=rtol))
 
 
 def test_composite_2b():
@@ -198,7 +200,7 @@ def test_composite_2b():
     p = Poisson(Mn/70, 70)
     cases = [f + p + f, 1*f + p*2, f*2.0 + 3.0*p + 0.5*f]
     for s in cases:
-        assert (np.isclose(s.Mn, Mn, rtol=rtol))
+        assert (isclose(s.Mn, Mn, rtol=rtol))
 
 
 def test_composite_2c():
@@ -209,7 +211,7 @@ def test_composite_2c():
     cases = [f + p, 1*f + p*2 + f, f*2.0 + 3.0*p + 2*p]
     for s in cases:
         # print(f.Mw, p.Mw, s.Mw, DPw*100)
-        assert (np.isclose(s.Mw, DPw*100.0, rtol=rtol))
+        assert (isclose(s.Mw, DPw*100.0, rtol=rtol))
 
 
 def test_composite_pdf_integral():
@@ -227,8 +229,8 @@ def test_composite_pdf_integral():
         integral[kind], atol = integrate.quad(
             lambda x: d.pdf(x, kind=kind), 0, DPn*(1+f)/2)
     # print(xn, integral)
-    assert (np.isclose(integral['number'], xn[0], rtol=1e-2))
-    assert (np.isclose(integral['mass'], w1, rtol=1e-5))
+    assert (isclose(integral['number'], xn[0], rtol=1e-2))
+    assert (isclose(integral['mass'], w1, rtol=1e-5))
 
 
 def test_data_distribution():
@@ -245,9 +247,9 @@ def test_data_distribution():
         y1 = getattr(d1, attr)
         y2 = getattr(d2, attr)
         # print(attr, y1, y2)
-        assert (np.isclose(y2, y1, rtol=rtol))
-    assert (np.isclose(d2.pdf(d2.DPw), d1.pdf(d1.DPw), rtol=rtol))
-    assert (np.isclose(d2.cdf(d2.DPw), d1.cdf(d1.DPw), rtol=rtol))
+        assert (isclose(y2, y1, rtol=rtol))
+    assert (isclose(d2.pdf(d2.DPw), d1.pdf(d1.DPw), rtol=rtol))
+    assert (isclose(d2.cdf(d2.DPw), d1.cdf(d1.DPw), rtol=rtol))
 
 
 def test_fit_itself(dist1, dist2):
@@ -265,8 +267,8 @@ def test_fit_itself(dist1, dist2):
                               kind=kind, M0=d.M0, name='data'+d.name)
         dfit = d2.fit(type(d), 1)
         for attr in ['DPn', 'DPw', 'DPz', 'Mn', 'Mw', 'Mz', 'PDI', 'M0']:
-            assert (np.isclose(getattr(dfit, attr), getattr(d, attr),
-                               rtol=rtol))
+            assert (isclose(getattr(dfit, attr), getattr(d, attr),
+                            rtol=rtol))
 
 
 def test_plot_method(dist1):
@@ -279,3 +281,33 @@ def test_plot_method(dist1):
 
 def test_plotdists(dist1):
     plotdists(dist1, kind='gpc')
+
+
+def test_WeibullNycanderGold_pdf():
+    v = 10.
+    c = 2.
+    s = np.arange(4*int(v))
+    Ps = WeibullNycanderGold_pdf(s, v, c)
+    assert s.shape == Ps.shape
+    assert isclose(Ps.sum(), 1.0)
+    # examples from Gold (1957)
+    r = 2.
+    p0 = 0.3679
+    res = _moments(p0, r)
+    assert np.all(isclose(res, (2.164, 2.849), rtol=1e-3))
+    r = 10.
+    p0 = 0.4594
+    res = _moments(p0, r)
+    assert np.all(isclose(res, (5.388, 7.110), rtol=1e-3))
+
+
+def _moments(p0, r):
+    v = - r*np.log(p0) - (r - 1.)*(1. - p0)
+    s = np.arange(1, 10*int(v))
+    Ps = WeibullNycanderGold_pdf(s, v, r)
+    m0 = Ps.sum()
+    m1 = np.dot(s, Ps)
+    m2 = np.dot(s**2, Ps)
+    xn = m1/m0
+    xw = m2/m1
+    return (xn, xw)

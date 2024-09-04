@@ -202,6 +202,7 @@ nav:
           - MixtureDistribution: reference/distributions/MixtureDistribution.md
           - Poisson: reference/distributions/Poisson.md
           - SchulzZimm: reference/distributions/SchulzZimm.md
+          - WeibullNycanderGold_pdf: reference/distributions/WeibullNycanderGold_pdf.md
           - plotdists: reference/distributions/plotdists.md
       - polykin.kinetics:
           - reference/kinetics/index.md
