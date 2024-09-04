@@ -31,7 +31,7 @@ def load_PVT_parameters(method: str) -> pd.DataFrame:
     table = table_parameters.get(method, None)
     if table is None:
         filepath = (Path(__file__).parent).joinpath(method + '_parameters.tsv')
-        table = pd.read_csv(filepath, delim_whitespace=True)
+        table = pd.read_csv(filepath, sep=r"\s+")
         table.set_index('Polymer', inplace=True)
         table_parameters[method] = table
     return table
