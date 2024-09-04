@@ -29,10 +29,10 @@ development stage, but the following modules can already be used:
 - [ ] Database
 - Distributions
   - [x] Flory
-  - [ ] Gold
   - [x] Log-normal
   - [x] Poison
   - [x] Schulz-Zimm
+  - [x] Weibull-Nycander-Gold
 - Kinetics
   - [x] Arrhenius
   - [x] Eyring
