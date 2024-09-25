@@ -203,6 +203,7 @@ nav:
           - Poisson: reference/distributions/Poisson.md
           - SchulzZimm: reference/distributions/SchulzZimm.md
           - WeibullNycanderGold_pdf: reference/distributions/WeibullNycanderGold_pdf.md
+          - convolve_moments: reference/distributions/convolve_moments.md
           - plotdists: reference/distributions/plotdists.md
       - polykin.kinetics:
           - reference/kinetics/index.md

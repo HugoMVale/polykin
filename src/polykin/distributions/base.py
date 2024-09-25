@@ -20,7 +20,8 @@ from polykin.utils.tools import (check_bounds, check_in_set, check_type,
 from polykin.utils.types import (FloatArray, FloatArrayLike, FloatRangeArray,
                                  IntArray)
 
-__all__ = ['plotdists']
+__all__ = ['plotdists',
+           'convolve_moments']
 
 
 class Distribution(ABC):
@@ -705,7 +706,11 @@ class MixtureDistribution(Distribution):
     Mn:   7.692 kg/mol
     Mw:   23.985 kg/mol
     Mz:   45.635 kg/mol
-    ...
+    <BLANKLINE>
+     #   Weight   Distribution        DPn        DPw    PDI
+    -------------------------------------------------------
+     1    0.300          Flory   1.00e+02   1.99e+02   1.99
+     2    0.700     SchulzZimm   1.00e+02   3.00e+02   3.00
 
     >>> c.pdf(c.DPn)
     0.002802983984583185
@@ -889,3 +894,60 @@ def plotdists(dists: list[Distribution],
         d.plot(kind=kind, axes=fig.axes, **kwargs)
 
     return fig
+
+
+def convolve_moments(q0: float,
+                     q1: float,
+                     q2: float,
+                     r0: float,
+                     r1: float,
+                     r2: float
+                     ) -> tuple[float, float, float]:
+    r"""Convolve the first three moments of two distributions.
+
+    If $P = Q * R$ is the convolution of $Q$ and $R$, i.e.:
+
+    $$ P_n = \sum_{i=0}^{n} Q_{n-i}R_{i} $$
+
+    then the first three moments of $P$ are related to the moments of $Q$ and
+    $R$ by:
+
+    \begin{align}
+    p_0 &= q_0 r_0 \\
+    p_1 &= q_1 r_0 + q_0 r_1 \\
+    p_2 &= q_2 r_0 + 2 q_1 r_1 + q_0 r_2
+    \end{align}
+
+    where $p_i$, $q_i$ and $r_i$ denote the $i$-th moments of $P$, $Q$ and $R$,
+    respectively.    
+
+    Parameters
+    ----------
+    q0 : float
+        0-th moment of $Q$.
+    q1 : float
+        1-st moment of $Q$.
+    q2 : float
+        2-nd moment of $Q$.
+    r0 : float
+        0-th moment of $R$.
+    r1 : float
+        1-st moment of $R$.
+    r2 : float
+        2-nd moment of $R$.
+
+    Returns
+    -------
+    tuple[float, float, float]
+        0-th, 1-st and 2-nd moments of $P=Q*R$.
+
+    Examples
+    --------
+    >>> from polykin.distributions import convolve_moments
+    >>> convolve_moments(1., 1e2, 2e4, 1., 50., 5e4)
+    (1.0, 150.0, 80000.0)
+    """
+    p0 = q0*r0
+    p1 = q1*r0 + q0*r1
+    p2 = q2*r0 + 2*q1*r1 + q0*r2
+    return p0, p1, p2

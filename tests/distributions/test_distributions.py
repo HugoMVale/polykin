@@ -9,7 +9,7 @@ import scipy.integrate as integrate
 
 from polykin.distributions import (DataDistribution, Flory, LogNormal, Poisson,
                                    SchulzZimm, WeibullNycanderGold_pdf,
-                                   plotdists)
+                                   plotdists, convolve_moments)
 
 
 @pytest.fixture
@@ -311,3 +311,15 @@ def _moments(p0, r):
     xn = m1/m0
     xw = m2/m1
     return (xn, xw)
+
+
+def test_convolve_moments():
+
+    # Define inputs
+    q0 = 1.0
+    q1 = q0 * 100.0
+    q2 = q1 * 200.0
+
+    p0, p1, p2 = convolve_moments(q0, q1, q2, q0, q1, q2)
+
+    assert isclose(p0*p2/p1**2, 1.5)
