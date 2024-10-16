@@ -18,6 +18,8 @@ from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
 __all__ = ['convert_Qe_to_r',
            'inst_copolymer_ternary',
            'inst_copolymer_multi',
+           'radical_fractions_ternary',
+           'radical_fractions_multi',
            'monomer_drift_multi',
            'sequence_multi',
            'transitions_multi',
@@ -37,7 +39,7 @@ def inst_copolymer_ternary(f1: Union[float, FloatArrayLike],
                                       Union[float, FloatArray]]:
     r"""Calculate the instantaneous copolymer composition for a ternary system.
 
-    For a ternary system, the instantaneous copolymer composition $F_i$ is
+    In a ternary system, the instantaneous copolymer composition $F_i$ is
     related to the monomer composition $f_i$ by:
 
     \begin{aligned}
@@ -97,13 +99,10 @@ def inst_copolymer_ternary(f1: Union[float, FloatArrayLike],
     Examples
     --------
     >>> from polykin.copolymerization import inst_copolymer_ternary
-    >>>
     >>> F1, F2, F3 = inst_copolymer_ternary(f1=0.5, f2=0.3, r12=0.2, r21=2.3,
     ...                                     r13=3.0, r31=0.9, r23=0.4, r32=1.5)
-    >>>
     >>> print(f"F1 = {F1:.2f}; F2 = {F2:.2f}; F3 = {F3:.2f}")
     F1 = 0.32; F2 = 0.41; F3 = 0.27
-
     """
 
     f1 = np.asarray(f1)
@@ -134,7 +133,7 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     r"""Calculate the instantaneous copolymer composition for a multicomponent
     system.
 
-    For a multicomponent system, the instantaneous copolymer composition $F_i$
+    In a multicomponent system, the instantaneous copolymer composition $F_i$
     can be determined by solving the following set of linear algebraic
     equations:
 
@@ -198,7 +197,7 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     >>> from polykin.copolymerization import inst_copolymer_multi
     >>> import numpy as np
 
-    Define reactivity ratio matrix.
+    Define the reactivity ratio matrix.
     >>> r = np.ones((3, 3))
     >>> r[0, 1] = 0.2
     >>> r[1, 0] = 2.3
@@ -207,12 +206,11 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     >>> r[1, 2] = 0.4
     >>> r[2, 1] = 1.5
 
-    Evaluate instantaneous copolymer composition at f1=0.5, f2=0.3, f3=0.2.
+    Evaluate the instantaneous copolymer composition at f1=0.5, f2=0.3, f3=0.2.
     >>> f = [0.5, 0.3, 0.2]
     >>> F = inst_copolymer_multi(f, r)
     >>> F
     array([0.32138111, 0.41041608, 0.26820282])
-
     """
 
     if P is not None and (f is None and r is None):
@@ -230,6 +228,164 @@ def inst_copolymer_multi(f: Optional[FloatVectorLike],
     F = np.linalg.solve(A, b)
 
     return F
+
+
+def radical_fractions_ternary(f1: Union[float, FloatArrayLike],
+                              f2: Union[float, FloatArrayLike],
+                              k12: float,
+                              k21: float,
+                              k13: float,
+                              k31: float,
+                              k23: float,
+                              k32: float,
+                              ) -> tuple[Union[float, FloatArray],
+                                         Union[float, FloatArray],
+                                         Union[float, FloatArray]]:
+    r"""Calculate the radical fractions for a ternary system.
+
+    In a ternary system, the radical fractions $p_i$ are related to the
+    monomer composition $f_i$ by:
+
+    \begin{aligned}
+    a &= k_{21}k_{31}f_1^2+k_{21}k_{32}f_1f_2+k_{23}k_{31}f_1f_3 \\
+    b &= k_{12}k_{31}f_1f_2+k_{12}k_{32}f_2^2+k_{13}k_{32}f_2f_3 \\
+    c &= k_{12}k_{23}f_2f_3+k_{13}k_{21}f_1f_3+k_{13}k_{23}f_3^2 \\
+    p_1 &= \frac{a}{a+b+c} \\
+    p_2 &= \frac{b}{a+b+c} \\
+    p_3 &= \frac{c}{a+b+c}
+    \end{aligned}
+
+    where $k_{ij}$ are the cross-propagation rate coefficients. Note that the
+    homo-propagation rate coefficients $k_{ii}$ do not appear in the equations.
+    For this reason, radical fractions cannot be evaluated from reactivity
+    ratios alone.
+
+    **References**
+
+    *   Hamielec, A.E., MacGregor, J.F. and Penlidis, A. (1987), Multicomponent
+    free-radical polymerization in batch, semi- batch and continuous reactors.
+    Makromolekulare Chemie. Macromolecular Symposia, 10-11: 521-570.
+
+    Parameters
+    ----------
+    f1 : float | FloatArrayLike
+        Molar fraction of M1.
+    f2 : float | FloatArrayLike
+        Molar fraction of M2.
+    k12 : float
+        Propagation rate coefficient.
+    k21 : float
+        Propagation rate coefficient.
+    k13 : float
+        Propagation rate coefficient.
+    k31 : float
+        Propagation rate coefficient.
+    k23 : float
+        Propagation rate coefficient.
+    k32 : float
+        Propagation rate coefficient.
+
+    Returns
+    -------
+    tuple[float | FloatArray, ...]
+        Radical fractions, $(p_1, p_2, p_3)$.
+
+    See also
+    --------
+    * [`radical_fractions_multi`](radical_fractions_multi.md):
+      generic method for multicomponent systems.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import radical_fractions_ternary
+    >>> p1, p2, p3 = radical_fractions_ternary(
+    ...              f1=0.5, f2=0.3, k12=500., k21=50.,
+    ...              k13=30., k31=200., k23=300., k32=40.)
+    >>> print(f"p1 = {p1:.2f}; p2 = {p2:.2f}; p3 = {p3:.2f}")
+    p1 = 0.25; p2 = 0.48; p3 = 0.27
+    """
+
+    f1 = np.asarray(f1)
+    f2 = np.asarray(f2)
+    f3 = 1. - (f1 + f2)
+
+    p1 = k21*k31*f1**2 + k21*k32*f1*f2 + k23*k31*f1*f3
+    p2 = k12*k31*f1*f2 + k12*k32*f2**2 + k13*k32*f2*f3
+    p3 = k12*k23*f2*f3 + k13*k21*f1*f3 + k13*k23*f3**2
+
+    denominator = p1 + p2 + p3
+
+    p1 /= denominator
+    p2 /= denominator
+    p3 /= denominator
+
+    return (p1, p2, p3)
+
+
+def radical_fractions_multi(f: FloatVectorLike,
+                            k: FloatSquareMatrix,
+                            ) -> FloatVector:
+    r"""Calculate the radical fractions for a multicomponent system.
+
+    In a multicomponent system, the radical fractions $p_i$ can be determined
+    by solving the following set of linear algebraic equations:
+
+    $$ \sum_{j\ne i}^N k_{ij} p_i f_j = \sum_{j\ne i}^N k_{ji} p_j f_i $$
+
+    where $k_{ij}$ are the cross-propagation rate coefficients and $f_i$ are
+    the monomer compositions. Note that the homo-propagation rate coefficients
+    $k_{ii}$ do not appear in the equations. For this reason, radical fractions
+    cannot be evaluated from reactivity ratios alone.
+
+    Parameters
+    ----------
+    f : FloatVectorLike (N)
+        Vector of instantaneous monomer compositions, $f_i$.
+    k : FloatSquareMatrix (N, N)
+        Matrix of cross-propagation rate coefficients. The diagonal elements
+        $k_{ii}$ are not used.
+
+    Returns
+    -------
+    FloatVector (N)
+        Vector of radical fractions, $p_i$.
+
+    See also
+    --------
+    * [`radical_fractions_ternary`](radical_fractions_ternary.md):
+      specific method for terpolymer systems.
+
+    Examples
+    --------
+    >>> from polykin.copolymerization import radical_fractions_multi
+    >>> import numpy as np
+
+    Define the cross-propagation coefficient matrix.
+    >>> k = np.zeros((3, 3))
+    >>> k[0, 1] = 500.
+    >>> k[1, 0] = 50.
+    >>> k[0, 2] = 30.
+    >>> k[2, 0] = 200.
+    >>> k[1, 2] = 300.
+    >>> k[2, 1] = 40.
+
+    Evaluate the radical fractions at f1=0.5, f2=0.3, f3=0.2.
+    >>> f = [0.5, 0.3, 0.2]
+    >>> p = radical_fractions_multi(f, k)
+    >>> p
+    array([0.25012791, 0.47956341, 0.27030868])
+    """
+    f = np.asarray(f)
+
+    A = k.T * f[:, np.newaxis]
+    x = A.sum(axis=0)
+    np.fill_diagonal(A, A.diagonal() - x)
+    A[-1, :] = 1.
+    b = np.zeros(A.shape[0])
+    b[-1] = 1.
+    p = np.linalg.solve(A, b)
+
+    return p
 
 
 def monomer_drift_multi(f0: FloatVectorLike,

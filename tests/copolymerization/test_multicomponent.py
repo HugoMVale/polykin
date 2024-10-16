@@ -10,8 +10,12 @@ from polykin.copolymerization import (TerminalModel, convert_Qe_to_r,
                                       inst_copolymer_binary,
                                       inst_copolymer_multi,
                                       inst_copolymer_ternary,
-                                      monomer_drift_multi, sequence_multi,
-                                      transitions_multi, tuples_multi, monomer_drift_binary)
+                                      monomer_drift_binary,
+                                      monomer_drift_multi,
+                                      radical_fractions_multi,
+                                      radical_fractions_ternary,
+                                      sequence_multi, transitions_multi,
+                                      tuples_multi)
 from polykin.utils.exceptions import ShapeError
 
 
@@ -164,3 +168,69 @@ def test_tuples_multi():
                 sol = sol_b[idx_str]
             assert (
                 isclose(sol_m[idx], sol))
+
+
+def test_radical_fractions_ternary():
+    k12 = 100.
+    k21 = 200.
+    k13 = 300.
+    k31 = 400.
+    k23 = 500.
+    k32 = 600.
+    # 1 + 2
+    f1 = 0.3
+    f2 = 1 - f1
+    p1, p2, p3 = radical_fractions_ternary(
+        f1, f2, k12, k21, k13, k31, k23, k32)
+    p1_sol = k21*f1/(k21*f1 + k12*f2)
+    assert np.all(isclose((p1, p2, p3), [p1_sol, 1 - p1_sol, 0]))
+    # 1 + 3
+    f1 = 0.3
+    f2 = 0.
+    f3 = 1 - f1 - f2
+    p1, p2, p3 = radical_fractions_ternary(
+        f1, f2, k12, k21, k13, k31, k23, k32)
+    p1_sol = k31*f1/(k31*f1 + k13*f3)
+    assert np.all(isclose((p1, p2, p3), [p1_sol, 0, 1 - p1_sol]))
+    # 2 + 3
+    f1 = 0
+    f2 = 0.4
+    f3 = 1 - f1 - f2
+    p1, p2, p3 = radical_fractions_ternary(
+        f1, f2, k12, k21, k13, k31, k23, k32)
+    p1_sol = k32*f2/(k32*f2 + k23*f3)
+    assert np.all(isclose((p1, p2, p3), [0, p1_sol, 1 - p1_sol]))
+
+
+def test_radical_fractions_multi():
+    # test binary
+    k12 = 50.
+    k21 = 200.
+    k = np.zeros((2, 2))
+    k[0, 1] = k12
+    k[1, 0] = k21
+    f1 = 0.25
+    f2 = 1 - f1
+    p = radical_fractions_multi([f1, f2], k)
+    p1_sol = k21*f1/(k21*f1 + k12*f2)
+    assert isclose(p[0], p1_sol)
+    # test ternary
+    k12 = 100.
+    k21 = 200.
+    k13 = 300.
+    k31 = 400.
+    k23 = 500.
+    k32 = 600.
+    k = np.ones((3, 3))
+    k[0, 1] = k12
+    k[1, 0] = k21
+    k[0, 2] = k13
+    k[2, 0] = k31
+    k[1, 2] = k23
+    k[2, 1] = k32
+    f1 = 0.3
+    f2 = 0.4
+    f3 = 1 - f1 - f2
+    p_multi = radical_fractions_multi([f1, f2, f3], k)
+    p_ternary = radical_fractions_ternary(f1, f2, k12, k21, k13, k31, k23, k32)
+    assert np.all(isclose(p_multi, p_ternary))  # type: ignore
