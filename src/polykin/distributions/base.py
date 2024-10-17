@@ -21,7 +21,8 @@ from polykin.utils.types import (FloatArray, FloatArrayLike, FloatRangeArray,
                                  IntArray)
 
 __all__ = ['plotdists',
-           'convolve_moments']
+           'convolve_moments',
+           'convolve_moments_self']
 
 
 class Distribution(ABC):
@@ -903,20 +904,20 @@ def convolve_moments(q0: float,
                      r1: float,
                      r2: float
                      ) -> tuple[float, float, float]:
-    r"""Convolve the first three moments of two distributions.
+    r"""Compute the first three moments of the convolution of two distributions.
 
-    If $P = Q * R$ is the convolution of $Q$ and $R$, i.e.:
+    If $P = Q * R$ is the convolution of $Q$ and $R$, defined as:
 
     $$ P_n = \sum_{i=0}^{n} Q_{n-i}R_{i} $$
 
     then the first three moments of $P$ are related to the moments of $Q$ and
     $R$ by:
 
-    \begin{align}
+    \begin{aligned}
     p_0 &= q_0 r_0 \\
     p_1 &= q_1 r_0 + q_0 r_1 \\
     p_2 &= q_2 r_0 + 2 q_1 r_1 + q_0 r_2
-    \end{align}
+    \end{aligned}
 
     where $p_i$, $q_i$ and $r_i$ denote the $i$-th moments of $P$, $Q$ and $R$,
     respectively.    
@@ -950,4 +951,58 @@ def convolve_moments(q0: float,
     p0 = q0*r0
     p1 = q1*r0 + q0*r1
     p2 = q2*r0 + 2*q1*r1 + q0*r2
+    return p0, p1, p2
+
+
+def convolve_moments_self(q0: float,
+                          q1: float,
+                          q2: float,
+                          order: int = 1
+                          ) -> tuple[float, float, float]:
+    r"""Compute the first three moments of the k-th order convolution of a
+    distribution with itself.
+
+    If $P^k$ is the $k$-th order convolution of $Q$ with itself, defined as:
+
+    \begin{aligned}
+    P^1_n &= Q*Q = \sum_{i=0}^{n} Q_{n-i} Q_{i} \\
+    P^2_n &= (Q*Q)*Q = \sum_{i=0}^{n} Q_{n-i} P^1_{i} \\
+    P^3_n &= ((Q*Q)*Q)*Q = \sum_{i=0}^{n} Q_{n-i} P^2_{i} \\
+    ...
+    \end{aligned}
+
+    then the first three moments of $P^k$ are related to the moments of $Q$ by:
+
+    \begin{aligned}
+    p_0 &= q_0^{k+1}  \\
+    p_1 &= (k+1) q_0^k q_1 \\
+    p_2 &= (k+1) q_0^{k-1} (k q_1^2 +q_0 q_2)
+    \end{aligned}
+
+    where $p_i$ and $q_i$ denote the $i$-th moments of $P^k$ and $Q$,
+    respectively.    
+
+    Parameters
+    ----------
+    q0 : float
+        0-th moment of $Q$.
+    q1 : float
+        1-st moment of $Q$.
+    q2 : float
+        2-nd moment of $Q$.
+
+    Returns
+    -------
+    tuple[float, float, float]
+        0-th, 1-st and 2-nd moments of $P^k=(Q*Q)*...$.
+
+    Examples
+    --------
+    >>> from polykin.distributions import convolve_moments_self
+    >>> convolve_moments_self(1., 1e2, 2e4, 2)
+    (1.0, 300.0, 120000.0)
+    """
+    p0 = q0**(order+1)
+    p1 = (order+1) * q0**order * q1
+    p2 = (order+1) * q0**(order-1) * (order*q1**2 + q0*q2)
     return p0, p1, p2

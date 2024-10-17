@@ -206,6 +206,7 @@ nav:
           - SchulzZimm: reference/distributions/SchulzZimm.md
           - WeibullNycanderGold_pdf: reference/distributions/WeibullNycanderGold_pdf.md
           - convolve_moments: reference/distributions/convolve_moments.md
+          - convolve_moments_self: reference/distributions/convolve_moments_self.md
           - plotdists: reference/distributions/plotdists.md
       - polykin.kinetics:
           - reference/kinetics/index.md

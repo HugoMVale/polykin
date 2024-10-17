@@ -3,13 +3,14 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
-from numpy import isclose
 import pytest
 import scipy.integrate as integrate
+from numpy import isclose
 
 from polykin.distributions import (DataDistribution, Flory, LogNormal, Poisson,
                                    SchulzZimm, WeibullNycanderGold_pdf,
-                                   plotdists, convolve_moments)
+                                   convolve_moments, convolve_moments_self,
+                                   plotdists)
 
 
 @pytest.fixture
@@ -323,3 +324,22 @@ def test_convolve_moments():
     p0, p1, p2 = convolve_moments(q0, q1, q2, q0, q1, q2)
 
     assert isclose(p0*p2/p1**2, 1.5)
+
+
+def test_convolve_moments_self():
+
+    def convolve_moments_self_iter(q0, q1, q2, order):
+        r0 = q0
+        r1 = q1
+        r2 = q2
+        for _ in range(order):
+            r0, r1, r2 = convolve_moments(q0, q1, q2, r0, r1, r2)
+        return r0, r1, r2
+
+    for order in range(1, 10):
+        q0 = 1.0
+        q1 = q0 * 100.0
+        q2 = q1 * 200.0
+        s0, s1, s2 = convolve_moments_self_iter(q0, q1, q2, order)
+        p0, p1, p2 = convolve_moments_self(q0, q1, q2, order)
+        assert np.all(isclose([s0, s1, s2], [p0, p1, p2]))
