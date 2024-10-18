@@ -208,6 +208,9 @@ nav:
           - convolve_moments: reference/distributions/convolve_moments.md
           - convolve_moments_self: reference/distributions/convolve_moments_self.md
           - plotdists: reference/distributions/plotdists.md
+      - polykin.emulsion:
+          - nbar_Li_Brooks: reference/emulsion/nbar_Li_Brooks.md
+          - nbar_Stockmayer_OToole: reference/emulsion/nbar_Stockmayer_OToole.md
       - polykin.kinetics:
           - reference/kinetics/index.md
           - Arrhenius: reference/kinetics/Arrhenius.md
