@@ -283,6 +283,10 @@ nav:
               - RedlichKwong: reference/thermo/eos/RedlichKwong.md
               - Soave: reference/thermo/eos/Soave.md
               - Virial: reference/thermo/eos/Virial.md
+      - polykin.transport:
+          - fD_Colebrook: reference/transport/fD_Colebrook.md
+          - fD_Haaland: reference/transport/fD_Haaland.md
+          - pressure_drop_pipe: reference/transport/pressure_drop_pipe.md
       - polykin.stepgrowth:
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:
