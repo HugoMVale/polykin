@@ -456,7 +456,7 @@ def WeibullNycanderGold_pdf(k: Union[int, IntArrayLike],
 
     For a living polymerization with only initiation and propagation (i.e.,
     constant number of chains), the number fraction of chains of length
-    $k$, can computed in two steps. First, the number fraction of unreacted 
+    $k$ can computed in two steps. First, the number fraction of unreacted 
     initiator molecules, $p_0=p(0)$, is found by solving the equation:
 
     $$ v + r \ln(p_0) + (r - 1)(1 - p_0) = 0 $$
