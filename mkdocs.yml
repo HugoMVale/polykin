@@ -286,10 +286,11 @@ nav:
               - Soave: reference/thermo/eos/Soave.md
               - Virial: reference/thermo/eos/Virial.md
       - polykin.transport:
-          - CD0_sphere: reference/transport/CD0_sphere.md
+          - Cd_sphere: reference/transport/Cd_sphere.md
           - fD_Colebrook: reference/transport/fD_Colebrook.md
           - fD_Haaland: reference/transport/fD_Haaland.md
           - pressure_drop_pipe: reference/transport/pressure_drop_pipe.md
+          - terminal_velocity_sphere: reference/transport/terminal_velocity_sphere.md
           - terminal_velocity_Stokes: reference/transport/terminal_velocity_Stokes.md
       - polykin.stepgrowth:
           - Analytical Solutions: reference/stepgrowth/solutions.md
