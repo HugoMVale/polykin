@@ -287,9 +287,11 @@ nav:
               - Virial: reference/thermo/eos/Virial.md
       - polykin.transport:
           - Cd_sphere: reference/transport/Cd_sphere.md
+          - DP_Darcy_Weisbach: reference/transport/DP_Darcy_Weisbach.md
+          - DP_Hagen_Poiseuille: reference/transport/DP_Hagen_Poiseuille.md
+          - DP_tube: reference/transport/DP_tube.md
           - fD_Colebrook: reference/transport/fD_Colebrook.md
           - fD_Haaland: reference/transport/fD_Haaland.md
-          - pressure_drop_pipe: reference/transport/pressure_drop_pipe.md
           - terminal_velocity_sphere: reference/transport/terminal_velocity_sphere.md
           - terminal_velocity_Stokes: reference/transport/terminal_velocity_Stokes.md
       - polykin.stepgrowth:

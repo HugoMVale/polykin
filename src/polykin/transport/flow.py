@@ -2,23 +2,80 @@
 #
 # Copyright Hugo Vale 2024
 
-from numpy import log10, sqrt
+from numpy import log10, pi, sqrt
+from scipy.constants import g
 
 from polykin.math import root_newton
-from scipy.constants import g
 
 __all__ = ['fD_Colebrook',
            'fD_Haaland',
+           'DP_Hagen_Poiseuille',
+           'DP_Darcy_Weisbach',
+           'DP_tube',
            'Cd_sphere',
-           'pressure_drop_pipe']
+           'terminal_velocity_sphere',
+           'terminal_velocity_Stokes',
+           ]
 
 
-def pressure_drop_pipe(D: float,
-                       v: float,
-                       rho: float,
-                       fD: float,
-                       L: float = 1.0
-                       ) -> float:
+def DP_Hagen_Poiseuille(Q: float,
+                        D: float,
+                        L: float,
+                        mu: float
+                        ) -> float:
+    r"""Calculate the pressure drop in a pipe using the Hagen-Poiseuille equation.
+
+    In laminar flow, the pressure drop in a circular pipe is given by:
+
+    $$ \Delta P =  \frac{128 \mu Q L}{\pi D^4} $$
+
+    where $D$ is the pipe diameter, $L$ is the pipe length, $Q$ is the volume
+    flowrate, and $\mu$ is the fluid viscosity.
+
+    Parameters
+    ----------
+    Q : float
+        Volume flowrate (m³/s).
+    D : float
+        Diameter (m).
+    L : float
+        Length (m).
+    mu : float
+        Viscosity (Pa·s).
+
+    Returns
+    -------
+    float
+        Pressure drop (Pa).
+
+    Examples
+    --------
+    Calculate the pressure drop for a polymer solution with a viscosity of
+    10 Pa.s flowing through 5 m of DN50 tube at 1 L/s. 
+    >>> from polykin.transport.flow import DP_Hagen_Poiseuille
+    >>> from math import pi
+    >>> Q = 1e-3  # m³/s
+    >>> D = 50e-3 # m
+    >>> L = 5.    # m
+    >>> mu = 10.  # Pa·s
+    >>> rho = 1e3 # kg/m³ 
+    >>> v = 4*Q/(pi*D**2)
+    >>> Re = rho*v*D/mu
+    >>> print(f"Re = {Re:.1e}")
+    Re = 2.5e+00
+    >>> DP = DP_Hagen_Poiseuille(Q, D, L, mu)
+    >>> print(f"DP = {DP:.1e} Pa")
+    DP = 3.3e+05 Pa
+    """
+    return 128*mu*Q*L/(pi*D**4)
+
+
+def DP_Darcy_Weisbach(v: float,
+                      D: float,
+                      L: float,
+                      rho: float,
+                      fD: float,
+                      ) -> float:
     r"""Calculate the pressure drop in a pipe using the Darcy-Weisbach
     equation.
 
@@ -34,17 +91,17 @@ def pressure_drop_pipe(D: float,
 
     Parameters
     ----------
-    D : float
-        Diameter (m).
     v : float
         Velocity (m/s)
+    D : float
+        Diameter (m).
+    L : float
+        Length (m).
     rho : float
         Density (kg/m³).
     fD : float
         Darcy friction factor. Should not be confused with the Fanning friction
         factor.
-    L : float
-        Length (m).
 
     Returns
     -------
@@ -53,14 +110,18 @@ def pressure_drop_pipe(D: float,
 
     See also
     --------
-    * [`fD_Colebrook`](fD_Colebrook.md): method to estimate the friction factor.
-    * [`fD_Haaland`](fD_Haaland.md): method to estimate the friction factor.
+    * [`fD_Colebrook`](fD_Colebrook.md): associated method to estimate the
+      friction factor.
+    * [`fD_Haaland`](fD_Haaland.md): associated method to estimate the
+      friction factor.
+    * [`DP_Hagen_Poiseuille`](DP_Hagen_Poiseuille.md): specific method for
+      laminar flow.
 
     Examples
     --------
     Calculate the pressure drop for water flowing through 500 m of DN25 PVC
     pipe at 2 m/s.
-    >>> from polykin.transport.flow import pressure_drop_pipe, fD_Haaland
+    >>> from polykin.transport.flow import DP_Darcy_Weisbach, fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> L = 5e2   # m
@@ -69,11 +130,59 @@ def pressure_drop_pipe(D: float,
     >>> Re = rho*v*D/mu # turbulent flow
     >>> er = 0.0015e-3/D
     >>> fD = fD_Haaland(Re, er)
-    >>> DP = pressure_drop_pipe(D, v, rho, fD, L)
+    >>> DP = DP_Darcy_Weisbach(v, D, L, rho, fD)
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 8.3e+05 Pa
     """
     return fD * rho / 2 * v**2 / D * L
+
+
+def DP_tube(Q: float,
+            D: float,
+            L: float,
+            rho: float,
+            mu: float,
+            er: float = 0.0
+            ) -> float:
+    r"""Calculate the pressure drop in a circular pipe for both laminar and
+    turbulent flow.
+
+    This method acts as a convenience wrapper for
+    [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md). It determines the flow regime
+    and estimates the Darcy friction factor using the appropriate equation. For
+    laminar flow, it applies $f_D=64/Re$. For turbulent flow, it uses
+    [`fD_Haaland`](fD_Haaland.md). Finally, the method calls
+    [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md) with the correct parameters. 
+
+    Parameters
+    ----------
+    Q : float
+        Volume flowrate (m³/s).
+    D : float
+        Diameter (m).
+    L : float
+        Length (m).
+    rho : float
+        Density (kg/m³).
+    mu : float
+        Viscosity (Pa·s).
+    er : float
+        Relative pipe roughness, $\epsilon/D$. Only needed for turbulent flow.
+
+    Returns
+    -------
+    float
+        Pressure drop (Pa).
+    """
+
+    v = 4*Q/(pi*D**2)
+    Re = rho*v*D/mu
+    if Re < 2.3e3:
+        fD = 64/Re
+    else:
+        fD = fD_Haaland(Re, er)
+
+    return DP_Darcy_Weisbach(v, D, L, rho, fD)
 
 
 def fD_Colebrook(Re: float, er: float) -> float:

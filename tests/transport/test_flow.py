@@ -4,9 +4,9 @@
 
 from numpy import isclose
 
-from polykin.transport.flow import (Cd_sphere, fD_Colebrook, fD_Haaland,
-                                    pressure_drop_pipe,
-                                    terminal_velocity_sphere,
+from polykin.transport.flow import (Cd_sphere, DP_Darcy_Weisbach,
+                                    DP_Hagen_Poiseuille, DP_tube, fD_Colebrook,
+                                    fD_Haaland, terminal_velocity_sphere,
                                     terminal_velocity_Stokes)
 
 
@@ -25,14 +25,45 @@ def test_fD():
         assert isclose(f, 0.016*4, rtol=2e-2)
 
 
-def test_pressure_drop_pipe():
+def test_DP_Hagen_Poiseuille():
+    "Noel de Nevers, p. 186"
+    Q = 100*3.78e-3/60
+    L = 3e3*0.3048
+    D = 3.068*2.54e-2
+    mu = 100e-3
+    DP = DP_Hagen_Poiseuille(Q, D, L, mu)
+    assert isclose(DP, 641e3, rtol=1e-2)
+
+
+def test_DP_Darcy_Weisbach():
     "Noel de Nevers, p. 194"
     Re = 2.05e5
     er = 0.0006
     fD = fD_Colebrook(Re, er)
     rho = 1.0
-    DP = pressure_drop_pipe(3.068*2.54e-2, 8.68*0.3048, rho, fD, 2e3*0.3048)
+    DP = DP_Darcy_Weisbach(8.68*0.3048, 3.068*2.54e-2, 2e3*0.3048, rho, fD)
     assert isclose(DP, 524., rtol=1e-2)
+
+
+def test_DP_tube():
+    # Laminar flow
+    Q = 1e-3
+    L = 100
+    D = 0.05
+    mu = 0.1
+    rho = 1e3
+    DP_HP = DP_Hagen_Poiseuille(Q, D, L, mu)
+    DP = DP_tube(Q, D, L, rho, mu)
+    assert isclose(DP_HP, DP)
+    # Turbulent flow
+    Q = 200*3.78e-3/60
+    L = 2e3*0.3048
+    D = 3.068*2.54e-2
+    er = 0.0006
+    mu = 1e-3
+    rho = 1e3
+    DP = DP_tube(Q, D, L, rho, mu, er)
+    assert isclose(DP, 524*rho, rtol=1e-2)
 
 
 def test_Cd_sphere():
