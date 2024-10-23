@@ -289,6 +289,7 @@ nav:
           - Cd_sphere: reference/transport/Cd_sphere.md
           - DP_Darcy_Weisbach: reference/transport/DP_Darcy_Weisbach.md
           - DP_Hagen_Poiseuille: reference/transport/DP_Hagen_Poiseuille.md
+          - DP_packed_bed: reference/transport/DP_packed_bed.md
           - DP_tube: reference/transport/DP_tube.md
           - fD_Colebrook: reference/transport/fD_Colebrook.md
           - fD_Haaland: reference/transport/fD_Haaland.md

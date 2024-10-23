@@ -7,7 +7,8 @@ from numpy import isclose
 from polykin.transport.flow import (Cd_sphere, DP_Darcy_Weisbach,
                                     DP_Hagen_Poiseuille, DP_tube, fD_Colebrook,
                                     fD_Haaland, terminal_velocity_sphere,
-                                    terminal_velocity_Stokes)
+                                    terminal_velocity_Stokes,
+                                    DP_packed_bed)
 
 
 def test_fD():
@@ -105,3 +106,15 @@ def test_terminal_velocity_sphere_2():
     rho = 1e3
     vt = terminal_velocity_sphere(D, rhop, rho, mu)
     assert isclose(vt, 1.9, rtol=5e-2)
+
+
+def test_DP_packed_bed():
+    "Walas, p. 118"
+    Dp = 5e-3
+    G = 50.
+    rho = 800.
+    mu = 0.01
+    eps = 0.4
+    L = 1.
+    DP = DP_packed_bed(G, L, Dp, eps, rho, mu)
+    assert isclose(DP, 0.31e5, rtol=15e-2)

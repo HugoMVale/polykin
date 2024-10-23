@@ -12,6 +12,7 @@ __all__ = ['fD_Colebrook',
            'DP_Hagen_Poiseuille',
            'DP_Darcy_Weisbach',
            'DP_tube',
+           'DP_packed_bed',
            'Cd_sphere',
            'terminal_velocity_sphere',
            'terminal_velocity_Stokes',
@@ -27,7 +28,7 @@ def DP_Hagen_Poiseuille(Q: float,
 
     In laminar flow, the pressure drop in a circular pipe is given by:
 
-    $$ \Delta P =  \frac{128 \mu Q L}{\pi D^4} $$
+    $$ \Delta P =  \frac{128 \mu Q}{\pi D^4} L $$
 
     where $D$ is the pipe diameter, $L$ is the pipe length, $Q$ is the volume
     flowrate, and $\mu$ is the fluid viscosity.
@@ -86,13 +87,13 @@ def DP_Darcy_Weisbach(v: float,
     where $f_D$ is the Darcy friction factor, $v$ is the velocity, $D$ is the
     pipe diameter, $L$ is the pipe length, and $\rho$ is the fluid density. 
     This equation is valid for both laminar and turbulent flow. In laminar
-    flow, $f_D=64/Re$. For turbulent flow, $f_D$ can be estimated using either
-    Colebrook's or Haaland's equation.
+    flow, $f_D=64/\mathrm{Re}$. For turbulent flow, $f_D$ can be estimated
+    using either Colebrook's or Haaland's equation.
 
     Parameters
     ----------
     v : float
-        Velocity (m/s)
+        Velocity (m/s).
     D : float
         Diameter (m).
     L : float
@@ -150,9 +151,14 @@ def DP_tube(Q: float,
     This method acts as a convenience wrapper for
     [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md). It determines the flow regime
     and estimates the Darcy friction factor using the appropriate equation. For
-    laminar flow, it applies $f_D=64/Re$. For turbulent flow, it uses
+    laminar flow, it applies $f_D=64/\mathrm{Re}$. For turbulent flow, it uses
     [`fD_Haaland`](fD_Haaland.md). Finally, the method calls
     [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md) with the correct parameters. 
+
+    !!! tip
+
+        In laminar flow, $\Delta P \propto Q/D^4$, while in turbulent flow, 
+        $\Delta P \propto Q^2/D^5$.
 
     Parameters
     ----------
@@ -293,8 +299,10 @@ def Cd_sphere(Re: float) -> float:
     For laminar as well as for turbulent flow, the drag coefficient is given
     by the following expression:
 
-    $$ C_{d} = \frac{24}{Re} \left(1 + 0.173 Re^{0.657}\right) 
-             + \frac{0.413}{1 + 16300 Re^{-1.09}} $$
+    $$ C_{d} = \frac{24}{\mathrm{Re}} \left(1 + 0.173 \mathrm{Re}^{0.657}\right) 
+             + \frac{0.413}{1 + 16300 \mathrm{Re}^{-1.09}} $$
+
+    where $\mathrm{Re}$ is the particle Reynolds number.
 
     **References**
 
@@ -339,8 +347,8 @@ def terminal_velocity_Stokes(D: float,
                              ) -> float:
     r"""Calculate the terminal velocity of an isolated sphere using Stokes' law.
 
-    In laminar flow ($Re \lesssim 0.1$), the terminal velocity of an isolated
-    particle is given by:
+    In laminar flow ($\mathrm{Re} \lesssim 0.1$), the terminal velocity of an
+    isolated particle is given by:
 
     $$ v_t = \frac{D^2 g (\rho_p - \rho)}{18 \mu} $$
 
@@ -392,8 +400,10 @@ def terminal_velocity_sphere(D: float,
     where $C_d$ is the drag coefficient. This implementation uses an empirical
     drag correlation proposed by Turton and Levenspiel.
 
-    In laminar flow, $v_t$ is proportional to $D^2$, while in turbulent flow,
-    it becomes proportional to $D^{1/2}$.
+    !!! tip
+
+        In laminar flow, $v_t \propto D^2$, while in turbulent flow, 
+        $v_t \propto D^{1/2}$.
 
     **References**
 
@@ -440,3 +450,56 @@ def terminal_velocity_sphere(D: float,
     sol = root_newton(fnc, terminal_velocity_Stokes(D, rhop, rho, mu))
 
     return sol.x
+
+
+def DP_packed_bed(G: float,
+                  L: float,
+                  Dp: float,
+                  eps: float,
+                  rho: float,
+                  mu: float
+                  ) -> float:
+    r"""Calculate the pressure drop in a packed bed.
+
+    The pressure drop in a packed bed is given by:
+
+    $$ \Delta P = \frac{G^2 (1 - \epsilon) f_p}{\rho D_p \epsilon^3} L $$
+
+    where $G$ is the mass flux, $D_p$ is the particle diameter, $\epsilon$ is
+    the bed porosity, $L$ is the packed bed length, and $\rho$ is the fluid
+    density. The packing friction factor $f_p$ is estimated using the Sato and
+    Tallmadge correlation:
+
+    $$ f_p = \frac{150}{\mathrm{Re}_p} + \frac{4.2}{\mathrm{Re}_p^{1/6}} $$
+
+    where $\mathrm{Re}_p=D_p G/(\mu (1-\epsilon))$ is the packing Reynolds
+    number.
+
+    **References**
+
+    *   Walas, S. M. (1988). Chemical Process Equipment: Selection and Design.
+        Singapore: Butterworths.
+
+    Parameters
+    ----------
+    G : float
+        Mass flux (kg/m²·s).
+    L : float
+        Packed bed length (m).
+    Dp : float
+        Particle diameter (m).
+    eps : float
+        Bed porosity.
+    rho : float
+        Fluid density (kg/m³).
+    mu : float
+        Fluid viscosity (Pa·s).
+
+    Returns
+    -------
+    float
+        Pressure drop (Pa).
+    """
+    Rep = Dp*G/(mu*(1 - eps))
+    fp = 150/Rep + 4.2/Rep**(1/6)
+    return G**2*(1 - eps)*fp*L/(rho*Dp*eps**3)
