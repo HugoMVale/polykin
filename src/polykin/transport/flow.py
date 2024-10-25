@@ -435,11 +435,11 @@ def terminal_velocity_sphere(D: float,
 
     Examples
     --------
-    Calculate the terminal velocity of a 2 cm polystyrene sphere in air.
+    Calculate the terminal velocity of a 1 mm styrene droplet in air.
     >>> from polykin.transport.flow import terminal_velocity_sphere
-    >>> vt = terminal_velocity_sphere(2e-2, 1e3, 1.2, 1.6e-5)
-    >>> print(f"vt = {vt:.1e} m/s")
-    vt = 2.2e+01 m/s
+    >>> vt = terminal_velocity_sphere(1e-3, 910., 1.2, 1.6e-5)
+    >>> print(f"vt = {vt:.1f} m/s")
+    vt = 3.8 m/s
     """
 
     def fnc(vt):
@@ -499,6 +499,14 @@ def DP_packed_bed(G: float,
     -------
     float
         Pressure drop (Pa).
+
+    Examples
+    --------
+    Calculate the pressure drop in a packed bed reactor.
+    >>> from polykin.transport.flow import DP_packed_bed
+    >>> DP = DP_packed_bed(G=50., L=2., Dp=1e-2, eps=0.45, rho=800., mu=0.01)
+    >>> print(f"DP = {DP:.1e} Pa")
+    DP = 1.4e+04 Pa
     """
     Rep = Dp*G/(mu*(1 - eps))
     fp = 150/Rep + 4.2/Rep**(1/6)
