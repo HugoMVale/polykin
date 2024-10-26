@@ -87,7 +87,7 @@ def DP_Darcy_Weisbach(v: float,
     where $f_D$ is the Darcy friction factor, $v$ is the velocity, $D$ is the
     pipe diameter, $L$ is the pipe length, and $\rho$ is the fluid density. 
     This equation is valid for both laminar and turbulent flow. In laminar
-    flow, $f_D=64/\mathrm{Re}$. For turbulent flow, $f_D$ can be estimated
+    flow, $f_D=64/Re$. For turbulent flow, $f_D$ can be estimated
     using either Colebrook's or Haaland's equation.
 
     Parameters
@@ -151,7 +151,7 @@ def DP_tube(Q: float,
     This method acts as a convenience wrapper for
     [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md). It determines the flow regime
     and estimates the Darcy friction factor using the appropriate equation. For
-    laminar flow, it applies $f_D=64/\mathrm{Re}$. For turbulent flow, it uses
+    laminar flow, it applies $f_D=64/Re$. For turbulent flow, it uses
     [`fD_Haaland`](fD_Haaland.md). Finally, the method calls
     [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md) with the correct parameters. 
 
@@ -209,9 +209,9 @@ def DP_packed_bed(G: float,
     density. The packing friction factor $f_p$ is estimated using the Sato and
     Tallmadge correlation:
 
-    $$ f_p = \frac{150}{\mathrm{Re}_p} + \frac{4.2}{\mathrm{Re}_p^{1/6}} $$
+    $$ f_p = \frac{150}{Re_p} + \frac{4.2}{Re_p^{1/6}} $$
 
-    where $\mathrm{Re}_p=D_p G/(\mu (1-\epsilon))$ is the packing Reynolds
+    where $Re_p=D_p G/(\mu (1-\epsilon))$ is the packing Reynolds
     number.
 
     **References**
@@ -255,11 +255,11 @@ def DP_packed_bed(G: float,
 def fD_Colebrook(Re: float, er: float) -> float:
     r"""Calculate the Darcy friction factor using Colebrook's equation.
 
-    For turbulent flow, i.e., $\mathrm{Re} \gtrsim 2500$, the friction factor
+    For turbulent flow, i.e., $Re \gtrsim 2500$, the friction factor
     is given by the following implicit expression:
 
     $$  \frac{1}{\sqrt{f}}= -2 \log \left( \frac {\epsilon/D} {3.7} +
-        \frac {2.51} {\mathrm{Re} \sqrt{f}} \right) $$
+        \frac {2.51} {Re \sqrt{f}} \right) $$
 
     This equation is a historical landmark but has the disadvantage of
     being implicit, requiring an iterative solution.
@@ -309,11 +309,11 @@ def fD_Colebrook(Re: float, er: float) -> float:
 def fD_Haaland(Re: float, er: float) -> float:
     r"""Calculate the Darcy friction factor using Haaland's equation.
 
-    For turbulent flow, i.e., $\mathrm{Re} \gtrsim 2500$, the friction factor
+    For turbulent flow, i.e., $Re \gtrsim 2500$, the friction factor
     is given by the following implicit expression:
 
     $$ \frac{1}{\sqrt{f}}= -1.8 \log \left[\left(\frac{\epsilon/D}{3.7}\right)^{1.11} 
-       + \frac{6.9}{\mathrm{Re}} \right] $$
+       + \frac{6.9}{Re} \right] $$
 
     This equation is as accurate as Colebrook's but has the advantage of
     being explicit.
@@ -360,10 +360,10 @@ def Cd_sphere(Re: float) -> float:
     For laminar as well as for turbulent flow, the drag coefficient is given
     by the following expression:
 
-    $$ C_{d} = \frac{24}{\mathrm{Re}} \left(1 + 0.173 \mathrm{Re}^{0.657}\right) 
-             + \frac{0.413}{1 + 16300 \mathrm{Re}^{-1.09}} $$
+    $$ C_{d} = \frac{24}{Re} \left(1 + 0.173 Re^{0.657}\right) 
+             + \frac{0.413}{1 + 16300 Re^{-1.09}} $$
 
-    where $\mathrm{Re}$ is the particle Reynolds number.
+    where $Re$ is the particle Reynolds number.
 
     **References**
 
@@ -408,7 +408,7 @@ def terminal_velocity_Stokes(D: float,
                              ) -> float:
     r"""Calculate the terminal velocity of an isolated sphere using Stokes' law.
 
-    In laminar flow ($\mathrm{Re} \lesssim 0.1$), the terminal velocity of an
+    In laminar flow ($Re \lesssim 0.1$), the terminal velocity of an
     isolated particle is given by:
 
     $$ v_t = \frac{D^2 g (\rho_p - \rho)}{18 \mu} $$
