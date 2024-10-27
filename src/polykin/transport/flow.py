@@ -255,7 +255,7 @@ def DP_packed_bed(G: float,
 def fD_Colebrook(Re: float, er: float) -> float:
     r"""Calculate the Darcy friction factor using Colebrook's equation.
 
-    For turbulent flow, i.e., $Re \gtrsim 2500$, the friction factor
+    For turbulent flow, i.e., $Re \gtrsim 2300$, the friction factor
     is given by the following implicit expression:
 
     $$  \frac{1}{\sqrt{f}}= -2 \log \left( \frac {\epsilon/D} {3.7} +
@@ -309,7 +309,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
 def fD_Haaland(Re: float, er: float) -> float:
     r"""Calculate the Darcy friction factor using Haaland's equation.
 
-    For turbulent flow, i.e., $Re \gtrsim 2500$, the friction factor
+    For turbulent flow, i.e., $Re \gtrsim 2300$, the friction factor
     is given by the following implicit expression:
 
     $$ \frac{1}{\sqrt{f}}= -1.8 \log \left[\left(\frac{\epsilon/D}{3.7}\right)^{1.11} 
