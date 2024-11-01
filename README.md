@@ -80,7 +80,7 @@ which can be launched online via Binder.
 
 ## Installation
 
-PolyKin currently runs on Python 3.9+. You can install it from PyPI via `pip` (or `poetry`):
+PolyKin currently runs on Python>=3.9. You can install it from PyPI via `pip` (or `poetry`):
 
 ```console
 pip install polykin
@@ -90,8 +90,6 @@ pip install polykin
 Alternatively, you may install it directly from the source code repository:
 
 ```console
-git clone https://github.com/HugoMVale/polykin.git
-cd polykin
-pip install . 
-# poetry install
+pip install git+https://github.com/HugoMVale/polykin.git
+# poetry add git+https://github.com/HugoMVale/polykin.git
 ```
