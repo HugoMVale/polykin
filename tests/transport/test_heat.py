@@ -4,15 +4,23 @@
 
 from numpy import isclose
 
-from polykin.transport.heat import Nu_cylinder, Nu_tube_internal, Nu_sphere, Nu_drop, Nu_flatplate
+from polykin.transport.heat import (Nu_cylinder, Nu_drop, Nu_flatplate,
+                                    Nu_sphere, Nu_tube_internal)
 
 
 def test_Nu_tube_internal():
+    # turbulent
     Pr = 1
     Re = 1e5
     Nu = Nu_tube_internal(Re, Pr)
     Nu_Colburn = 0.023*Re**0.8 * Pr**0.33
     assert isclose(Nu, Nu_Colburn, rtol=10e-2)
+    # laminar
+    Re = 1e3
+    D_L = 0.1
+    Nu_Walas = (3.66**3 + 1.61**3 * Re * Pr * D_L)**(1/3)
+    Nu = Nu_tube_internal(Re, Pr, D_L)
+    assert isclose(Nu, Nu_Walas, rtol=10e-2)
 
 
 def test_Nu_cylinder_cross_flow():

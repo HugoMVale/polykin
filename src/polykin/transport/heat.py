@@ -14,12 +14,24 @@ __all__ = ['Nu_tube_internal',
            ]
 
 
-def Nu_tube_internal(Re: float, Pr: float, er: float = 0.) -> float:
-    r"""Calculate the internal Nusselt number for turbulent flow through a
-    circular tube.
+def Nu_tube_internal(Re: float,
+                     Pr: float,
+                     D_L: float = 0.,
+                     er: float = 0.
+                     ) -> float:
+    r"""Calculate the internal Nusselt number for flow through a circular tube.
 
-    For turbulent flow in a circular tube, the Nusselt number $Nu=hD/k$ can be
-    estimated by the following expression:
+    For laminar flow, the average Nusselt number $\overline{Nu}=\bar{h}D/k$ can
+    be estimated by the following expression:
+
+    $$ \overline{Nu} = 3.66 + \frac{0.0668 (D/L) Re Pr}{1 + 0.04 [(D/L) Re Pr]^{2/3}} $$
+
+    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number. This
+    correlation presumes constant surface temperature and a thermal entry length,
+    thereby leading to conservative (underestimated) $\overline{Nu}$ values.
+
+    For turbulent flow, the Nusselt number can be estimated by the following
+    expression:
 
     $$  Nu = \frac{(f_D/8)(Re - 1000)Pr}{1 + 12.7 (f_D/8)^{1/2} (Pr^{2/3} - 1)} $$
 
@@ -29,9 +41,10 @@ def Nu_tube_internal(Re: float, Pr: float, er: float = 0.) -> float:
     L/D \gtrsim 10
     \end{bmatrix}
 
-    where $f_D$ is the Darcy friction factor, $Re$ is the Reynolds number, and
-    $Pr$ is the Prandtl number. The properties are to be evaluated at the mean
-    fluid temperature.
+    where $f_D$ is the Darcy friction factor. 
+
+    In both flow regimes, the properties are to be evaluated at the mean fluid
+    temperature.
 
     **References**
 
@@ -39,7 +52,7 @@ def Nu_tube_internal(Re: float, Pr: float, er: float = 0.) -> float:
         turbulent pipe and channel flow." International chemical engineering
         16.2 (1976): 359-367.
     *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer.", 4th edition, 1996, p. 445.
+        mass transfer.", 4th edition, 1996, p. 444, 445.
 
     Parameters
     ----------
@@ -47,6 +60,8 @@ def Nu_tube_internal(Re: float, Pr: float, er: float = 0.) -> float:
         Reynolds number.
     Pr : float
         Prandtl number.
+    D_L : float
+        Diameter-to-length ratio.
     er : float
         Relative pipe roughness.
 
@@ -55,8 +70,11 @@ def Nu_tube_internal(Re: float, Pr: float, er: float = 0.) -> float:
     float
         Nusselt number.
     """
-    fD = fD_Haaland(Re, er)
-    return (fD/8)*(Re - 1e3)*Pr/(1 + 12.7*sqrt(fD/8)*(Pr**(2/3) - 1))
+    if Re < 2300:
+        return 3.66 + (0.0668*D_L*Re*Pr)/(1 + 0.04*(D_L*Re*Pr)**(2/3))
+    else:
+        fD = fD_Haaland(Re, er)
+        return (fD/8)*(Re - 1e3)*Pr/(1 + 12.7*sqrt(fD/8)*(Pr**(2/3) - 1))
 
 
 def Nu_cylinder(Re: float, Pr: float) -> float:
@@ -223,9 +241,9 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
     float
         Nusselt number.
     """
-    Rec = 5e5
-    if Re < Rec:
+    Re_c = 5e5
+    if Re < Re_c:
         return 0.664*Re**(1/2)*Pr**(1/3)
     else:
-        A = 0.037*Rec**(4/5) - 0.664*Rec**(1/2)
+        A = 0.037*Re_c**(4/5) - 0.664*Re_c**(1/2)
         return (0.037*Re**(4/5) - A)*Pr**(1/3)
