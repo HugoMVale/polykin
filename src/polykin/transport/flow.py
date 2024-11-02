@@ -173,7 +173,7 @@ def DP_tube(Q: float,
     mu : float
         Viscosity (Pa·s).
     er : float
-        Relative pipe roughness, $\epsilon/D$. Only needed for turbulent flow.
+        Relative pipe roughness, $\epsilon/D$. Only required for turbulent flow.
 
     Returns
     -------
@@ -358,7 +358,7 @@ def Cd_sphere(Re: float) -> float:
     r"""Calculate the drag coefficient of an isolated sphere.
 
     For laminar as well as for turbulent flow, the drag coefficient is given
-    by the following expression:
+    by:
 
     $$ C_{d} = \frac{24}{Re} \left(1 + 0.173 Re^{0.657}\right) 
              + \frac{0.413}{1 + 16300 Re^{-1.09}} $$
@@ -413,6 +413,10 @@ def terminal_velocity_Stokes(D: float,
 
     $$ v_t = \frac{D^2 g (\rho_p - \rho)}{18 \mu} $$
 
+    where $D$ is the particle diameter, $g$ is the acceleration due to gravity,
+    $\rho_p$ is the particle density, $\rho$ is the fluid density, and $\mu$ is
+    the fluid viscosity.
+
     Parameters
     ----------
     D : float
@@ -454,12 +458,12 @@ def terminal_velocity_sphere(D: float,
     turbulent flow.
 
     In both laminar and turbulent flow, the terminal velocity of an isolated
-    sphere can be estimated by:
+    sphere is given by:
 
     $$ v_t = \sqrt{\frac{4 D g (\rho_p - \rho)}{3 C_d \rho}} $$
 
-    where $C_d$ is the drag coefficient. This implementation uses an empirical
-    drag correlation proposed by Turton and Levenspiel.
+    where $C_d$ is the drag coefficient. This implementation uses the drag
+    correlation proposed by Turton and Levenspiel.
 
     !!! tip
 
