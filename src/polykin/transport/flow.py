@@ -267,7 +267,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     **References**
 
     *   Colebrook, C F (1939). "Turbulent Flow in Pipes, with Particular Reference
-        to the Transition Region Between the Smooth and Rough Pipe Laws". Journal
+        to the Transition Region Between the Smooth and Rough Pipe Laws", Journal
         of the Institution of Civil Engineers. 11 (4): 133-156.
 
     Parameters
@@ -310,7 +310,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     r"""Calculate the Darcy friction factor using Haaland's equation.
 
     For turbulent flow, i.e., $Re \gtrsim 2300$, the friction factor
-    is given by the following implicit expression:
+    is given by the following explicit expression:
 
     $$ \frac{1}{\sqrt{f}}= -1.8 \log \left[\left(\frac{\epsilon/D}{3.7}\right)^{1.11} 
        + \frac{6.9}{Re} \right] $$
@@ -321,7 +321,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     **References**
 
     *   Haaland, S. E. (March 1, 1983). "Simple and Explicit Formulas for the
-        Friction Factor in Turbulent Pipe Flow." ASME. J. Fluids Eng. March 1983;
+        Friction Factor in Turbulent Pipe Flow", ASME. J. Fluids Eng. March 1983;
         105(1): 89-90.
 
     Parameters
@@ -368,7 +368,7 @@ def Cd_sphere(Re: float) -> float:
     **References**
 
     *   Turton, R., and O. Levenspiel. "A short note on the drag correlation
-        for spheres." Powder technology 47.1 (1986): 83-86.
+        for spheres", Powder technology 47.1 (1986): 83-86.
 
     Parameters
     ----------
@@ -469,7 +469,7 @@ def terminal_velocity_sphere(D: float,
     **References**
 
     *   Turton, R., and O. Levenspiel. "A short note on the drag correlation
-        for spheres." Powder technology 47.1 (1986): 83-86.
+        for spheres", Powder technology 47.1 (1986): 83-86.
 
     Parameters
     ----------
