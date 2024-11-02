@@ -297,7 +297,7 @@ nav:
           - Nu_drop: reference/transport/Nu_drop.md
           - Nu_flatplate: reference/transport/Nu_flatplate.md
           - Nu_sphere: reference/transport/Nu_sphere.md
-          - Nu_tube_internal: reference/transport/Nu_tube_internal.md
+          - Nu_tube: reference/transport/Nu_tube.md
           - terminal_velocity_sphere: reference/transport/terminal_velocity_sphere.md
           - terminal_velocity_Stokes: reference/transport/terminal_velocity_Stokes.md
       - polykin.stepgrowth:
