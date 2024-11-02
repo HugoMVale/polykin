@@ -2,11 +2,13 @@
 #
 # Copyright Hugo Vale 2024
 
+from typing import Literal
+
 from numpy import sqrt
 
 from polykin.transport.flow import fD_Haaland
 
-__all__ = ['Nu_tube_internal',
+__all__ = ['Nu_tube',
            'Nu_cylinder',
            'Nu_sphere',
            'Nu_drop',
@@ -14,11 +16,11 @@ __all__ = ['Nu_tube_internal',
            ]
 
 
-def Nu_tube_internal(Re: float,
-                     Pr: float,
-                     D_L: float = 0.,
-                     er: float = 0.
-                     ) -> float:
+def Nu_tube(Re: float,
+            Pr: float,
+            D_L: float = 0.,
+            er: float = 0.
+            ) -> float:
     r"""Calculate the internal Nusselt number for flow through a circular tube.
 
     For laminar flow, the average Nusselt number $\overline{Nu}=\bar{h}D/k$ can
@@ -52,7 +54,7 @@ def Nu_tube_internal(Re: float,
         turbulent pipe and channel flow." International chemical engineering
         16.2 (1976): 359-367.
     *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer.", 4th edition, 1996, p. 444, 445.
+        mass transfer", 4th edition, 1996, p. 444, 445.
 
     Parameters
     ----------
@@ -70,7 +72,7 @@ def Nu_tube_internal(Re: float,
     float
         Nusselt number.
     """
-    if Re < 2300:
+    if Re < 2.3e3:
         return 3.66 + (0.0668*D_L*Re*Pr)/(1 + 0.04*(D_L*Re*Pr)**(2/3))
     else:
         fD = fD_Haaland(Re, er)
@@ -89,7 +91,7 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
 
     $$ \left[  Re Pr > 0.2 \right] $$
 
-    where $Re$ is the Reynolds number, and $Pr$ is the Prandtl number. The 
+    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number. The 
     properties are to be evaluated at the film temperature.
 
     **References**
@@ -98,7 +100,7 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
         Equation for Forced Convection From Gases and Liquids to a Circular
         Cylinder in Crossflow." ASME. J. Heat Transfer. May 1977; 99(2): 300.
     *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer.", 4th edition, 1996, p. 370.
+        mass transfer", 4th edition, 1996, p. 370.
 
     Parameters
     ----------
@@ -133,15 +135,15 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
 
     where $Re$ is the sphere Reynolds number, $Pr$ is the Prandtl number, 
     $\mu$ is the bulk viscosity, and $\mu_s$ is the surface viscosity. All 
-    properties are to be evaluated at $T_{\infty}$, except $\mu_s$.
+    properties are to be evaluated at the bulk temperature, except $\mu_s$.
 
     **References**
 
-    *   Whitaker, S. (1972), Forced convection heat transfer correlations for
+    *   Whitaker, S. (1972), "Forced convection heat transfer correlations for
         flow in pipes, past flat plates, single cylinders, single spheres, and
-        for flow in packed beds and tube bundles. AIChE J., 18: 361-371.
+        for flow in packed beds and tube bundles", AIChE J., 18: 361-371.
     *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer.", 4th edition, 1996, p. 374.
+        mass transfer", 4th edition, 1996, p. 374.
 
     Parameters
     ----------
@@ -179,15 +181,15 @@ def Nu_drop(Re: float, Pr: float) -> float:
 
     where $Re$ is the drop Reynolds number, and $Pr$ is the Prandtl number. The
     exact range for $Pr$ in this context is unspecified. All properties are to
-    be evaluated at $T_{\infty}$. This correlation was developed for use in
-    spray drying applications.
+    be evaluated at the bulk temperature. This correlation was developed for use
+    in spray drying applications.
 
     **References**
 
-    *   Ranz, W. and Marshall, W. (1952) Evaporation from Drops. Chemical
+    *   Ranz, W. and Marshall, W. (1952) "Evaporation from Drops", Chemical
         Engineering Progress, 48, 141-146.
     *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer.", 4th edition, 1996, p. 374.
+        mass transfer", 4th edition, 1996, p. 374.
 
     Parameters
     ----------
@@ -222,17 +224,17 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
 
     $$ [0.6 < Pr < 60] $$
 
-    where $Re$ is the Reynolds number, and $Pr$ is the Prandtl number.
+    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number.
 
     **References**
 
     *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer.", 4th edition, 1996, p. 354-356.
+        mass transfer", 4th edition, 1996, p. 354-356.
 
     Parameters
     ----------
     Re : float
-        Reynolds number.
+        Plate Reynolds number.
     Pr : float
         Prandtl number.
 
@@ -247,3 +249,25 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
     else:
         A = 0.037*Re_c**(4/5) - 0.664*Re_c**(1/2)
         return (0.037*Re**(4/5) - A)*Pr**(1/3)
+
+
+def Nu_tank(kind: Literal['jacket', 'helical-coils', 'vertical-tubes'],
+            Re: float,
+            Pr: float,
+            mur: float,
+            D_T: float,
+            Z_T: float = 0.,
+            d_T: float = 0.,
+            nb: int = 0,
+            mu: float = 0.
+            ) -> float:
+
+    if kind == 'jacket':
+        return 0.85 * Re**0.66 * Pr**0.33 * D_T**0.13 * Z_T**-0.56 * mur**0.14
+    elif kind == 'helical-coils':
+        a = 0.714/(mu*1e3)**0.21
+        return 0.17 * Re**0.67 * Pr**0.37 * D_T**0.1 * d_T**0.5 * mur**a
+    elif kind == 'vertical-tubes':
+        return 0.09 * Re**0.65 * Pr**0.3 * D_T**0.33 * (2/nb)**0.2 * mur**0.14
+    else:
+        raise ValueError("Invalid heat exchanger surface `kind`.")
