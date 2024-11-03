@@ -55,7 +55,6 @@ watch:
 # Plugins
 plugins:
   - search
-  - autolinks
   - autorefs
   - markdown-exec
   - table-reader
