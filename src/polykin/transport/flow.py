@@ -14,8 +14,8 @@ __all__ = ['fD_Colebrook',
            'DP_tube',
            'DP_packed_bed',
            'Cd_sphere',
-           'terminal_velocity_sphere',
-           'terminal_velocity_Stokes',
+           'vt_sphere',
+           'vt_Stokes',
            ]
 
 
@@ -382,7 +382,7 @@ def Cd_sphere(Re: float) -> float:
 
     See also
     --------
-    * [`terminal_velocity_sphere`](terminal_velocity_sphere.md): related method
+    * [`vt_sphere`](vt_sphere.md): related method
         to estimate the terminal velocity.
 
     Examples
@@ -401,11 +401,11 @@ def Cd_sphere(Re: float) -> float:
     return 24/Re*(1 + 0.173*Re**0.657) + 0.413/(1 + 16300*Re**(-1.09))
 
 
-def terminal_velocity_Stokes(D: float,
-                             rhop: float,
-                             rho: float,
-                             mu: float
-                             ) -> float:
+def vt_Stokes(D: float,
+              rhop: float,
+              rho: float,
+              mu: float
+              ) -> float:
     r"""Calculate the terminal velocity of an isolated sphere using Stokes' law.
 
     In laminar flow ($Re \lesssim 0.1$), the terminal velocity of an
@@ -435,25 +435,25 @@ def terminal_velocity_Stokes(D: float,
 
     See also
     --------
-    *   [`terminal_velocity_sphere`](terminal_velocity_sphere.md): generic
+    *   [`vt_sphere`](vt_sphere.md): generic
         method for laminar and turbulent flow.
 
     Examples
     --------
     Calculate the terminal velocity of a 500 nm PVC particle in water.
-    >>> from polykin.transport import terminal_velocity_Stokes
-    >>> vt = terminal_velocity_Stokes(500e-9, 1.4e3, 1e3, 1e-3)
+    >>> from polykin.transport import vt_Stokes
+    >>> vt = vt_Stokes(500e-9, 1.4e3, 1e3, 1e-3)
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
     """
     return D**2*g*(rhop - rho)/(18*mu)
 
 
-def terminal_velocity_sphere(D: float,
-                             rhop: float,
-                             rho: float,
-                             mu: float
-                             ) -> float:
+def vt_sphere(D: float,
+              rhop: float,
+              rho: float,
+              mu: float
+              ) -> float:
     r"""Calculate the terminal velocity of an isolated sphere in laminar or
     turbulent flow.
 
@@ -493,7 +493,7 @@ def terminal_velocity_sphere(D: float,
 
     See also
     --------
-    *   [`terminal_velocity_Stokes`](terminal_velocity_Stokes.md): specific
+    *   [`vt_Stokes`](vt_Stokes.md): specific
         method for laminar flow.
     *   [`Cd_sphere`](Cd_sphere.md): related method to estimate the drag
         coefficient.
@@ -501,8 +501,8 @@ def terminal_velocity_sphere(D: float,
     Examples
     --------
     Calculate the terminal velocity of a 1 mm styrene droplet in air.
-    >>> from polykin.transport import terminal_velocity_sphere
-    >>> vt = terminal_velocity_sphere(1e-3, 910., 1.2, 1.6e-5)
+    >>> from polykin.transport import vt_sphere
+    >>> vt = vt_sphere(1e-3, 910., 1.2, 1.6e-5)
     >>> print(f"vt = {vt:.1f} m/s")
     vt = 3.8 m/s
     """
@@ -512,6 +512,6 @@ def terminal_velocity_sphere(D: float,
         Cd = Cd_sphere(Re)
         return vt - sqrt(4*D*g*(rhop - rho)/(3*Cd*rho))
 
-    sol = root_newton(fnc, terminal_velocity_Stokes(D, rhop, rho, mu))
+    sol = root_newton(fnc, vt_Stokes(D, rhop, rho, mu))
 
     return sol.x
