@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 from numpy import log, log10
@@ -18,10 +18,10 @@ __all__ = ['DHVL_Pitzer',
            ]
 
 
-def DHVL_Pitzer(T: Union[float, FloatArrayLike],
+def DHVL_Pitzer(T: float,
                 Tc: float,
                 w: float
-                ) -> Union[float, FloatArray]:
+                ) -> float:
     r"""Calculate the enthalpy of vaporization of a pure compound at a given
     temperature, $\Delta H_v(T)$, using the Pitzer acentric factor method.
 
@@ -40,7 +40,7 @@ def DHVL_Pitzer(T: Union[float, FloatArrayLike],
 
     Parameters
     ----------
-    T : float | FloatArrayLike
+    T : float
         Temperature. Unit = K.
     Tc : float
         Critical temperature. Unit = K.
@@ -49,13 +49,13 @@ def DHVL_Pitzer(T: Union[float, FloatArrayLike],
 
     Returns
     -------
-    float | FloatArray
+    float
         Vaporization enthalpy. Unit = J/mol.
 
-    !!! note annotate "See also"
-
-        * [`DHVL_Kistiakowsky_Vetere`](DHVL_Kistiakowsky_Vetere.md): alternative method.
-        * [`DHVL_Vetere`](DHVL_Vetere.md): alternative method.
+    See also
+    --------
+    * [`DHVL_Kistiakowsky_Vetere`](DHVL_Kistiakowsky_Vetere.md): alternative method.
+    * [`DHVL_Vetere`](DHVL_Vetere.md): alternative method.
 
     Examples
     --------
@@ -64,11 +64,9 @@ def DHVL_Pitzer(T: Union[float, FloatArrayLike],
     >>> DHVL = DHVL_Pitzer(T=273.15+50, Tc=425., w=0.122)
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     17.5 kJ/mol
-
     """
-    T = np.asarray(T)
     Tr = T/Tc
-    return R*Tc*(7.08*(1. - Tr)**0.354 + 10.95*w*(1. - Tr)**0.456)
+    return R*Tc*(7.08*(1 - Tr)**0.354 + 10.95*w*(1 - Tr)**0.456)
 
 
 def DHVL_Vetere(Tb: float,
@@ -107,10 +105,10 @@ def DHVL_Vetere(Tb: float,
     float
         Vaporization enthalpy at the normal boiling point. Unit = J/mol.
 
-    !!! note annotate "See also"
-
-        * [`DHVL_Kistiakowsky_Vetere`](DHVL_Kistiakowsky_Vetere.md): alternative method.
-        * [`DHVL_Pitzer`](DHVL_Pitzer.md): alternative method.
+    See also
+    --------
+    * [`DHVL_Kistiakowsky_Vetere`](DHVL_Kistiakowsky_Vetere.md): alternative method.
+    * [`DHVL_Pitzer`](DHVL_Pitzer.md): alternative method.
 
     Examples
     --------
@@ -120,7 +118,6 @@ def DHVL_Vetere(Tb: float,
     >>> DHVL = DHVL_Vetere(Tb=259.8, Tc=425., Pc=51.5e5)
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     21.6 kJ/mol
-
     """
     Tbr = Tb/Tc
     return R*Tc*Tbr*(0.4343*log(Pc/1e5) - 0.69431 + 0.89584*Tbr) \
@@ -129,7 +126,7 @@ def DHVL_Vetere(Tb: float,
 
 def DHVL_Kistiakowsky_Vetere(
         Tb: float,
-        M: Optional[float] = None,
+        M: float | None = None,
         kind: Literal['any', 'acid_alcohol', 'ester',
                       'hydrocarbon', 'polar'] = 'any') -> float:
     r"""Calculate the enthalpy of vaporization of a pure compound at the normal
@@ -152,9 +149,9 @@ def DHVL_Kistiakowsky_Vetere(
     Tb : float
         Normal boiling point temperature. Unit = K.
     M : float | None
-        Molar mass. Must be provided except if `kind = "any"`. Unit = kg/mol.
+        Molar mass. Must be provided except if `kind='any'`. Unit = kg/mol.
     kind : Literal['any', 'acid_alcohol', 'ester', 'hydrocarbon', 'polar']
-        Type of compound. `any` corresponds ot the original correlation
+        Type of compound. `'any'` corresponds ot the original correlation
         proposed by Kistiakowsky.
 
     Returns
@@ -162,10 +159,10 @@ def DHVL_Kistiakowsky_Vetere(
     float
         Vaporization enthalpy at the normal boiling point. Unit = J/mol.
 
-    !!! note annotate "See also"
-
-        * [`DHVL_Pitzer`](DHVL_Pitzer.md): alternative method.
-        * [`DHVL_Vetere`](DHVL_Vetere.md): alternative method.
+    See also
+    --------
+    * [`DHVL_Pitzer`](DHVL_Pitzer.md): alternative method.
+    * [`DHVL_Vetere`](DHVL_Vetere.md): alternative method.
 
     Examples
     --------
@@ -176,7 +173,6 @@ def DHVL_Kistiakowsky_Vetere(
     >>> DHVL = DHVL_Kistiakowsky_Vetere(Tb=268.6, M=54.1e-3, kind='hydrocarbon')
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     22.4 kJ/mol
-
     """
 
     if kind == 'any':
@@ -200,6 +196,7 @@ def DHVL_Kistiakowsky_Vetere(
             log10(Tb) - 25.769*Tb/M + 0.146528/M*Tb**2 - 2.1362e-4/M*Tb**3
     else:
         raise ValueError("Invalid compound `kind`.")
+
     return DSvb*Tb
 
 
@@ -246,6 +243,5 @@ def DHVL_Watson(hvap1: float,
     >>> DHVL = DHVL_Watson(hvap1=22.9, T1=258., T2=273.15+50, Tc=425.)
     >>> print(f"{DHVL:.1f} kJ/mol")
     19.0 kJ/mol
-
     """
-    return hvap1*((1. - T2/Tc)/(1. - T1/Tc))**0.38
+    return hvap1*((1 - T2/Tc)/(1 - T1/Tc))**0.38
