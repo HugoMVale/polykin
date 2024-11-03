@@ -61,15 +61,11 @@ def KVPC_Stiel_Thodos(v: float,
     Estimate the residual thermal conductivity of ethylene at 350 K and
     100 bar.
     >>> from polykin.properties.thermal_conductivity import KVPC_Stiel_Thodos
-    >>>
     >>> v = 1.84e-4 # m³/mol, with Peng-Robinson
-    >>>
     >>> k_residual = KVPC_Stiel_Thodos(v=v, M=28.05e-3,
     ...                                Tc=282.4, Pc=50.4e5, Zc=0.280)
-    >>>
     >>> print(f"{k_residual:.2e} W/(m·K)")
     1.69e-02 W/(m·K)
-
     """
 
     gamma = ((Tc * M**3 * N_A**2)/(R**5 * Pc**4))**(1/6)
@@ -133,21 +129,16 @@ def KVMXPC_Stiel_Thodos(v: float,
     mixture at 350 K and 100 bar.
     >>> from polykin.properties.thermal_conductivity import KVMXPC_Stiel_Thodos
     >>> import numpy as np
-    >>>
     >>> v = 1.12e-4  # m³/mol, with Peng-Robinson
-    >>>
     >>> y = [0.5, 0.5]
     >>> M = [28.05e-3, 42.08e-3]  # kg/mol
     >>> Pc = [50.4e5, 46.0e5]     # Pa
     >>> Tc = [282.4, 364.9]       # K
     >>> Zc = [0.280, 0.274]
     >>> w = [0.089, 0.144]
-    >>>
     >>> k_residual = KVMXPC_Stiel_Thodos(v, y, M, Tc, Pc, Zc, w)
-    >>>
     >>> print(f"{k_residual:.2e} W/(m·K)")
     3.82e-02 W/(m·K)
-
     """
 
     y = np.asarray(y)
@@ -228,16 +219,12 @@ def KVMX2_Wassilijewa(y: FloatVectorLike,
     Estimate the thermal conductivity of a 50 mol% styrene/ethyl-benzene gas
     mixture at 25°C and 0.1 bar.
     >>> from polykin.properties.thermal_conductivity import KVMX2_Wassilijewa
-    >>>
     >>> y = [0.5, 0.5]
     >>> k = [1.00e-2, 1.55e-2] # W/(m·K), from literature
     >>> M = [104.15, 106.17]   # g/mol
-    >>>
     >>> k_mix = KVMX2_Wassilijewa(y, k, M)
-    >>>
     >>> print(f"{k_mix:.2e} W/(m·K)")
     1.28e-02 W/(m·K)
-
     """
     y = np.asarray(y)
     k = np.asarray(k)

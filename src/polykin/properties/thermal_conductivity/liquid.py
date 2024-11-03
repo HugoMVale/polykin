@@ -57,13 +57,10 @@ def KLMX2_Li(w: FloatVectorLike,
     mixture at 20°C.
     >>> from polykin.properties.thermal_conductivity import KLMX2_Li
     >>> import numpy as np
-    >>>
     >>> w = [0.5, 0.5]
     >>> k = [0.172, 0.124]    # W/(m·K), from literature
     >>> rho = [0.909, 0.681]  # kg/L
-    >>>
     >>> k_mix = KLMX2_Li(w, k, rho)
-    >>>
     >>> print(f"{k_mix:.2e} W/(m·K)")
     1.43e-01 W/(m·K)
     """
