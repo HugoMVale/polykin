@@ -2,8 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Union
-
 import numpy as np
 from numpy import abs, dot, exp, sqrt
 from scipy.constants import R
@@ -62,16 +60,12 @@ def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
     Estimate the viscosity of a 50 mol% ethylene/1-butene gas mixture at 120°C
     and 1 bar.
     >>> from polykin.properties.viscosity import MUVMX2_Herning_Zipperer
-    >>>
     >>> y = [0.5, 0.5]
     >>> mu = [130e-7, 100e-7] # Pa.s, from literature
     >>> M = [28.e-3, 56.e-3]  # kg/mol
-    >>>
     >>> mu_mix = MUVMX2_Herning_Zipperer(y, mu, M)
-    >>>
     >>> print(f"{mu_mix:.2e} Pa·s")
     1.12e-05 Pa·s
-
     """
     y = np.asarray(y)
     mu = np.asarray(mu)
@@ -125,16 +119,12 @@ def MUVPC_Jossi(rhor: float,
     --------
     Estimate the residual viscosity of ethylene at 350 K and 100 bar.
     >>> from polykin.properties.viscosity import MUVPC_Jossi
-    >>>
     >>> vc = 130. # cm³/mol
     >>> v  = 184. # cm³/mol, with Peng-Robinson
     >>> rhor = vc/v
-    >>>
     >>> mu_residual = MUVPC_Jossi(rhor=rhor, Tc=282.4, Pc=50.4e5, M=28.05e-3)
-    >>>
     >>> print(f"{mu_residual:.2e} Pa·s")
     6.76e-06 Pa·s
-
     """
     a = 1.0230 + 0.23364*rhor + 0.58533*rhor**2 - 0.40758*rhor**3 \
         + 0.093324*rhor**4
@@ -191,20 +181,15 @@ def MUVMXPC_Dean_Stiel(v: float,
     t 350 K and 100 bar.
 
     >>> from polykin.properties.viscosity import MUVMXPC_Dean_Stiel
-    >>>
     >>> v = 1.12e-4  # m³/mol, with Peng-Robinson
-    >>>
     >>> y = [0.5, 0.5]
     >>> M = [28.05e-3, 42.08e-3] # kg/mol
     >>> Tc = [282.4, 364.9]      # K
     >>> Pc = [50.4e5, 46.0e5]    # Pa
     >>> Zc = [0.280, 0.274]
-    >>>
     >>> mu_residual = MUVMXPC_Dean_Stiel(v, y, M, Tc, Pc, Zc)
-    >>>
     >>> print(f"{mu_residual:.2e} Pa·s")
     2.32e-05 Pa·s
-
     """
 
     y = np.asarray(y)
@@ -271,10 +256,9 @@ def MUV_Lucas(T: float,
 
     >>> from polykin.properties.viscosity import MUV_Lucas
     >>> mu = MUV_Lucas(T=350., P=10e5, M=28.05e-3,
-    ...                 Tc=282.4, Pc=50.4e5, Zc=0.280, dm=0.)
+    ...                Tc=282.4, Pc=50.4e5, Zc=0.280, dm=0.)
     >>> print(f"{mu:.2e} Pa·s")
     1.20e-05 Pa·s
-
     """
     Tr = T/Tc
     Pr = P/Pc
@@ -330,20 +314,16 @@ def MUVMX_Lucas(T: float,
     and 10 bar.
 
     >>> from polykin.properties.viscosity import MUVMX_Lucas
-    >>>
     >>> y = [0.6, 0.4]
     >>> M = [28.e-3, 28.e-3]   # kg/mol
     >>> Tc = [282.4, 126.2]    # K
     >>> Pc = [50.4e5, 33.9e5]  # Pa
     >>> Zc = [0.280, 0.290]
     >>> dm = [0., 0.]
-    >>>
     >>> mu_mix = MUVMX_Lucas(T=350., P=10e5, y=y, M=M,
     ...                      Tc=Tc, Pc=Pc, Zc=Zc, dm=dm)
-    >>>
     >>> print(f"{mu_mix:.2e} Pa·s")
     1.45e-05 Pa·s
-
     """
     y = np.asarray(y)
     M = np.asarray(M)
@@ -414,12 +394,12 @@ def _MUV_Lucas_mu(Tr: float,
     return Z2*FP/xi
 
 
-def _MUV_Lucas_FP0(Tr: Union[float, FloatArray],
-                   Tc: Union[float, FloatArray],
-                   Pc: Union[float, FloatArray],
-                   Zc: Union[float, FloatArray],
-                   dm: Union[float, FloatArray]
-                   ) -> Union[float, FloatArray]:
+def _MUV_Lucas_FP0(Tr: float | FloatArray,
+                   Tc: float | FloatArray,
+                   Pc: float | FloatArray,
+                   Zc: float | FloatArray,
+                   dm: float | FloatArray
+                   ) -> float | FloatArray:
     "Compute FP0 for Lucas method of estimating gas viscosity."
     dmr = 52.46 * dm**2 * (Pc / 1e5) / Tc**2
     FP0 = np.where(dmr <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
