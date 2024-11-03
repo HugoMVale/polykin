@@ -12,7 +12,8 @@ __all__ = ['Nu_tube',
            'Nu_cylinder',
            'Nu_sphere',
            'Nu_drop',
-           'Nu_flatplate'
+           'Nu_flatplate',
+           'Nu_tank'
            ]
 
 
@@ -179,7 +180,7 @@ def Nu_drop(Re: float, Pr: float) -> float:
     0.7 < Pr < 100? \\
     \end{bmatrix}
 
-    where $Re$ is the drop Reynolds number, and $Pr$ is the Prandtl number. The
+    where $Re$ is the drop Reynolds number and $Pr$ is the Prandtl number. The
     exact range for $Pr$ in this context is unspecified. All properties are to
     be evaluated at the bulk temperature. This correlation was developed for use
     in spray drying applications.
@@ -251,23 +252,166 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
         return (0.037*Re**(4/5) - A)*Pr**(1/3)
 
 
-def Nu_tank(kind: Literal['jacket', 'helical-coils', 'vertical-tubes'],
-            Re: float,
-            Pr: float,
-            mur: float,
-            D_T: float,
-            Z_T: float = 0.,
-            d_T: float = 0.,
-            nb: int = 0,
-            mu: float = 0.
-            ) -> float:
+def Nu_tank(
+    impeller: Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon'],
+    surface: Literal['wall', 'bottom-head', 'helical-coil', 'harp-coil-0', 'harp-coil-45'],
+    Re: float,
+    Pr: float,
+    mur: float,
+    D_T: float = 1/3,
+    H_T: float = 1.,
+    L_Ls: float = 1.,
+    d_T: float = 0.04,
+    P_D: float = 1.,
+    nb: int = 2
+) -> float:
+    r"""Calculate the Nusselt number for a stirred tank.
 
-    if kind == 'jacket':
-        return 0.85 * Re**0.66 * Pr**0.33 * D_T**0.13 * Z_T**-0.56 * mur**0.14
-    elif kind == 'helical-coils':
-        a = 0.714/(mu*1e3)**0.21
-        return 0.17 * Re**0.67 * Pr**0.37 * D_T**0.1 * d_T**0.5 * mur**a
-    elif kind == 'vertical-tubes':
-        return 0.09 * Re**0.65 * Pr**0.3 * D_T**0.33 * (2/nb)**0.2 * mur**0.14
+    This function calculates the Nusselt number based on impeller and surface 
+    type, and fluid dynamics parameters for a stirred tank, according to
+    the correlations in chapter 14.4 of the Handbook of Industrial Mixing.
+
+    **References**
+
+    * Penney, W. R. and Atiemo-Obeng, V. A. "Heat Transfer" in "Handbook of
+      Industrial Mixing: Science and Practice", Wiley, 2004.
+
+    Parameters
+    ----------
+    impeller : Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon']
+        Impeller type.
+    surface : Literal['wall', 'bottom-head', 'helical-coil', 'harp-coil-0', 'harp-coil-45']
+        Heat transfer surface type.
+    Re : float
+        Impeller Reynolds number.
+    Pr : float
+        Prandtl number.
+    mur : float
+        Ratio of bulk viscosity to surface viscosity, $\mu/\mu_s$.
+    D_T : float
+        Ratio of impeller diameter to tank diameter, $D/T$.
+    H_T : float
+        Ratio of liquid height to tank diameter, $H/T$.
+    L_Ls : float
+        Ratio of height of impeller blade to standard value, $L/L_s$.
+    d_T : float, optional
+        Ratio of coil tube outer diameter to tank diameter, $d/T$.
+    P_D : float, optional
+        Ratio of impeller blade pitch to impeller diameter.
+    nb : int, optional
+        Number of baffles or vertical tubes acting as baffles.
+
+    Returns
+    -------
+    float
+        Nusselt number. Characteristic length depends on the surface type.
+
+    Examples
+    --------
+    Estimate the internal heat transfer coefficient for a 2-m diameter stirred
+    tank equiped with a HE3 impeller operated at 120 rpm. Assume water properties
+    and default dimensions.
+    >>> from polykin.transport.heat import Nu_tank
+    >>> T = 2.     # m
+    >>> D = T/3    # m
+    >>> rho = 1e3  # kg/m³
+    >>> mu = 1e-3  # Pa.s
+    >>> k  = 0.6   # W/m.K
+    >>> Cp = 4.2e3 # J/kg.K
+    >>> Re = (120/60) * D**2 * rho / mu
+    >>> Pr = mu*Cp/k
+    >>> Nu = Nu_tank('HE3', 'wall', Re, Pr, mur=1.)
+    >>> h = Nu*k/T
+    >>> print(f"h={h:.1e} W/m².K")
+    h=1.6e+03 W/m².K
+    """
+
+    # Default parameters
+    K = 0.
+    a = 2/3
+    b = 1/3
+    c = 0.14
+    Gc = 1.
+
+    if surface == 'wall':
+        if impeller == '6BD':
+            K = 0.74
+            Gc = H_T**-0.15 * L_Ls**0.2
+        elif impeller == '4BF':
+            K = 0.66
+            Gc = H_T**-0.15 * L_Ls**0.2
+        elif impeller == '4BP':
+            K = 0.45
+            Gc = H_T**-0.15 * L_Ls**0.2
+        elif impeller == 'HE3':
+            K = 0.31
+            Gc = H_T**-0.15
+        elif impeller == 'PROP':
+            K = 0.50
+            Gc = H_T**-0.15 * 1.29*P_D/(0.29 + P_D)
+        elif impeller == 'anchor':
+            if Re < 12:
+                K = 0.
+            elif Re >= 12 and Re < 100:
+                K = 0.69
+                a = 1/2
+            elif Re >= 100:
+                K = 0.32
+        elif impeller == 'helical-ribbon':
+            if Re < 13:
+                K = 0.94
+                a = 1/3
+            elif Re >= 13 and Re < 210:
+                K = 0.61
+                a = 1/2
+            else:
+                K = 0.25
+        else:
+            raise ValueError("Invalid `impeller`.")
+    elif surface == 'bottom-head':
+        if impeller == '6BD':
+            K = 0.50
+            Gc = H_T**-0.15 * L_Ls**0.2
+        elif impeller == '4BF':
+            K = 0.40
+            Gc = H_T**-0.15 * L_Ls**0.2
+        elif impeller == '4BP':
+            K = 1.08
+            Gc = H_T**-0.15 * L_Ls**0.2
+        elif impeller == 'HE3':
+            K = 0.90
+            Gc = H_T**-0.15
+        else:
+            raise ValueError("Invalid `impeller`.")
+    elif surface == 'helical-coil':
+        if impeller == 'PROP':
+            K = 0.016
+            a = 0.67
+            b = 0.37
+            Gc = (D_T/(1/3))**0.1 * (d_T/0.04)**0.5
+        elif impeller == '6BD':
+            K = 0.03
+            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.1 * (d_T/0.04)**0.5
+        else:
+            raise ValueError("Invalid `impeller`.")
+    elif surface == 'harp-coil-0':
+        if impeller == '4BF':
+            K = 0.06  # the text mentions this value might be overestimated
+            a = 0.65
+            b = 0.3
+            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.33 * (2/nb)**0.2
+        else:
+            raise ValueError("Invalid `impeller`.")
+    elif surface == 'harp-coil-45':
+        if impeller == '6BD':
+            # quite some doubts regarding this equation
+            K = 0.021
+            a = 0.67
+            b = 0.4
+            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.33 * (2/nb)**0.2
+        else:
+            raise ValueError("Invalid `impeller`.")
     else:
-        raise ValueError("Invalid heat exchanger surface `kind`.")
+        raise ValueError("Invalid heat transfer `surface`.")
+
+    return K * Re**a * Pr**b * mur**c * Gc

@@ -5,7 +5,7 @@
 from numpy import isclose
 
 from polykin.transport.heat import (Nu_cylinder, Nu_drop, Nu_flatplate,
-                                    Nu_sphere, Nu_tube)
+                                    Nu_sphere, Nu_tube, Nu_tank)
 
 
 def test_Nu_tube():
@@ -56,3 +56,17 @@ def test_Nu_flatplate():
     Re = 6.84e5
     Nu = Nu_flatplate(Re, Pr)
     assert isclose(Nu, 753, rtol=1e-2)
+
+
+def test_Nu_tank():
+    "Handbook of Industrial Mixing, p. 882"
+    # Example 14.1
+    Re = 1.57e6
+    Pr = 4.37
+    Nu = Nu_tank('6BD', 'wall', Re, Pr, mur=1.)
+    assert isclose(Nu, 16400, rtol=1e-2)
+    # Example 14.2
+    Re = 76
+    Pr = 2.5e5
+    Nu = Nu_tank('helical-ribbon', 'wall', Re, Pr, mur=1.)
+    assert isclose(Nu, 337, rtol=1e-2)
