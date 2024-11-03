@@ -78,7 +78,6 @@ def DL_Wilke_Chang(T: float,
     ...     )
     >>> print(f"{D:.2e} m²/s")
     1.34e-09 m²/s
-
     """
     return 7.4e-12*sqrt(phi*MB*1e3)*T/((viscB*1e3)*(1e6*MA/rhoA)**0.6)
 
@@ -134,9 +133,9 @@ def DL_Hayduk_Minhas(T: float,
     ...     )
     >>> print(f"{D:.2e} m²/s")
     1.26e-09 m²/s
-
     """
     VA = 1e6*MA/rhoA
+
     if method == 'paraffin':
         epsilon = 10.2/VA - 0.791
         DAB0 = 13.3e-12*T**1.47*(viscB*1e3)**epsilon/VA**0.71
@@ -145,4 +144,5 @@ def DL_Hayduk_Minhas(T: float,
         DAB0 = 1.25e-12*(VA**-0.19 - 0.292)*T**1.52*(viscB*1e3)**epsilon
     else:
         raise ValueError(f"Invalid `method` input: {method}")
+
     return DAB0
