@@ -129,13 +129,6 @@ markdown_extensions:
   - toc:
       permalink: "¤"
 
-# MathJax
-# extra_javascript:
-#   - javascripts/mathjax.js
-#   - https://polyfill.io/v3/polyfill.min.js?features=es6
-#   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
-
-# KaTeX
 extra_javascript:
   - javascripts/katex.js
   - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
@@ -297,8 +290,8 @@ nav:
           - Nu_flatplate: reference/transport/Nu_flatplate.md
           - Nu_sphere: reference/transport/Nu_sphere.md
           - Nu_tube: reference/transport/Nu_tube.md
-          - terminal_velocity_sphere: reference/transport/terminal_velocity_sphere.md
-          - terminal_velocity_Stokes: reference/transport/terminal_velocity_Stokes.md
+          - vt_sphere: reference/transport/vt_sphere.md
+          - vt_Stokes: reference/transport/vt_Stokes.md
       - polykin.stepgrowth:
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:

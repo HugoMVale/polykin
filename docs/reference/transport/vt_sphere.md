@@ -3,4 +3,4 @@
 ::: polykin.transport.flow
     options:
         members:
-            - terminal_velocity_sphere
+            - vt_sphere
