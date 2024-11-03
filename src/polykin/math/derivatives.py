@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2024
 
-from typing import Callable, Optional
+from typing import Callable
 
 import numpy as np
 from numpy import cbrt
@@ -62,7 +62,7 @@ def derivative_complex(f: Callable[[complex], complex],
 
 def derivative_centered(f: Callable[[float], float],
                         x: float,
-                        h: Optional[float] = None
+                        h: float = 0.
                         ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     centered finite-difference scheme.
@@ -81,9 +81,9 @@ def derivative_centered(f: Callable[[float], float],
         Function to be diferentiated.
     x : float
         Differentiation point.
-    h : float | None
-        Finite-difference step. If `None`, it will be set to the theoretical
-        optimum value $h = \sqrt[3]{3\epsilon}$.
+    h : float
+        Finite-difference step. If `0`, it will be set to the theoretical
+        optimum value $h=\sqrt[3]{3\epsilon}$.
 
     Returns
     -------
@@ -99,9 +99,10 @@ def derivative_centered(f: Callable[[float], float],
     (3.0000000003141882, 1.0000000009152836)
     """
 
-    if h is None:
-        h = cbrt(3*eps)  # ~ 1e-5
-        h *= (1 + abs(x))
+    if h == 0:
+        h = cbrt(3*eps)    # ~ 1e-5
+
+    h *= (1 + abs(x))
 
     fp = f(x + h)
     fm = f(x - h)
@@ -113,7 +114,7 @@ def derivative_centered(f: Callable[[float], float],
 
 def hessian2(f: Callable[[tuple[float, float]], float],
              x: tuple[float, float],
-             h: Optional[float] = None
+             h: float = 0.
              ) -> Float2x2Matrix:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
@@ -149,8 +150,8 @@ def hessian2(f: Callable[[tuple[float, float]], float],
         Function to be diferentiated.
     x : tuple[float, float]
         Differentiation point.
-    h : float | None
-        Finite-difference step. If `None`, it will be set to the theoretical
+    h : float
+        Finite-difference step. If `0`, it will be set to the theoretical
         optimum value $h = \sqrt[3]{3\epsilon}$.
 
     Returns
@@ -170,11 +171,11 @@ def hessian2(f: Callable[[tuple[float, float]], float],
 
     x0, x1 = x
 
-    if h is None:
+    if h == 0:
         h = cbrt(3*eps)  # ~ 1e-5
 
-    h0 = h*(1. + abs(x0))
-    h1 = h*(1. + abs(x1))
+    h0 = h*(1 + abs(x0))
+    h1 = h*(1 + abs(x1))
 
     H = np.empty((2, 2))
     f0 = f(x)
