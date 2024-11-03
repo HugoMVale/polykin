@@ -2,8 +2,6 @@
 #
 # Copyright Hugo Vale 2024
 
-from typing import Optional
-
 from numpy import dot, sqrt
 from scipy.constants import R
 
@@ -51,7 +49,7 @@ def quadratic_mixing(y: FloatVector,
 
 def geometric_interaction_mixing(y: FloatVector,
                                  Q: FloatVector,
-                                 k: Optional[FloatSquareMatrix] = None
+                                 k: FloatSquareMatrix | None = None
                                  ) -> float:
     r"""Calculate a mixture parameter using a geometric average with
     interaction.
@@ -101,7 +99,7 @@ def pseudocritical_properties(y: FloatVector,
                               Tc: FloatVector,
                               Pc: FloatVector,
                               Zc: FloatVector,
-                              w: Optional[FloatVector] = None
+                              w: FloatVector | None = None
                               ) -> tuple[float, float, float, float, float]:
     r"""Calculate the pseudocritial properties of a mixture to use in
     corresponding states correlations.
