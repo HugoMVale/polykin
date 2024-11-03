@@ -101,8 +101,8 @@ def DL_Hayduk_Minhas(T: float,
     T : float
         Temperature. Unit = K.
     method : Literal['paraffin', 'aqueous']
-        Method selection. Chose `paraffin` for normal paraffin solutions and
-        `aqueous` for solutes in aqueous solutions.
+        Method selection. Chose `'paraffin'` for normal paraffin solutions and
+        `'aqueous'` for solutes in aqueous solutions.
     MA : float
         Molar mass of solute A. Unit = kg/mol.
     rhoA : float
