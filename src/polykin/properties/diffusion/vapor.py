@@ -2,8 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Optional
-
 from numpy import exp, sqrt
 
 __all__ = ['DV_Wilke_Lee']
@@ -14,9 +12,9 @@ def DV_Wilke_Lee(T: float,
                  MA: float,
                  MB: float,
                  rhoA: float,
-                 rhoB: Optional[float],
+                 rhoB: float | None,
                  TA: float,
-                 TB: Optional[float]
+                 TB: float | None
                  ) -> float:
     r"""Estimate the mutual diffusion coefficient of a binary gas mixture,
     $D_{AB}$, using the Wilke-Lee method.
@@ -122,5 +120,4 @@ def DV_Wilke_Lee(T: float,
     H = 3.89411
     omegaD = A/Ts**B + C/exp(D*Ts) + E/exp(F*Ts) + G/exp(H*Ts)
 
-    DAB = 1e-2*(3.03 - 0.98/sqrt(MAB))*T**1.5 / (P*sqrt(MAB)*sAB**2*omegaD)
-    return DAB
+    return 1e-2*(3.03 - 0.98/sqrt(MAB))*T**1.5 / (P*sqrt(MAB)*sAB**2*omegaD)
