@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Callable, Optional
+from typing import Callable
 
 import numpy as np
 from matplotlib.axes._axes import Axes
@@ -28,7 +28,7 @@ def confidence_ellipse(ax: Axes,
                        ndata: int,
                        alpha: float = 0.05,
                        color: str = 'black',
-                       label: Optional[str] = None,
+                       label: str | None = None,
                        confint: bool = True
                        ) -> None:
     r"""Generate a confidence ellipse for 2 jointly estimated parameters
@@ -153,7 +153,7 @@ def confidence_region(center: tuple[float, float],
                       sse: Callable[[tuple[float, float]], float],
                       ndata: int,
                       alpha: float = 0.05,
-                      width: Optional[float] = None,
+                      width: float = 0.,
                       npoints: int = 200,
                       rtol: float = 1e-2
                       ) -> tuple[FloatVector, FloatVector]:
@@ -200,9 +200,9 @@ def confidence_region(center: tuple[float, float],
         Number of data points.
     alpha : float
         Significance level, $\alpha$.
-    width : float | None
+    width : float
         Initial guess of the width of the joint confidence region at its
-        center. If `None`, it is assumed that `width=0.5*center[0]`.
+        center. If `0`, it is assumed that `width=0.5*center[0]`.
     npoints : int
         Number of points where the JCR is evaluated. The computational effort
         increases linearly with `npoints`.
@@ -241,8 +241,6 @@ def confidence_region(center: tuple[float, float],
     # Check inputs
     check_bounds(alpha, 0.001, 0.99, 'alpha')
     check_bounds(ndata, npar + 1, np.inf, 'ndata')
-    if width is not None:
-        check_bounds(width, eps, np.inf, 'width')
     check_bounds(npoints, 1, 500, 'npoints')
     check_bounds(rtol, 1e-4, 1e-1, 'rtol')
 
@@ -278,7 +276,7 @@ def confidence_region(center: tuple[float, float],
     # Find radius at each angle using previous solution as initial guess
     angles = np.linspace(0., 2*np.pi, npoints)
     r = np.zeros_like(angles)
-    r_guess_0 = abs(width/2) if width is not None else 0.25*center[0]
+    r_guess_0 = abs(width/2) if width > 0 else 0.25*center[0]
     r_guess = r_guess_0
     for i, θ in enumerate(angles):
         sol = find_radius(θ, r_guess)
