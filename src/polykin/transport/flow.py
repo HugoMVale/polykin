@@ -2,10 +2,13 @@
 #
 # Copyright Hugo Vale 2024
 
+import warnings
+
 from numpy import log10, pi, sqrt
 from scipy.constants import g
 
 from polykin.math import root_newton
+from polykin.utils.exceptions import RangeWarning
 
 __all__ = ['fD_Colebrook',
            'fD_Haaland',
@@ -298,6 +301,10 @@ def fD_Colebrook(Re: float, er: float) -> float:
     fD = 0.021
     """
 
+    if Re < 2.3e3:
+        warnings.warn(f"Re={Re:.1e} is outside the valid range.",
+                      RangeWarning)
+
     def fnc(f):
         return 2*log10(er/3.7 + 2.51/(Re*sqrt(f))) + 1/sqrt(f)
 
@@ -351,6 +358,10 @@ def fD_Haaland(Re: float, er: float) -> float:
     >>> print(f"fD = {fD:.3f}")
     fD = 0.021
     """
+    if Re < 2.3e3:
+        warnings.warn(f"Re={Re:.1e} is outside the valid range.",
+                      RangeWarning)
+
     return (1/(1.8*log10((er/3.7)**1.11 + 6.9/Re)))**2
 
 
@@ -446,7 +457,14 @@ def vt_Stokes(D: float,
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
     """
-    return D**2*g*(rhop - rho)/(18*mu)
+    vt = D**2*g*(rhop - rho)/(18*mu)
+
+    Re = rho*vt*D/mu
+    if Re < 0.1:
+        warnings.warn(f"Re={Re:.1e} is outside the valid range.",
+                      RangeWarning)
+
+    return vt
 
 
 def vt_sphere(D: float,
