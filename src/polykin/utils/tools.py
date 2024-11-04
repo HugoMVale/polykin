@@ -2,13 +2,16 @@
 #
 # Copyright Hugo Vale 2023
 
+import warnings
 from numbers import Number
 from typing import Any, Iterable, Literal, Union
 
 import numpy as np
 
+from polykin.utils.exceptions import RangeWarning
+
 from .exceptions import RangeError, ShapeError
-from .types import FloatOrArray, FloatOrArrayLike, FloatMatrix
+from .types import FloatMatrix, FloatOrArray, FloatOrArrayLike
 
 # %% Check tools
 
@@ -265,6 +268,24 @@ def check_valid_range(r: tuple[float, float],
     check_bounds(r, xmin, xmax, name)
     return r
 
+
+def check_range_warn(x: float, xmin: float, xmax: float, xname: str) -> None:
+    """Check if a given input is in a valid range and warn if not.
+
+    Parameters
+    ----------
+    x : float
+        Variable.
+    xmin : float
+        Lower bound.
+    xmax : float
+        Upper bound.
+    xname : str
+        Variable name.
+    """
+    if x < xmin or x > xmax:
+        warnings.warn(f"{xname}={x:.1e} is outside the validity range.",
+                      RangeWarning)
 
 # %% Unit functions
 
