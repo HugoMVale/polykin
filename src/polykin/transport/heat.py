@@ -160,6 +160,10 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     -------
     float
         Nusselt number.
+
+    See also
+    --------
+    * [`Nu_bank_tubes`](Nu_bank_tubes.md): specific method for a bank of tubes.
     """
     check_range_warn(Re*Pr, 0.2, inf, 'Re*Pr')
 
@@ -460,7 +464,7 @@ def Nu_bank_tubes(v: float,
                   ST: float,
                   SL: float,
                   NL: int) -> float:
-    r"""Calculate the Nusselt number for flow across a bank of tubes.
+    r"""Calculate the Nusselt number for cross flow over a bank of tubes.
 
     For flow across a bank of aligned or staggered tubes, the average Nusselt
     number $\overline{Nu}=\bar{h}D/k$ can be estimated by the following
@@ -470,8 +474,9 @@ def Nu_bank_tubes(v: float,
         C_2 C Re_{max}^m Pr^{0.36} \left(\frac{Pr}{Pr_s} \right)^{1/4} $$
 
     where $Re_{max}$ is the Reynolds number based on the maximum fluid velocity
-    within the bank of tubes, $Pr$ is the Prandtl number, and $C_2$, $C$ and $m$
-    are constants that depend on the tube bundle configuration. 
+    within the bank of tubes, and $Pr$ is the Prandtl number. Additionally,
+    $C_2$, $C$ and $m$ are tabulated constants that depend on the tube bundle
+    configuration. 
 
     **References**
 
@@ -507,6 +512,10 @@ def Nu_bank_tubes(v: float,
     -------
     float
         Average Nusselt number of tube bank.
+
+    See also
+    --------
+    * [`Nu_tube`](Nu_tube.md): specific method for a single tube.
     """
 
     # Maximum fluid velocity
