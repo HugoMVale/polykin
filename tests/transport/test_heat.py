@@ -4,8 +4,8 @@
 
 from numpy import isclose
 
-from polykin.transport.heat import (Nu_cylinder, Nu_drop, Nu_flatplate,
-                                    Nu_sphere, Nu_tube, Nu_tank)
+from polykin.transport.heat import (Nu_bank_tubes, Nu_cylinder, Nu_drop,
+                                    Nu_flatplate, Nu_sphere, Nu_tank, Nu_tube)
 
 
 def test_Nu_tube():
@@ -70,3 +70,11 @@ def test_Nu_tank():
     Pr = 2.5e5
     Nu = Nu_tank('helical-ribbon', 'wall', Re, Pr, mur=1.)
     assert isclose(Nu, 337, rtol=1e-2)
+
+
+def test_Nu_bank_tubes():
+    "Handbook of Industrial Mixing, p. 383"
+    # Example 7.6
+    Nu = Nu_bank_tubes(v=6, rho=1, mu=14.82e-6, Pr=0.710, Prs=0.701,
+                       aligned=False, D=16.4e-3, ST=31.3e-3, SL=34.3e-3, NL=7)
+    assert isclose(Nu, 87.9, rtol=2e-2)

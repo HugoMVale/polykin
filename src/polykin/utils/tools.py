@@ -2,7 +2,6 @@
 #
 # Copyright Hugo Vale 2023
 
-import warnings
 from numbers import Number
 from typing import Any, Iterable, Literal, Union
 
@@ -284,8 +283,9 @@ def check_range_warn(x: float, xmin: float, xmax: float, xname: str) -> None:
         Variable name.
     """
     if x < xmin or x > xmax:
-        warnings.warn(f"{xname}={x:.1e} is outside the validity range.",
-                      RangeWarning)
+        # Intentionally made without f-strings, so it works with Numba
+        print(xname + "=", x,
+              "is outside the valid range [", xmin, ",", xmax, "]")
 
 # %% Unit functions
 

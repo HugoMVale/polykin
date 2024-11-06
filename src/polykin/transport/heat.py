@@ -4,16 +4,19 @@
 
 from typing import Literal
 
-from numpy import sqrt
+import numpy as np
+from numpy import inf, sqrt
 
 from polykin.transport.flow import fD_Haaland
+from polykin.utils.tools import check_range_warn
 
 __all__ = ['Nu_tube',
            'Nu_cylinder',
            'Nu_sphere',
            'Nu_drop',
            'Nu_flatplate',
-           'Nu_tank'
+           'Nu_tank',
+           'Nu_bank_tubes'
            ]
 
 
@@ -80,6 +83,49 @@ def Nu_tube(Re: float,
         return (fD/8)*(Re - 1e3)*Pr/(1 + 12.7*sqrt(fD/8)*(Pr**(2/3) - 1))
 
 
+def Nu_flatplate(Re: float, Pr: float) -> float:
+    r"""Calculate the Nusselt number for parallel flow over a flat plate.
+
+    For parallel flow over an isothermal flat plate, the average Nusselt number
+    $\overline{Nu}=\bar{h}L/k$ can be estimated by the following expressions:    
+
+    $$ \overline{Nu} =
+    \begin{cases}
+    0.664 Re^{1/2} Pr^{1/3} ,& Re > 5 \times 10^5 \\
+    (0.037 Re^{4/5} - 871)Pr^{1/3} ,& 5 \times 10^5 < Re \lesssim 10^8
+    \end{cases} $$
+
+    $$ [0.6 < Pr < 60] $$
+
+    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number.
+
+    **References**
+
+    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+        mass transfer", 4th edition, 1996, p. 354-356.
+
+    Parameters
+    ----------
+    Re : float
+        Plate Reynolds number.
+    Pr : float
+        Prandtl number.
+
+    Returns
+    -------
+    float
+        Nusselt number.
+    """
+    check_range_warn(Pr, 0.6, 60, 'Pr')
+
+    Re_c = 5e5
+    if Re < Re_c:
+        return 0.664*Re**(1/2)*Pr**(1/3)
+    else:
+        A = 0.037*Re_c**(4/5) - 0.664*Re_c**(1/2)
+        return (0.037*Re**(4/5) - A)*Pr**(1/3)
+
+
 def Nu_cylinder(Re: float, Pr: float) -> float:
     r"""Calculate the Nusselt number for cross flow over a circular cylinder.
 
@@ -115,6 +161,8 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     float
         Nusselt number.
     """
+    check_range_warn(Re*Pr, 0.2, inf, 'Re*Pr')
+
     return 0.3 + 0.62*Re**(1/2)*Pr**(1/3)/(1 + (0.4/Pr)**(2/3))**(1/4) \
         * (1 + (Re/282e3)**(5/8))**(4/5)
 
@@ -164,6 +212,10 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
     --------
     * [`Nu_drop`](Nu_drop.md): specific method for drops.
     """
+    check_range_warn(Re, 3.5, 7.6e4, 'Re')
+    check_range_warn(Pr, 0.71, 380, 'Pr')
+    check_range_warn(mur, 1.0, 3.2, 'mur')
+
     return 2 + (0.4*Re**(1/2) + 0.06*Re**(2/3))*Pr**0.4*(mur)**(1/4)
 
 
@@ -207,49 +259,25 @@ def Nu_drop(Re: float, Pr: float) -> float:
     See also
     --------
     * [`Nu_sphere`](Nu_sphere.md): generic method for spheres.
+
+    Examples
+    --------
+    Estimate the Nusselt number for a 1 mm styrene droplet falling in air.
+    >>> from polykin.transport.heat import Nu_drop
+    >>> D = 1e-3    # m
+    >>> vt = 3.8    # m/s (from vt_sphere)
+    >>> rho = 1.2   # kg/m³
+    >>> mu = 1.6e-5 # Pa.s
+    >>> Re = rho*vt*D/mu
+    >>> Pr = 0.7 
+    >>> Nu = Nu_drop(Re, Pr)
+    >>> print(f"Nu={Nu:.1f}")
+    Nu=11.0
     """
+    check_range_warn(Re, 0, 1000, 'Re')
+    check_range_warn(Pr, 0.7, 100, 'Pr')
+
     return 2 + 0.6*Re**(1/2)*Pr**(1/3)
-
-
-def Nu_flatplate(Re: float, Pr: float) -> float:
-    r"""Calculate the Nusselt number for parallel flow over a flat plate.
-
-    For parallel flow over an isothermal flat plate, the average Nusselt number
-    $\overline{Nu}=\bar{h}L/k$ can be estimated by the following expressions:    
-
-    $$ \overline{Nu} =
-    \begin{cases}
-    0.664 Re^{1/2} Pr^{1/3} ,& Re > 5 \times 10^5 \\
-    (0.037 Re^{4/5} - 871)Pr^{1/3} ,& 5 \times 10^5 < Re \lesssim 10^8
-    \end{cases} $$
-
-    $$ [0.6 < Pr < 60] $$
-
-    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number.
-
-    **References**
-
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 354-356.
-
-    Parameters
-    ----------
-    Re : float
-        Plate Reynolds number.
-    Pr : float
-        Prandtl number.
-
-    Returns
-    -------
-    float
-        Nusselt number.
-    """
-    Re_c = 5e5
-    if Re < Re_c:
-        return 0.664*Re**(1/2)*Pr**(1/3)
-    else:
-        A = 0.037*Re_c**(4/5) - 0.664*Re_c**(1/2)
-        return (0.037*Re**(4/5) - A)*Pr**(1/3)
 
 
 def Nu_tank(
@@ -333,6 +361,7 @@ def Nu_tank(
     c = 0.14
     Gc = 1.
 
+    impeller_error = False
     if surface == 'wall':
         if impeller == '6BD':
             K = 0.74
@@ -367,7 +396,7 @@ def Nu_tank(
             else:
                 K = 0.25
         else:
-            raise ValueError("Invalid `impeller`.")
+            impeller_error = True
     elif surface == 'bottom-head':
         if impeller == '6BD':
             K = 0.50
@@ -382,7 +411,7 @@ def Nu_tank(
             K = 0.90
             Gc = H_T**-0.15
         else:
-            raise ValueError("Invalid `impeller`.")
+            impeller_error = True
     elif surface == 'helical-coil':
         if impeller == 'PROP':
             K = 0.016
@@ -393,7 +422,7 @@ def Nu_tank(
             K = 0.03
             Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.1 * (d_T/0.04)**0.5
         else:
-            raise ValueError("Invalid `impeller`.")
+            impeller_error = True
     elif surface == 'harp-coil-0':
         if impeller == '4BF':
             K = 0.06  # the text mentions this value might be overestimated
@@ -401,7 +430,7 @@ def Nu_tank(
             b = 0.3
             Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.33 * (2/nb)**0.2
         else:
-            raise ValueError("Invalid `impeller`.")
+            impeller_error = True
     elif surface == 'harp-coil-45':
         if impeller == '6BD':
             # quite some doubts regarding this equation
@@ -410,8 +439,134 @@ def Nu_tank(
             b = 0.4
             Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.33 * (2/nb)**0.2
         else:
-            raise ValueError("Invalid `impeller`.")
+            impeller_error = True
     else:
-        raise ValueError("Invalid heat transfer `surface`.")
+        raise ValueError(f"Invalid heat transfer `surface`: {surface}.")
+
+    if impeller_error:
+        raise ValueError(
+            f"Invalid combination of `surface`={surface} and `impeller`={impeller}.")
 
     return K * Re**a * Pr**b * mur**c * Gc
+
+
+def Nu_bank_tubes(v: float,
+                  rho: float,
+                  mu: float,
+                  Pr: float,
+                  Prs: float,
+                  aligned: bool,
+                  D: float,
+                  ST: float,
+                  SL: float,
+                  NL: int) -> float:
+    r"""Calculate the Nusselt number for flow across a bank of tubes.
+
+    For flow across a bank of aligned or staggered tubes, the average Nusselt
+    number $\overline{Nu}=\bar{h}D/k$ can be estimated by the following
+    expression:
+
+    $$ \overline{Nu} = 
+        C_2 C Re_{max}^m Pr^{0.36} \left(\frac{Pr}{Pr_s} \right)^{1/4} $$
+
+    where $Re_{max}$ is the Reynolds number based on the maximum fluid velocity
+    within the bank of tubes, $Pr$ is the Prandtl number, and $C_2$, $C$ and $m$
+    are constants that depend on the tube bundle configuration. 
+
+    **References**
+
+    *   Žukauskas, Algirdas. "Heat transfer from tubes in crossflow." Advances
+        in heat transfer. Vol. 8. Elsevier, 1972. 93-160.
+    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+        mass transfer", 4th edition, 1996, p. 376-381.
+
+    Parameters
+    ----------
+    v : float
+        Nominal velocity, $v_{\infty}$ (m/s).
+    rho : float
+        Density (kg/m³).
+    mu : float
+        Viscosity (Pa·s).
+    Pr : float
+        Prandtl number.
+    Prs : float
+        Prandtl number at the surface of the tubes.
+    aligned : bool
+        Aligned or staggered tubes.
+    D : float
+        Diameter (m).
+    ST : float
+        Transversal pitch (m).
+    SL : float
+        Longitudinal pitch (m).
+    NL : int
+        Number of rows of tubes.
+
+    Returns
+    -------
+    float
+        Average Nusselt number of tube bank.
+    """
+
+    # Maximum fluid velocity
+    vmax = v * ST/(ST - D)
+    if not aligned:
+        SD = sqrt(SL**2 + (ST/2)**2)
+        if SD < (ST + D)/2:
+            vmax = v*ST/(2*(SD - D))
+
+    Re_max = rho*vmax*D/mu
+
+    check_range_warn(Re_max, 1e1, 2e6, 'Re_max')
+    check_range_warn(Pr, 0.7, 500, 'Pr')
+
+    # Nu for NL>=20
+    if aligned:
+        if Re_max < 1e2:
+            C = 0.8
+            m = 0.4
+        elif Re_max >= 1e2 and Re_max < 1e3:
+            C = 0.51
+            m = 0.50
+        elif Re_max >= 1e3 and Re_max < 2e5:
+            C = 0.27
+            m = 0.63
+        else:
+            C = 0.021
+            m = 0.84
+    else:
+        if Re_max < 1e2:
+            C = 0.9
+            m = 0.4
+        elif Re_max >= 1e2 and Re_max < 1e3:
+            C = 0.51
+            m = 0.50
+        elif Re_max >= 1e3 and Re_max < 2e5:
+            m = 0.60
+            if ST/SL < 2:
+                C = 0.35*(ST/SL)**0.2
+            else:
+                C = 0.40
+        else:
+            C = 0.022
+            m = 0.84
+
+    Nu = C * Re_max**m * Pr**0.36 * (Pr/Prs)**(1/4)
+
+    # Correction for NL<20
+    if NL < 20:
+        if aligned:
+            C2 = np.interp(
+                NL,
+                [1, 2, 3, 4, 5, 7, 10, 13, 16, 20],
+                [0.70, 0.80, 0.86, 0.90, 0.92, 0.95, 0.97, 0.98, 0.99, 1.00])
+        else:
+            C2 = np.interp(
+                NL,
+                [1, 2, 3, 4, 5, 7, 10, 13, 16, 20],
+                [0.64, 0.76, 0.84, 0.89, 0.92, 0.95, 0.97, 0.98, 0.99, 1.00])
+    else:
+        C2 = 1.
+
+    return C2*Nu

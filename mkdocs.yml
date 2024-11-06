@@ -286,6 +286,7 @@ nav:
           - fD_Colebrook: reference/transport/fD_Colebrook.md
           - fD_Haaland: reference/transport/fD_Haaland.md
           - Nu_cylinder: reference/transport/Nu_cylinder.md
+          - Nu_bank_tubes: reference/transport/Nu_bank_tubes.md
           - Nu_drop: reference/transport/Nu_drop.md
           - Nu_flatplate: reference/transport/Nu_flatplate.md
           - Nu_sphere: reference/transport/Nu_sphere.md
