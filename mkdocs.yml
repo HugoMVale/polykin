@@ -217,6 +217,8 @@ nav:
           - derivative_centered: reference/math/derivative_centered.md
           - derivative_complex: reference/math/derivative_complex.md
           - hessian2: reference/math/hessian2.md
+          - ierfc: reference/math/ierfc.md
+          - i2erfc: reference/math/i2erfc.md
           - ode_rk: reference/math/ode_rk.md
           - root_newton: reference/math/root_newton.md
           - root_secant: reference/math/root_secant.md
