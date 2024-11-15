@@ -14,6 +14,8 @@ from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVector,
 # %% Maths
 
 eps = float(np.finfo(np.float64).eps)
+huge = float(np.finfo(np.float64).max)
+tiny = float(np.finfo(np.float64).min)
 
 
 def add_dicts(d1: dict[Any, Union[int, float]],
