@@ -285,8 +285,8 @@ def Nu_drop(Re: float, Pr: float) -> float:
 
 
 def Nu_tank(
-    impeller: Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon'],
     surface: Literal['wall', 'bottom-head', 'helical-coil', 'harp-coil-0', 'harp-coil-45'],
+    impeller: Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon'],
     Re: float,
     Pr: float,
     mur: float,
@@ -310,10 +310,10 @@ def Nu_tank(
 
     Parameters
     ----------
-    impeller : Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon']
-        Impeller type.
     surface : Literal['wall', 'bottom-head', 'helical-coil', 'harp-coil-0', 'harp-coil-45']
         Heat transfer surface type.
+    impeller : Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon']
+        Impeller type.
     Re : float
         Impeller Reynolds number.
     Pr : float
@@ -352,7 +352,7 @@ def Nu_tank(
     >>> Cp = 4.2e3 # J/kg.K
     >>> Re = (120/60) * D**2 * rho / mu
     >>> Pr = mu*Cp/k
-    >>> Nu = Nu_tank('HE3', 'wall', Re, Pr, mur=1.)
+    >>> Nu = Nu_tank('wall', 'HE3', Re, Pr, mur=1.)
     >>> h = Nu*k/T
     >>> print(f"h={h:.1e} W/m².K")
     h=1.6e+03 W/m².K
