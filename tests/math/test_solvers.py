@@ -70,4 +70,4 @@ def test_ode_rk():
         assert isclose(yf, ysol(tf), rtol=1e-4)
 
     with pytest.raises(ValueError):
-        _ = ode_rk(ydot, 0., 1., 1., 1e-5, 5)
+        _ = ode_rk(ydot, 0., 1., 1., 1e-5, 5)  # type: ignore
