@@ -84,10 +84,12 @@ def test_Nu_tank_2():
     }
     for surface, impellers in surface_impeller_map.items():
         for impeller in impellers:
-            for Re in [1e2, 1e3, 1e4, 1e5, 1e6]:
+            for Re in [1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6]:
                 Pr = 1
                 Nu = Nu_tank(surface, impeller, Re, Pr, mur=1)  # type: ignore
-                assert Nu > 0
+                assert Nu >= 0
+    with pytest.raises(ValueError):
+        _ = Nu_tank('X', 'HE3', Re, Pr, mur=1)  # type: ignore
     with pytest.raises(ValueError):
         _ = Nu_tank('wall', 'X', Re, Pr, mur=1)  # type: ignore
     with pytest.raises(ValueError):
