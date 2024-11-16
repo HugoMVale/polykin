@@ -49,10 +49,16 @@ jobs:
         run: |
           poetry install --with dev
 
-      - name: Run tests and collect coverage
+      - name: Run tests with Numba enabled
         run: |
+          poetry run pytest -v -s
+      
+      - name: Run tests with Numba disabled and collect coverage
+        continue-on-error: true
+        run: |
+          export NUMBA_DISABLE_JIT=1
           poetry run pytest --cov -v -s --cov-report=xml
-
+          
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == '3.10' }}
         uses: codecov/codecov-action@v4
