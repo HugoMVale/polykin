@@ -4,7 +4,7 @@
 
 from math import comb
 
-from numpy import all, isclose
+from numpy import all, isclose, nan
 
 from polykin.distributions import Flory
 from polykin.stepgrowth import (Case_1, Case_3, Case_5, Case_6, Case_7, Case_8,
@@ -200,6 +200,8 @@ def test_Stockmayer():
     Mn, Mw = Stockmayer(nA, nB, f, g, MA, MB, pB)
     assert isclose(Mn0, Mn)
     assert isclose(Mw0, Mw)
+    # Above gelation
+    assert Stockmayer([1.], [2.], [3], [2], [1.], [1.], 1.) == (nan, nan)
 
 
 def test_Flory_Af():
@@ -210,6 +212,8 @@ def test_Flory_Af():
     assert isclose(Mn, d.Mn)
     assert isclose(Mw, d.Mw)
     assert isclose(Mz, d.Mz)
+    # Above gelation
+    assert Flory_Af(f=3, MAf=1., p=0.9) == (nan, nan, nan)
 
 
 def test_Miller_1():
@@ -243,3 +247,6 @@ def test_Miller_2():
         Mn, Mw = Miller_2(nAf, nB2, f, MAf, MB2, p)
         assert isclose(Mn0, Mn)
         assert isclose(Mw0, Mw)
+    # Above gelation
+    assert Miller_2(nAf=1, nB2=1, f=3, MAf=1, MB2=1,
+                    p=[0, 0, 0.9]) == (nan, nan)
