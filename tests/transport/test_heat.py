@@ -2,6 +2,7 @@
 #
 # Copyright Hugo Vale 2024
 
+import pytest
 from numpy import isclose
 
 from polykin.transport.heat import (Nu_bank_tubes, Nu_cylinder, Nu_drop,
@@ -63,13 +64,40 @@ def test_Nu_tank():
     # Example 14.1
     Re = 1.57e6
     Pr = 4.37
-    Nu = Nu_tank('6BD', 'wall', Re, Pr, mur=1.)
+    Nu = Nu_tank('wall', '6BD', Re, Pr, mur=1.)
     assert isclose(Nu, 16400, rtol=1e-2)
     # Example 14.2
     Re = 76
     Pr = 2.5e5
-    Nu = Nu_tank('helical-ribbon', 'wall', Re, Pr, mur=1.)
+    Nu = Nu_tank('wall', 'helical-ribbon', Re, Pr, mur=1.)
     assert isclose(Nu, 337, rtol=1e-2)
+
+
+def test_Nu_tank_2():
+    "Simple test, to check all branches."
+    surface_impeller_map = {
+        'wall': ['6BD', '4BF', '4BP', 'HE3', 'PROP', 'anchor', 'helical-ribbon'],
+        'bottom-head': ['6BD', '4BF', '4BP', 'HE3'],
+        'helical-coil': ['PROP', '6BD'],
+        'harp-coil-0': ['4BF'],
+        'harp-coil-45': ['6BD']
+    }
+    for surface, impellers in surface_impeller_map.items():
+        for impeller in impellers:
+            for Re in [1e2, 1e3, 1e4, 1e5, 1e6]:
+                Pr = 1
+                Nu = Nu_tank(surface, impeller, Re, Pr, mur=1)  # type: ignore
+                assert Nu > 0
+    with pytest.raises(ValueError):
+        _ = Nu_tank('wall', 'X', Re, Pr, mur=1)  # type: ignore
+    with pytest.raises(ValueError):
+        _ = Nu_tank('bottom-head', 'anchor', Re, Pr, mur=1)
+    with pytest.raises(ValueError):
+        _ = Nu_tank('helical-coil', 'HE3', Re, Pr, mur=1)
+    with pytest.raises(ValueError):
+        _ = Nu_tank('harp-coil-0', 'HE3', Re, Pr, mur=1)
+    with pytest.raises(ValueError):
+        _ = Nu_tank('harp-coil-45', 'HE3', Re, Pr, mur=1)
 
 
 def test_Nu_bank_tubes():
