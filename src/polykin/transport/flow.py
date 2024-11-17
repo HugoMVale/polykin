@@ -52,8 +52,8 @@ def DP_Hagen_Poiseuille(Q: float,
 
     Examples
     --------
-    Calculate the pressure drop for a polymer solution with a viscosity of
-    10 Pa.s flowing through 5 m of DN50 tube at 1 L/s. 
+    Calculate the pressure drop for a polymer solution (viscosity: 10 Pa·s)
+    flowing at 1 L/s through 5 m of smooth pipe with a 50 mm internal diameter. 
     >>> from polykin.transport.flow import DP_Hagen_Poiseuille
     >>> from math import pi
     >>> Q = 1e-3  # m³/s
@@ -121,16 +121,18 @@ def DP_Darcy_Weisbach(v: float,
 
     Examples
     --------
-    Calculate the pressure drop for water flowing through 500 m of DN25 PVC
-    pipe at 2 m/s.
+    Calculate the pressure drop for water flowing at 2 m/s through 500 m of PVC
+    pipe with an internal diameter of 25 mm.
     >>> from polykin.transport.flow import DP_Darcy_Weisbach, fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> L = 5e2   # m
     >>> D = 25e-3 # m
     >>> v = 2.    # m/s
-    >>> Re = rho*v*D/mu # turbulent flow
-    >>> er = 0.0015e-3/D
+    >>> Re = rho*v*D/mu  # turbulent flow
+    >>> print(f"Re = {Re:.1e}")
+    Re = 5.0e+04
+    >>> er = 0.0015e-3/D # from pipe table
     >>> fD = fD_Haaland(Re, er)
     >>> DP = DP_Darcy_Weisbach(v, D, L, rho, fD)
     >>> print(f"DP = {DP:.1e} Pa")
@@ -242,7 +244,8 @@ def DP_packed_bed(G: float,
 
     Examples
     --------
-    Calculate the pressure drop in a packed bed reactor.
+    Calculate the pressure drop in a packed bed reactor under the conditions
+    specified below.
     >>> from polykin.transport.flow import DP_packed_bed
     >>> DP = DP_packed_bed(G=50., L=2., Dp=1e-2, eps=0.45, rho=800., mu=0.01)
     >>> print(f"DP = {DP:.1e} Pa")
@@ -289,11 +292,15 @@ def fD_Colebrook(Re: float, er: float) -> float:
 
     Examples
     --------
-    Calculate the friction factor for water flowing through a DN25 PVC pipe at
-    2 m/s.
+    Calculate the friction factor for water flowing at 2 m/s through a PVC pipe
+    with an internal diameter of 25 mm.
     >>> from polykin.transport.flow import fD_Colebrook
-    >>> Re = 1e3*2*25e-3/1e-3
-    >>> er = 0.0015/25
+    >>> rho = 1e3 # kg/m³
+    >>> mu = 1e-3 # Pa·s
+    >>> D = 25e-3 # m
+    >>> v = 2.    # m/s
+    >>> Re = rho*v*D/mu
+    >>> er = 0.0015/25 # from pipe table
     >>> fD = fD_Colebrook(Re, er)
     >>> print(f"fD = {fD:.3f}")
     fD = 0.021
@@ -344,11 +351,15 @@ def fD_Haaland(Re: float, er: float) -> float:
 
     Examples
     --------
-    Calculate the friction factor for water flowing through a DN25 PVC pipe at
-    2 m/s.
+    Calculate the friction factor for water flowing at 2 m/s through a PVC pipe
+    with an internal diameter of 25 mm.
     >>> from polykin.transport.flow import fD_Haaland
-    >>> Re = 1e3*2*25e-3/1e-3
-    >>> er = 0.0015/25
+    >>> rho = 1e3 # kg/m³
+    >>> mu = 1e-3 # Pa·s
+    >>> D = 25e-3 # m
+    >>> v = 2.    # m/s
+    >>> Re = rho*v*D/mu
+    >>> er = 0.0015/25 # from pipe table
     >>> fD = fD_Haaland(Re, er)
     >>> print(f"fD = {fD:.3f}")
     fD = 0.021
@@ -399,8 +410,8 @@ def Cd_sphere(Re: float) -> float:
     >>> v = 30.     # m/s
     >>> Re = rho*v*D/mu
     >>> Cd = Cd_sphere(Re)
-    >>> print(f"Cd = {Cd:.3f}")
-    Cd = 0.468
+    >>> print(f"Cd = {Cd:.2f}")
+    Cd = 0.47
     """
     return 24/Re*(1 + 0.173*Re**0.657) + 0.413/(1 + 16300*Re**(-1.09))
 
@@ -519,6 +530,6 @@ def vt_sphere(D: float,
         Cd = Cd_sphere(Re)
         return vt - sqrt(4*D*g*(rhop - rho)/(3*Cd*rho))
 
-    sol = root_newton(fnc, vt_Stokes(D, rhop, rho, mu))
+    sol = root_newton(fnc, x0=1.)
 
     return sol.x
