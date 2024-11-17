@@ -11,3 +11,4 @@ from .derivatives import *
 from .filters import *
 from .jcr import *
 from .solvers import *
+from .special import *
