@@ -280,22 +280,27 @@ nav:
               - Soave: reference/thermo/eos/Soave.md
               - Virial: reference/thermo/eos/Virial.md
       - polykin.transport:
-          - Cd_sphere: reference/transport/Cd_sphere.md
-          - DP_Darcy_Weisbach: reference/transport/DP_Darcy_Weisbach.md
-          - DP_Hagen_Poiseuille: reference/transport/DP_Hagen_Poiseuille.md
-          - DP_packed_bed: reference/transport/DP_packed_bed.md
-          - DP_tube: reference/transport/DP_tube.md
-          - fD_Colebrook: reference/transport/fD_Colebrook.md
-          - fD_Haaland: reference/transport/fD_Haaland.md
-          - Nu_cylinder: reference/transport/Nu_cylinder.md
-          - Nu_bank_tubes: reference/transport/Nu_bank_tubes.md
-          - Nu_drop: reference/transport/Nu_drop.md
-          - Nu_flatplate: reference/transport/Nu_flatplate.md
-          - Nu_sphere: reference/transport/Nu_sphere.md
-          - Nu_tank: reference/transport/Nu_tank.md
-          - Nu_tube: reference/transport/Nu_tube.md
-          - vt_sphere: reference/transport/vt_sphere.md
-          - vt_Stokes: reference/transport/vt_Stokes.md
+          - Fluid Flow:
+              - Cd_sphere: reference/transport/flow/Cd_sphere.md
+              - DP_Darcy_Weisbach: reference/transport/flow/DP_Darcy_Weisbach.md
+              - DP_Hagen_Poiseuille: reference/transport/flow/DP_Hagen_Poiseuille.md
+              - DP_packed_bed: reference/transport/flow/DP_packed_bed.md
+              - DP_tube: reference/transport/flow/DP_tube.md
+              - fD_Colebrook: reference/transport/flow/fD_Colebrook.md
+              - fD_Haaland: reference/transport/flow/fD_Haaland.md
+              - vt_sphere: reference/transport/flow/vt_sphere.md
+              - vt_Stokes: reference/transport/flow/vt_Stokes.md
+          - Heat Transfer:
+              - Nu_cylinder: reference/transport/heat/Nu_cylinder.md
+              - Nu_bank_tubes: reference/transport/heat/Nu_bank_tubes.md
+              - Nu_drop: reference/transport/heat/Nu_drop.md
+              - Nu_flatplate: reference/transport/heat/Nu_flatplate.md
+              - Nu_sphere: reference/transport/heat/Nu_sphere.md
+              - Nu_tank: reference/transport/heat/Nu_tank.md
+              - Nu_tube: reference/transport/heat/Nu_tube.md
+          - Diffusion:
+              - uptake_sheet: reference/transport/diffusion/uptake_sheet.md
+              - uptake_sphere: reference/transport/diffusion/uptake_sphere.md
       - polykin.stepgrowth:
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:
