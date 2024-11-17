@@ -78,8 +78,8 @@ def Nu_tube(Re: float,
 
     Examples
     --------
-    Estimate the (internal) Nusselt number for water flowing at 2 m/s through a
-    long smooth tube with an internal diameter of 25 mm.
+    Estimate the internal heat transfer coefficient for water flowing at 2 m/s
+    through a long smooth tube with an internal diameter of 25 mm.
     >>> from polykin.transport.heat import Nu_tube
     >>> rho = 1e3  # kg/m³
     >>> mu = 1e-3  # Pa.s
@@ -89,8 +89,10 @@ def Nu_tube(Re: float,
     >>> D = 25e-3  # m
     >>> Re = rho*v*D/mu
     >>> Pr = cp*mu/k
-    >>> Nu_tube(Re, Pr, D_L=0, er=0)
-    326.68215533186077
+    >>> Nu = Nu_tube(Re, Pr, D_L=0, er=0)
+    >>> h = Nu*k/D
+    >>> print(f"h={h:.1e} W/m².K")
+    h=7.8e+03 W/m².K
     """
     if Re < 2.3e3:
         return 3.66 + (0.0668*D_L*Re*Pr)/(1 + 0.04*(D_L*Re*Pr)**(2/3))
@@ -184,8 +186,8 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
 
     Examples
     --------
-    Estimate the (external) Nusselt number for water flowing at 2 m/s across a
-    DN25 pipe.
+    Estimate the external heat transfer coefficient for water flowing at 2 m/s
+    across a DN25 pipe.
     >>> from polykin.transport.heat import Nu_cylinder
     >>> rho = 1e3   # kg/m³
     >>> mu = 1e-3   # Pa.s
@@ -195,8 +197,10 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     >>> D = 33.7e-3 # m (OD from pipe chart)
     >>> Re = rho*v*D/mu
     >>> Pr = cp*mu/k
-    >>> Nu_cylinder(Re, Pr)
-    391.57334992440195
+    >>> Nu = Nu_cylinder(Re, Pr)
+    >>> h = Nu*k/D
+    >>> print(f"h={h:.1e} W/m².K")
+    h=7.0e+03 W/m².K
     """
     check_range_warn(Re*Pr, 0.2, inf, 'Re*Pr')
 
