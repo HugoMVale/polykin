@@ -27,8 +27,8 @@ def Nu_tube(Re: float,
             ) -> float:
     r"""Calculate the internal Nusselt number for flow through a circular tube.
 
-    For laminar flow, the average Nusselt number $\overline{Nu}=\bar{h}D/k$ can
-    be estimated by the following expression:
+    For laminar flow, the average Nusselt number $\overline{Nu}=\bar{h}D/k$ is
+    estimated by the following expression:
 
     $$ \overline{Nu} = 3.66 + \frac{0.0668 (D/L) Re Pr}{1 + 0.04 [(D/L) Re Pr]^{2/3}} $$
 
@@ -36,7 +36,7 @@ def Nu_tube(Re: float,
     correlation presumes constant surface temperature and a thermal entry length,
     thereby leading to conservative (underestimated) $\overline{Nu}$ values.
 
-    For turbulent flow, the Nusselt number can be estimated by the following
+    For turbulent flow, the Nusselt number is estimated by the following
     expression:
 
     $$  Nu = \frac{(f_D/8)(Re - 1000)Pr}{1 + 12.7 (f_D/8)^{1/2} (Pr^{2/3} - 1)} $$
@@ -54,11 +54,11 @@ def Nu_tube(Re: float,
 
     **References**
 
-    *   Gnielinski, Volker. "New equations for heat and mass transfer in
-        turbulent pipe and channel flow." International chemical engineering
-        16.2 (1976): 359-367.
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 444, 445.
+    * Gnielinski, Volker. "New equations for heat and mass transfer in
+      turbulent pipe and channel flow", International chemical engineering
+      16.2 (1976): 359-367.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 444, 445.
 
     Parameters
     ----------
@@ -75,6 +75,22 @@ def Nu_tube(Re: float,
     -------
     float
         Nusselt number.
+
+    Examples
+    --------
+    Estimate the (internal) Nusselt number for water flowing at 2 m/s through a
+    long smooth tube with an internal diameter of 25 mm.
+    >>> from polykin.transport.heat import Nu_tube
+    >>> rho = 1e3  # kg/m³
+    >>> mu = 1e-3  # Pa.s
+    >>> cp = 4.2e3 # J/kg/K
+    >>> k = 0.6    # W/m/K
+    >>> v = 2.     # m/s
+    >>> D = 25e-3  # m
+    >>> Re = rho*v*D/mu
+    >>> Pr = cp*mu/k
+    >>> Nu_tube(Re, Pr, D_L=0, er=0)
+    326.68215533186077
     """
     if Re < 2.3e3:
         return 3.66 + (0.0668*D_L*Re*Pr)/(1 + 0.04*(D_L*Re*Pr)**(2/3))
@@ -84,10 +100,11 @@ def Nu_tube(Re: float,
 
 
 def Nu_flatplate(Re: float, Pr: float) -> float:
-    r"""Calculate the Nusselt number for parallel flow over a flat plate.
+    r"""Calculate the Nusselt number for parallel flow over an isothermal flat
+    plate.
 
-    For parallel flow over an isothermal flat plate, the average Nusselt number
-    $\overline{Nu}=\bar{h}L/k$ can be estimated by the following expressions:    
+    The average Nusselt number $\overline{Nu}=\bar{h}L/k$ is estimated by the
+    following expressions:    
 
     $$ \overline{Nu} =
     \begin{cases}
@@ -101,8 +118,8 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
 
     **References**
 
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 354-356.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 354-356.
 
     Parameters
     ----------
@@ -129,8 +146,8 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
 def Nu_cylinder(Re: float, Pr: float) -> float:
     r"""Calculate the Nusselt number for cross flow over a circular cylinder.
 
-    For flow normal to the axis of a circular cylinder, the average Nusselt 
-    number $\overline{Nu}=\bar{h}D/k$ can be estimated by the following expression:
+    The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
+    following expression:
 
     $$ \overline{Nu} = 0.3 + \frac{0.62 Re^{1/2} Pr^{1/3}}
     {\left[1 + (0.4/Pr)^{2/3}\right]^{1/4}} 
@@ -143,11 +160,11 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
 
     **References**
 
-    *   Churchill, S. W., and Bernstein, M. (May 1, 1977). "A Correlating
-        Equation for Forced Convection From Gases and Liquids to a Circular
-        Cylinder in Crossflow." ASME. J. Heat Transfer. May 1977; 99(2): 300.
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 370.
+    * Churchill, S. W., and Bernstein, M. "A Correlating Equation for Forced
+      Convection From Gases and Liquids to a Circular Cylinder in Crossflow",
+      ASME. J. Heat Transfer. May 1977; 99(2): 300.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 370.
 
     Parameters
     ----------
@@ -164,6 +181,22 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     See also
     --------
     * [`Nu_bank_tubes`](Nu_bank_tubes.md): specific method for a bank of tubes.
+
+    Examples
+    --------
+    Estimate the (external) Nusselt number for water flowing at 2 m/s across a
+    DN25 pipe.
+    >>> from polykin.transport.heat import Nu_cylinder
+    >>> rho = 1e3   # kg/m³
+    >>> mu = 1e-3   # Pa.s
+    >>> cp = 4.2e3  # J/kg/K
+    >>> k = 0.6     # W/m/K
+    >>> v = 2.      # m/s
+    >>> D = 33.7e-3 # m (OD from pipe chart)
+    >>> Re = rho*v*D/mu
+    >>> Pr = cp*mu/k
+    >>> Nu_cylinder(Re, Pr)
+    391.57334992440195
     """
     check_range_warn(Re*Pr, 0.2, inf, 'Re*Pr')
 
@@ -174,8 +207,8 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
 def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
     r"""Calculate the Nusselt number for an isolated sphere.
 
-    For flow over a sphere, the average Nusselt number $\overline{Nu}=\bar{h}D/k$
-    can be estimated by the following expression:
+    The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
+    following expression:
 
     $$ \overline{Nu} = 2 + ( 0.4 Re^{1/2} + 0.06 Re^{2/3} ) Pr^{0.4}
                            \left(\frac{\mu}{\mu_s}\right)^{1/4} $$
@@ -192,11 +225,11 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
 
     **References**
 
-    *   Whitaker, S. (1972), "Forced convection heat transfer correlations for
-        flow in pipes, past flat plates, single cylinders, single spheres, and
-        for flow in packed beds and tube bundles", AIChE J., 18: 361-371.
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 374.
+    * Whitaker, S. (1972), "Forced convection heat transfer correlations for
+      flow in pipes, past flat plates, single cylinders, single spheres, and
+      for flow in packed beds and tube bundles", AIChE J., 18: 361-371.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 374.
 
     Parameters
     ----------
@@ -224,10 +257,10 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
 
 
 def Nu_drop(Re: float, Pr: float) -> float:
-    r"""Calculate the Nusselt number for a single drop falling in a fluid.
+    r"""Calculate the Nusselt number for a single freely falling drop.
 
-    For a freely falling drop, the average Nusselt number $\overline{Nu}=\bar{h}D/k$
-    can be estimated by the following expression:
+    The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
+    following expression:
 
     $$ \overline{Nu} = 2 + 0.6 Re^{1/2} Pr^{1/3} $$
 
@@ -243,10 +276,10 @@ def Nu_drop(Re: float, Pr: float) -> float:
 
     **References**
 
-    *   Ranz, W. and Marshall, W. (1952) "Evaporation from Drops", Chemical
-        Engineering Progress, 48, 141-146.
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 374.
+    * Ranz, W. and Marshall, W. (1952) "Evaporation from Drops", Chemical
+      Engineering Progress, 48, 141-146.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 374.
 
     Parameters
     ----------
@@ -272,8 +305,8 @@ def Nu_drop(Re: float, Pr: float) -> float:
     >>> vt = 3.8    # m/s (from vt_sphere)
     >>> rho = 1.2   # kg/m³
     >>> mu = 1.6e-5 # Pa.s
+    >>> Pr = 0.7    # from table of air properties
     >>> Re = rho*vt*D/mu
-    >>> Pr = 0.7 
     >>> Nu = Nu_drop(Re, Pr)
     >>> print(f"Nu={Nu:.1f}")
     Nu=11.0
@@ -342,17 +375,18 @@ def Nu_tank(
     --------
     Estimate the internal heat transfer coefficient for a 2-m diameter stirred
     tank equiped with a HE3 impeller operated at 120 rpm. Assume water properties
-    and default dimensions.
+    and default geometry.
     >>> from polykin.transport.heat import Nu_tank
     >>> T = 2.     # m
     >>> D = T/3    # m
     >>> rho = 1e3  # kg/m³
     >>> mu = 1e-3  # Pa.s
     >>> k  = 0.6   # W/m.K
-    >>> Cp = 4.2e3 # J/kg.K
+    >>> cp = 4.2e3 # J/kg.K
     >>> Re = (120/60) * D**2 * rho / mu
-    >>> Pr = mu*Cp/k
-    >>> Nu = Nu_tank('wall', 'HE3', Re, Pr, mur=1.)
+    >>> Pr = mu*cp/k
+    >>> mur = 1.   # neglect temperature correction
+    >>> Nu = Nu_tank('wall', 'HE3', Re, Pr, mur)
     >>> h = Nu*k/T
     >>> print(f"h={h:.1e} W/m².K")
     h=1.6e+03 W/m².K
@@ -467,7 +501,7 @@ def Nu_bank_tubes(v: float,
     r"""Calculate the Nusselt number for cross flow over a bank of tubes.
 
     For flow across a bank of aligned or staggered tubes, the average Nusselt
-    number $\overline{Nu}=\bar{h}D/k$ can be estimated by the following
+    number $\overline{Nu}=\bar{h}D/k$ is estimated by the following
     expression:
 
     $$ \overline{Nu} = 
@@ -480,15 +514,15 @@ def Nu_bank_tubes(v: float,
 
     **References**
 
-    *   Žukauskas, Algirdas. "Heat transfer from tubes in crossflow." Advances
-        in heat transfer. Vol. 8. Elsevier, 1972. 93-160.
-    *   Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
-        mass transfer", 4th edition, 1996, p. 376-381.
+    * Žukauskas, Algirdas. "Heat transfer from tubes in crossflow", Advances
+      in heat transfer. Vol. 8. Elsevier, 1972. 93-160.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 376-381.
 
     Parameters
     ----------
     v : float
-        Nominal velocity, $v_{\infty}$ (m/s).
+        Nominal velocity outside the tube bank, $v_{\infty}$ (m/s).
     rho : float
         Density (kg/m³).
     mu : float
@@ -511,7 +545,7 @@ def Nu_bank_tubes(v: float,
     Returns
     -------
     float
-        Average Nusselt number of tube bank.
+        Average Nusselt number of the tube bank.
 
     See also
     --------
