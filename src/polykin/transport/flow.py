@@ -54,7 +54,7 @@ def DP_Hagen_Poiseuille(Q: float,
     --------
     Calculate the pressure drop for a polymer solution with a viscosity of
     10 Pa.s flowing through 5 m of DN50 tube at 1 L/s. 
-    >>> from polykin.transport import DP_Hagen_Poiseuille
+    >>> from polykin.transport.flow import DP_Hagen_Poiseuille
     >>> from math import pi
     >>> Q = 1e-3  # m³/s
     >>> D = 50e-3 # m
@@ -123,7 +123,7 @@ def DP_Darcy_Weisbach(v: float,
     --------
     Calculate the pressure drop for water flowing through 500 m of DN25 PVC
     pipe at 2 m/s.
-    >>> from polykin.transport import DP_Darcy_Weisbach, fD_Haaland
+    >>> from polykin.transport.flow import DP_Darcy_Weisbach, fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> L = 5e2   # m
@@ -217,8 +217,8 @@ def DP_packed_bed(G: float,
 
     **References**
 
-    *   Walas, S. M. (1988). Chemical Process Equipment: Selection and Design.
-        Singapore: Butterworths.
+    * Walas, S. M., "Chemical Process Equipment: Selection and Design",
+      Singapore: Butterworths, 1988.
 
     Parameters
     ----------
@@ -243,7 +243,7 @@ def DP_packed_bed(G: float,
     Examples
     --------
     Calculate the pressure drop in a packed bed reactor.
-    >>> from polykin.transport import DP_packed_bed
+    >>> from polykin.transport.flow import DP_packed_bed
     >>> DP = DP_packed_bed(G=50., L=2., Dp=1e-2, eps=0.45, rho=800., mu=0.01)
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 1.4e+04 Pa
@@ -267,9 +267,9 @@ def fD_Colebrook(Re: float, er: float) -> float:
 
     **References**
 
-    *   Colebrook, C F (1939). "Turbulent Flow in Pipes, with Particular Reference
-        to the Transition Region Between the Smooth and Rough Pipe Laws", Journal
-        of the Institution of Civil Engineers. 11 (4): 133-156.
+    * Colebrook, C F (1939). "Turbulent Flow in Pipes, with Particular Reference
+      to the Transition Region Between the Smooth and Rough Pipe Laws", Journal
+      of the Institution of Civil Engineers. 11 (4): 133-156.
 
     Parameters
     ----------
@@ -291,7 +291,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     --------
     Calculate the friction factor for water flowing through a DN25 PVC pipe at
     2 m/s.
-    >>> from polykin.transport import fD_Colebrook
+    >>> from polykin.transport.flow import fD_Colebrook
     >>> Re = 1e3*2*25e-3/1e-3
     >>> er = 0.0015/25
     >>> fD = fD_Colebrook(Re, er)
@@ -323,9 +323,8 @@ def fD_Haaland(Re: float, er: float) -> float:
 
     **References**
 
-    *   Haaland, S. E. (March 1, 1983). "Simple and Explicit Formulas for the
-        Friction Factor in Turbulent Pipe Flow", ASME. J. Fluids Eng. March 1983;
-        105(1): 89-90.
+    * Haaland, S. E. "Simple and Explicit Formulas for the Friction Factor in
+      Turbulent Pipe Flow", ASME. J. Fluids Eng. March 1983; 105(1): 89-90.
 
     Parameters
     ----------
@@ -347,7 +346,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     --------
     Calculate the friction factor for water flowing through a DN25 PVC pipe at
     2 m/s.
-    >>> from polykin.transport import fD_Haaland
+    >>> from polykin.transport.flow import fD_Haaland
     >>> Re = 1e3*2*25e-3/1e-3
     >>> er = 0.0015/25
     >>> fD = fD_Haaland(Re, er)
@@ -372,8 +371,8 @@ def Cd_sphere(Re: float) -> float:
 
     **References**
 
-    *   Turton, R., and O. Levenspiel. "A short note on the drag correlation
-        for spheres", Powder technology 47.1 (1986): 83-86.
+    * Turton, R., and O. Levenspiel. "A short note on the drag correlation for
+      spheres", Powder technology 47.1 (1986): 83-86.
 
     Parameters
     ----------
@@ -387,13 +386,13 @@ def Cd_sphere(Re: float) -> float:
 
     See also
     --------
-    * [`vt_sphere`](vt_sphere.md): related method
-        to estimate the terminal velocity.
+    * [`vt_sphere`](vt_sphere.md): related method to estimate the terminal
+      velocity.
 
     Examples
     --------
     Calculate the drag coefficient for a tennis ball traveling at 30 m/s.
-    >>> from polykin.transport import Cd_sphere
+    >>> from polykin.transport.flow import Cd_sphere
     >>> D = 6.7e-2  # m
     >>> mu = 1.6e-5 # Pa·s
     >>> rho = 1.2   # kg/m³
@@ -440,13 +439,12 @@ def vt_Stokes(D: float,
 
     See also
     --------
-    *   [`vt_sphere`](vt_sphere.md): generic
-        method for laminar and turbulent flow.
+    * [`vt_sphere`](vt_sphere.md): generic method for laminar and turbulent flow.
 
     Examples
     --------
     Calculate the terminal velocity of a 500 nm PVC particle in water.
-    >>> from polykin.transport import vt_Stokes
+    >>> from polykin.transport.flow import vt_Stokes
     >>> vt = vt_Stokes(500e-9, 1.4e3, 1e3, 1e-3)
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
@@ -482,8 +480,8 @@ def vt_sphere(D: float,
 
     **References**
 
-    *   Turton, R., and O. Levenspiel. "A short note on the drag correlation
-        for spheres", Powder technology 47.1 (1986): 83-86.
+    * Turton, R., and O. Levenspiel. "A short note on the drag correlation for
+      spheres", Powder technology 47.1 (1986): 83-86.
 
     Parameters
     ----------
@@ -503,15 +501,14 @@ def vt_sphere(D: float,
 
     See also
     --------
-    *   [`vt_Stokes`](vt_Stokes.md): specific
-        method for laminar flow.
-    *   [`Cd_sphere`](Cd_sphere.md): related method to estimate the drag
-        coefficient.
+    * [`vt_Stokes`](vt_Stokes.md): specific method for laminar flow.
+    * [`Cd_sphere`](Cd_sphere.md): related method to estimate the drag
+      coefficient.
 
     Examples
     --------
     Calculate the terminal velocity of a 1 mm styrene droplet in air.
-    >>> from polykin.transport import vt_sphere
+    >>> from polykin.transport.flow import vt_sphere
     >>> vt = vt_sphere(1e-3, 910., 1.2, 1.6e-5)
     >>> print(f"vt = {vt:.1f} m/s")
     vt = 3.8 m/s
