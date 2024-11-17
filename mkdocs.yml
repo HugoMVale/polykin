@@ -280,6 +280,12 @@ nav:
               - Soave: reference/thermo/eos/Soave.md
               - Virial: reference/thermo/eos/Virial.md
       - polykin.transport:
+          - Diffusion:
+              - profile_semiinf: reference/transport/diffusion/profile_semiinf.md
+              - profile_sheet: reference/transport/diffusion/profile_sheet.md
+              - profile_sphere: reference/transport/diffusion/profile_sphere.md
+              - uptake_sheet: reference/transport/diffusion/uptake_sheet.md
+              - uptake_sphere: reference/transport/diffusion/uptake_sphere.md
           - Fluid Flow:
               - Cd_sphere: reference/transport/flow/Cd_sphere.md
               - DP_Darcy_Weisbach: reference/transport/flow/DP_Darcy_Weisbach.md
@@ -298,9 +304,6 @@ nav:
               - Nu_sphere: reference/transport/heat/Nu_sphere.md
               - Nu_tank: reference/transport/heat/Nu_tank.md
               - Nu_tube: reference/transport/heat/Nu_tube.md
-          - Diffusion:
-              - uptake_sheet: reference/transport/diffusion/uptake_sheet.md
-              - uptake_sphere: reference/transport/diffusion/uptake_sphere.md
       - polykin.stepgrowth:
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - polykin.utils:

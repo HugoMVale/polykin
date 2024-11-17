@@ -2,5 +2,6 @@
 #
 # Copyright Hugo Vale 2024
 
+from .diffusion import *
 from .flow import *
 from .heat import *
