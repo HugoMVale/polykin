@@ -20,7 +20,6 @@ theme:
   features:
     - search.highlight
     - search.suggest
-    # - navigation.sections
     - navigation.instant
     - navigation.instant.prefetch
     - navigation.tabs
@@ -64,9 +63,8 @@ plugins:
   # - gen-files:
   #     scripts:
   #       - docs/reference/gen_reference.py
-  # - literate-nav:
-  #     nav_file: SUMMARY.txt
-  # - section-index
+  - literate-nav:
+      nav_file: _SUMMARY.md
   # - gallery:
   #     examples_dirs: docs/tutorials
   #     gallery_dirs: docs/generated/gallery
@@ -156,156 +154,31 @@ nav:
       - index.md
       - Installation: installation.md
   # - generated/gallery
-  - Tutorials:
-      - "tutorials/index.md"
-      - Activity Coeff. Models: "tutorials/activity_coefficient_models.ipynb"
-      - Copolymerization: "tutorials/copolymerization.ipynb"
-      - Copolymerization Fit: "tutorials/copolymerization_fit.ipynb"
-      - Diffusion Coefficients: "tutorials/diffusion_coefficients.ipynb"
-      - Distributions: "tutorials/distributions.ipynb"
-      - Kinetic Coefficients: "tutorials/kinetic_coefficients.ipynb"
-      - Physical Property Equations: "tutorials/physprop_equations.ipynb"
-      - Thermal Conductivity: "tutorials/thermal_conductivity.ipynb"
-      - Viscosity: "tutorials/viscosity.ipynb"
-  #- API Reference: reference/polykin/ #
+  - Tutorials: tutorials/
   - API Reference:
-      - polykin.copolymerization:
-          - reference/copolymerization/index.md
-            # - InstantaneousCopoData: reference/copolymerization/InstantaneousCopoData.md
-          - CopoFitResult: reference/copolymerization/CopoFitResult.md
-          - ImplicitPenultimateModel: reference/copolymerization/ImplicitPenultimateModel.md
-          - PenultimateModel: reference/copolymerization/PenultimateModel.md
-          - TerminalModel: reference/copolymerization/TerminalModel.md
-          - convert_Qe_to_r: reference/copolymerization/convert_Qe_to_r.md
-          - fit_Finemann_Ross: reference/copolymerization/fit_Finemann_Ross.md
-          - fit_copo_data: reference/copolymerization/fit_copo_data.md
-          - inst_copolymer_binary: reference/copolymerization/inst_copolymer_binary.md
-          - inst_copolymer_ternary: reference/copolymerization/inst_copolymer_ternary.md
-          - inst_copolymer_multi: reference/copolymerization/inst_copolymer_multi.md
-          - kp_average_binary: reference/copolymerization/kp_average_binary.md
-          - monomer_drift_binary: reference/copolymerization/monomer_drift_binary.md
-          - monomer_drift_multi: reference/copolymerization/monomer_drift_multi.md
-          - radical_fractions_ternary: reference/copolymerization/radical_fractions_ternary.md
-          - radical_fractions_multi: reference/copolymerization/radical_fractions_multi.md
-          - sequence_multi: reference/copolymerization/sequence_multi.md
-          - transitions_multi: reference/copolymerization/transitions_multi.md
-          - tuples_multi: reference/copolymerization/tuples_multi.md
-      - polykin.distributions:
-          - reference/distributions/index.md
-          - DataDistribution: reference/distributions/DataDistribution.md
-          - Flory: reference/distributions/Flory.md
-          - LogNormal: reference/distributions/LogNormal.md
-          - MixtureDistribution: reference/distributions/MixtureDistribution.md
-          - Poisson: reference/distributions/Poisson.md
-          - SchulzZimm: reference/distributions/SchulzZimm.md
-          - WeibullNycanderGold_pdf: reference/distributions/WeibullNycanderGold_pdf.md
-          - convolve_moments: reference/distributions/convolve_moments.md
-          - convolve_moments_self: reference/distributions/convolve_moments_self.md
-          - plotdists: reference/distributions/plotdists.md
-      - polykin.emulsion:
-          - nbar_Li_Brooks: reference/emulsion/nbar_Li_Brooks.md
-          - nbar_Stockmayer_OToole: reference/emulsion/nbar_Stockmayer_OToole.md
-      - polykin.kinetics:
-          - reference/kinetics/index.md
-          - Arrhenius: reference/kinetics/Arrhenius.md
-          - Eyring: reference/kinetics/Eyring.md
-          - PropagationHalfLength: reference/kinetics/PropagationHalfLength.md
-          - TerminationCompositeModel: reference/kinetics/TerminationCompositeModel.md
-      - polykin.math:
-          - confidence_ellipse: reference/math/confidence_ellipse.md
-          - confidence_region: reference/math/confidence_region.md
-          - derivative_centered: reference/math/derivative_centered.md
-          - derivative_complex: reference/math/derivative_complex.md
-          - hessian2: reference/math/hessian2.md
-          - ierfc: reference/math/ierfc.md
-          - i2erfc: reference/math/i2erfc.md
-          - ode_rk: reference/math/ode_rk.md
-          - root_newton: reference/math/root_newton.md
-          - root_secant: reference/math/root_secant.md
-          - simplify_polyline: reference/math/simplify_polyline.md
-          - RootResult: reference/math/RootResult.md
-      - polykin.properties:
+      - Copolymerization: reference/copolymerization/
+      - Distributions: reference/distributions/
+      - Emulsion Polymerization: reference/emulsion/
+      - Kinetics: reference/kinetics/
+      - Mathematics: reference/math/
+      - Properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md
-          - Diffusion:
-              - reference/properties/diffusion/index.md
-              - VrentasDudaBinary: reference/properties/diffusion/VrentasDudaBinary.md
-              - DL_Hayduk_Minhas: reference/properties/diffusion/DL_Hayduk_Minhas.md
-              - DL_Wilke_Chang: reference/properties/diffusion/DL_Wilke_Chang.md
-              - DV_Wilke_Lee: reference/properties/diffusion/DV_Wilke_Lee.md
-          - PVT Polymer:
-              - reference/properties/pvt_polymer/index.md
-              - Flory: reference/properties/pvt_polymer/Flory.md
-              - HartmannHaque: reference/properties/pvt_polymer/HartmannHaque.md
-              - SanchezLacombe: reference/properties/pvt_polymer/SanchezLacombe.md
-              - Tait: reference/properties/pvt_polymer/Tait.md
-          - Thermal Conductivity:
-              - reference/properties/thermal_conductivity/index.md
-              - KLMX2_Li: reference/properties/thermal_conductivity/KLMX2_Li.md
-              - KVMX2_Wassilijewa: reference/properties/thermal_conductivity/KVMX2_Wassilijewa.md
-              - KVPC_Stiel_Thodos: reference/properties/thermal_conductivity/KVPC_Stiel_Thodos.md
-              - KVMXPC_Stiel_Thodos: reference/properties/thermal_conductivity/KVMXPC_Stiel_Thodos.md
-          - Vaporization Enthalpy:
-              #- reference/properties/vaporization_enthalpy/index.md
-              - DHVL_Kistiakowsky_Vetere: reference/properties/vaporization_enthalpy/DHVL_Kistiakowsky_Vetere.md
-              - DHVL_Pitzer: reference/properties/vaporization_enthalpy/DHVL_Pitzer.md
-              - DHVL_Vetere: reference/properties/vaporization_enthalpy/DHVL_Vetere.md
-              - DHVL_Watson: reference/properties/vaporization_enthalpy/DHVL_Watson.md
-          - Viscosity:
-              - reference/properties/viscosity/index.md
-              - MULMX2_Perry: reference/properties/viscosity/MULMX2_Perry.md
-              - MUV_Lucas: reference/properties/viscosity/MUV_Lucas.md
-              - MUVMX_Lucas: reference/properties/viscosity/MUVMX_Lucas.md
-              - MUVMX2_Herning_Zipperer: reference/properties/viscosity/MUVMX2_Herning_Zipperer.md
-              - MUVPC_Jossi: reference/properties/viscosity/MUVPC_Jossi.md
-              - MUVMXPC_Dean_Stiel: reference/properties/viscosity/MUVMXPC_Dean_Stiel.md
-      - polykin.thermo:
+          - Diffusion: reference/properties/diffusion/
+          - PVT Polymer: reference/properties/pvt_polymer/
+          - Thermal Conductivity: reference/properties/thermal_conductivity/
+          - Vaporization Enthalpy: reference/properties/vaporization_enthalpy/
+          - Viscosity: reference/properties/viscosity/
+      - Thermodynamics:
           #- reference/thermo/index.md
-          - Activity Coeff. Models:
-              - reference/thermo/acm/index.md
-              - IdealSolution: reference/thermo/acm/IdealSolution.md
-              - FloryHuggins: reference/thermo/acm/FloryHuggins.md
-              - FloryHuggins_activity: reference/thermo/acm/FloryHuggins_activity.md
-              - FloryHuggins2_activity: reference/thermo/acm/FloryHuggins2_activity.md
-              - NRTL: reference/thermo/acm/NRTL.md
-              - NRTL_gamma: reference/thermo/acm/NRTL_gamma.md
-              - UNIQUAC: reference/thermo/acm/UNIQUAC.md
-              - UNIQUAC_gamma: reference/thermo/acm/UNIQUAC_gamma.md
-              - Wilson: reference/thermo/acm/Wilson.md
-              - Wilson_gamma: reference/thermo/acm/Wilson_gamma.md
-          - Equations of State:
-              - IdealGas: reference/thermo/eos/IdealGas.md
-              - PengRobinson: reference/thermo/eos/PengRobinson.md
-              - RedlichKwong: reference/thermo/eos/RedlichKwong.md
-              - Soave: reference/thermo/eos/Soave.md
-              - Virial: reference/thermo/eos/Virial.md
-      - polykin.transport:
-          - Diffusion:
-              - profile_semiinf: reference/transport/diffusion/profile_semiinf.md
-              - profile_sheet: reference/transport/diffusion/profile_sheet.md
-              - profile_sphere: reference/transport/diffusion/profile_sphere.md
-              - uptake_sheet: reference/transport/diffusion/uptake_sheet.md
-              - uptake_sphere: reference/transport/diffusion/uptake_sphere.md
-          - Fluid Flow:
-              - Cd_sphere: reference/transport/flow/Cd_sphere.md
-              - DP_Darcy_Weisbach: reference/transport/flow/DP_Darcy_Weisbach.md
-              - DP_Hagen_Poiseuille: reference/transport/flow/DP_Hagen_Poiseuille.md
-              - DP_packed_bed: reference/transport/flow/DP_packed_bed.md
-              - DP_tube: reference/transport/flow/DP_tube.md
-              - fD_Colebrook: reference/transport/flow/fD_Colebrook.md
-              - fD_Haaland: reference/transport/flow/fD_Haaland.md
-              - vt_sphere: reference/transport/flow/vt_sphere.md
-              - vt_Stokes: reference/transport/flow/vt_Stokes.md
-          - Heat Transfer:
-              - Nu_cylinder: reference/transport/heat/Nu_cylinder.md
-              - Nu_bank_tubes: reference/transport/heat/Nu_bank_tubes.md
-              - Nu_drop: reference/transport/heat/Nu_drop.md
-              - Nu_flatplate: reference/transport/heat/Nu_flatplate.md
-              - Nu_sphere: reference/transport/heat/Nu_sphere.md
-              - Nu_tank: reference/transport/heat/Nu_tank.md
-              - Nu_tube: reference/transport/heat/Nu_tube.md
-      - polykin.stepgrowth:
+          - Activity Coeff. Models: reference/thermo/acm/
+          - Equations of State: reference/thermo/eos/
+      - Transport Phenomena:
+          - Diffusion: reference/transport/diffusion/
+          - Fluid Flow: reference/transport/flow/
+          - Heat Transfer: reference/transport/heat/
+      - Step-Growth Polymerization:
           - Analytical Solutions: reference/stepgrowth/solutions.md
-      - polykin.utils:
+      - Utils:
           - Exceptions: reference/utils/exceptions.md
           - Types: reference/utils/types.md

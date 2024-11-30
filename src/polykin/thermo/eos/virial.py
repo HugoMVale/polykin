@@ -170,7 +170,7 @@ class Virial(GasEoS):
         r"""Calculate the matrix of interaction virial coefficients.
 
         The calculation is handled by
-        [`B_mixture`](.#polykin.properties.eos.B_mixture).
+        [`B_mixture`](.#polykin.thermo.eos.B_mixture).
 
         Parameters
         ----------
@@ -295,7 +295,7 @@ def B_mixture(T: float,
     \end{aligned}
 
     The calculation of the individual coefficients is handled by
-    [`B_pure`](.#polykin.properties.eos.B_pure).
+    [`B_pure`](.#polykin.thermo.eos.B_pure).
 
     **References**
 

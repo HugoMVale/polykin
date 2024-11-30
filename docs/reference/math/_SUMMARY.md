@@ -1,0 +1,13 @@
+
+* [confidence_ellipse](confidence_ellipse.md)
+* [confidence_region](confidence_region.md)
+* [derivative_centered](derivative_centered.md)
+* [derivative_complex](derivative_complex.md)
+* [hessian2](hessian2.md)
+* [i2erfc](i2erfc.md)
+* [ierfc](ierfc.md)
+* [ode_rk](ode_rk.md)
+* [root_newton](root_newton.md)
+* [root_secant](root_secant.md)
+* [RootResult](RootResult.md)
+* [simplify_polyline](simplify_polyline.md)
