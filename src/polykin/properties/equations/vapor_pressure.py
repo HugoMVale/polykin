@@ -9,9 +9,8 @@ from typing import Union
 import numpy as np
 from numpy import exp
 
+from polykin.properties.equations.base import PropertyEquationT
 from polykin.utils.types import FloatArray
-
-from .base import PropertyEquationT
 
 __all__ = ['Antoine', 'Wagner']
 
