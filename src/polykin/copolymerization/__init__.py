@@ -5,7 +5,6 @@
 """
 This module implements methods and classes to model and analyze binary and
 multicomponent copolymerization systems.
-
 """
 
 from .binary import *
