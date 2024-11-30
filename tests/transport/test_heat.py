@@ -5,8 +5,10 @@
 import pytest
 from numpy import isclose
 
-from polykin.transport.heat import (Nu_bank_tubes, Nu_cylinder, Nu_drop,
-                                    Nu_flatplate, Nu_sphere, Nu_tank, Nu_tube)
+from polykin.transport.heat import (Nu_cylinder, Nu_cylinder_bank,
+                                    Nu_cylinder_free, Nu_drop, Nu_flatplate,
+                                    Nu_sphere, Nu_sphere_free, Nu_tank,
+                                    Nu_tube)
 
 
 def test_Nu_tube():
@@ -102,9 +104,23 @@ def test_Nu_tank_2():
         _ = Nu_tank('harp-coil-45', 'HE3', Re, Pr, mur=1)
 
 
-def test_Nu_bank_tubes():
+def test_Nu_cylinder_bank():
     "Handbook of Industrial Mixing, p. 383"
     # Example 7.6
-    Nu = Nu_bank_tubes(v=6, rho=1, mu=14.82e-6, Pr=0.710, Prs=0.701,
-                       aligned=False, D=16.4e-3, ST=31.3e-3, SL=34.3e-3, NL=7)
+    Nu = Nu_cylinder_bank(v=6, rho=1, mu=14.82e-6, Pr=0.710, Prs=0.701,
+                          aligned=False, D=16.4e-3, ST=31.3e-3, SL=34.3e-3, NL=7)
     assert isclose(Nu, 87.9, rtol=2e-2)
+
+
+def test_Nu_cylinder_free():
+    Ra = 5.073e6
+    Pr = 0.697
+    Nu = Nu_cylinder_free(Ra, Pr)
+    assert isclose(Nu, 23.3, rtol=1e-2)
+
+
+def test_Nu_sphere_free():
+    Ra = 5e6
+    Pr = 0.7
+    Nu = Nu_sphere_free(Ra, Pr)
+    assert isclose(Nu, 23.5, rtol=0.01)

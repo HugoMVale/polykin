@@ -12,11 +12,12 @@ from polykin.utils.tools import check_range_warn
 
 __all__ = ['Nu_tube',
            'Nu_cylinder',
+           'Nu_cylinder_bank',
+           'Nu_cylinder_free',
            'Nu_sphere',
            'Nu_drop',
            'Nu_flatplate',
-           'Nu_tank',
-           'Nu_bank_tubes'
+           'Nu_tank'
            ]
 
 
@@ -55,7 +56,7 @@ def Nu_tube(Re: float,
     **References**
 
     * Gnielinski, Volker. "New equations for heat and mass transfer in
-      turbulent pipe and channel flow", International chemical engineering
+      turbulent pipe and channel flow", International Chemical Engineering
       16.2 (1976): 359-367.
     * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
       mass transfer", 4th edition, 1996, p. 444, 445.
@@ -63,7 +64,7 @@ def Nu_tube(Re: float,
     Parameters
     ----------
     Re : float
-        Reynolds number.
+        Reynolds number based on tube internal diameter.
     Pr : float
         Prandtl number.
     D_L : float
@@ -75,6 +76,10 @@ def Nu_tube(Re: float,
     -------
     float
         Nusselt number.
+
+    See also
+    --------
+    * [`Nu_cylinder`](Nu_cylinder.md): related method for external cross flow.
 
     Examples
     --------
@@ -126,7 +131,7 @@ def Nu_flatplate(Re: float, Pr: float) -> float:
     Parameters
     ----------
     Re : float
-        Plate Reynolds number.
+        Reynolds number based on plate length.
     Pr : float
         Prandtl number.
 
@@ -171,7 +176,7 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     Parameters
     ----------
     Re : float
-        Reynolds number.
+        Reynolds number based on cylinder diameter.
     Pr : float
         Prandtl number.
 
@@ -182,7 +187,10 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
 
     See also
     --------
-    * [`Nu_bank_tubes`](Nu_bank_tubes.md): specific method for a bank of tubes.
+    - [`Nu_cylinder_bank`](Nu_cylinder_bank.md): specific method for a bank of
+      tubes.
+    - [`Nu_cylinder_free`](Nu_cylinder_free.md): related method for free
+      convection.
 
     Examples
     --------
@@ -208,8 +216,73 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
         * (1 + (Re/282e3)**(5/8))**(4/5)
 
 
+def Nu_cylinder_free(Ra: float, Pr: float) -> float:
+    r"""Calculate the Nusselt number for free convection on a horizontal 
+    cylinder.
+
+    The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
+    following expression:
+
+    $$ \overline{Nu} = \left(0.6 + \frac{0.387 Ra^{1/6}}
+       {[1 + (0.559/Pr)^{9/16}]^{8/27}}\right)^2 $$
+
+    $$ \left[  Ra \lesssim 10^{12} \right] $$
+
+    where $Ra$ is the Rayleigh number and $Pr$ is the Prandtl number. The 
+    properties are to be evaluated at the film temperature.
+
+    **References**
+
+    * Churchill, Stuart W., and Humbert HS Chu. "Correlating equations for
+      laminar and turbulent free convection from a horizontal cylinder", 
+      International Journal of Heat and Mass Transfer 18, no. 9 (1975): 1049-1053.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 502.
+
+    Parameters
+    ----------
+    Ra : float
+        Rayleigh number based on cylinder diameter.
+    Pr : float
+        Prandtl number.
+
+    Returns
+    -------
+    float
+        Nusselt number.
+
+    See also
+    --------
+    - [`Nu_cylinder`](Nu_cylinder.md): related method for forced convection.
+
+    Examples
+    --------
+    Estimate the external heat transfer coefficient for a DN25 tube with a
+    surface temperature of 330 K immersed in water with a bulk temperature of
+    290 K.
+    >>> from polykin.transport.heat import Nu_cylinder_free
+    >>> rho = 1.0e3   # kg/m³ (properties at 310 K)
+    >>> mu = 0.70e-3  # Pa.s
+    >>> cp = 4.2e3    # J/kg/K
+    >>> k = 0.63      # W/m/K
+    >>> beta = 362e-6 # 1/K
+    >>> D = 33.7e-3   # m (OD from pipe chart)
+    >>> g = 9.81      # m/s²
+    >>> Pr = cp*mu/k
+    >>> Gr = g*beta*(330-290)*D**3/(mu/rho)**2
+    >>> Ra = Gr*Pr
+    >>> Nu = Nu_cylinder_free(Ra, Pr)
+    >>> h = Nu*k/D
+    >>> print(f"h={h:.1e} W/m².K")
+    h=1.1e+03 W/m².K
+    """
+    check_range_warn(Ra, 0, 1e12, 'Ra')
+
+    return (0.6 + 0.387*Ra**(1/6) / (1 + (0.559/Pr)**(9/16))**(8/27))**2
+
+
 def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
-    r"""Calculate the Nusselt number for an isolated sphere.
+    r"""Calculate the Nusselt number for flow around an isolated sphere.
 
     The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
     following expression:
@@ -238,7 +311,7 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
     Parameters
     ----------
     Re : float
-        Sphere Reynolds number.
+        Reynolds number based on sphere diameter.
     Pr : float
         Prandtl number.
     mur : float
@@ -288,7 +361,7 @@ def Nu_drop(Re: float, Pr: float) -> float:
     Parameters
     ----------
     Re : float
-        Drop Reynolds number.
+        Reynolds number based on drop diameter.
     Pr : float
         Prandtl number.
 
@@ -492,16 +565,16 @@ def Nu_tank(
     return K * Re**a * Pr**b * mur**c * Gc
 
 
-def Nu_bank_tubes(v: float,
-                  rho: float,
-                  mu: float,
-                  Pr: float,
-                  Prs: float,
-                  aligned: bool,
-                  D: float,
-                  ST: float,
-                  SL: float,
-                  NL: int) -> float:
+def Nu_cylinder_bank(v: float,
+                     rho: float,
+                     mu: float,
+                     Pr: float,
+                     Prs: float,
+                     aligned: bool,
+                     D: float,
+                     ST: float,
+                     SL: float,
+                     NL: int) -> float:
     r"""Calculate the Nusselt number for cross flow over a bank of tubes.
 
     For flow across a bank of aligned or staggered tubes, the average Nusselt
@@ -519,7 +592,7 @@ def Nu_bank_tubes(v: float,
     **References**
 
     * Žukauskas, Algirdas. "Heat transfer from tubes in crossflow", Advances
-      in heat transfer. Vol. 8. Elsevier, 1972. 93-160.
+      in Heat Transfer. Vol. 8. Elsevier, 1972. 93-160.
     * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
       mass transfer", 4th edition, 1996, p. 376-381.
 
@@ -553,7 +626,7 @@ def Nu_bank_tubes(v: float,
 
     See also
     --------
-    * [`Nu_tube`](Nu_tube.md): specific method for a single tube.
+    * [`Nu_cylinder`](Nu_cylinder.md): specific method for a single cylinder.
     """
 
     # Maximum fluid velocity
@@ -617,3 +690,69 @@ def Nu_bank_tubes(v: float,
         C2 = 1.
 
     return C2*Nu
+
+
+def Nu_sphere_free(Ra: float, Pr: float) -> float:
+    r"""Calculate the Nusselt number for free convection on a sphere.
+
+    The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
+    following expression:
+
+    $$ \overline{Nu} = 2 + \frac{0.589 Ra^{1/4}}{[1 + (0.469/Pr)^{9/16}]^{4/9}} $$
+
+    \begin{bmatrix}
+    Ra \lesssim 10^{11} \\
+    Pr \ge  0.7 \\
+    \end{bmatrix}
+
+    where $Ra$ is the Rayleigh number and $Pr$ is the Prandtl number. The 
+    properties are to be evaluated at the film temperature.
+
+    **References**
+
+    * Churchill, S.W, "Free convection around immersed bodies", in Heat Exchange
+      Design Handbook, Section 2.5.7, Hemisphere Publishing, New York, 1983.
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 502.
+
+    Parameters
+    ----------
+    Ra : float
+        Rayleigh number based on sphere diameter.
+    Pr : float
+        Prandtl number.
+
+    Returns
+    -------
+    float
+        Nusselt number.
+
+    See also
+    --------
+    - [`Nu_sphere`](Nu_sphere.md): related method for forced convection.
+
+    Examples
+    --------
+    Estimate the external heat transfer coefficient for a 50 mm sphere with a
+    surface temperature of 330 K immersed in water with a bulk temperature of
+    290 K.
+    >>> from polykin.transport.heat import Nu_sphere_free
+    >>> rho = 1.0e3   # kg/m³
+    >>> mu = 0.70e-3  # Pa.s
+    >>> cp = 4.2e3    # J/kg/K
+    >>> k = 0.63      # W/m/K
+    >>> beta = 362e-6 # 1/K
+    >>> D = 50e-3     # m
+    >>> g = 9.81      # m/s²
+    >>> Pr = cp*mu/k
+    >>> Gr = g*beta*(330-290)*D**3/(mu/rho)**2
+    >>> Ra = Gr*Pr
+    >>> Nu = Nu_sphere_free(Ra, Pr)
+    >>> h = Nu*k/D
+    >>> print(f"h={h:.1e} W/m².K")
+    h=7.8e+02 W/m².K
+    """
+    check_range_warn(Ra, 0, 1e11, 'Ra')
+    check_range_warn(Pr, 0.7, inf, 'Pr')
+
+    return 2 + 0.589*Ra**(1/4) / (1 + (0.469/Pr)**(9/16))**(4/9)
