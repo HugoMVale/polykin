@@ -5,5 +5,6 @@
 * [Nu_drop](Nu_drop.md)
 * [Nu_flatplate](Nu_flatplate.md)
 * [Nu_sphere](Nu_sphere.md)
+* [Nu_sphere_free](Nu_sphere_free.md)
 * [Nu_tank](Nu_tank.md)
 * [Nu_tube](Nu_tube.md)
