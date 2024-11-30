@@ -6,7 +6,6 @@
 from typing import Any, TypeVar
 
 import numpy as np
-import numpy.typing as npt
 from nptyping import Float64, Int32, NDArray, Shape
 
 Number = TypeVar("Number", float, complex)
