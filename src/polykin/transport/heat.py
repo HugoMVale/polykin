@@ -16,7 +16,8 @@ __all__ = ['Nu_tube',
            'Nu_cylinder_free',
            'Nu_sphere',
            'Nu_drop',
-           'Nu_flatplate',
+           'Nu_plate',
+           'Nu_plate_free',
            'Nu_tank'
            ]
 
@@ -106,7 +107,7 @@ def Nu_tube(Re: float,
         return (fD/8)*(Re - 1e3)*Pr/(1 + 12.7*sqrt(fD/8)*(Pr**(2/3) - 1))
 
 
-def Nu_flatplate(Re: float, Pr: float) -> float:
+def Nu_plate(Re: float, Pr: float) -> float:
     r"""Calculate the Nusselt number for parallel flow over an isothermal flat
     plate.
 
@@ -756,3 +757,115 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     check_range_warn(Pr, 0.7, inf, 'Pr')
 
     return 2 + 0.589*Ra**(1/4) / (1 + (0.469/Pr)**(9/16))**(4/9)
+
+
+def Nu_plate_free(orientation: Literal['vertical',
+                                       'horizontal-upper-heated',
+                                       'horizontal-lower-heated'],
+                  Ra: float,
+                  Pr: float | None = None
+                  ) -> float:
+    r"""Calculate the Nusselt number for free convection on a vertical or
+    horizontal plate.
+
+    For a vertical plate of height $L$, the average Nusselt number 
+    $\overline{Nu}=\bar{h}L/k$ is estimated by the following expression:
+
+    $$  \overline{Nu} = \left(0.825 + \frac{0.387 Ra^{1/6}}
+        {[1 + (0.492/Pr)^{9/16}]^{8/27}}\right)^2 $$
+
+    where $Ra$ is the Rayleigh number based on the plate height and $Pr$ is the
+    Prandtl number.
+
+    If the plate is horizontal, the flow and heat transfer patterns depend on
+    whether the surface is heated or cooled, and which direction it is facing.
+    For the upper surface of a heated plate (or the lower surface of a cooled
+    plate), the Nusselt number is estimated by the following expression:
+
+    $$ \overline{Nu} =
+    \begin{cases}
+    0.54 Ra^{1/4} ,& 10^4 \lesssim Ra \lesssim 10^7 \\
+    0.15 Ra^{1/3} ,& 10^7 \lesssim Ra \lesssim 10^{11}
+    \end{cases} $$
+
+    For the lower surface of a heated plate (or the upper surface of a cooled
+    plate), the Nusselt number is estimated by the following expression:
+
+    $$ \overline{Nu} = 0.27 Ra^{1/4} \;, 10^5 \lesssim Ra \lesssim 10^{10} $$
+
+    where $Ra$ is the Rayleigh number based on the ratio between the plate
+    surface area and perimeter.
+
+    In all cases, the properties are to be evaluated at the film temperature.
+
+    !!! tip
+
+        * The correlation for vertical plates can also be applied to vertical 
+        cylinders of height $L$ and diameter $D$ if $D/L \gtrsim 35/Gr_L^{1/4}$.
+        * The correlation for vertical plates can also be applied to the top and
+        bottom surfaces of heated and cooled _inclined_ plates, respectively, 
+        if $g$ is replaced by $g \cos \theta$ in the calculaton of $Ra$. 
+
+    **References**
+
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 493-498.
+
+    Parameters
+    ----------
+    orientation: Literal['vertical', 'horizontal-upper-heated', 'horizontal-lower-heated']
+        Orientation of the plate.
+    Ra : float
+        Rayleigh number based on plate characteristic length. For a vertical
+        plate, the characteristic length is the plate height. For a horizontal
+        plate, the characteristic length is the ratio between the plate surface
+        area and perimeter.
+    Pr : float
+        Prandtl number.
+
+    Returns
+    -------
+    float
+        Nusselt number.
+
+    See also
+    --------
+    - [`Nu_plate`](Nu_plate.md): related method for forced convection.
+
+    Examples
+    --------
+    Estimate the heat transfer coefficient between the outer surface of a
+    vertical tank (D=2 m, H=3 m) with a surface temperature of 310 K and
+    quiescent air at 290 K.
+    >>> from polykin.transport.heat import Nu_plate_free
+    >>> L = 3.0           # m (characteristic length is tank height)
+    >>> Ts, Tb = 310, 290 # K
+    >>> Tf = (Ts + Tb)/2  # K (film temperature)
+    >>> Pr = 0.707        # m (properties at Tf=300 K)
+    >>> nu = 15.9e-6      # m²/s
+    >>> k = 26.3e-3       # W/m/K
+    >>> beta = 1/Tf       # 1/K
+    >>> g = 9.81          # m/s²
+    >>> Gr = g*beta*(Ts - Tb)*L**3/nu**2
+    >>> Ra = Gr*Pr
+    >>> Nu = Nu_plate_free('vertical', Ra, Pr)
+    >>> h = Nu*k/L
+    >>> print(f"h={h:.1e} W/m².K")
+    h=3.7e+00 W/m².K
+    """
+    if orientation == 'vertical':
+        if Pr:
+            return (0.825 + 0.387*Ra**(1/6) / (1 + (0.492/Pr)**(9/16))**(8/27))**2
+        else:
+            raise ValueError("`Pr` is required for vertical plates.")
+    elif orientation == 'horizontal-upper-heated':
+        check_range_warn(Ra, 1e4, 1e11, 'Ra')
+        if Ra < 1e7:
+            return 0.54*Ra**(1/4)
+        else:
+            return 0.15*Ra**(1/3)
+    elif orientation == 'horizontal-lower-heated':
+        check_range_warn(Ra, 1e5, 1e10, 'Ra')
+        return 0.27*Ra**(1/4)
+    else:
+        raise ValueError(f"Unknown `orientation`: {orientation}.")

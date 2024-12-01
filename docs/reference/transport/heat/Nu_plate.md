@@ -3,8 +3,8 @@
 ::: polykin.transport.heat
     options:
         members:
-            - Nu_flatplate
+            - Nu_plate
 
 ### Graphical Illustration
 
-![Nu_flatplate](Nu_flatplate.svg)
+![Nu_plate](Nu_plate.svg)

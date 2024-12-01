@@ -6,9 +6,9 @@ import pytest
 from numpy import isclose
 
 from polykin.transport.heat import (Nu_cylinder, Nu_cylinder_bank,
-                                    Nu_cylinder_free, Nu_drop, Nu_flatplate,
+                                    Nu_cylinder_free, Nu_drop, Nu_plate,
                                     Nu_sphere, Nu_sphere_free, Nu_tank,
-                                    Nu_tube)
+                                    Nu_tube, Nu_plate_free)
 
 
 def test_Nu_tube():
@@ -50,14 +50,14 @@ def test_Nu_drop():
     assert isclose(Nu_s, Nu_d, rtol=5e-2)
 
 
-def test_Nu_flatplate():
+def test_Nu_plate():
     "Incropera, Example 7.1,  p. 360"
     Pr = 0.687
     Re = 9597
-    Nu = Nu_flatplate(Re, Pr)
+    Nu = Nu_plate(Re, Pr)
     assert isclose(Nu, 57.4, rtol=1e-2)
     Re = 6.84e5
-    Nu = Nu_flatplate(Re, Pr)
+    Nu = Nu_plate(Re, Pr)
     assert isclose(Nu, 753, rtol=1e-2)
 
 
@@ -124,3 +124,26 @@ def test_Nu_sphere_free():
     Pr = 0.7
     Nu = Nu_sphere_free(Ra, Pr)
     assert isclose(Nu, 23.5, rtol=0.01)
+
+
+def test_Nu_plate_free():
+    # Vertical: Incropera, Example 9.2,  p. 395
+    Ra = 1.813e9
+    Pr = 0.69
+    Nu = Nu_plate_free('vertical', Ra, Pr)
+    assert isclose(Nu, 147, rtol=0.01)
+    with pytest.raises(ValueError):
+        _ = Nu_plate_free('vertical', Ra)
+    # Horizontal: Incropera, Example 9.3,  p. 499
+    Ra = 1.38e8
+    Nu_top = Nu_plate_free('horizontal-upper-heated', Ra)
+    Nu_bottom = Nu_plate_free('horizontal-lower-heated', Ra)
+    assert isclose(Nu_top*0.0265/0.375, 5.47, rtol=0.01)
+    assert isclose(Nu_bottom*0.0265/0.375, 2.07, rtol=0.01)
+    # Horizontal-continuity
+    assert isclose(Nu_plate_free('horizontal-upper-heated', 1e7-1),
+                   Nu_plate_free('horizontal-upper-heated', 1e7+1),
+                   rtol=0.10)
+    # Overall
+    with pytest.raises(ValueError):
+        _ = Nu_plate_free('X', 1e8, 1)
