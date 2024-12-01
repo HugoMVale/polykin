@@ -6,7 +6,7 @@ from numpy import isclose
 
 from polykin.transport.diffusion import (profile_semiinf, profile_sheet,
                                          profile_sphere, uptake_sheet,
-                                         uptake_sphere)
+                                         uptake_sphere, diffusivity_composite)
 
 
 def test_profile_semiinf():
@@ -63,3 +63,11 @@ def test_uptake_sphere():
     # "Seeder and Henley, p. 123"
     assert isclose(1-uptake_sphere(t=0.65, a=1, D=1), 0.001, rtol=1e-2)
     assert isclose(1-uptake_sphere(t=0.11, a=1, D=1), 0.2, atol=0.01)
+
+
+def test_diffusivity_composite():
+    for Dd, Dc in [(1, 2), (2, 1)]:
+        assert isclose(diffusivity_composite(Dd, Dc, fd=0), Dc)
+        assert isclose(diffusivity_composite(Dd, Dc, fd=1), Dd)
+        assert isclose(diffusivity_composite(Dd, Dc, fd=0.5),
+                       (Dd+Dc)/2, rtol=0.1)

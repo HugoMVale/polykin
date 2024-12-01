@@ -12,7 +12,9 @@ __all__ = ['profile_semiinf',
            'profile_sheet',
            'profile_sphere',
            'uptake_sheet',
-           'uptake_sphere']
+           'uptake_sphere',
+           'diffusivity_composite',
+           ]
 
 
 def profile_semiinf(t: float,
@@ -350,3 +352,57 @@ def uptake_sphere(t: float,
         result = 1 - (6/pi**2)*S
 
     return result
+
+
+def diffusivity_composite(Dd: float,
+                          Dc: float,
+                          fd: float,
+                          sphericity: float = 1) -> float:
+    r"""Calculate the effective diffusivity of a composite medium containing a 
+    dispersed particle phase.
+
+    The effective diffusivity $D$ is calculated using a generalization of
+    Maxwell's analytical solution for spherical particles:
+
+    $$ \frac{D - D_c}{D + x D_c} = \phi_d \frac{D_d - D_c}{D_d + x D_c} $$
+
+    with $x = 3/s - 1$. Here, $D_d$ is the diffusivity of the dispersed phase, 
+    $D_c$ is the diffusivity of the continuous phase, $\phi_d$ is the volume
+    fraction of the dispersed phase, and $s$ is the sphericity of the dispersed
+    particles.
+
+    **References**
+
+    * J. Crank, "The mathematics of diffusion", Oxford University Press, 1975,
+      p. 271.
+
+    Parameters
+    ----------
+    Dd : float
+        Diffusity of the dispersed phase.
+    Dc : float
+        Diffusity of the continuous phase.
+    fd : float
+        Volume fraction of the dispersed phase.
+    sphericity : float
+        Sphericity of the particles. Ratio of the surface area of a sphere of 
+        volume equal to that of the particle, to the surface area of the
+        particle.
+
+    Returns
+    -------
+    float
+        Effective diffusivity of the composite medium.
+
+    Examples
+    --------
+    Determine the effective diffusivity of a composite medium containing 5 vol%
+    of spherical particles with a diffusivity of 1e-10 m²/s. The diffusivity
+    of the continuous phase is 1e-11 m²/s.
+    >>> from polykin.transport.diffusion import diffusivity_composite
+    >>> diffusivity_composite(Dd=1e-10, Dc=1e-11, fd=0.05)
+    1.1168831168831167e-11
+    """
+    x = 3/sphericity - 1
+    Y = (Dd - Dc)/(Dd + x*Dc)
+    return Dc*(1 + fd*Y*x)/(1 - fd*Y)
