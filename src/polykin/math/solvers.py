@@ -10,7 +10,7 @@ from numba import njit
 
 from polykin.math.derivatives import derivative_complex
 
-__all__ = ['root_newton', 'root_secant', 'ode_rk']
+__all__ = ['fzero_newton', 'fzero_secant', 'ode_rk']
 
 
 @dataclass
@@ -34,12 +34,12 @@ class RootResult():
     f: float
 
 
-def root_newton(f: Callable[[complex], complex],
-                x0: float,
-                xtol: float = 1e-6,
-                ftol: float = 1e-6,
-                maxiter: int = 50
-                ) -> RootResult:
+def fzero_newton(f: Callable[[complex], complex],
+                 x0: float,
+                 xtol: float = 1e-6,
+                 ftol: float = 1e-6,
+                 maxiter: int = 50
+                 ) -> RootResult:
     r"""Find the root of a scalar function using the newton method.
 
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-newton.html),
@@ -72,11 +72,11 @@ def root_newton(f: Callable[[complex], complex],
     Examples
     --------
     Find a root of the Flory-Huggins equation.
-    >>> from polykin.math import root_newton
+    >>> from polykin.math import fzero_newton
     >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
-    >>> sol = root_newton(f, 0.3)
+    >>> sol = fzero_newton(f, 0.3)
     >>> print(f"x= {sol.x:.3f}")
     x= 0.213
     """
@@ -99,13 +99,13 @@ def root_newton(f: Callable[[complex], complex],
     return RootResult(success, niter, x0, f0)
 
 
-def root_secant(f: Callable[[float], float],
-                x0: float,
-                x1: float,
-                xtol: float = 1e-6,
-                ftol: float = 1e-6,
-                maxiter: int = 50
-                ) -> RootResult:
+def fzero_secant(f: Callable[[float], float],
+                 x0: float,
+                 x1: float,
+                 xtol: float = 1e-6,
+                 ftol: float = 1e-6,
+                 maxiter: int = 50
+                 ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-secant.html),
@@ -137,11 +137,11 @@ def root_secant(f: Callable[[float], float],
     Examples
     --------
     Find a root of the Flory-Huggins equation.
-    >>> from polykin.math import root_secant
+    >>> from polykin.math import fzero_secant
     >>> from math import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
-    >>> sol = root_secant(f, 0.3, 0.31)
+    >>> sol = fzero_secant(f, 0.3, 0.31)
     >>> print(f"x= {sol.x:.3f}")
     x= 0.213
     """

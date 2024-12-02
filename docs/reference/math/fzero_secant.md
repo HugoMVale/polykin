@@ -3,4 +3,4 @@
 ::: polykin.math.solvers
     options:
         members:
-            - root_secant
+            - fzero_secant

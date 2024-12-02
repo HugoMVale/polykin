@@ -3,4 +3,4 @@
 ::: polykin.math.solvers
     options:
         members:
-            - root_newton
+            - fzero_newton
