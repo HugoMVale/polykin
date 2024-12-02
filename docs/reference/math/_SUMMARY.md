@@ -10,4 +10,5 @@
 * [ierfc](ierfc.md)
 * [ode_rk](ode_rk.md)
 * [RootResult](RootResult.md)
+* [roots_xtanx](roots_xtanx.md)
 * [simplify_polyline](simplify_polyline.md)

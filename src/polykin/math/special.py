@@ -2,11 +2,18 @@
 #
 # Copyright Hugo Vale 2024
 
-from numpy import exp, pi, sqrt
+import functools
+
+import numpy as np
+from numpy import arctan, exp, pi, sqrt, tan
 from scipy.special import erfc
 
+from polykin.math import fzero_newton
+from polykin.utils.types import FloatVector
+
 __all__ = ['ierfc',
-           'i2erfc'
+           'i2erfc',
+           'roots_xtanx',
            ]
 
 
@@ -60,3 +67,53 @@ def i2erfc(x: float) -> float:
         return 0.
     else:
         return (erfc(x) - 2*x*ierfc(x))/4
+
+
+@functools.cache
+def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
+    r"""Determine the first `N` roots of the transcendental equation 
+    `x_n*tan(x_n) = a`.
+
+    Parameters
+    ----------
+    a : float
+        Parameter.
+    N : int
+        Number of roots.
+    xtol : float
+        Tolerance, by default 1e-6.
+
+    Returns
+    -------
+    FloatVector
+        Roots of the equation.
+
+    Examples
+    --------
+    Determine the first 4 roots for a=1.
+    >>> roots_xtanx(1.0, 4)
+    array([0.86033361, 3.42561847, 6.43729819, 9.52933441])
+    """
+    result = np.zeros(N)
+
+    if a == 0:
+        for i in range(N):
+            result[i] = i*pi
+    elif a < 1e2:
+        for i in range(N):
+            sol = fzero_newton(f=lambda x: x*tan(x) - a,
+                               x0=pi*(i + 0.5*a/(a+1)),
+                               xtol=xtol)
+            result[i] = sol.x
+    else:
+        for i in range(N):
+            x0 = i*pi
+            e = 1.0
+            for _ in range(0, 10):
+                e_new = arctan(a/(x0 + e))
+                if abs(e_new - e) < xtol:
+                    break
+                e = e_new
+            result[i] = x0 + e
+
+    return result
