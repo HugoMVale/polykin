@@ -92,8 +92,9 @@ def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
     Examples
     --------
     Determine the first 4 roots for a=1.
+    >>> from polykin.math import roots_xtanx
     >>> roots_xtanx(1.0, 4)
-    array([0.86033361, 3.42561847, 6.43729819, 9.52933441])
+    array([0.86033359, 3.42561846, 6.43729818, 9.52933441])
     """
     result = np.zeros(N)
 
@@ -146,8 +147,9 @@ def roots_xcotx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
     Examples
     --------
     Determine the first 4 roots for a=1.
-    >>> roots_xtanx(1.0, 4)
-    array([0.86033361, 3.42561847, 6.43729819, 9.52933441])
+    >>> from polykin.math import roots_xcotx
+    >>> roots_xcotx(2.0, 4)
+    array([ 2.0287575 ,  4.91318033,  7.97866578, 11.08553772])
     """
     result = np.zeros(N)
 
