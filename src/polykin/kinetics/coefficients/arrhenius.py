@@ -9,7 +9,7 @@ from typing import Union
 import numpy as np
 from numpy import exp
 
-from polykin.kinetics.base import KineticCoefficientT
+from polykin.kinetics.coefficients.base import KineticCoefficientT
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes

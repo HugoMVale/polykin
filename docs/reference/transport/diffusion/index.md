@@ -1,4 +1,4 @@
-# Diffusion (polykin.transport.diffusion)
+# Transient Diffusion (polykin.transport.diffusion)
 
 ## Overview
 

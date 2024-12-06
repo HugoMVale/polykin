@@ -5,10 +5,10 @@
 import pytest
 from numpy import isclose
 
-from polykin.transport.heat import (Nu_cylinder, Nu_cylinder_bank,
-                                    Nu_cylinder_free, Nu_drop, Nu_plate,
-                                    Nu_plate_free, Nu_sphere, Nu_sphere_free,
-                                    Nu_tank, Nu_tube)
+from polykin.transport.hmt import (Nu_cylinder, Nu_cylinder_bank,
+                                   Nu_cylinder_free, Nu_drop, Nu_plate,
+                                   Nu_plate_free, Nu_sphere, Nu_sphere_free,
+                                   Nu_tank, Nu_tube)
 
 
 def test_Nu_tube():

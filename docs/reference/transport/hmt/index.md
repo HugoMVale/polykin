@@ -1,4 +1,4 @@
-# Heat Transfer (polykin.transport.heat)
+# Heat & Mass Transfer (polykin.transport.hmt)
 
 ## Overview
 

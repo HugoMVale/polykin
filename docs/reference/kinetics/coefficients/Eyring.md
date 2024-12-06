@@ -1,6 +1,6 @@
 # polykin.kinetics
 
-::: polykin.kinetics.eyring
+::: polykin.kinetics.coefficients.eyring
     options:
         members:
             - Eyring

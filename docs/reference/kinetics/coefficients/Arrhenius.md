@@ -1,6 +1,6 @@
 # polykin.kinetics
 
-::: polykin.kinetics.arrhenius
+::: polykin.kinetics.coefficients.arrhenius
     options:
         members:
             - Arrhenius

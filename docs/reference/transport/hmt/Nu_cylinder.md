@@ -1,6 +1,6 @@
-# polykin.transport.heat
+# polykin.transport.hmt
 
-::: polykin.transport.heat
+::: polykin.transport.hmt
     options:
         members:
             - Nu_cylinder

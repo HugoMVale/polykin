@@ -4,4 +4,4 @@
 
 from .diffusion import *
 from .flow import *
-from .heat import *
+from .hmt import *
