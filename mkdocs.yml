@@ -174,9 +174,9 @@ nav:
           - Activity Coeff. Models: reference/thermo/acm/
           - Equations of State: reference/thermo/eos/
       - Transport Phenomena:
-          - Diffusion: reference/transport/diffusion/
           - Fluid Flow: reference/transport/flow/
           - Heat & Mass Transfer: reference/transport/heat/
+          - Transient Diffusion: reference/transport/diffusion/
       - Step-Growth Polymerization:
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - Utils:

@@ -5,22 +5,24 @@
 from numpy import cos, exp, pi, sin, sqrt
 from scipy.special import erfc
 
-from polykin.math.special import ierfc
+from polykin.math.special import ierfc, roots_xcotx, roots_xtanx
 from polykin.utils.math import eps
 
-__all__ = ['profile_semiinf',
-           'profile_sheet',
-           'profile_sphere',
-           'uptake_sheet',
-           'uptake_sphere',
+__all__ = ['profile_constc_semiinf',
+           'profile_constc_sheet',
+           'profile_constc_sphere',
+           'uptake_constc_sheet',
+           'uptake_constc_sphere',
            'diffusivity_composite',
+           'uptake_convection_sheet',
+           'uptake_convection_sphere',
            ]
 
 
-def profile_semiinf(t: float,
-                    x: float,
-                    D: float
-                    ) -> float:
+def profile_constc_semiinf(t: float,
+                           x: float,
+                           D: float
+                           ) -> float:
     r"""Concentration profile for transient diffusion in semi-infinite medium. 
 
     For a semi-infinite medium, where the concentration is initially $C_0$
@@ -56,18 +58,18 @@ def profile_semiinf(t: float,
     --------
     Determine the fractional concentration change after 100 s in a thick polymer
     film (diffusivity: 1e-10 m²/s) at a depth of 0.1 mm below the surface.
-    >>> from polykin.transport.diffusion import profile_semiinf
-    >>> profile_semiinf(t=1e2, x=0.1e-3, D=1e-10)
+    >>> from polykin.transport.diffusion import profile_constc_semiinf
+    >>> profile_constc_semiinf(t=1e2, x=0.1e-3, D=1e-10)
     0.4795001221869535
     """
     return erfc(x/(2*sqrt(D*t)))
 
 
-def profile_sheet(t: float,
-                  x: float,
-                  a: float,
-                  D: float
-                  ) -> float:
+def profile_constc_sheet(t: float,
+                         x: float,
+                         a: float,
+                         D: float
+                         ) -> float:
     r"""Concentration profile for transient diffusion in a plane sheet. 
 
     For a plane sheet of thickness $2a$, with diffusion from _both_ faces, where
@@ -117,8 +119,8 @@ def profile_sheet(t: float,
     --------
     Determine the fractional concentration change after 100 s in a 0.2 mm-thick
     polymer film (diffusivity: 1e-10 m²/s) at its maximum depth.
-    >>> from polykin.transport.diffusion import profile_sheet
-    >>> profile_sheet(t=1e2, x=0., a=0.2e-3, D=1e-10)
+    >>> from polykin.transport.diffusion import profile_constc_sheet
+    >>> profile_constc_sheet(t=1e2, x=0., a=0.2e-3, D=1e-10)
     0.3145542331096479
     """
     N = 4  # Number of terms in series expansion (sufficient for convergence)
@@ -140,11 +142,11 @@ def profile_sheet(t: float,
     return result
 
 
-def profile_sphere(t: float,
-                   r: float,
-                   a: float,
-                   D: float
-                   ) -> float:
+def profile_constc_sphere(t: float,
+                          r: float,
+                          a: float,
+                          D: float
+                          ) -> float:
     r"""Concentration profile for transient diffusion in a sphere. 
 
     For a sphere of radius $a$, where the concentration is initially $C_0$
@@ -189,8 +191,8 @@ def profile_sphere(t: float,
     --------
     Determine the fractional concentration change after 100 s at the center of
     a polymer sphere with a radius of 0.2 mm and a diffusivity of 1e-10 m²/s.
-    >>> from polykin.transport.diffusion import profile_sphere
-    >>> profile_sphere(t=100., r=0., a=0.2e-3, D=1e-10)
+    >>> from polykin.transport.diffusion import profile_constc_sphere
+    >>> profile_constc_sphere(t=100., r=0., a=0.2e-3, D=1e-10)
     0.8304935009764247
     """
     N = 4  # Number of terms in series expansion (sufficient for convergence)
@@ -217,21 +219,19 @@ def profile_sphere(t: float,
     return result
 
 
-def uptake_sheet(t: float,
-                 a: float,
-                 D: float
-                 ) -> float:
-    r"""Fractional mass uptake for transient diffusion in a plane sheet. 
+def uptake_constc_sheet(Fo: float) -> float:
+    r"""Fractional mass uptake for transient diffusion in a plane sheet
+    subjected to a constant surface concentration boundary condition. 
 
     For a plane sheet of thickness $2a$, with diffusion from _both_ faces, where
     the concentration is initially $C_0$ everywhere, and the concentration at
     both surfaces is maintained at $C_s$, the fractional mass uptake is:
 
-    $$ \frac{M_t}{M_{\infty}} = 
+    $$ \frac{\bar{C}-C_0}{C_s -C_0} = 
         1 - \frac{8}{\pi^2} \sum_{n=0}^{\infty}\frac{1}{(2n+1)^2}
-        \exp\left[\frac{-D(2n+1)^2 \pi^2t}{4 a^2}\right] $$
+        \exp\left[-\frac{(2n+1)^2 \pi^2}{4}Fo\right] $$
 
-    where $t$ is the time, and $D$ is the diffusion coefficient.
+    where $Fo = D t/a^2$ is the Fourier number.
 
     !!! tip
 
@@ -245,12 +245,8 @@ def uptake_sheet(t: float,
 
     Parameters
     ----------
-    t : float
-        Time (s).
-    a : float
-        Half thickness of sheet (m).
-    D : float
-        Diffusion coefficient (m²/s).
+    Fo : float
+        Fourier number, $Fo = D t/a^2$.
 
     Returns
     -------
@@ -259,50 +255,53 @@ def uptake_sheet(t: float,
 
     See also
     --------
-    * [`profile_sheet`](profile_sheet.md): related method to determine the
-      concentration profile.
+    * [`profile_constc_sheet`](profile_constc_sheet.md): related method to
+      determine the concentration profile.
+    * [`uptake_convection_sheet`](uptake_convection_sheet.md): related method
+      for surface convection boundary condition.
 
     Examples
     --------
-    Determine the fractional mass uptake after 100 seconds for a polymer solution
-    film with a thickness of 0.2 mm and a diffusion coefficient of 1e-10 m²/s.
-    >>> from polykin.transport.diffusion import uptake_sheet
-    >>> uptake_sheet(t=1e2, a=0.2e-3, D=1e-10)
-    0.562233541762138
+    Determine the fractional mass uptake after 500 seconds for a polymer solution
+    film with a thickness of 0.2 mm and a diffusion coefficient of 1e-11 m²/s.
+    >>> from polykin.transport.diffusion import uptake_constc_sheet
+    >>> t = 5e2   # s
+    >>> a = 2e-4  # m
+    >>> D = 1e-11 # m²/s
+    >>> Fo = D*t/a**2
+    >>> uptake_constc_sheet(Fo)
+    0.39892798988456807
     """
     N = 4  # Number of terms in series expansion (optimal value)
 
-    A = sqrt(D*t)/a
-    if A == 0.:
+    if Fo == 0:
         result = 0.
-    elif A < 0.5:
+    elif Fo < 1/4:
         # Solution for small times
+        A = sqrt(Fo)
         S = sum((-1 if n % 2 else 1) * ierfc(n/A) for n in range(1, N))
         result = 2*A * (1/sqrt(pi) + 2*S)
     else:
         # Solution for normal times
-        B = -D*pi**2*t/(4*a**2)
+        B = -(Fo*pi**2)/4
         S = sum(1/(2*n + 1)**2 * exp(B*(2*n + 1)**2) for n in range(0, N-1))
         result = 1 - (8/pi**2)*S
 
     return result
 
 
-def uptake_sphere(t: float,
-                  a: float,
-                  D: float
-                  ) -> float:
-    r"""Fractional mass uptake for transient diffusion in a sphere. 
+def uptake_constc_sphere(Fo: float) -> float:
+    r"""Fractional mass uptake for transient diffusion in a sphere subjected
+    to a constant surface concentration boundary condition. 
 
     For a sphere of radius $a$, where the concentration is initially $C_0$
     everywhere, and the surface concentration is maintained at $C_s$, the
     fractional mass uptake is:
 
-    $$ \frac{M_t}{M_{\infty}} = 
-        1 - \frac{6}{\pi^2} \sum_{n=1}^{\infty}\frac{1}{n^2}
-        \exp \left( \frac{-D n^2 \pi^2 t}{a^2} \right) $$
+    $$ \frac{\bar{C}-C_0}{C_s -C_0} =
+    1 - \frac{6}{\pi^2}\sum_{n=1}^{\infty}\frac{1}{n^2} \exp (-n^2 \pi^2 Fo) $$
 
-    where $t$ is the time, and $D$ is the diffusion coefficient.
+    where $Fo = D t/a^2$ is the Fourier number.
 
     **References**
 
@@ -311,12 +310,8 @@ def uptake_sphere(t: float,
 
     Parameters
     ----------
-    t : float
-        Time (s).
-    a : float
-        Radius of sphere (m).
-    D : float
-        Diffusion coefficient (m²/s).
+    Fo : float
+        Fourier number, $Fo = D t/a^2$.
 
     Returns
     -------
@@ -325,33 +320,172 @@ def uptake_sphere(t: float,
 
     See also
     --------
-    * [`profile_sphere`](profile_sphere.md): related method to determine the
-      concentration profile.
+    * [`profile_constc_sphere`](profile_constc_sphere.md): related method to
+      determine the concentration profile.
+    * [`uptake_convection_sphere`](uptake_convection_sphere.md): related method
+      for surface convection boundary condition.
 
     Examples
     --------
     Determine the fractional mass uptake after 100 seconds for a polymer sphere
-    with a radius of 0.2 mm and a diffusion coefficient of 1e-10 m²/s.
-    >>> from polykin.transport.diffusion import uptake_sphere
-    >>> uptake_sphere(t=1e2, a=0.2e-3, D=1e-10)
-    0.9484368978658284
+    with a radius of 0.1 mm and a diffusion coefficient of 1e-11 m²/s.
+    >>> from polykin.transport.diffusion import uptake_constc_sphere
+    >>> t = 1e2   # s
+    >>> a = 1e-4  # m
+    >>> D = 1e-11 # m²/s
+    >>> Fo = D*t/a**2
+    >>> uptake_constc_sphere(Fo)
+    0.7704787380259631
     """
     N = 4  # Number of terms in series expansion (optimal value)
 
-    A = sqrt(D*t)/a
-    if A == 0.:
+    if Fo == 0:
         result = 0.
-    elif A < 0.5:
+    elif Fo < 1/4:
         # Solution for small times
+        A = sqrt(Fo)
         S = sum(ierfc(n/A) for n in range(1, N))
-        result = 6*A * (1/sqrt(pi) + 2*S) - 3*A**2
+        result = 6*A * (1/sqrt(pi) + 2*S) - 3*Fo
     else:
         # Solution for normal times
-        B = -D*pi**2*t/a**2
+        B = -Fo*pi**2
         S = sum(1/n**2 * exp(B*n**2) for n in range(1, N))
         result = 1 - (6/pi**2)*S
 
     return result
+
+
+def uptake_convection_sheet(Fo: float, Bi: float) -> float:
+    r"""Fractional mass uptake for transient diffusion in a plane sheet
+    subjected to a surface convection boundary condition. 
+
+    For a plane sheet of thickness $2a$, with diffusion from _both_ faces,
+    where the concentration is initially $C_0$ everywhere, and the flux at the
+    surface is:
+
+    $$ -D \left.\frac{\partial C}{\partial x} \right|_{x=a}=k(C(a,t)-C_{\infty}) $$
+
+    the fractional mass uptake is:
+
+    $$ \frac{\bar{C}-C_0}{C_{\infty} -C_0} =
+        1 - 2 Bi^2 \sum_{n=1}^{\infty}\frac{1}{\beta_n^2[\beta_n^2+Bi(Bi+1)]}
+        \exp (-\beta_n^2 Fo) $$
+
+    where $Fo = D t/a^2$ is the Fourier number, $Bi = k a/D$ is the Biot
+    number, and $\beta_n$ are the positive roots of the transcendental equation 
+    $\beta \tan(\beta) = Bi$.
+
+    **References**
+
+    * J. Crank, "The mathematics of diffusion", Oxford University Press, 1975,
+      p. 60.
+
+    Parameters
+    ----------
+    Fo : float
+        Fourier number, $D t/a^2$.
+    Bi : float
+        Biot number, $k a/D$.
+
+    Returns
+    -------
+    float
+        Fractional mass uptake.
+
+    See also
+    --------
+    * [`uptake_constc_sheet`](uptake_constc_sheet.md): related method for
+      constant surface concentration boundary condition.
+
+    Examples
+    --------
+    Determine the fractional mass uptake after 500 seconds for a polymer solution
+    film with a thickness of 0.2 mm, a diffusion coefficient of 1e-11 m²/s, and
+    an external mass transfer coefficient of 1e-6 m/s.
+    >>> from polykin.transport.diffusion import uptake_convection_sheet
+    >>> t = 5e2   # s
+    >>> a = 2e-4  # m
+    >>> D = 1e-11 # m²/s
+    >>> k = 1e-6  # m/s
+    >>> Fo = D*t/a**2
+    >>> Bi = k*a/D
+    >>> uptake_convection_sheet(Fo, Bi)
+    0.3528861780625614
+    """
+    if Fo and Bi:
+        N = 4  # Number of terms in series expansion (optimal value)
+        x = roots_xtanx(Bi, N)
+        b2 = x**2
+        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n]+Bi*(Bi+1))) for n in range(0, N))
+        return 1 - (2*Bi**2)*S
+    else:
+        return 0
+
+
+def uptake_convection_sphere(Fo: float, Bi: float) -> float:
+    r"""Fractional mass uptake for transient diffusion in a sphere subjected
+    to a surface convection boundary condition. 
+
+    For a sphere of radius $a$, where the concentration is initially $C_0$
+    everywhere, and the flux at the surface is:
+
+    $$ -D \left.\frac{\partial C}{\partial r} \right|_{r=a}=k(C(a,t)-C_{\infty}) $$
+
+    the fractional mass uptake is:
+
+    $$ \frac{\bar{C}-C_0}{C_{\infty} -C_0} = 
+        1 - 6 Bi^2 \sum_{n=1}^{\infty}\frac{1}{\beta_n^2[\beta_n^2+Bi(Bi-1)]}
+        \exp (-\beta_n^2 Fo) $$
+
+    where $Fo = D t/a^2$ is the Fourier number, $Bi = k a/D$ is the Biot
+    number, and $\beta_n$ are the positive roots of the transcendental equation 
+    $1 - \beta \cot(\beta) = Bi$.
+
+    **References**
+
+    * J. Crank, "The mathematics of diffusion", Oxford University Press, 1975,
+      p. 96.
+
+    Parameters
+    ----------
+    Fo : float
+        Fourier number, $D t/a^2$.
+    Bi : float
+        Biot number, $k a/D$.
+
+    Returns
+    -------
+    float
+        Fractional mass uptake.
+
+    See also
+    --------
+    * [`uptake_constc_sphere`](uptake_constc_sphere.md): related method for
+      constant surface concentration boundary condition.
+
+    Examples
+    --------
+    Determine the fractional mass uptake after 100 seconds for a polymer sphere
+    with a radius of 0.1 mm, a diffusion coefficient of 1e-11 m²/s, and an
+    external mass transfer coefficient of 1e-6 m/s.
+    >>> from polykin.transport.diffusion import uptake_convection_sphere
+    >>> t = 1e2   # s
+    >>> a = 1e-4  # m
+    >>> D = 1e-11 # m²/s
+    >>> k = 1e-6  # m/s
+    >>> Fo = D*t/a**2
+    >>> Bi = k*a/D
+    >>> uptake_convection_sphere(Fo, Bi)
+    0.6539883120664335
+    """
+    if Fo and Bi:
+        N = 4  # Number of terms in series expansion (optimal value)
+        x = roots_xcotx(Bi, N)
+        b2 = x**2
+        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n]+Bi*(Bi-1))) for n in range(0, N))
+        return 1 - (6*Bi**2)*S
+    else:
+        return 0
 
 
 def diffusivity_composite(Dd: float,

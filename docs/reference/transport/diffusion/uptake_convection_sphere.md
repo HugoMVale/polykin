@@ -3,4 +3,4 @@
 ::: polykin.transport.diffusion
     options:
         members:
-            - profile_semiinf
+            - uptake_convection_sphere

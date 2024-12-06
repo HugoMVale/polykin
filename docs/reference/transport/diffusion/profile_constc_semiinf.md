@@ -3,8 +3,4 @@
 ::: polykin.transport.diffusion
     options:
         members:
-            - uptake_sphere
-
-### Graphical Illustration
-
-![uptake_sphere](uptake_sphere.svg)
+            - profile_constc_semiinf

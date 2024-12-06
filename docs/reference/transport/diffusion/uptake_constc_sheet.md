@@ -3,8 +3,8 @@
 ::: polykin.transport.diffusion
     options:
         members:
-            - uptake_sheet
+            - uptake_constc_sheet
 
 ### Graphical Illustration
 
-![uptake_sheet](uptake_sheet.svg)
+![uptake_constc_sheet](uptake_constc_sheet.svg)
