@@ -15,6 +15,7 @@ __all__ = ['Nu_tube',
            'Nu_cylinder_bank',
            'Nu_cylinder_free',
            'Nu_sphere',
+           'Nu_sphere_free',
            'Nu_drop',
            'Nu_plate',
            'Nu_plate_free',
@@ -86,7 +87,7 @@ def Nu_tube(Re: float,
     --------
     Estimate the internal heat transfer coefficient for water flowing at 2 m/s
     through a long smooth tube with an internal diameter of 25 mm.
-    >>> from polykin.transport.heat import Nu_tube
+    >>> from polykin.transport import Nu_tube
     >>> rho = 1e3  # kg/m³
     >>> mu = 1e-3  # Pa.s
     >>> cp = 4.2e3 # J/kg/K
@@ -197,7 +198,7 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     --------
     Estimate the external heat transfer coefficient for water flowing at 2 m/s
     across a DN25 pipe.
-    >>> from polykin.transport.heat import Nu_cylinder
+    >>> from polykin.transport import Nu_cylinder
     >>> rho = 1e3   # kg/m³
     >>> mu = 1e-3   # Pa.s
     >>> cp = 4.2e3  # J/kg/K
@@ -261,7 +262,7 @@ def Nu_cylinder_free(Ra: float, Pr: float) -> float:
     Estimate the external heat transfer coefficient for a DN25 tube with a
     surface temperature of 330 K immersed in water with a bulk temperature of
     290 K.
-    >>> from polykin.transport.heat import Nu_cylinder_free
+    >>> from polykin.transport import Nu_cylinder_free
     >>> rho = 1.0e3   # kg/m³ (properties at 310 K)
     >>> mu = 0.70e-3  # Pa.s
     >>> cp = 4.2e3    # J/kg/K
@@ -378,7 +379,7 @@ def Nu_drop(Re: float, Pr: float) -> float:
     Examples
     --------
     Estimate the Nusselt number for a 1 mm styrene droplet falling in air.
-    >>> from polykin.transport.heat import Nu_drop
+    >>> from polykin.transport import Nu_drop
     >>> D = 1e-3    # m
     >>> vt = 3.8    # m/s (from vt_sphere)
     >>> rho = 1.2   # kg/m³
@@ -454,7 +455,7 @@ def Nu_tank(
     Estimate the internal heat transfer coefficient for a 2-m diameter stirred
     tank equiped with a HE3 impeller operated at 120 rpm. Assume water properties
     and default geometry.
-    >>> from polykin.transport.heat import Nu_tank
+    >>> from polykin.transport import Nu_tank
     >>> T = 2.     # m
     >>> D = T/3    # m
     >>> rho = 1e3  # kg/m³
@@ -737,7 +738,7 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     Estimate the external heat transfer coefficient for a 50 mm sphere with a
     surface temperature of 330 K immersed in water with a bulk temperature of
     290 K.
-    >>> from polykin.transport.heat import Nu_sphere_free
+    >>> from polykin.transport import Nu_sphere_free
     >>> rho = 1.0e3   # kg/m³
     >>> mu = 0.70e-3  # Pa.s
     >>> cp = 4.2e3    # J/kg/K
@@ -837,7 +838,7 @@ def Nu_plate_free(orientation: Literal['vertical',
     Estimate the heat transfer coefficient between the outer surface of a
     vertical tank (D=2 m, H=3 m) with a surface temperature of 310 K and
     quiescent air at 290 K.
-    >>> from polykin.transport.heat import Nu_plate_free
+    >>> from polykin.transport import Nu_plate_free
     >>> L = 3.0           # m (characteristic length is tank height)
     >>> Ts, Tb = 310, 290 # K
     >>> Tf = (Ts + Tb)/2  # K (film temperature)

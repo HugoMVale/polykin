@@ -54,7 +54,7 @@ def DP_Hagen_Poiseuille(Q: float,
     --------
     Calculate the pressure drop for a polymer solution (viscosity: 10 Pa·s)
     flowing at 1 L/s through 5 m of smooth pipe with a 50 mm internal diameter. 
-    >>> from polykin.transport.flow import DP_Hagen_Poiseuille
+    >>> from polykin.transport import DP_Hagen_Poiseuille
     >>> from math import pi
     >>> Q = 1e-3  # m³/s
     >>> D = 50e-3 # m
@@ -123,7 +123,7 @@ def DP_Darcy_Weisbach(v: float,
     --------
     Calculate the pressure drop for water flowing at 2 m/s through 500 m of PVC
     pipe with an internal diameter of 25 mm.
-    >>> from polykin.transport.flow import DP_Darcy_Weisbach, fD_Haaland
+    >>> from polykin.transport import DP_Darcy_Weisbach, fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> L = 5e2   # m
@@ -246,7 +246,7 @@ def DP_packed_bed(G: float,
     --------
     Calculate the pressure drop in a packed bed reactor under the conditions
     specified below.
-    >>> from polykin.transport.flow import DP_packed_bed
+    >>> from polykin.transport import DP_packed_bed
     >>> DP = DP_packed_bed(G=50., L=2., Dp=1e-2, eps=0.45, rho=800., mu=0.01)
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 1.4e+04 Pa
@@ -294,7 +294,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     --------
     Calculate the friction factor for water flowing at 2 m/s through a PVC pipe
     with an internal diameter of 25 mm.
-    >>> from polykin.transport.flow import fD_Colebrook
+    >>> from polykin.transport import fD_Colebrook
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> D = 25e-3 # m
@@ -353,7 +353,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     --------
     Calculate the friction factor for water flowing at 2 m/s through a PVC pipe
     with an internal diameter of 25 mm.
-    >>> from polykin.transport.flow import fD_Haaland
+    >>> from polykin.transport import fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> D = 25e-3 # m
@@ -403,7 +403,7 @@ def Cd_sphere(Re: float) -> float:
     Examples
     --------
     Calculate the drag coefficient for a tennis ball traveling at 30 m/s.
-    >>> from polykin.transport.flow import Cd_sphere
+    >>> from polykin.transport import Cd_sphere
     >>> D = 6.7e-2  # m
     >>> mu = 1.6e-5 # Pa·s
     >>> rho = 1.2   # kg/m³
@@ -455,7 +455,7 @@ def vt_Stokes(D: float,
     Examples
     --------
     Calculate the terminal velocity of a 500 nm PVC particle in water.
-    >>> from polykin.transport.flow import vt_Stokes
+    >>> from polykin.transport import vt_Stokes
     >>> vt = vt_Stokes(500e-9, 1.4e3, 1e3, 1e-3)
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
@@ -519,7 +519,7 @@ def vt_sphere(D: float,
     Examples
     --------
     Calculate the terminal velocity of a 1 mm styrene droplet in air.
-    >>> from polykin.transport.flow import vt_sphere
+    >>> from polykin.transport import vt_sphere
     >>> vt = vt_sphere(1e-3, 910., 1.2, 1.6e-5)
     >>> print(f"vt = {vt:.1f} m/s")
     vt = 3.8 m/s
