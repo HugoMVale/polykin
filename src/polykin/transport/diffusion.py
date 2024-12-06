@@ -13,9 +13,9 @@ __all__ = ['profile_constc_semiinf',
            'profile_constc_sphere',
            'uptake_constc_sheet',
            'uptake_constc_sphere',
-           'diffusivity_composite',
            'uptake_convection_sheet',
            'uptake_convection_sphere',
+           'diffusivity_composite',
            ]
 
 
@@ -65,12 +65,9 @@ def profile_constc_semiinf(t: float,
     return erfc(x/(2*sqrt(D*t)))
 
 
-def profile_constc_sheet(t: float,
-                         x: float,
-                         a: float,
-                         D: float
-                         ) -> float:
-    r"""Concentration profile for transient diffusion in a plane sheet. 
+def profile_constc_sheet(Fo: float, xstar: float) -> float:
+    r"""Concentration profile for transient diffusion in a plane sheet subjected
+    to a constant surface concentration boundary condition.
 
     For a plane sheet of thickness $2a$, with diffusion from _both_ faces, where
     the concentration is initially $C_0$ everywhere, and the concentration at
@@ -78,11 +75,11 @@ def profile_constc_sheet(t: float,
 
     $$ \frac{C - C_0}{C_s - C_0} = 
         1-\frac{4}{\pi}\sum_{n=0}^{\infty}\frac{(-1)^n}{2n+1}
-        \exp\left[-\frac{D \pi^2 t}{4 a^2} (2n+1)^2 \right] 
-        \cos\left[ \frac{\pi x}{2a} (2n+1) \right] $$
+        \exp\left[-\frac{\pi^2 Fo}{4} (2n+1)^2 \right] 
+        \cos\left[ \frac{\pi x^*}{2} (2n+1) \right] $$
 
-    where $x$ is the distance from the center of the sheet, $t$ is the time,
-    and $D$ is the diffusion coefficient.
+    where $Fo = D t/a^2$ is the Fourier number, and $x^*=x/a$ is the normalized
+    distance from the center of the sheet.
 
     !!! tip
 
@@ -96,14 +93,10 @@ def profile_constc_sheet(t: float,
 
     Parameters
     ----------
-    t : float
-        Time (s).
-    x : float
-        Distance from the center or sealed face (m).
-    a : float
-        Half thickness of sheet (m).
-    D : float
-        Diffusion coefficient (m²/s).
+    Fo : float
+        Fourier number, $D t/a^2$.
+    xstar : float
+        Normalized distance from the center or sealed face, $r/a$.
 
     Returns
     -------
@@ -112,29 +105,35 @@ def profile_constc_sheet(t: float,
 
     See also
     --------
-    * [`uptake_sheet`](uptake_sheet.md): related method to determine the mass
-      uptake.
+    * [`uptake_constc_sheet`](uptake_constc_sheet.md): related method to
+      determine the mass uptake.
 
     Examples
     --------
     Determine the fractional concentration change after 100 s in a 0.2 mm-thick
     polymer film (diffusivity: 1e-10 m²/s) at its maximum depth.
     >>> from polykin.transport.diffusion import profile_constc_sheet
-    >>> profile_constc_sheet(t=1e2, x=0., a=0.2e-3, D=1e-10)
-    0.3145542331096479
+    >>> t = 1e2    # s
+    >>> a = 0.2e-3 # m
+    >>> D = 1e-10  # m²/s
+    >>> x = 0.     # m
+    >>> Fo = D*t/a**2
+    >>> xstar = x/a
+    >>> profile_constc_sheet(Fo, xstar)
+    0.3145542331096478
     """
     N = 4  # Number of terms in series expansion (sufficient for convergence)
 
-    A = 2*sqrt(D*t)/a
-    if A < 1.:
+    if Fo < 1/4:
         # Solution for small times
-        S = sum((-1 if n % 2 else 1) * (erfc(((2*n + 1) - x/a)/A) + erfc(((2*n + 1) + x/a)/A))
+        A = 2*sqrt(Fo)
+        S = sum((-1 if n % 2 else 1) * (erfc(((2*n + 1) - xstar)/A) + erfc(((2*n + 1) + xstar)/A))
                 for n in range(0, N))
         result = S
     else:
         # Solution for normal times
-        B = -D*pi**2*t/(4*a**2)
-        C = pi*x/(2*a)
+        B = -(pi**2 / 4)*Fo
+        C = (pi/2)*xstar
         S = sum((-1 if n % 2 else 1) / (2*n + 1) * exp(B*(2*n + 1)**2) * cos(C*(2*n + 1))
                 for n in range(0, N))
         result = 1 - (4/pi)*S
@@ -142,24 +141,20 @@ def profile_constc_sheet(t: float,
     return result
 
 
-def profile_constc_sphere(t: float,
-                          r: float,
-                          a: float,
-                          D: float
-                          ) -> float:
-    r"""Concentration profile for transient diffusion in a sphere. 
+def profile_constc_sphere(Fo: float, rstar: float) -> float:
+    r"""Concentration profile for transient diffusion in a sphere subjected
+    to a constant surface concentration boundary condition. 
 
     For a sphere of radius $a$, where the concentration is initially $C_0$
     everywhere, and the surface concentration is maintained at $C_s$, the
     normalized concentration is:
 
     $$ \frac{C - C_0}{C_s - C_0} =
-        1 + \frac{2 a}{\pi r} \sum_{n=1}^\infty \frac{(-1)^n}{n} 
-        \exp \left(-\frac{D n^2 \pi^2 t}{a^2} \right)
-        \sin \left(\frac{n \pi r}{a} \right) $$
+        1 + \frac{2}{\pi r^*} \sum_{n=1}^\infty \frac{(-1)^n}{n} 
+        \exp(- n^2 \pi^2 Fo) \sin (n \pi r^*) $$
 
-    where $r$ is the radial distance from the center of the sphere, $t$ is the
-    time, and $D$ is the diffusion coefficient.
+    where $Fo = D t/a^2$ is the Fourier number, and $r^*=r/a$ is the normalized
+    radial distance from the center of the sphere.
 
     **References**
 
@@ -168,14 +163,10 @@ def profile_constc_sphere(t: float,
 
     Parameters
     ----------
-    t : float
-        Time (s).
-    r : float
-        Radial distance from center of sphere (m).
-    a : float
-        Radius of sphere (m).
-    D : float
-        Diffusion coefficient (m²/s).
+    Fo : float
+        Fourier number, $D t/a^2$.
+    rstar : float
+        Normalized radial distance from the center of the sphere, $r/a$.
 
     Returns
     -------
@@ -184,37 +175,43 @@ def profile_constc_sphere(t: float,
 
     See also
     --------
-    * [`uptake_sphere`](uptake_sphere.md): related method to determine the mass
-      uptake.
+    * [`uptake_constc_sphere`](uptake_constc_sphere.md): related method to
+      determine the mass uptake.
 
     Examples
     --------
     Determine the fractional concentration change after 100 s at the center of
     a polymer sphere with a radius of 0.2 mm and a diffusivity of 1e-10 m²/s.
     >>> from polykin.transport.diffusion import profile_constc_sphere
-    >>> profile_constc_sphere(t=100., r=0., a=0.2e-3, D=1e-10)
-    0.8304935009764247
+    >>> t = 1e2    # s
+    >>> a = 0.2e-3 # m
+    >>> r = 0      # m
+    >>> D = 1e-10  # m²/s
+    >>> Fo = D*t/a**2
+    >>> rstar = r/a
+    >>> profile_constc_sphere(Fo, rstar)
+    0.8304935009764246
     """
     N = 4  # Number of terms in series expansion (sufficient for convergence)
 
-    A = 2*sqrt(D*t)/a
-    B = -D*pi**2*t/a**2
-    C = r/a
-    if abs(C) < eps:
+    if abs(rstar) < eps:
         # Solution for particular case r->0
+        B = -(pi**2)*Fo
         S = sum((-1 if n % 2 else 1) * exp(B*n**2) for n in range(1, N))
         result = 1 + 2*S
     else:
-        if A < 1.:
+        if Fo < 1/4:
             # Solution for small times
-            S = sum(erfc(((2*n + 1) - C)/A) - erfc(((2*n + 1) + C)/A)
+            A = 2*sqrt(Fo)
+            S = sum(erfc(((2*n + 1) - rstar)/A) - erfc(((2*n + 1) + rstar)/A)
                     for n in range(0, N))
-            result = S/C
+            result = S/rstar
         else:
             # Solution for normal times
-            S = sum((-1 if n % 2 else 1) / n * exp(B*n**2) * sin(C*pi*n)
+            B = -(pi**2)*Fo
+            S = sum((-1 if n % 2 else 1) / n * exp(B*n**2) * sin(rstar*pi*n)
                     for n in range(1, N))
-            result = 1 + (2/(pi*C))*S
+            result = 1 + (2/(pi*rstar))*S
 
     return result
 
@@ -246,7 +243,7 @@ def uptake_constc_sheet(Fo: float) -> float:
     Parameters
     ----------
     Fo : float
-        Fourier number, $Fo = D t/a^2$.
+        Fourier number, $D t/a^2$.
 
     Returns
     -------
@@ -311,7 +308,7 @@ def uptake_constc_sphere(Fo: float) -> float:
     Parameters
     ----------
     Fo : float
-        Fourier number, $Fo = D t/a^2$.
+        Fourier number, $D t/a^2$.
 
     Returns
     -------

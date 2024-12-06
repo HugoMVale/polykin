@@ -27,10 +27,10 @@ def test_profile_constc_sheet():
     x = 0.001
     t = 1e3
     q1 = profile_constc_semiinf(t, x, D)
-    q2 = profile_constc_sheet(t, a-x, a, D)
+    q2 = profile_constc_sheet(D*t/a**2, (a-x)/a)
     assert isclose(q1, q2, rtol=1e-8)
     # Long times, read from Fig 4.1 of Crank
-    q = profile_constc_sheet(t=1, x=0.1, a=1, D=1)
+    q = profile_constc_sheet(1, 0.1)
     assert isclose(q, 0.9, atol=0.01)
 
 
@@ -41,15 +41,13 @@ def test_profile_constc_sphere():
     x = 0.0001
     t = 1e3
     q1 = profile_constc_semiinf(t, x, D)
-    q2 = profile_constc_sphere(t, a-x, a, D)
+    q2 = profile_constc_sphere(D*t/a**2, (a-x)/a)
     assert isclose(q1, q2, rtol=1e-3)
     # Long times, read from Fig 6.1 of Crank
-    assert isclose(profile_constc_sphere(
-        t=0.3, r=0.1, a=1, D=1), 0.9, atol=0.01)
+    assert isclose(profile_constc_sphere(0.3, 0.1), 0.9, atol=0.01)
     # Particular case of r=0
-    assert isclose(profile_constc_sphere(t=0.3, r=0, a=1, D=1), 0.9, atol=0.01)
-    assert isclose(profile_constc_sphere(
-        t=0.04, r=0, a=1, D=1), 0.01, atol=0.003)
+    assert isclose(profile_constc_sphere(0.3, 0), 0.9, atol=0.01)
+    assert isclose(profile_constc_sphere(0.04, 0), 0.01, atol=0.003)
 
 
 def test_uptake_constc_sheet():
