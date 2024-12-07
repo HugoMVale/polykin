@@ -417,7 +417,8 @@ def uptake_convection_sheet(Fo: float, Bi: float) -> float:
         N = 4  # Number of terms in series expansion (optimal value)
         x = roots_xtanx(Bi, N)
         b2 = x**2
-        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n]+Bi*(Bi+1))) for n in range(0, N))
+        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n] + Bi*(Bi + 1)))
+                for n in range(0, N))
         return 1 - (2*Bi**2)*S
     else:
         return 0
@@ -483,7 +484,8 @@ def uptake_convection_sphere(Fo: float, Bi: float) -> float:
         N = 4  # Number of terms in series expansion (optimal value)
         x = roots_xcotx(Bi, N)
         b2 = x**2
-        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n]+Bi*(Bi-1))) for n in range(0, N))
+        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n] + Bi*(Bi - 1)))
+                for n in range(0, N))
         return 1 - (6*Bi**2)*S
     else:
         return 0
