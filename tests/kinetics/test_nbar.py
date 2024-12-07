@@ -4,7 +4,7 @@
 
 from numpy import isclose
 
-from polykin.emulsion.nbar import nbar_Li_Brooks, nbar_Stockmayer_OToole
+from polykin.kinetics import nbar_Li_Brooks, nbar_Stockmayer_OToole
 
 
 def test_nbar_Stockmayer_OToole():

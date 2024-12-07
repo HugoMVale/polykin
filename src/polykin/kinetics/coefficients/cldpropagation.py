@@ -7,9 +7,9 @@ from typing import Literal, Union
 import numpy as np
 from numpy import exp, log
 
-from polykin.kinetics.arrhenius import Arrhenius
-from polykin.kinetics.base import KineticCoefficientCLD
-from polykin.kinetics.eyring import Eyring
+from polykin.kinetics.coefficients.arrhenius import Arrhenius
+from polykin.kinetics.coefficients.base import KineticCoefficientCLD
+from polykin.kinetics.coefficients.eyring import Eyring
 from polykin.utils.tools import (check_bounds, check_type,
                                  convert_check_temperature, custom_repr)
 from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
