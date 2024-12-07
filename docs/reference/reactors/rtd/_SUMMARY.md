@@ -1,4 +1,5 @@
 * [E_cstr](E_cstr.md)
+* [E_dispersion_model](E_dispersion_model.md)
 * [E_laminar_flow](E_laminar_flow.md)
 * [E_tanks_series](E_tanks_series.md)
 * [F_cstr](F_cstr.md)

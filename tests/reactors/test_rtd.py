@@ -53,3 +53,14 @@ def test_F_laminar_flow():
     assert isclose(F_laminar_flow(0.5, 1), 0)
     assert isclose(F_laminar_flow(1, 1), 0.75)
     assert isclose(F_laminar_flow(1e8, 1), 1)
+
+
+def test_E_dispersion_model():
+    for Pe in [10, 100, 100]:
+        assert isclose(E_dispersion_model(0, 1, Pe), 0)
+        assert isclose(E_dispersion_model(1e8, 1, Pe), 0)
+    assert isclose(E_dispersion_model(1, 1, 1/2e-4), 20, rtol=1e-2)
+    assert isclose(E_dispersion_model(1, 1, 1/3.2e-3), 5, rtol=1e-2)
+    assert isclose(E_dispersion_model(1, 1, 1/0.02), 2, atol=5e-2)
+    assert isclose(E_dispersion_model(1, 1.5, 1/0.1), 0.48, atol=0.02)
+    assert isclose(E_dispersion_model(0.5, 1, 1/0.2), 0.48, atol=0.02)
