@@ -124,7 +124,9 @@ def profile_constc_sheet(Fo: float, xstar: float) -> float:
     """
     N = 4  # Number of terms in series expansion (sufficient for convergence)
 
-    if Fo < 1/4:
+    if Fo == 0:
+        result = 0
+    elif Fo < 1/4:
         # Solution for small times
         A = 2*sqrt(Fo)
         S = sum((-1 if n % 2 else 1) * (erfc(((2*n + 1) - xstar)/A) + erfc(((2*n + 1) + xstar)/A))
@@ -200,7 +202,9 @@ def profile_constc_sphere(Fo: float, rstar: float) -> float:
         S = sum((-1 if n % 2 else 1) * exp(B*n**2) for n in range(1, N))
         result = 1 + 2*S
     else:
-        if Fo < 1/4:
+        if Fo == 0:
+            result = 0
+        elif Fo < 1/4:
             # Solution for small times
             A = 2*sqrt(Fo)
             S = sum(erfc(((2*n + 1) - rstar)/A) - erfc(((2*n + 1) + rstar)/A)
@@ -272,7 +276,7 @@ def uptake_constc_sheet(Fo: float) -> float:
     N = 4  # Number of terms in series expansion (optimal value)
 
     if Fo == 0:
-        result = 0.
+        result = 0
     elif Fo < 1/4:
         # Solution for small times
         A = sqrt(Fo)
@@ -337,7 +341,7 @@ def uptake_constc_sphere(Fo: float) -> float:
     N = 4  # Number of terms in series expansion (optimal value)
 
     if Fo == 0:
-        result = 0.
+        result = 0
     elif Fo < 1/4:
         # Solution for small times
         A = sqrt(Fo)
