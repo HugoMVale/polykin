@@ -170,6 +170,8 @@ nav:
           - Thermal Conductivity: reference/properties/thermal_conductivity/
           - Vaporization Enthalpy: reference/properties/vaporization_enthalpy/
           - Viscosity: reference/properties/viscosity/
+      - Reactors:
+          - Residence Time Distributions: reference/reactors/rtd/
       - Thermodynamics:
           #- reference/thermo/index.md
           - Activity Coeff. Models: reference/thermo/acm/
