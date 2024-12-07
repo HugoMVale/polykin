@@ -3,4 +3,4 @@
 ::: polykin.reactors.rtd
     options:
         members:
-            - cstr_cumulative
+            - E_laminar_flow

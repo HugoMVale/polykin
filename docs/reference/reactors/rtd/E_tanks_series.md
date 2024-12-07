@@ -3,4 +3,4 @@
 ::: polykin.reactors.rtd
     options:
         members:
-            - cstr_differential
+            - E_tanks_series

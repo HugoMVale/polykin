@@ -3,4 +3,4 @@
 ::: polykin.reactors.rtd
     options:
         members:
-            - tanks_series_cumulative
+            - F_laminar_flow
