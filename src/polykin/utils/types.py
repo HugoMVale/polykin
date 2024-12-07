@@ -9,6 +9,7 @@ import numpy as np
 from nptyping import Float64, Int32, NDArray, Shape
 
 Number = TypeVar("Number", float, complex)
+Floaty = TypeVar("Floaty", float, np.ndarray[Any, np.dtype[np.float64]])
 
 IntArray = np.ndarray[Any, np.dtype[np.int32]]
 IntArrayLike = list[int] | tuple[int, ...] | IntArray
@@ -31,3 +32,5 @@ FloatSquareMatrix = NDArray[Shape['Dim, Dim'], Float64]
 Float2x2Matrix = NDArray[Shape['2, 2'], Float64]
 
 FloatRangeArray = NDArray[Shape['2'], Float64]
+
+Floaty = TypeVar("Floaty", float, np.ndarray[Any, np.dtype[np.float64]])
