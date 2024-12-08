@@ -2,9 +2,10 @@
 #
 # Copyright Hugo Vale 2024
 
-from math import gamma
+from math import erf, gamma
 
-from numpy import exp, pi, sqrt
+from numpy import exp, inf, pi, sqrt
+from scipy import integrate
 
 __all__ = ['E_cstr',
            'F_cstr',
@@ -13,6 +14,7 @@ __all__ = ['E_cstr',
            'E_laminar_flow',
            'F_laminar_flow',
            'E_dispersion_model',
+           'F_dispersion_model'
            ]
 
 
@@ -69,7 +71,7 @@ def F_cstr(t: float, tavg: float) -> float:
 def E_tanks_series(t: float, tavg: float, N: int) -> float:
     r"""Differential residence time distribution for a series of equal CSTRs.
 
-    $$ E(t) =  \frac{1}{\bar{t}} \left(\frac{t}{\bar{t}} \right)^{N-1} 
+    $$ E(t) =  \frac{1}{\bar{t}} \left(\frac{t}{\bar{t}} \right)^{N-1}
                \frac{N^N}{(N-1)!} e^{-N t / \bar{t}} $$
 
     **References**
@@ -92,13 +94,16 @@ def E_tanks_series(t: float, tavg: float, N: int) -> float:
         Differential residence time distribution.
     """
     q = t/tavg
-    return q**(N-1) * (N**N / gamma(N)) * exp(-N*q) / tavg
+    if q == inf:
+        return 0
+    else:
+        return q**(N-1) * (N**N / gamma(N)) * exp(-N*q) / tavg
 
 
 def F_tanks_series(t: float, tavg: float, N: int) -> float:
     r"""Cumulative residence time distribution for a series of equal CSTRs.
 
-    $$ F(t) = 1 - e^{-N t / \bar{t}} \; 
+    $$ F(t) = 1 - e^{-N t / \bar{t}} \;
         \sum_{i=0}^{N-1} \frac{(N t / \bar{t})^i}{i!}  $$
 
     **References**
@@ -121,19 +126,24 @@ def F_tanks_series(t: float, tavg: float, N: int) -> float:
         Cumulative residence time distribution.
     """
     q = t/tavg
-    S = sum((N*q)**i / gamma(i+1) for i in range(1, N))
-    return 1 - exp(-N*q) * (1 + S)
+    if q == 0:
+        return 0
+    elif q == inf:
+        return 1
+    else:
+        S = sum((N*q)**i / gamma(i+1) for i in range(1, N))
+        return 1 - exp(-N*q) * (1 + S)
 
 
 def E_laminar_flow(t: float, tavg: float) -> float:
-    r"""Differential residence time distribution for a tubular reactor with 
+    r"""Differential residence time distribution for a tubular reactor with
     laminar flow.
 
     $$ E(t) =
     \begin{cases}
         0 ,                               & t < \bar{t}/2 \\
         \frac{1}{2}\frac{\bar{t}^2}{t^3}, & \text{else}
-    \end{cases} $$    
+    \end{cases} $$
 
     **References**
 
@@ -160,14 +170,14 @@ def E_laminar_flow(t: float, tavg: float) -> float:
 
 
 def F_laminar_flow(t: float, tavg: float) -> float:
-    r"""Cumulative residence time distribution for a tubular reactor with 
+    r"""Cumulative residence time distribution for a tubular reactor with
     laminar flow.
 
     $$ F(t) =
     \begin{cases}
         0 , & t \le \bar{t}/2 \\
         1 - \frac{1}{4} (t/\bar{t})^{-2} , & \text{else}
-    \end{cases} $$    
+    \end{cases} $$
 
     **References**
 
@@ -198,19 +208,19 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     model (also known as dispersion model).
 
     Only approximate analytical solutions are available for this model. For
-    small deviations from plug flow, i.e. when $Pe > 10^2$, the residence time
-    distribution is approximated by:
+    small deviations from plug flow, i.e. when $Pe > 10^2$, the distribution is
+    approximated by:
 
-    $$ E(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi}} 
+    $$ E(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi}}
               \exp\left[-\frac{Pe}{4}(1-\theta)^2\right]  $$
 
-    Otherwise, the residence time distribution is approximated by the so-called
-    open-open solution:
+    Otherwise, when $Pe \le 10^2$, the distribution is approximated by the
+    so-called open-open solution:
 
-    $$ E(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi\theta}} 
+    $$ E(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi\theta}}
               \exp\left[-\frac{Pe}{4}\frac{(1-\theta)^2}{\theta}\right]  $$
 
-    where $\theta = t/\bar{t}$.
+    where $\theta = t/\bar{t}$, and $Pe = D/(v L)$. 
 
     **References**
 
@@ -232,10 +242,62 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
         Differential residence time distribution.
     """
     q = t/tavg
-    if Pe > 1e2:
-        return sqrt(Pe/pi)/(2*tavg) * exp(-Pe/4*(1 - q)**2)
+    if q == 0 or q == inf:
+        return 0
     else:
-        if q == 0:
-            return 0
+        if Pe > 1e2:
+            return sqrt(Pe/pi)/(2*tavg) * exp(-Pe/4*(1 - q)**2)
         else:
             return sqrt(Pe/(pi*q))/(2*tavg) * exp(-Pe/(4*q)*(1 - q)**2)
+
+
+def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
+    r"""Cumulative residence time distribution for the dispersed plug flow
+    model (also known as dispersion model).
+
+    Only approximate analytical solutions are available for this model. For
+    small deviations from plug flow, i.e. when $Pe > 10^2$, the distribution is
+    approximated by:
+
+    $$ F(t) = \frac{1}{2}\left[ 1 +
+        \mathrm{erf} \left( \frac{\sqrt{Pe}}{2}(\theta-1)\right) \right]  $$
+
+    Otherwise, when $Pe \le 10^2$, the distribution is approximated by the
+    numerical integral of the so-called open-open solution:
+
+    $$ F(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi}}
+        \int_0^{\theta} \frac{1}{\sqrt{\theta'}}
+        \exp\left[-\frac{Pe}{4}\frac{(1-\theta')^2}{\theta'}\right] d\theta' $$
+
+    where $\theta = t/\bar{t}$, and $Pe = D/(v L)$.
+
+    Parameters
+    ----------
+    t : float
+        Residence time.
+    tavg : float
+        Average residence time, $\bar{t}$.
+    Pe : float
+        Peclet number, $D/(v L)$.
+
+    Returns
+    -------
+    float
+        Cumulative residence time distribution.
+    """
+    q = t/tavg
+    if q == 0:
+        return 0
+    elif q == inf:
+        return 1
+    else:
+        if Pe > 1e2:
+            return 0.5*(1 + erf(sqrt(Pe)/2*(q - 1)))
+        else:
+            result, _ = integrate.quad(
+                E_dispersion_model,
+                a=0.,
+                b=t,
+                args=(tavg, Pe),
+                epsabs=1e-5)
+            return result
