@@ -264,7 +264,7 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     tavg : float
         Average residence time, $\bar{t}$.
     Pe : float
-        Peclet number, $(v L)/D$.
+        Péclet number, $(v L)/D$.
 
     Returns
     -------
@@ -313,7 +313,7 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     tavg : float
         Average residence time, $\bar{t}$.
     Pe : float
-        Peclet number, $(v L)/D$.
+        Péclet number, $(v L)/D$.
 
     Returns
     -------
