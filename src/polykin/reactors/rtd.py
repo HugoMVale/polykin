@@ -39,6 +39,11 @@ def E_cstr(t: float, tavg: float) -> float:
     -------
     float
         Differential residence time distribution.
+
+    See also
+    --------
+    * [`F_cstr`](F_cstr.md): related method to determine the cumulative
+      distribution.
     """
     return (1/tavg)*exp(-t/tavg)
 
@@ -64,6 +69,11 @@ def F_cstr(t: float, tavg: float) -> float:
     -------
     float
         Cumulative residence time distribution.
+
+    See also
+    --------
+    * [`E_cstr`](E_cstr.md): related method to determine the differential
+      distribution.
     """
     return 1 - exp(-t/tavg)
 
@@ -92,6 +102,11 @@ def E_tanks_series(t: float, tavg: float, N: int) -> float:
     -------
     float
         Differential residence time distribution.
+
+    See also
+    --------
+    * [`F_tanks_series`](F_tanks_series.md): related method to determine the
+      cumulative distribution.
     """
     q = t/tavg
     if q == inf:
@@ -124,6 +139,11 @@ def F_tanks_series(t: float, tavg: float, N: int) -> float:
     -------
     float
         Cumulative residence time distribution.
+
+    See also
+    --------
+    * [`E_tanks_series`](E_tanks_series.md): related method to determine the
+      differential distribution.
     """
     q = t/tavg
     if q == 0:
@@ -161,6 +181,11 @@ def E_laminar_flow(t: float, tavg: float) -> float:
     -------
     float
         Differential residence time distribution.
+
+    See also
+    --------
+    * [`F_laminar_flow`](F_laminar_flow.md): related method to determine the
+      cumulative distribution.
     """
     q = t/tavg
     if q < 1/2:
@@ -195,6 +220,11 @@ def F_laminar_flow(t: float, tavg: float) -> float:
     -------
     float
         Cumulative residence time distribution.
+
+    See also
+    --------
+    * [`E_laminar_flow`](E_laminar_flow.md): related method to determine the
+      differential distribution.
     """
     q = t/tavg
     if q <= 1/2:
@@ -240,6 +270,11 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     -------
     float
         Differential residence time distribution.
+
+    See also
+    --------
+    * [`F_dispersion_model`](F_dispersion_model.md): related method to determine
+      the cumulative distribution.
     """
     q = t/tavg
     if q == 0 or q == inf:
@@ -284,6 +319,11 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     -------
     float
         Cumulative residence time distribution.
+
+    See also
+    --------
+    * [`E_dispersion_model`](E_dispersion_model.md): related method to determine
+      the differential distribution.
     """
     q = t/tavg
     if q == 0:
