@@ -250,7 +250,7 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     $$ E(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi\theta}}
               \exp\left[-\frac{Pe}{4}\frac{(1-\theta)^2}{\theta}\right]  $$
 
-    where $\theta = t/\bar{t}$, and $Pe = D/(v L)$. 
+    where $\theta = t/\bar{t}$, and $Pe = (v L)/D$. 
 
     **References**
 
@@ -264,7 +264,7 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     tavg : float
         Average residence time, $\bar{t}$.
     Pe : float
-        Peclet number, $D/(v L)$.
+        Peclet number, $(v L)/D$.
 
     Returns
     -------
@@ -304,7 +304,7 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
         \int_0^{\theta} \frac{1}{\sqrt{\theta'}}
         \exp\left[-\frac{Pe}{4}\frac{(1-\theta')^2}{\theta'}\right] d\theta' $$
 
-    where $\theta = t/\bar{t}$, and $Pe = D/(v L)$.
+    where $\theta = t/\bar{t}$, and $Pe = (v L)/D$.
 
     Parameters
     ----------
@@ -313,7 +313,7 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     tavg : float
         Average residence time, $\bar{t}$.
     Pe : float
-        Peclet number, $D/(v L)$.
+        Peclet number, $(v L)/D$.
 
     Returns
     -------
