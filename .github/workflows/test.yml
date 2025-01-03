@@ -23,33 +23,42 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
 
       - name: Get full Python version
         id: full-python-version
         run: echo version=$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))") >> $GITHUB_OUTPUT
 
-      - name: Install Ubuntu-build dependencies
+      - name: Install and configure Poetry
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libopenblas-dev gfortran python3-dev
-          
-      - name: Install PyPi-build dependencies
+          pip install poetry
+          poetry --version
+          poetry config virtualenvs.in-project true
+
+      - name: Cache the virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.full-python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install project dependencies
         run: |
-          pip install -r requirements-build.txt 
-     
-      - name: Run tests and collect coverage
+          poetry install --with dev
+
+      - name: Run tests with Numba enabled
+        run: |
+          poetry run pytest -v -s
+      
+      - name: Run tests with Numba disabled and collect coverage
         continue-on-error: true
         run: |
-          pytest --cov -v -s --cov-report=xml
-          coverage report --omit="tests/*"
+          export NUMBA_DISABLE_JIT=1
+          poetry run pytest --cov -v -s --cov-report=xml
+          poetry run coverage report --omit="tests/*"
           
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == '3.10' }}
