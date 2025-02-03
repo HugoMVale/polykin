@@ -371,9 +371,9 @@ def FloryHuggins2_activity(phi1: Union[float, FloatArray],
     --------
     Calculate the activity of ethylbenzene in a ethylbenzene-polybutadiene
     solution with 25 wt% solvent content. Assume $\chi=0.29$.
-    >>> from polykin.thermo.acm import FloryHuggins2_gamma
-    >>> gamma = FloryHuggins2_gamma(phi1=0.25, m=1e6, chi=0.29)
-    >>> print(f"{gamma:.2f}")
+    >>> from polykin.thermo.acm import FloryHuggins2_activity
+    >>> a = FloryHuggins2_activity(phi1=0.25, m=1e6, chi=0.29)
+    >>> print(f"{a:.2f}")
     0.62
 
     """
