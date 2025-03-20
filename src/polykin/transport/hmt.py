@@ -92,14 +92,14 @@ def Nu_tube(Re: float,
     >>> mu = 1e-3  # Pa.s
     >>> cp = 4.2e3 # J/kg/K
     >>> k = 0.6    # W/m/K
-    >>> v = 2.     # m/s
+    >>> v = 2.0    # m/s
     >>> D = 25e-3  # m
     >>> Re = rho*v*D/mu
     >>> Pr = cp*mu/k
     >>> Nu = Nu_tube(Re, Pr, D_L=0, er=0)
     >>> h = Nu*k/D
-    >>> print(f"h={h:.1e} W/m².K")
-    h=7.8e+03 W/m².K
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=7.8e+03 W/m²·K
     """
     if Re < 2.3e3:
         return 3.66 + (0.0668*D_L*Re*Pr)/(1 + 0.04*(D_L*Re*Pr)**(2/3))
@@ -203,14 +203,14 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     >>> mu = 1e-3   # Pa.s
     >>> cp = 4.2e3  # J/kg/K
     >>> k = 0.6     # W/m/K
-    >>> v = 2.      # m/s
+    >>> v = 2.0     # m/s
     >>> D = 33.7e-3 # m (OD from pipe chart)
     >>> Re = rho*v*D/mu
     >>> Pr = cp*mu/k
     >>> Nu = Nu_cylinder(Re, Pr)
     >>> h = Nu*k/D
-    >>> print(f"h={h:.1e} W/m².K")
-    h=7.0e+03 W/m².K
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=7.0e+03 W/m²·K
     """
     check_range_warn(Re*Pr, 0.2, inf, 'Re*Pr')
 
@@ -275,8 +275,8 @@ def Nu_cylinder_free(Ra: float, Pr: float) -> float:
     >>> Ra = Gr*Pr
     >>> Nu = Nu_cylinder_free(Ra, Pr)
     >>> h = Nu*k/D
-    >>> print(f"h={h:.1e} W/m².K")
-    h=1.1e+03 W/m².K
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=1.1e+03 W/m²·K
     """
     check_range_warn(Ra, 0, 1e12, 'Ra')
 
@@ -456,7 +456,7 @@ def Nu_tank(
     tank equiped with a HE3 impeller operated at 120 rpm. Assume water properties
     and default geometry.
     >>> from polykin.transport import Nu_tank
-    >>> T = 2.     # m
+    >>> T = 2.0    # m
     >>> D = T/3    # m
     >>> rho = 1e3  # kg/m³
     >>> mu = 1e-3  # Pa.s
@@ -464,11 +464,11 @@ def Nu_tank(
     >>> cp = 4.2e3 # J/kg.K
     >>> Re = (120/60) * D**2 * rho / mu
     >>> Pr = mu*cp/k
-    >>> mur = 1.   # neglect temperature correction
+    >>> mur = 1.0  # neglect temperature correction
     >>> Nu = Nu_tank('wall', 'HE3', Re, Pr, mur)
     >>> h = Nu*k/T
-    >>> print(f"h={h:.1e} W/m².K")
-    h=1.6e+03 W/m².K
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=1.6e+03 W/m²·K
     """
 
     # Default parameters
@@ -629,6 +629,29 @@ def Nu_cylinder_bank(v: float,
     See also
     --------
     * [`Nu_cylinder`](Nu_cylinder.md): specific method for a single cylinder.
+
+    Examples
+    --------
+    Estimate the external heat transfer coefficient for air flowing across a bank
+    of staggered tubes. The tube outside diameter is 16.4 mm, the longitudinal
+    pitch is 34.3 mm, the transversal pitch is 31.3 mm, and the number of rows
+    is 7. The tube surface temperature is 70°C, while the upstream air stream
+    has a temperature of 15°C and a velocity of 6 m/s.
+    >>> from polykin.transport import Nu_cylinder_bank
+    >>> v = 6.0      # m/s
+    >>> ST = 31.3e-3 # m
+    >>> SL = 34.3e-3 # m
+    >>> D = 16.4e-3  # m
+    >>> NL = 7
+    >>> rho = 1.2    # kg/m³ (at 15°C, neglecting temperature increase)
+    >>> mu = 1.8e-5  # Pa·s
+    >>> k = 0.025    # W/m·K
+    >>> Pr = 0.72
+    >>> Prs = 0.71   # (at 70°C)
+    >>> Nu = Nu_cylinder_bank(v, rho, mu, Pr, Prs, False, D, ST, SL, NL)
+    >>> h = Nu*k/D
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=1.4e+02 W/m²·K
     """
 
     # Maximum fluid velocity
@@ -751,8 +774,8 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     >>> Ra = Gr*Pr
     >>> Nu = Nu_sphere_free(Ra, Pr)
     >>> h = Nu*k/D
-    >>> print(f"h={h:.1e} W/m².K")
-    h=7.8e+02 W/m².K
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=7.8e+02 W/m²·K
     """
     check_range_warn(Ra, 0, 1e11, 'Ra')
     check_range_warn(Pr, 0.7, inf, 'Pr')
@@ -851,8 +874,8 @@ def Nu_plate_free(orientation: Literal['vertical',
     >>> Ra = Gr*Pr
     >>> Nu = Nu_plate_free('vertical', Ra, Pr)
     >>> h = Nu*k/L
-    >>> print(f"h={h:.1e} W/m².K")
-    h=3.7e+00 W/m².K
+    >>> print(f"h={h:.1e} W/m²·K")
+    h=3.7e+00 W/m²·K
     """
     if orientation == 'vertical':
         if Pr:
