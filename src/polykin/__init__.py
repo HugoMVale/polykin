@@ -17,9 +17,10 @@ Using any of these subpackages requires an explicit import. For example,
 * kinetics         = kinetic coefficients
 * math             = mathematical algorithms
 * properties       = physical property methods and models
+* reactors         = reaction engineering models
 * stepgrowth       = step-growth polymerization formulas
 * thermo           = thermodynamic models
-
+* transport        = transport phenomena
 """
 import importlib.metadata
 
