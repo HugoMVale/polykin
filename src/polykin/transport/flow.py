@@ -182,6 +182,21 @@ def DP_tube(Q: float,
     -------
     float
         Pressure drop (Pa).
+
+    Examples
+    --------
+    Calculate the pressure drop for water flowing at 3.5 m³/h through 500 m of
+    PVC pipe with an internal diameter of 25 mm.
+    >>> from polykin.transport import DP_tube
+    >>> Q = 3.5/3600 # m³/s
+    >>> rho = 1e3    # kg/m³
+    >>> mu = 1e-3    # Pa·s
+    >>> L = 5e2      # m
+    >>> D = 25e-3    # m
+    >>> er = 0.0015e-3/D # from pipe table
+    >>> DP = DP_tube(Q, D, L, rho, mu, er)
+    >>> print(f"DP = {DP:.1e} Pa")
+    DP = 8.2e+05 Pa
     """
 
     v = 4*Q/(pi*D**2)
