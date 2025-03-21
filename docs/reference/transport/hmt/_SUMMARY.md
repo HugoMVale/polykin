@@ -9,3 +9,5 @@
 * [Nu_sphere_free](Nu_sphere_free.md)
 * [Nu_tank](Nu_tank.md)
 * [Nu_tube](Nu_tube.md)
+* [U_cylindrical_wall](U_cylindrical_wall.md)
+* [U_plane_wall](U_plane_wall.md)
