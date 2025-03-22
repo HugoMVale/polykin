@@ -5,10 +5,9 @@
 from numpy import isclose
 
 from polykin.transport.flow import (Cd_sphere, DP_Darcy_Weisbach,
-                                    DP_Hagen_Poiseuille, DP_packed_bed,
-                                    DP_tube, fD_Colebrook, fD_Haaland,
-                                    vt_sphere,
-                                    vt_Stokes)
+                                    DP_gas_liquid, DP_Hagen_Poiseuille,
+                                    DP_packed_bed, DP_tube, fD_Colebrook,
+                                    fD_Haaland, vt_sphere, vt_Stokes)
 
 
 def test_fD():
@@ -118,3 +117,24 @@ def test_DP_packed_bed():
     L = 1.
     DP = DP_packed_bed(G, L, Dp, eps, rho, mu)
     assert isclose(DP, 0.31e5, rtol=15e-2)
+
+
+def test_DP_gas_liquid():
+    "Walas, p. 116"
+    mdotL = 140e3*1.26e-4
+    mdotG = 800*1.26e-4
+    rhoL = 51.85*16.02
+    rhoG = 0.142*16.02
+    muL = 15e-3
+    muG = 2.5e-7*47.88
+    D = 0.2557*0.3048
+    L = 1e2*0.3048
+    er = 0.00059
+    DP = DP_gas_liquid(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
+    assert isclose(DP, 36.8*6895, rtol=5e-2)
+    # only liquid
+    DP = DP_gas_liquid(mdotL, 0.0, D, L, rhoL, 0.0, muL, 0.0, er)
+    assert DP > 0
+    # only gas
+    DP = DP_gas_liquid(0.0, mdotG, D, L, 0.0, rhoG, 0.0, muG, er)
+    assert DP > 0

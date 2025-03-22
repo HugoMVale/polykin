@@ -17,6 +17,7 @@ __all__ = ['fD_Colebrook',
            'Cd_sphere',
            'vt_sphere',
            'vt_Stokes',
+           'DP_gas_liquid'
            ]
 
 
@@ -25,9 +26,11 @@ def DP_Hagen_Poiseuille(Q: float,
                         L: float,
                         mu: float
                         ) -> float:
-    r"""Calculate the pressure drop in a pipe using the Hagen-Poiseuille equation.
+    r"""Calculate the pressure drop in a circular pipe using the
+    Hagen-Poiseuille equation.
 
-    In laminar flow, the pressure drop in a circular pipe is given by:
+    For laminar flow through a circular pipe, the pressure drop due to friction
+    is given by:
 
     $$ \Delta P =  \frac{128 \mu Q}{\pi D^4} L $$
 
@@ -78,10 +81,11 @@ def DP_Darcy_Weisbach(v: float,
                       rho: float,
                       fD: float,
                       ) -> float:
-    r"""Calculate the pressure drop in a pipe using the Darcy-Weisbach
+    r"""Calculate the pressure drop in a circular pipe using the Darcy-Weisbach
     equation.
 
-    For a fluid flowing through a circular pipe, the pressure drop is given by:
+    For a fluid flowing through a circular pipe, the pressure drop due to
+    friction is given by:
 
     $$ \Delta P = f_D \frac{\rho}{2} \frac{v^2}{D} L $$
 
@@ -148,8 +152,8 @@ def DP_tube(Q: float,
             mu: float,
             er: float = 0.0
             ) -> float:
-    r"""Calculate the pressure drop in a circular pipe for both laminar and
-    turbulent flow.
+    r"""Calculate the pressure drop due to friction for flow through a circular
+    pipe.
 
     This method acts as a convenience wrapper for
     [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md). It determines the flow regime
@@ -218,7 +222,7 @@ def DP_packed_bed(G: float,
                   ) -> float:
     r"""Calculate the pressure drop in a packed bed.
 
-    The pressure drop in a packed bed is given by:
+    In a packed bed, the pressure drop due to friction is given by:
 
     $$ \Delta P = \frac{G^2 (1 - \epsilon) f_p}{\rho D_p \epsilon^3} L $$
 
@@ -548,3 +552,143 @@ def vt_sphere(D: float,
     sol = fzero_newton(fnc, x0=1.)
 
     return sol.x
+
+
+def DP_gas_liquid(mdotL: float,
+                  mdotG: float,
+                  D: float,
+                  L: float,
+                  rhoL: float,
+                  rhoG: float,
+                  muL: float,
+                  muG: float,
+                  er: float
+                  ) -> float:
+    r"""Calculate the pressure drop in two-phase liquid-gas flow through a
+    horizontal pipe using the Lockhart-Martinelli correlation.
+
+    The pressure drop due to friction in a two-phase flow is estimated by:
+
+    $$ (\Delta P)_{TP} = (\Delta P)_{L} \phi^2_{L} $$
+
+    where $(\Delta P)_{L}$ is the pressure drop if the liquid phase were alone,
+    and $\phi_{L}$ is the liquid-phase multiplier. The latter is given by:
+
+    $$ \phi_{L} = 1 + \frac{C}{X} + \frac{1}{X^2} $$
+
+    where $X=\sqrt{(\Delta P)_L/(\Delta P)_G}$ is the Lockhart-Martinelli
+    parameter and $C$ is a coefficient that varies based on the flow regimes of
+    the liquid and gas phases.
+
+    **References**
+
+    * Walas, S. M., "Chemical Process Equipment: Selection and Design",
+      Singapore: Butterworths, 1988.
+
+    Parameters
+    ----------
+    mdotL : float
+        Mass flow rate of liquid (kg/s).
+    mdotG : float
+        Mass flow rate of gas (kg/s).
+    D : float
+        Diameter (m).
+    L : float
+        Length (m).
+    rhoL : float
+        Density of liquid (kg/m³).
+    rhoG : float
+        Density of gas (kg/m³).
+    muL : float
+        Viscosity of liquid (Pa·s).
+    muG : float
+        Viscosity of gas (Pa·s).
+    er : float
+        Relative pipe roughness, $\epsilon/D$. Only required for turbulent flow.
+
+    Returns
+    -------
+    float
+        Pressure drop (Pa).
+
+    See also
+    --------
+    * [`DP_tube`](DP_tube.md): method for single-phase flow.
+
+    Examples
+    --------
+    Calculate the pressure gradient due to friction in a 100 mm inner diameter
+    pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
+    densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
+    2e-5 Pa·s, respectively. 
+    >>> from polykin.transport import DP_gas_liquid
+    >>> mdotL = 2.0 # kg/s
+    >>> mdotG = 1.0 # kg/s 
+    >>> D = 100e-3  # m
+    >>> L = 1.0     # m
+    >>> rhoL = 1e3  # kg/m³
+    >>> rhoG = 1e0  # kg/m³
+    >>> muL = 1e-3  # Pa·s
+    >>> muG = 2e-5  # Pa·s
+    >>> er = 0.0    
+    >>> DP = DP_gas_liquid(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
+    >>> print(f"DP = {DP:.1e} Pa/m")
+    DP = 2.8e+03 Pa/m
+    """
+
+    # Pressure drop if liquid were alone
+    A = (pi/4)*D**2
+    if mdotL > 0.0:
+        vL = mdotL/(A*rhoL)
+        ReL = rhoL*vL*D/muL
+        fDL = 64/ReL if ReL < 2.3e3 else fD_Haaland(ReL, er)
+        DPL = DP_Darcy_Weisbach(vL, D, L, rhoL, fDL)
+    else:
+        DPL = 0.0
+
+    # Pressure drop if gas were alone
+    if mdotG > 0.0:
+        vG = mdotG/(A*rhoG)
+        ReG = rhoG*vG*D/muG
+        fDG = 64/ReG if ReG < 2.3e3 else fD_Haaland(ReG, er)
+        DPG = DP_Darcy_Weisbach(vG, D, L, rhoG, fDG)
+    else:
+        DPG = 0.0
+
+    # Two-phase pressure drop
+    if not DPG:
+        return DPL
+    elif not DPL:
+        return DPG
+    else:
+        X = sqrt(DPL/DPG)
+        YL = YL_Lockhart_Martinelli(X, ReL, ReG)
+        return YL*DPL
+
+
+def YL_Lockhart_Martinelli(X: float, ReL: float, ReG: float) -> float:
+    r"""Calculate the liquid-phase multiplier using the Lockhart-Martinelli
+    correlation.
+
+    $$ Y_L = \frac{(\Delta P/L)_{TP}}{(\Delta P/L)_{L}} 
+           = 1 + \frac{C}{X} + \frac{1}{X^2} $$
+
+    Parameters
+    ----------
+    X : float
+        Lockhart-Martinelli parameter.
+    ReL : float
+        Reynolds number of the liquid.
+    ReG : float
+        Reynolds number of the gas.
+
+    Returns
+    -------
+    float
+        Liquid-phase multiplier.
+    """
+    if ReL > 1e3:
+        C = 20.0 if ReG > 1e3 else 10.0
+    else:
+        C = 12.0 if ReG > 1e3 else 5.0
+    return 1 + C/X + 1/X**2
