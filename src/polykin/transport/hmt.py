@@ -935,6 +935,11 @@ def U_plane_wall(h1: float,
     float
         Overall heat transfer coefficient (W/(m²·K)).
 
+    See also
+    --------
+    - [`U_cylindrical_wall`](U_cylindrical_wall.md): related method for a
+      cylindrical wall.
+
     Examples
     --------
     Calculate the overall heat transfer coefficient for a 10 mm-thick plane
@@ -998,6 +1003,10 @@ def U_cylindrical_wall(hi: float,
     -------
     float
         Overall heat transfer coefficient based on outer surface (W/(m²·K)).
+
+    See also
+    --------
+    - [`U_plane_wall`](U_plane_wall.md): related method for a plane wall.
 
     Examples
     --------
