@@ -1,6 +1,7 @@
 * [Cd_sphere](Cd_sphere.md)
 * [DP_Darcy_Weisbach](DP_Darcy_Weisbach.md)
-* [DP_gas_liquid](DP_gas_liquid.md)
+* [DP_GL_Lockhart_Martinelli](DP_GL_Lockhart_Martinelli.md)
+* [DP_GL_Mueller_Bonn](DP_GL_Mueller_Bonn.md)
 * [DP_Hagen_Poiseuille](DP_Hagen_Poiseuille.md)
 * [DP_packed_bed](DP_packed_bed.md)
 * [DP_tube](DP_tube.md)

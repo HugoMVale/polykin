@@ -2,12 +2,13 @@
 #
 # Copyright Hugo Vale 2024
 
-from numpy import isclose
+from numpy import isclose, pi
 
 from polykin.transport.flow import (Cd_sphere, DP_Darcy_Weisbach,
-                                    DP_gas_liquid, DP_Hagen_Poiseuille,
-                                    DP_packed_bed, DP_tube, fD_Colebrook,
-                                    fD_Haaland, vt_sphere, vt_Stokes)
+                                    DP_GL_Lockhart_Martinelli, DP_GL_Mueller_Bonn,
+                                    DP_Hagen_Poiseuille, DP_packed_bed,
+                                    DP_tube, fD_Colebrook, fD_Haaland,
+                                    vt_sphere, vt_Stokes)
 
 
 def test_fD():
@@ -119,7 +120,7 @@ def test_DP_packed_bed():
     assert isclose(DP, 0.31e5, rtol=15e-2)
 
 
-def test_DP_gas_liquid():
+def test_DP_GL_Lockhart_Martinelli():
     "Walas, p. 116"
     mdotL = 140e3*1.26e-4
     mdotG = 800*1.26e-4
@@ -130,11 +131,28 @@ def test_DP_gas_liquid():
     D = 0.2557*0.3048
     L = 1e2*0.3048
     er = 0.00059
-    DP = DP_gas_liquid(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
+    DP = DP_GL_Lockhart_Martinelli(
+        mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
     assert isclose(DP, 36.8*6895, rtol=5e-2)
     # only liquid
-    DP = DP_gas_liquid(mdotL, 0.0, D, L, rhoL, 0.0, muL, 0.0, er)
+    DP = DP_GL_Lockhart_Martinelli(mdotL, 0.0, D, L, rhoL, 0.0, muL, 0.0, er)
     assert DP > 0
     # only gas
-    DP = DP_gas_liquid(0.0, mdotG, D, L, 0.0, rhoG, 0.0, muG, er)
+    DP = DP_GL_Lockhart_Martinelli(0.0, mdotG, D, L, 0.0, rhoG, 0.0, muG, er)
     assert DP > 0
+
+
+def test_DP_GL_Mueller_Bonn():
+    "Mueller-Steinhagen, 1986, Figure 2"
+    D = 0.036  # m
+    L = 1     # m
+    vm = 200  # kg/m²/s
+    P = 1.4   # bar
+    rhoL = 998
+    muL = 1e-3
+    rhoG = 1.2*(P/1.01325)
+    muG = 1.8e-5
+    mdot = vm*(pi/4*D**2)
+    x = 0.8
+    DP = DP_GL_Mueller_Bonn(mdot*(1-x), mdot*x, D, L, rhoL, rhoG, muL, muG)
+    assert isclose(DP, 6e3, rtol=10e-2)

@@ -3,4 +3,4 @@
 ::: polykin.transport.flow
     options:
         members:
-            - DP_gas_liquid
+            - DP_GL_Mueller_Bonn

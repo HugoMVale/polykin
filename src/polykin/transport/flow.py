@@ -17,7 +17,8 @@ __all__ = ['fD_Colebrook',
            'Cd_sphere',
            'vt_sphere',
            'vt_Stokes',
-           'DP_gas_liquid'
+           'DP_GL_Lockhart_Martinelli',
+           'DP_GL_Mueller_Bonn'
            ]
 
 
@@ -554,18 +555,18 @@ def vt_sphere(D: float,
     return sol.x
 
 
-def DP_gas_liquid(mdotL: float,
-                  mdotG: float,
-                  D: float,
-                  L: float,
-                  rhoL: float,
-                  rhoG: float,
-                  muL: float,
-                  muG: float,
-                  er: float
-                  ) -> float:
-    r"""Calculate the pressure drop in two-phase liquid-gas flow through a
-    horizontal pipe using the Lockhart-Martinelli correlation.
+def DP_GL_Lockhart_Martinelli(mdotL: float,
+                              mdotG: float,
+                              D: float,
+                              L: float,
+                              rhoL: float,
+                              rhoG: float,
+                              muL: float,
+                              muG: float,
+                              er: float
+                              ) -> float:
+    r"""Calculate the pressure drop due to friction in two-phase liquid-gas
+    flow through a horizontal pipe using the Lockhart-Martinelli correlation.
 
     The pressure drop due to friction in a two-phase flow is estimated by:
 
@@ -613,82 +614,155 @@ def DP_gas_liquid(mdotL: float,
 
     See also
     --------
-    * [`DP_tube`](DP_tube.md): method for single-phase flow.
+    * [`DP_GL_Mueller_Bonn`](DP_GL_Mueller_Bonn.md): alternative method.
 
     Examples
     --------
-    Calculate the pressure gradient due to friction in a 100 mm inner diameter
+    Calculate the pressure gradient due to friction in a 80 mm inner diameter
     pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
     densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
     2e-5 Pa·s, respectively. 
-    >>> from polykin.transport import DP_gas_liquid
+    >>> from polykin.transport import DP_GL_Lockhart_Martinelli
     >>> mdotL = 2.0 # kg/s
     >>> mdotG = 1.0 # kg/s 
-    >>> D = 100e-3  # m
+    >>> D = 80e-3   # m
     >>> L = 1.0     # m
     >>> rhoL = 1e3  # kg/m³
     >>> rhoG = 1e0  # kg/m³
     >>> muL = 1e-3  # Pa·s
     >>> muG = 2e-5  # Pa·s
     >>> er = 0.0    
-    >>> DP = DP_gas_liquid(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
+    >>> DP = DP_GL_Lockhart_Martinelli(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
     >>> print(f"DP = {DP:.1e} Pa/m")
-    DP = 2.8e+03 Pa/m
+    DP = 8.2e+03 Pa/m
     """
 
-    # Pressure drop if liquid were alone
+    # Pressure gradient if liquid were alone
     A = (pi/4)*D**2
     if mdotL > 0.0:
         vL = mdotL/(A*rhoL)
         ReL = rhoL*vL*D/muL
-        fDL = 64/ReL if ReL < 2.3e3 else fD_Haaland(ReL, er)
-        DPL = DP_Darcy_Weisbach(vL, D, L, rhoL, fDL)
+        fL = 64/ReL if ReL < 2.3e3 else fD_Haaland(ReL, er)
+        dPL = DP_Darcy_Weisbach(vL, D, 1.0, rhoL, fL)
     else:
-        DPL = 0.0
+        dPL = 0.0
 
-    # Pressure drop if gas were alone
+    # Pressure gradient if gas were alone
     if mdotG > 0.0:
         vG = mdotG/(A*rhoG)
         ReG = rhoG*vG*D/muG
-        fDG = 64/ReG if ReG < 2.3e3 else fD_Haaland(ReG, er)
-        DPG = DP_Darcy_Weisbach(vG, D, L, rhoG, fDG)
+        fG = 64/ReG if ReG < 2.3e3 else fD_Haaland(ReG, er)
+        dPG = DP_Darcy_Weisbach(vG, D, 1.0, rhoG, fG)
     else:
-        DPG = 0.0
+        dPG = 0.0
 
     # Two-phase pressure drop
-    if not DPG:
-        return DPL
-    elif not DPL:
-        return DPG
+    if not dPG:
+        dP = dPL
+    elif not dPL:
+        dP = dPG
     else:
-        X = sqrt(DPL/DPG)
-        YL = YL_Lockhart_Martinelli(X, ReL, ReG)
-        return YL*DPL
+        X = sqrt(dPL/dPG)
+        if ReL > 1e3:
+            C = 20.0 if ReG > 1e3 else 10.0
+        else:
+            C = 12.0 if ReG > 1e3 else 5.0
+        YL = 1 + C/X + 1/X**2
+        dP = YL*dPL
+    DP = dP*L
+
+    return DP
 
 
-def YL_Lockhart_Martinelli(X: float, ReL: float, ReG: float) -> float:
-    r"""Calculate the liquid-phase multiplier using the Lockhart-Martinelli
-    correlation.
+def DP_GL_Mueller_Bonn(mdotL: float,
+                       mdotG: float,
+                       D: float,
+                       L: float,
+                       rhoL: float,
+                       rhoG: float,
+                       muL: float,
+                       muG: float
+                       ) -> float:
+    r"""Calculate the pressure drop due to friction in two-phase liquid-gas
+    flow through a horizontal pipe using the Mueller-Bonn correlation.
 
-    $$ Y_L = \frac{(\Delta P/L)_{TP}}{(\Delta P/L)_{L}} 
-           = 1 + \frac{C}{X} + \frac{1}{X^2} $$
+    According to the authors, this correlation performs better than the
+    classical Lockhart-Martinelli correlation, but the average error is still
+    40%.
+
+    **References**
+
+    * Müller-Steinhagen, H., Heck, K. "A simple friction pressure drop
+      correlation for two-phase flow in pipes." Chemical Engineering and
+      Processing: Process Intensification 20.6 (1986): 297-308.
 
     Parameters
     ----------
-    X : float
-        Lockhart-Martinelli parameter.
-    ReL : float
-        Reynolds number of the liquid.
-    ReG : float
-        Reynolds number of the gas.
+    mdotL : float
+        Mass flow rate of liquid (kg/s).
+    mdotG : float
+        Mass flow rate of gas (kg/s).
+    D : float
+        Diameter (m).
+    L : float
+        Length (m).
+    rhoL : float
+        Density of liquid (kg/m³).
+    rhoG : float
+        Density of gas (kg/m³).
+    muL : float
+        Viscosity of liquid (Pa·s).
+    muG : float
+        Viscosity of gas (Pa·s).
 
     Returns
     -------
     float
-        Liquid-phase multiplier.
+        Pressure drop (Pa).
+
+    See also
+    --------
+    * [`DP_GL_Lockhart_Martinelli`](DP_GL_Lockhart_Martinelli.md): alternative
+      method.
+
+    Examples
+    --------
+    Calculate the pressure gradient due to friction in a 80 mm inner diameter
+    pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
+    densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
+    2e-5 Pa·s, respectively. 
+    >>> from polykin.transport import DP_GL_Mueller_Bonn
+    >>> mdotL = 2.0 # kg/s
+    >>> mdotG = 1.0 # kg/s 
+    >>> D = 80e-3   # m
+    >>> L = 1.0     # m
+    >>> rhoL = 1e3  # kg/m³
+    >>> rhoG = 1e0  # kg/m³
+    >>> muL = 1e-3  # Pa·s
+    >>> muG = 2e-5  # Pa·s 
+    >>> DP = DP_GL_Mueller_Bonn(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG)
+    >>> print(f"DP = {DP:.1e} Pa/m")
+    DP = 1.1e+04 Pa/m
     """
-    if ReL > 1e3:
-        C = 20.0 if ReG > 1e3 else 10.0
-    else:
-        C = 12.0 if ReG > 1e3 else 5.0
-    return 1 + C/X + 1/X**2
+
+    # Flow quality and mass flux
+    mdot = mdotL + mdotG
+    x = mdotG/mdot
+    vm = mdot/((pi/4)*D**2)
+
+    # Pressure gradient if total flow had liquid properties
+    ReL = vm*D/muL
+    fL = 64/ReL if ReL <= 1187.0 else 0.3164/ReL**0.25
+    A = fL*vm**2/(2*rhoL*D)
+
+    # Pressure gradient if total flow had gas properties
+    ReG = vm*D/muG
+    fG = 64/ReG if ReG <= 1187.0 else 0.3164/ReG**0.25
+    B = fG*vm**2/(2*rhoG*D)
+
+    # Two-phase pressure gradient
+    G = A + 2*(B - A)*x
+    dP = G*(1 - x)**(1/3) + B*x**3
+    DP = dP*L
+
+    return DP
