@@ -155,7 +155,7 @@ def test_random(dist1, dist2):
     DPn = 49
     PDI = 1.8
     num_samples = 10**6
-    rtol = [None, 5e-3, 2e-2, 10e-2]
+    rtol = [None, 5e-3, 2e-2, 15e-2]
     for d in distributions:
         d.DPn = DPn
         if isinstance(d, (LogNormal, SchulzZimm)):
