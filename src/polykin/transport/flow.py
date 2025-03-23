@@ -753,16 +753,15 @@ def DP_GL_Mueller_Bonn(mdotL: float,
     # Pressure gradient if total flow had liquid properties
     ReL = vm*D/muL
     fL = 64/ReL if ReL <= 1187.0 else 0.3164/ReL**0.25
-    A = fL*vm**2/(2*rhoL*D)
+    dPL0 = fL*vm**2/(2*rhoL*D)
 
     # Pressure gradient if total flow had gas properties
     ReG = vm*D/muG
     fG = 64/ReG if ReG <= 1187.0 else 0.3164/ReG**0.25
-    B = fG*vm**2/(2*rhoG*D)
+    dPG0 = fG*vm**2/(2*rhoG*D)
 
     # Two-phase pressure gradient
-    G = A + 2*(B - A)*x
-    dP = G*(1 - x)**(1/3) + B*x**3
+    dP = (dPL0 + 2*(dPG0 - dPL0)*x)*(1 - x)**(1/3) + dPG0*x**3
     DP = dP*L
 
     return DP
