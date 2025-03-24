@@ -5,7 +5,7 @@
 from typing import Literal
 
 import numpy as np
-from numpy import inf, sqrt
+from numpy import cbrt, inf, sqrt
 
 from polykin.transport.flow import fD_Haaland
 from polykin.utils.tools import check_range_warn
@@ -20,6 +20,7 @@ __all__ = ['Nu_tube',
            'Nu_plate',
            'Nu_plate_free',
            'Nu_tank',
+           'Nu_combined',
            'U_plane_wall',
            'U_cylindrical_wall'
            ]
@@ -27,8 +28,8 @@ __all__ = ['Nu_tube',
 
 def Nu_tube(Re: float,
             Pr: float,
-            D_L: float = 0.,
-            er: float = 0.
+            D_L: float = 0.0,
+            er: float = 0.0
             ) -> float:
     r"""Calculate the internal Nusselt number for flow through a circular tube.
 
@@ -405,10 +406,10 @@ def Nu_tank(
     Pr: float,
     mur: float,
     D_T: float = 1/3,
-    H_T: float = 1.,
-    L_Ls: float = 1.,
+    H_T: float = 1.0,
+    L_Ls: float = 1.0,
     d_T: float = 0.04,
-    P_D: float = 1.,
+    P_D: float = 1.0,
     nb: int = 2
 ) -> float:
     r"""Calculate the Nusselt number for a stirred tank.
@@ -1026,3 +1027,56 @@ def U_cylindrical_wall(hi: float,
     Uo=6.1e+02 W/(m²·K)
     """
     return 1/(do/(hi*di) + 1/ho + Rfi*do/di + Rfo + do/(2*k)*np.log(do/di))
+
+
+def Nu_combined(Nu_forced: float,
+                Nu_free: float,
+                assisted: bool) -> float:
+    r"""Calculate the combined Nusselt number for forced and free convection.
+
+    The combined Nusselt number is given by the following expression:
+
+    $$ Nu = \sqrt[3]{Nu_{forced}^3 \pm Nu_{free}^3} $$
+
+    where the sign depends on the relative motion of the forced and free flows.
+    The plus sign is for assisted or transverse flow and the minus sign is for
+    opposing flows.
+
+    !!! tip
+
+        Combined free and forced convection is important when
+        $Gr/Re^2 \approx 1$.
+
+    **References**
+
+    * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
+      mass transfer", 4th edition, 1996, p. 515.
+
+    Parameters
+    ----------
+    Nu_forced : float
+        Nusselt number for forced convection.
+    Nu_free : float
+        Nusselt number for free convection.
+    assisted : bool
+        Flag to indicate the relative motion of the forced and free flows. Set
+        `True` for assisted or transverse flow and `False` for opposing flows.  
+
+    Returns
+    -------
+    float
+        Combined Nusselt number.
+
+    Examples
+    --------
+    Calculate the combined Nusselt number for a transverse flow where the free
+    and forced Nusselt numbers are 10.0 and 20.0, respectively.
+    >>> from polykin.transport import Nu_combined
+    >>> Nu = Nu_combined(Nu_forced=20.0, Nu_free=10.0, assisted=True)
+    >>> print(f"Nu={Nu:.1f}")
+    Nu=20.8
+    """
+    if assisted:
+        return cbrt(Nu_forced**3 + Nu_free**3)
+    else:
+        return cbrt(Nu_forced**3 - Nu_free**3)

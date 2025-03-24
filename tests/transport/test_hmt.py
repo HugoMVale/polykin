@@ -5,7 +5,7 @@
 import pytest
 from numpy import inf, isclose
 
-from polykin.transport.hmt import (Nu_cylinder, Nu_cylinder_bank,
+from polykin.transport.hmt import (Nu_combined, Nu_cylinder, Nu_cylinder_bank,
                                    Nu_cylinder_free, Nu_drop, Nu_plate,
                                    Nu_plate_free, Nu_sphere, Nu_sphere_free,
                                    Nu_tank, Nu_tube, U_cylindrical_wall,
@@ -166,3 +166,8 @@ def test_U_cylindrical_wall():
     Uo_plane = U_plane_wall(inf, inf, L := 1e-2, k := 50)
     Uo_cylinder = U_cylindrical_wall(inf, inf, di := 1e3, di + 2*L, k)
     assert isclose(Uo_plane, Uo_cylinder, rtol=1e-5)
+
+
+def test_Nu_combined():
+    assert isclose(Nu_combined(20, 10, True), 20.80, rtol=1e-2)
+    assert isclose(Nu_combined(20, 10, False), 19.13, rtol=1e-2)
