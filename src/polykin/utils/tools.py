@@ -322,7 +322,7 @@ def convert_check_temperature(
     else:
         raise ValueError("Invalid `Tunit` input.")
 
-    if np.any(TK < 0):
+    if np.any(TK < 0.0):
         raise RangeError("`T` must be > 0 K.")
     if np.any(TK < Trange[0]) or np.any(TK > Trange[1]):
         print(f"Warning: `T` input is outside validity range {Trange}.")
