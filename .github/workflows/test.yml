@@ -57,7 +57,7 @@ jobs:
         continue-on-error: true
         run: |
           export NUMBA_DISABLE_JIT=1
-          poetry run pytest --cov -v -s --cov-report=xml
+          poetry run pytest --cov -v -s --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
           poetry run coverage report --omit="tests/*"
           
       - name: Upload coverage to Codecov
