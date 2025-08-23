@@ -3,7 +3,7 @@
 [![Test](https://github.com/HugoMVale/polykin/actions/workflows/test.yml/badge.svg)](https://github.com/HugoMVale/polykin/actions)
 [![codecov](https://codecov.io/gh/HugoMVale/polykin/branch/main/graph/badge.svg?token=QfqQLX2rHx)](https://codecov.io/gh/HugoMVale/polykin)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/polykin?label=PyPI%20downloads)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/HugoMVale/HR-WENO)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/HugoMVale/polykin)
 
 PolyKin is an open-source polymerization kinetics library for Python. It is still at an early
 development stage, but the following modules can already be used:
