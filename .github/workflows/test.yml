@@ -27,7 +27,7 @@ jobs:
 
       - name: Install project dependencies
         run: |
-          uv sync --extra dev
+          uv sync --group dev
 
       - name: Run tests with Numba enabled
         run: |
