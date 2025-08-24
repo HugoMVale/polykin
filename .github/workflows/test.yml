@@ -46,14 +46,14 @@ jobs:
           uv run --frozen coverage report --omit="tests/*"
           
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
+        if: ${{ matrix.python-version == '3.12' && matrix.resolution == 'highest' }}
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: false
           
       - name: Upload test results to Codecov
-        if: ${{ matrix.python-version == '3.10' && matrix.resolution == 'highest' && !cancelled() }}
+        if: ${{ matrix.python-version == '3.12' && matrix.resolution == 'highest' && !cancelled() }}
         uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
