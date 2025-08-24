@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*.*.*"
+  workflow_dispatch:
 
 jobs:
   release:
@@ -29,4 +30,4 @@ jobs:
 
       - name: Publish to PyPI
         run: |
-          uv publish
+          uv publish --token ${{ secrets.PYPI_API_TOKEN }}
