@@ -28,11 +28,12 @@ jobs:
 
       - name: Install project dependencies
         run: |
-          uv sync --group dev
+          uv sync
 
       - name: Run tests with Numba enabled
         run: |
-          uv run pytest -v -s
+          pytest
+          # uv run pytest
       
       - name: Run tests with Numba disabled and collect coverage
         continue-on-error: true
