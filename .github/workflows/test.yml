@@ -4,13 +4,16 @@ on: [push, pull_request]
 
 jobs:
   test:
-    name: ${{ matrix.python-version }}
+    name: ${{ matrix.python-version }}-${{ matrix.resolution }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         resolution: ["lowest-direct", "highest"]
         python-version: ["3.10", "3.11", "3.12", "3.13"]
+        exclude:
+          - python-version: "3.13"
+            resolution: "lowest-direct" #numba 0.60 requires python < 3.13
 
     steps:
       - name: Checkout code
