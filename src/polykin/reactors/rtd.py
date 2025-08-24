@@ -14,7 +14,8 @@ __all__ = ['E_cstr',
            'E_laminar_flow',
            'F_laminar_flow',
            'E_dispersion_model',
-           'F_dispersion_model'
+           'F_dispersion_model',
+           'Pe_tube',
            ]
 
 
@@ -264,7 +265,7 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     tavg : float
         Average residence time, $\bar{t}$.
     Pe : float
-        Péclet number, $(v L)/D$.
+        Péclet number based on reactor length, $(v L)/D$.
 
     Returns
     -------
@@ -275,6 +276,7 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     --------
     * [`F_dispersion_model`](F_dispersion_model.md): related method to determine
       the cumulative distribution.
+    * [`Pe_tube`](Pe_tube.md): method to estimate the Péclet number.
     """
     q = t/tavg
     if q == 0 or q == inf:
@@ -313,7 +315,7 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     tavg : float
         Average residence time, $\bar{t}$.
     Pe : float
-        Péclet number, $(v L)/D$.
+        Péclet number based on reactor length, $(v L)/D$.
 
     Returns
     -------
@@ -324,6 +326,7 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     --------
     * [`E_dispersion_model`](E_dispersion_model.md): related method to determine
       the differential distribution.
+    * [`Pe_tube`](Pe_tube.md): method to estimate the Péclet number.
     """
     q = t/tavg
     if q == 0:
@@ -341,3 +344,50 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
                 args=(tavg, Pe),
                 epsabs=1e-5)
             return result
+
+
+def Pe_tube(Re: float, Sc: float | None = None) -> float:
+    r"""Calculate the Péclet number for flow through a circular tube.
+
+    For laminar flow, the tube Péclet number $Pe=(v d_t)/D$ is estimated by the
+    following expression:
+
+    $$ Pe = \left( \frac{1}{Re Sc} + \frac{Re Sc}{192} \right)^{-1} $$
+
+    where $Re$ is the Reynolds number and $Sc$ is the Schmidt number.
+
+    For turbulent flow, the tube Péclet number is estimated by the following
+    expression:
+
+    $$ Pe = \left( \frac{3\times10^{7}}{Re^{2.1}} + \frac{1.35}{Re^{0.125}} \right)^{-1} $$  
+
+    !!! note
+
+        The equation gives the Péclet number based on tube diameter. To obtain
+        the Péclet number based on tube length, the Péclet number must be
+        multiplied by the length-to-diameter ratio.
+
+    **References**
+
+    * Levenspiel, O. "Chemical reaction engineering", 3rd ed., John Wiley &
+      Sons, 1999, p. 310.
+
+    Parameters
+    ----------
+    Re : float
+        Reynolds number based on tube diameter.
+    Sc : float | None
+        Schmidt number. Required only for laminar flow.
+
+    Returns
+    -------
+    float
+        Péclet number based on tube diameter.
+    """
+    if Re < 2300:
+        if Sc is None:
+            raise ValueError("`Sc` must be specified for laminar flow.")
+        return 1/(1/(Re*Sc) + (Re*Sc)/192)
+    else:
+        # to be checked / improved
+        return 1/(3e7/Re**2.1 + 1.35/Re**0.125)

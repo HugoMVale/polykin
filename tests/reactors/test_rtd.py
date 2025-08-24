@@ -89,3 +89,9 @@ def test_F_dispersion_model():
 
     assert isclose(F_dispersion_model(1, 1, 99.9), 0.5, atol=0.03)
     assert isclose(F_dispersion_model(10, 1, 99.9), 1, atol=0.01)
+
+
+def test_Pe_tube():
+    assert isclose(Pe_tube(1, 1), 1, rtol=1e-2)
+    assert isclose(Pe_tube(2100, 1000), 1e-4, rtol=1e-1)
+    # !!! test in turbulent is missing
