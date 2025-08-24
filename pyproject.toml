@@ -45,7 +45,7 @@ Source = "https://github.com/HugoMVale/polykin"
 Documentation = "https://hugomvale.github.io/polykin/"
 
 [tool.pytest.ini_options]
-addopts = ["-n=2", "--import-mode=importlib"]
+addopts = ["-v", "-s", "-n=2"]
 
 [tool.ruff.lint]
 select = ["NPY201"]
