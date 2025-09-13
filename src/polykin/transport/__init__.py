@@ -5,3 +5,4 @@
 from .diffusion import *
 from .flow import *
 from .hmt import *
+from .rheology import *

@@ -179,6 +179,7 @@ nav:
       - Transport Phenomena:
           - Fluid Flow: reference/transport/flow/
           - Heat & Mass Transfer: reference/transport/hmt/
+          - Rheology: reference/transport/rheology/
           - Transient Diffusion: reference/transport/diffusion/
       - Step-Growth Polymerization:
           - Analytical Solutions: reference/stepgrowth/solutions.md
