@@ -5,10 +5,10 @@
 from numpy import isclose, pi
 
 from polykin.transport.flow import (Cd_sphere, DP_Darcy_Weisbach,
-                                    DP_GL_Lockhart_Martinelli, DP_GL_Mueller_Bonn,
-                                    DP_Hagen_Poiseuille, DP_packed_bed,
-                                    DP_tube, fD_Colebrook, fD_Haaland,
-                                    vt_sphere, vt_Stokes)
+                                    DP_GL_Lockhart_Martinelli,
+                                    DP_GL_Mueller_Bonn, DP_Hagen_Poiseuille,
+                                    DP_packed_bed, DP_tube, fD_Colebrook,
+                                    fD_Haaland, vt_sphere, vt_Stokes)
 
 
 def test_fD():
