@@ -8,9 +8,10 @@ development stage, but the following modules can already be used:
 - [x] kinetics
 - [x] math
 - [x] properties
+- [x] reactots
 - [x] stepgrowth
 - [x] thermo
-
+- [x] transport
 
 <p align="center">
   <img src="blend.svg" width=600 alt="MWD of a polymer blend">
