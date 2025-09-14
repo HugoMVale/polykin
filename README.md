@@ -34,6 +34,14 @@ development stage, but the following modules can already be used:
   - [x] Poison
   - [x] Schulz-Zimm
   - [x] Weibull-Nycander-Gold
+- Fluid Flow
+  - [x] Pressure drop and drag equations
+  - [x] Rheology
+  - [x] Safety valve sizing
+- Heat & Mass Transfer
+  - [x] Convection correlations
+  - [x] Heat exchanger equations
+  - [x] Transient diffusion equations
 - Kinetics
   - [x] Arrhenius
   - [x] Eyring
