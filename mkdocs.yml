@@ -157,10 +157,20 @@ nav:
   - Tutorials: tutorials/
   - API Reference:
       - Chemical Kinetics:
+          - reference/kinetics/index.md
           - Coefficients: reference/kinetics/coefficients/
           - Emulsion Polymerization: reference/kinetics/emulsion/
       - Copolymerization: reference/copolymerization/
       - Distributions: reference/distributions/
+      - Fluid Flow:
+          - reference/flow/index.md
+          - Friction and Drag: reference/flow/friction/
+          - Rheology: reference/flow/rheology/
+      - Heat & Mass Transfer:
+          - reference/hmt/index.md
+          - Convection Correlations: reference/hmt/correlations/
+          - Heat Exchange: reference/hmt/hex/
+          - Transient Diffusion: reference/hmt/diffusion/
       - Mathematics: reference/math/
       - Properties:
           - reference/properties/index.md
@@ -171,18 +181,16 @@ nav:
           - Vaporization Enthalpy: reference/properties/vaporization_enthalpy/
           - Viscosity: reference/properties/viscosity/
       - Reactors:
+          - reference/reactors/index.md
           - Residence Time Distributions: reference/reactors/rtd/
       - Thermodynamics:
-          #- reference/thermo/index.md
+          - reference/thermo/index.md
           - Activity Coeff. Models: reference/thermo/acm/
           - Equations of State: reference/thermo/eos/
-      - Transport Phenomena:
-          - Fluid Flow: reference/transport/flow/
-          - Heat & Mass Transfer: reference/transport/hmt/
-          - Rheology: reference/transport/rheology/
-          - Transient Diffusion: reference/transport/diffusion/
       - Step-Growth Polymerization:
+          - reference/stepgrowth/index.md
           - Analytical Solutions: reference/stepgrowth/solutions.md
       - Utils:
+          - reference/utils/index.md
           - Exceptions: reference/utils/exceptions.md
           - Types: reference/utils/types.md
