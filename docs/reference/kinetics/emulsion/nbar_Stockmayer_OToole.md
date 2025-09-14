@@ -1,4 +1,4 @@
-# polykin.emulsion
+# polykin.kinetics.emulsion
 
 ::: polykin.kinetics.emulsion.nbar
     options:

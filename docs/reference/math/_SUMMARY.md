@@ -1,4 +1,4 @@
-
+* [](index.md)
 * [confidence_ellipse](confidence_ellipse.md)
 * [confidence_region](confidence_region.md)
 * [derivative_centered](derivative_centered.md)

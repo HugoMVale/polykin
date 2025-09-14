@@ -1,4 +1,4 @@
-# Solutions (polykin.stepgrowth)
+# Solutions (polykin.stepgrowth.solutions)
 
 ## Overview
 

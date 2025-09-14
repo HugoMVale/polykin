@@ -1,4 +1,4 @@
-# Types (polykin.utils.exceptions)
+# Exceptions (polykin.utils.exceptions)
 
 ::: polykin.utils.exceptions
     options:

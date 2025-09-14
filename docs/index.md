@@ -5,13 +5,14 @@ development stage, but the following modules can already be used:
 
 - [x] copolymerization
 - [x] distributions
+- [x] flow
+- [x] hmt
 - [x] kinetics
 - [x] math
 - [x] properties
-- [x] reactots
+- [x] reactors
 - [x] stepgrowth
 - [x] thermo
-- [x] transport
 
 <p align="center">
   <img src="blend.svg" width=600 alt="MWD of a polymer blend">
