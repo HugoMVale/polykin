@@ -44,7 +44,7 @@ def mu_PowerLaw(gdot: float | FloatArray,
     --------
     Determine the viscosity of a fluid with a consistency of 10 Pa·s^n and a
     flow index of 0.2, at a shear rate of 1e3 1/s.
-    >>> from polykin.transport import mu_PowerLaw
+    >>> from polykin.flow import mu_PowerLaw
     >>> gdot = 1e3  # 1/s
     >>> K = 10.0    # Pa·s^n
     >>> n = 0.2
@@ -96,7 +96,7 @@ def mu_Cross(gdot: float | FloatArray,
     Determine the viscosity of a fluid with a zero-shear viscosity of 1.0 Pa·s,
     a relaxation time of 1 second, and a power-law index of 0.2, at a shear rate
     of 20 1/s.
-    >>> from polykin.transport import mu_Cross
+    >>> from polykin.flow import mu_Cross
     >>> gdot = 20.0   # 1/s
     >>> mu0 = 1.0     # Pa·s
     >>> lmbda = 1.0   # s
@@ -148,7 +148,7 @@ def mu_Cross_modified(gdot: float | FloatArray,
     Determine the viscosity of a fluid with a zero-shear viscosity of 1e6 Pa·s,
     a relaxation constant of 2e-5 1/Pa, and a power-law index of 0.2, at a shear
     rate of 1.0 1/s.
-    >>> from polykin.transport import mu_Cross_modified
+    >>> from polykin.flow import mu_Cross_modified
     >>> gdot = 1.0  # 1/s
     >>> mu0 = 1e6   # Pa·s
     >>> C = 2e-5    # 1/Pa
@@ -205,7 +205,7 @@ def mu_Carreau_Yasuda(gdot: float | FloatArray,
     an infinite-shear viscosity of 0.001 Pa·s, a relaxation time of 1 second, 
     a power-law index of 0.2, and a Yasuda parameter of 2.0, at a shear rate of
     20 1/s.
-    >>> from polykin.transport import mu_Carreau_Yasuda
+    >>> from polykin.flow import mu_Carreau_Yasuda
     >>> gdot = 20.0   # 1/s
     >>> mu0 = 1.0     # Pa·s
     >>> muinf = 1e-3  # Pa·s
@@ -268,7 +268,7 @@ def aT_WLF(T: float,
     --------
     Determine the temperature shift factor at 120 °C for polystyrene, given 
     that its glass transition temperature is 100 °C.
-    >>> from polykin.transport import aT_WLF
+    >>> from polykin.flow import aT_WLF
     >>> T = 120 + 273.15  # K
     >>> T0 = 100 + 273.15 # K
     >>> aT = aT_WLF(T, T0)

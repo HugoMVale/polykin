@@ -7,23 +7,22 @@ from typing import Literal
 import numpy as np
 from numpy import cbrt, inf, sqrt
 
-from polykin.transport.flow import fD_Haaland
+from polykin.flow.friction import fD_Haaland
 from polykin.utils.tools import check_range_warn
 
-__all__ = ['Nu_tube',
-           'Nu_cylinder',
-           'Nu_cylinder_bank',
-           'Nu_cylinder_free',
-           'Nu_sphere',
-           'Nu_sphere_free',
-           'Nu_drop',
-           'Nu_plate',
-           'Nu_plate_free',
-           'Nu_tank',
-           'Nu_combined',
-           'U_plane_wall',
-           'U_cylindrical_wall'
-           ]
+__all__ = [
+    'Nu_tube',
+    'Nu_cylinder',
+    'Nu_cylinder_bank',
+    'Nu_cylinder_free',
+    'Nu_sphere',
+    'Nu_sphere_free',
+    'Nu_drop',
+    'Nu_plate',
+    'Nu_plate_free',
+    'Nu_tank',
+    'Nu_combined'
+]
 
 
 def Nu_tube(Re: float,
@@ -90,7 +89,7 @@ def Nu_tube(Re: float,
     --------
     Estimate the internal heat transfer coefficient for water flowing at 2 m/s
     through a long smooth tube with an internal diameter of 25 mm.
-    >>> from polykin.transport import Nu_tube
+    >>> from polykin.hmt import Nu_tube
     >>> rho = 1e3  # kg/m³
     >>> mu = 1e-3  # Pa.s
     >>> cp = 4.2e3 # J/kg/K
@@ -201,7 +200,7 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     --------
     Estimate the external heat transfer coefficient for water flowing at 2 m/s
     across a DN25 pipe.
-    >>> from polykin.transport import Nu_cylinder
+    >>> from polykin.hmt import Nu_cylinder
     >>> rho = 1e3   # kg/m³
     >>> mu = 1e-3   # Pa.s
     >>> cp = 4.2e3  # J/kg/K
@@ -265,7 +264,7 @@ def Nu_cylinder_free(Ra: float, Pr: float) -> float:
     Estimate the external heat transfer coefficient for a DN25 tube with a
     surface temperature of 330 K immersed in water with a bulk temperature of
     290 K.
-    >>> from polykin.transport import Nu_cylinder_free
+    >>> from polykin.hmt import Nu_cylinder_free
     >>> rho = 1.0e3   # kg/m³ (properties at 310 K)
     >>> mu = 0.70e-3  # Pa.s
     >>> cp = 4.2e3    # J/kg/K
@@ -382,7 +381,7 @@ def Nu_drop(Re: float, Pr: float) -> float:
     Examples
     --------
     Estimate the Nusselt number for a 1 mm styrene droplet falling in air.
-    >>> from polykin.transport import Nu_drop
+    >>> from polykin.hmt import Nu_drop
     >>> D = 1e-3    # m
     >>> vt = 3.8    # m/s (from vt_sphere)
     >>> rho = 1.2   # kg/m³
@@ -458,7 +457,7 @@ def Nu_tank(
     Estimate the internal heat transfer coefficient for a 2-m diameter stirred
     tank equiped with a HE3 impeller operated at 120 rpm. Assume water properties
     and default geometry.
-    >>> from polykin.transport import Nu_tank
+    >>> from polykin.hmt import Nu_tank
     >>> T = 2.0    # m
     >>> D = T/3    # m
     >>> rho = 1e3  # kg/m³
@@ -640,7 +639,7 @@ def Nu_cylinder_bank(v: float,
     pitch is 34.3 mm, the transversal pitch is 31.3 mm, and the number of rows
     is 7. The tube surface temperature is 70°C, while the upstream air stream
     has a temperature of 15°C and a velocity of 6 m/s.
-    >>> from polykin.transport import Nu_cylinder_bank
+    >>> from polykin.hmt import Nu_cylinder_bank
     >>> v = 6.0      # m/s
     >>> ST = 31.3e-3 # m
     >>> SL = 34.3e-3 # m
@@ -764,7 +763,7 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     Estimate the external heat transfer coefficient for a 50 mm sphere with a
     surface temperature of 330 K immersed in water with a bulk temperature of
     290 K.
-    >>> from polykin.transport import Nu_sphere_free
+    >>> from polykin.hmt import Nu_sphere_free
     >>> rho = 1.0e3   # kg/m³
     >>> mu = 0.70e-3  # Pa.s
     >>> cp = 4.2e3    # J/kg/K
@@ -864,7 +863,7 @@ def Nu_plate_free(orientation: Literal['vertical',
     Estimate the heat transfer coefficient between the outer surface of a
     vertical tank (D=2 m, H=3 m) with a surface temperature of 310 K and
     quiescent air at 290 K.
-    >>> from polykin.transport import Nu_plate_free
+    >>> from polykin.hmt import Nu_plate_free
     >>> L = 3.0           # m (characteristic length is tank height)
     >>> Ts, Tb = 310, 290 # K
     >>> Tf = (Ts + Tb)/2  # K (film temperature)
@@ -896,137 +895,6 @@ def Nu_plate_free(orientation: Literal['vertical',
         return 0.27*Ra**(1/4)
     else:
         raise ValueError(f"Unknown `orientation`: {orientation}.")
-
-
-def U_plane_wall(h1: float,
-                 h2: float,
-                 L: float,
-                 k: float,
-                 Rf1: float = 0.0,
-                 Rf2: float = 0.0) -> float:
-    r"""Calculate the overall heat transfer coefficient through a plane wall
-    with convection on both sides.
-
-    Under steady-state conditions, the overall heat transfer coefficient is
-    given by the following expression:
-
-    $$ U = \left( \frac{1}{h_1} + \frac{1}{h_2} + \frac{L}{k} + R_{f,1} + R_{f,2} \right)^{-1} $$
-
-    where $h_i$ and $R_{f,i}$ denote, respectively, the heat transfer coefficient
-    and fouling factor at surface $i$, $L$ is the wall thickness, and $k$ is the
-    wall thermal conductivity.
-
-    Parameters
-    ----------
-    h1 : float
-        Heat transfer coefficient at surface 1 (W/(m²·K)).
-    h2 : float
-        Heat transfer coefficient at surface 2 (W/(m²·K)).
-    L : float
-        Wall thickness (m).
-    k : float
-        Wall thermal conductivity (W/(m·K)).
-    Rf1 : float
-        Fouling factor at surface 1 ((m²·K)/W).
-    Rf2 : float
-        Fouling factor at surface 2 ((m²·K)/W).
-
-    Returns
-    -------
-    float
-        Overall heat transfer coefficient (W/(m²·K)).
-
-    See also
-    --------
-    - [`U_cylindrical_wall`](U_cylindrical_wall.md): related method for a
-      cylindrical wall.
-
-    Examples
-    --------
-    Calculate the overall heat transfer coefficient for a 10 mm-thick plane
-    carbon steel wall subjected to convection on both sides, with heat transfer
-    coefficients of 1000 and 2000 W/(m²·K). Neglect fouling effects.
-    >>> from polykin.transport import U_plane_wall
-    >>> h1 = 1e3  # W/(m²·K)
-    >>> h2 = 2e3  # W/(m²·K)
-    >>> k = 6e2   # W/(m·K)
-    >>> L = 10e-3 # m
-    >>> U = U_plane_wall(h1, h2, L, k)
-    >>> print(f"U={U:.1e} W/(m²·K)")
-    U=6.6e+02 W/(m²·K)
-    """
-    return 1/(1/h1 + 1/h2 + L/k + Rf1 + Rf2)
-
-
-def U_cylindrical_wall(hi: float,
-                       ho: float,
-                       di: float,
-                       do: float,
-                       k: float,
-                       Rfi: float = 0.0,
-                       Rfo: float = 0.0) -> float:
-    r"""Calculate the overall heat transfer coefficient through a cylindrical
-    wall with convection on both sides.
-
-    Under steady-state conditions, the overall heat transfer coefficient is
-    given by the following expression:
-
-    $$ U_o = \left( \frac{d_o}{h_i d_i} + \frac{1}{h_o} + \frac{R_{f,i}d_o}{d_i}
-             + R_{f,o} + \frac{d_o}{2k}\ln(d_o/d_i) \right)^{-1} $$
-
-    where $h$ is the heat transfer coefficient, $R_{f}$ is the fouling factor,
-    $d$ is the diameter, $k$ is the wall thermal conductivity, and the subscripts
-    $i$ and $o$ indicate inner and outer surfaces, respectively.
-
-    !!! tip
-
-        The overall heat transfer coefficient based on the inner surface, $U_i$,
-        can be computed using the indentity $U_i d_i = U_o d_o$.
-
-    Parameters
-    ----------
-    hi : float
-        Heat transfer coefficient at inner surface (W/(m²·K)).
-    ho : float
-        Heat transfer coefficient at outer surface (W/(m²·K)).
-    di : float
-        Inner diameter (m).
-    do : float
-        Outer diameter (m).
-    k : float
-        Wall thermal conductivity (W/(m·K)).
-    Rfi : float
-        Fouling factor at inner surface ((m²·K)/W).
-    Rfo : float
-        Fouling factor at outer surface ((m²·K)/W).
-
-    Returns
-    -------
-    float
-        Overall heat transfer coefficient based on outer surface (W/(m²·K)).
-
-    See also
-    --------
-    - [`U_plane_wall`](U_plane_wall.md): related method for a plane wall.
-
-    Examples
-    --------
-    Calculate the overall heat transfer coefficient for a carbon steel tube 
-    subjected to convection on both sides, with heat transfer coefficients 
-    of 2000 and 1000 W/(m²·K) for the inner and outer surfaces, respectively. 
-    The tube has inner and outer diameters of 40 mm and 50 mm. Neglect fouling
-    effects.
-    >>> from polykin.transport import U_cylindrical_wall
-    >>> hi = 2e3   # W/(m²·K)
-    >>> ho = 1e3   # W/(m²·K)
-    >>> k = 6e2    # W/(m·K)
-    >>> di = 40e-3 # m
-    >>> do = 50e-3 # m
-    >>> Uo = U_cylindrical_wall(hi, ho, di, do, k)
-    >>> print(f"Uo={Uo:.1e} W/(m²·K)")
-    Uo=6.1e+02 W/(m²·K)
-    """
-    return 1/(do/(hi*di) + 1/ho + Rfi*do/di + Rfo + do/(2*k)*np.log(do/di))
 
 
 def Nu_combined(Nu_forced: float,
@@ -1071,7 +939,7 @@ def Nu_combined(Nu_forced: float,
     --------
     Calculate the combined Nusselt number for a transverse flow where the free
     and forced Nusselt numbers are 10.0 and 20.0, respectively.
-    >>> from polykin.transport import Nu_combined
+    >>> from polykin.hmt import Nu_combined
     >>> Nu = Nu_combined(Nu_forced=20.0, Nu_free=10.0, assisted=True)
     >>> print(f"Nu={Nu:.1f}")
     Nu=20.8

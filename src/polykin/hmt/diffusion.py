@@ -58,7 +58,7 @@ def profile_constc_semiinf(t: float,
     --------
     Determine the fractional concentration change after 100 s in a thick polymer
     film (diffusivity: 1e-10 m²/s) at a depth of 0.1 mm below the surface.
-    >>> from polykin.transport import profile_constc_semiinf
+    >>> from polykin.hmt import profile_constc_semiinf
     >>> profile_constc_semiinf(t=1e2, x=0.1e-3, D=1e-10)
     0.4795001221869535
     """
@@ -112,7 +112,7 @@ def profile_constc_sheet(Fo: float, xstar: float) -> float:
     --------
     Determine the fractional concentration change after 100 s in a 0.2 mm-thick
     polymer film (diffusivity: 1e-10 m²/s) at its maximum depth.
-    >>> from polykin.transport import profile_constc_sheet
+    >>> from polykin.hmt import profile_constc_sheet
     >>> t = 1e2    # s
     >>> a = 0.2e-3 # m
     >>> D = 1e-10  # m²/s
@@ -184,7 +184,7 @@ def profile_constc_sphere(Fo: float, rstar: float) -> float:
     --------
     Determine the fractional concentration change after 100 s at the center of
     a polymer sphere with a radius of 0.2 mm and a diffusivity of 1e-10 m²/s.
-    >>> from polykin.transport import profile_constc_sphere
+    >>> from polykin.hmt import profile_constc_sphere
     >>> t = 1e2    # s
     >>> a = 0.2e-3 # m
     >>> r = 0      # m
@@ -265,7 +265,7 @@ def uptake_constc_sheet(Fo: float) -> float:
     --------
     Determine the fractional mass uptake after 500 seconds for a polymer solution
     film with a thickness of 0.2 mm and a diffusion coefficient of 1e-11 m²/s.
-    >>> from polykin.transport import uptake_constc_sheet
+    >>> from polykin.hmt import uptake_constc_sheet
     >>> t = 5e2   # s
     >>> a = 2e-4  # m
     >>> D = 1e-11 # m²/s
@@ -330,7 +330,7 @@ def uptake_constc_sphere(Fo: float) -> float:
     --------
     Determine the fractional mass uptake after 100 seconds for a polymer sphere
     with a radius of 0.1 mm and a diffusion coefficient of 1e-11 m²/s.
-    >>> from polykin.transport import uptake_constc_sphere
+    >>> from polykin.hmt import uptake_constc_sphere
     >>> t = 1e2   # s
     >>> a = 1e-4  # m
     >>> D = 1e-11 # m²/s
@@ -403,7 +403,7 @@ def uptake_convection_sheet(Fo: float, Bi: float) -> float:
     Determine the fractional mass uptake after 500 seconds for a polymer solution
     film with a thickness of 0.2 mm, a diffusion coefficient of 1e-11 m²/s, and
     an external mass transfer coefficient of 1e-6 m/s.
-    >>> from polykin.transport import uptake_convection_sheet
+    >>> from polykin.hmt import uptake_convection_sheet
     >>> t = 5e2   # s
     >>> a = 2e-4  # m
     >>> D = 1e-11 # m²/s
@@ -470,7 +470,7 @@ def uptake_convection_sphere(Fo: float, Bi: float) -> float:
     Determine the fractional mass uptake after 100 seconds for a polymer sphere
     with a radius of 0.1 mm, a diffusion coefficient of 1e-11 m²/s, and an
     external mass transfer coefficient of 1e-6 m/s.
-    >>> from polykin.transport import uptake_convection_sphere
+    >>> from polykin.hmt import uptake_convection_sphere
     >>> t = 1e2   # s
     >>> a = 1e-4  # m
     >>> D = 1e-11 # m²/s
@@ -536,7 +536,7 @@ def diffusivity_composite(Dd: float,
     Determine the effective diffusivity of a composite medium containing 5 vol%
     of spherical particles with a diffusivity of 1e-10 m²/s. The diffusivity
     of the continuous phase is 1e-11 m²/s.
-    >>> from polykin.transport import diffusivity_composite
+    >>> from polykin.hmt import diffusivity_composite
     >>> diffusivity_composite(Dd=1e-10, Dc=1e-11, fd=0.05)
     1.1168831168831167e-11
     """

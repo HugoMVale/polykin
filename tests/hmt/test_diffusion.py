@@ -4,14 +4,14 @@
 
 from numpy import isclose
 
-from polykin.transport.diffusion import (diffusivity_composite,
-                                         profile_constc_semiinf,
-                                         profile_constc_sheet,
-                                         profile_constc_sphere,
-                                         uptake_constc_sheet,
-                                         uptake_constc_sphere,
-                                         uptake_convection_sheet,
-                                         uptake_convection_sphere)
+from polykin.hmt.diffusion import (diffusivity_composite,
+                                   profile_constc_semiinf,
+                                   profile_constc_sheet,
+                                   profile_constc_sphere,
+                                   uptake_constc_sheet,
+                                   uptake_constc_sphere,
+                                   uptake_convection_sheet,
+                                   uptake_convection_sphere)
 
 
 def test_profile_constc_semiinf():

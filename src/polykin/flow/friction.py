@@ -58,7 +58,7 @@ def DP_Hagen_Poiseuille(Q: float,
     --------
     Calculate the pressure drop for a polymer solution (viscosity: 10 Pa·s)
     flowing at 1 L/s through 5 m of smooth pipe with a 50 mm internal diameter. 
-    >>> from polykin.transport import DP_Hagen_Poiseuille
+    >>> from polykin.flow import DP_Hagen_Poiseuille
     >>> from math import pi
     >>> Q = 1e-3  # m³/s
     >>> D = 50e-3 # m
@@ -128,7 +128,7 @@ def DP_Darcy_Weisbach(v: float,
     --------
     Calculate the pressure drop for water flowing at 2 m/s through 500 m of PVC
     pipe with an internal diameter of 25 mm.
-    >>> from polykin.transport import DP_Darcy_Weisbach, fD_Haaland
+    >>> from polykin.flow import DP_Darcy_Weisbach, fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> L = 5e2   # m
@@ -192,7 +192,7 @@ def DP_tube(Q: float,
     --------
     Calculate the pressure drop for water flowing at 3 m³/h through 500 m of
     PVC pipe with an internal diameter of 25 mm.
-    >>> from polykin.transport import DP_tube
+    >>> from polykin.flow import DP_tube
     >>> Q = 3.0/3600 # m³/s
     >>> rho = 1e3    # kg/m³
     >>> mu = 1e-3    # Pa·s
@@ -266,7 +266,7 @@ def DP_packed_bed(G: float,
     --------
     Calculate the pressure drop in a packed bed reactor under the conditions
     specified below.
-    >>> from polykin.transport import DP_packed_bed
+    >>> from polykin.flow import DP_packed_bed
     >>> DP = DP_packed_bed(G=50., L=2., Dp=1e-2, eps=0.45, rho=800., mu=0.01)
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 1.4e+04 Pa
@@ -314,7 +314,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     --------
     Calculate the friction factor for water flowing at 2 m/s through a PVC pipe
     with an internal diameter of 25 mm.
-    >>> from polykin.transport import fD_Colebrook
+    >>> from polykin.flow import fD_Colebrook
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> D = 25e-3 # m
@@ -373,7 +373,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     --------
     Calculate the friction factor for water flowing at 2 m/s through a PVC pipe
     with an internal diameter of 25 mm.
-    >>> from polykin.transport import fD_Haaland
+    >>> from polykin.flow import fD_Haaland
     >>> rho = 1e3 # kg/m³
     >>> mu = 1e-3 # Pa·s
     >>> D = 25e-3 # m
@@ -423,7 +423,7 @@ def Cd_sphere(Re: float) -> float:
     Examples
     --------
     Calculate the drag coefficient for a tennis ball traveling at 30 m/s.
-    >>> from polykin.transport import Cd_sphere
+    >>> from polykin.flow import Cd_sphere
     >>> D = 6.7e-2  # m
     >>> mu = 1.6e-5 # Pa·s
     >>> rho = 1.2   # kg/m³
@@ -475,7 +475,7 @@ def vt_Stokes(D: float,
     Examples
     --------
     Calculate the terminal velocity of a 500 nm PVC particle in water.
-    >>> from polykin.transport import vt_Stokes
+    >>> from polykin.flow import vt_Stokes
     >>> vt = vt_Stokes(500e-9, 1.4e3, 1e3, 1e-3)
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
@@ -539,7 +539,7 @@ def vt_sphere(D: float,
     Examples
     --------
     Calculate the terminal velocity of a 1 mm styrene droplet in air.
-    >>> from polykin.transport import vt_sphere
+    >>> from polykin.flow import vt_sphere
     >>> vt = vt_sphere(1e-3, 910., 1.2, 1.6e-5)
     >>> print(f"vt = {vt:.1f} m/s")
     vt = 3.8 m/s
@@ -622,7 +622,7 @@ def DP_GL_Lockhart_Martinelli(mdotL: float,
     pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
     densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
     2e-5 Pa·s, respectively. 
-    >>> from polykin.transport import DP_GL_Lockhart_Martinelli
+    >>> from polykin.flow import DP_GL_Lockhart_Martinelli
     >>> mdotL = 2.0 # kg/s
     >>> mdotG = 1.0 # kg/s 
     >>> D = 80e-3   # m
@@ -731,7 +731,7 @@ def DP_GL_Mueller_Bonn(mdotL: float,
     pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
     densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
     2e-5 Pa·s, respectively. 
-    >>> from polykin.transport import DP_GL_Mueller_Bonn
+    >>> from polykin.flow import DP_GL_Mueller_Bonn
     >>> mdotL = 2.0 # kg/s
     >>> mdotG = 1.0 # kg/s 
     >>> D = 80e-3   # m

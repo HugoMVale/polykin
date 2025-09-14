@@ -2,7 +2,6 @@
 #
 # Copyright Hugo Vale 2024
 
-from .diffusion import *
-from .flow import *
-from .hmt import *
+from .friction import *
 from .rheology import *
+from .valves import *

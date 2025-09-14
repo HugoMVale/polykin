@@ -1,7 +1,7 @@
 from numpy import isclose
 
-from polykin.transport.rheology import (aT_WLF, mu_Carreau_Yasuda, mu_Cross,
-                                        mu_Cross_modified, mu_PowerLaw)
+from polykin.flow.rheology import (aT_WLF, mu_Carreau_Yasuda, mu_Cross,
+                                   mu_Cross_modified, mu_PowerLaw)
 
 
 def test_mu_PowerLaw():
