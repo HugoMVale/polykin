@@ -165,6 +165,7 @@ nav:
       - Fluid Flow:
           - reference/flow/index.md
           - Friction and Drag: reference/flow/friction/
+          - Pressure Relief Valves: reference/flow/prv/
           - Rheology: reference/flow/rheology/
       - Heat & Mass Transfer:
           - reference/hmt/index.md
