@@ -4,7 +4,6 @@
     options:
         members:
             - RedlichKwong
-            - Z_cubic_roots
 
 ## Examples
 

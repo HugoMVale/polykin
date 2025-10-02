@@ -4,3 +4,4 @@
 * [RedlichKwong](RedlichKwong.md)
 * [Soave](Soave.md)
 * [Virial](Virial.md)
+* [Z_cubic_roots](Z_cubic_roots.md)
