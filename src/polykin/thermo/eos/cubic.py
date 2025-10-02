@@ -170,7 +170,7 @@ class Cubic(GasAndLiquidEoS):
         fluid.
 
         The calculation is handled by
-        [`Z_cubic_roots`](.#polykin.thermo.eos.cubic.Z_cubic_roots).
+        [`Z_cubic_roots`](Z_cubic_roots.md).
 
         Parameters
         ----------
