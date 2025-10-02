@@ -2,8 +2,8 @@
 
 ## Overview
 
-This module implements preliminary sizing methods for pressure relief devices -- valves or
-rupture disks -- according to the API standard 520.
+This module implements preliminary sizing methods for pressure relief devices — valves or
+rupture disks — according to the API standard 520.
 
 | Inlet Mixture           |   Single-phase Flow  |                     Two-phase Flow                    |
 |-------------------------|:--------------------:|:-----------------------------------------------------:|
