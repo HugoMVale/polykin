@@ -10,6 +10,11 @@ mixtures, and liquid mixtures.
 | Mixing rules        | [MUVMX2_Herning_Zipperer]           | [MULMX2_Perry]       |
 | Pressure correction | [MUVPC_Jossi], [MUVMXPC_Dean_Stiel] | —                    |
 
+!!! note
+
+    Estimation methods for liquids are not included, as none of those reported in the
+    literature are considered sufficiently reliable.
+
 [:simple-jupyter: Tutorial](../../../tutorials/viscosity){ .md-button }
 
 [DIPPR101]: ../equations/index.md#polykin.properties.equations.dippr.DIPPR101
