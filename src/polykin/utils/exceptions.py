@@ -9,6 +9,10 @@ class ConvergenceError(ValueError):
     pass
 
 
+class ConvergenceWarning(Warning):
+    pass
+
+
 class FitError(ValueError):
     pass
 

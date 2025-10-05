@@ -4,6 +4,7 @@
     options:
         members:
             - ConvergenceError
+            - ConvergenceWarning
             - FitError
             - ODESolverError
             - RangeError
