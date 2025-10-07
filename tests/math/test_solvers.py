@@ -3,58 +3,84 @@
 # Copyright Hugo Vale 2024
 from math import exp
 
+import numpy as np
 import pytest
 from numba import njit
 from numpy import isclose
 
-from polykin.math.solvers import fzero_newton, fzero_secant, ode_rk
+from polykin.math.solvers import (fzero_brent, fzero_newton, fzero_secant,
+                                  ode_rk)
 
 
 def f(x):
     return 2*x**3 + 4*x**2 + x - 2
 
 
+SOL = min(np.roots((2, 4, 1, -2)), key=lambda x: abs(x - 0.5))
+
+
 def test_fzero_newton():
-    # normal
-    res = fzero_newton(f, 1.5, ftol=1e-100)
+    # stop xtol
+    xtol = 1e-9
+    res = fzero_newton(f, 1.5, xtol=xtol, ftol=1e-100)
     assert res.success
-    assert isclose(res.x, 0.54, atol=0.01)
-    # stop maxiter
-    res = fzero_newton(f, 1.5, maxiter=2)
-    assert not res.success
+    assert isclose(res.x, SOL, atol=xtol)
     # stop ftol
     ftol = 1e-10
-    res = fzero_newton(f, 1.5, xtol=1e-4, ftol=ftol)
-    assert res.success
-    assert not (abs(res.f) < ftol)
     res = fzero_newton(f, 1.5, xtol=1e-100, ftol=ftol)
     assert res.success
     assert abs(res.f) < ftol
+    # stop maxiter
+    maxiter = 2
+    res = fzero_newton(f, 1.5, maxiter=maxiter)
+    assert not res.success
+    assert res.niter == maxiter
 
 
 def test_fzero_secant():
-    # normal
-    res = fzero_secant(f, 1.5, 1.4)
+    # stop xtol
+    xtol = 1e-9
+    res = fzero_secant(f, 1.5, 1.4, xtol=xtol, ftol=1e-100)
     assert res.success
-    assert isclose(res.x, 0.54, atol=0.01)
-    # stop maxiter
-    res = fzero_secant(f, 1.5, 1.4, maxiter=2)
-    assert not res.success
+    assert isclose(res.x, SOL, atol=xtol)
     # stop ftol
     ftol = 1e-10
-    res = fzero_secant(f, 1.5, 1.4, xtol=1e-4, ftol=ftol)
-    assert res.success
-    assert not (abs(res.f) < ftol)
     res = fzero_secant(f, 1.5, 1.4, xtol=1e-100, ftol=ftol)
     assert res.success
     assert abs(res.f) < ftol
+    # stop maxiter
+    maxiter = 2
+    res = fzero_secant(f, 1.5, 1.4, maxiter=maxiter)
+    assert not res.success
+    assert res.niter == maxiter
+
+
+def test_fzero_brent():
+    # stop xtol
+    xtol = 1e-9
+    res = fzero_brent(f, 0.1, 1.0, xtol=xtol, ftol=1e-100)
+    assert res.success
+    assert isclose(res.x, SOL, atol=xtol)
+    # stop ftol
+    ftol = 1e-10
+    res = fzero_brent(f, 0.1, 1.0, xtol=1e-100, ftol=ftol)
+    assert res.success
+    assert abs(res.f) < ftol
+    # stop maxiter
+    maxiter = 2
+    res = fzero_brent(f, 0.1, 1.0, maxiter=maxiter)
+    assert not res.success
+    assert res.niter == maxiter
+    # no change of sign in interval
+    with pytest.raises(ValueError):
+        _ = fzero_brent(f, 0.1, 0.2)
 
 
 def test_ode_rk():
 
-    t0 = 0.
-    y0 = 1.
-    tf = 4.
+    t0 = 0.0
+    y0 = 1.0
+    tf = 4.0
 
     @njit
     def ydot(t, y):

@@ -3,6 +3,7 @@
 * [confidence_region](confidence_region.md)
 * [derivative_centered](derivative_centered.md)
 * [derivative_complex](derivative_complex.md)
+* [fzero_brent](fzero_brent.md)
 * [fzero_newton](fzero_newton.md)
 * [fzero_secant](fzero_secant.md)
 * [hessian2](hessian2.md)

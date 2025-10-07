@@ -9,8 +9,14 @@ from typing import Callable, Literal
 from numba import njit
 
 from polykin.math.derivatives import derivative_complex
+from polykin.utils.math import eps
 
-__all__ = ['fzero_newton', 'fzero_secant', 'ode_rk']
+__all__ = [
+    'fzero_newton',
+    'fzero_secant',
+    'fzero_brent',
+    'ode_rk'
+]
 
 
 @dataclass
@@ -55,12 +61,12 @@ def fzero_newton(f: Callable[[complex], complex],
         Function whose root is to be found.
     x0 : float
         Inital guess.
-    xtol : float, optional
+    xtol : float
         Absolute tolerance for `x` value. The algorithm will terminate when the
-        change in `x` between two iterations is smaller than `xtol`.
-    ftol : float, optional
+        change in `x` between two iterations is less or equal than `xtol`.
+    ftol : float
         Absolute tolerance for function value. The algorithm will terminate
-        when `|f(x)|<ftol`.
+        when `|f(x)|<=ftol`.
     maxiter : int
         Maximum number of iterations.
 
@@ -84,12 +90,12 @@ def fzero_newton(f: Callable[[complex], complex],
     niter = 0
     while niter < maxiter:
         dfdx, f0 = derivative_complex(f, x0)
-        if (abs(f0) < ftol):
+        if (abs(f0) <= ftol):
             success = True
             break
         x1 = x0 - f0 / dfdx
         niter += 1
-        if (abs(x1 - x0) < xtol):
+        if (abs(x1 - x0) <= xtol):
             success = True
             x0 = x1
             f0 = f(x0).real
@@ -120,12 +126,12 @@ def fzero_secant(f: Callable[[float], float],
         Inital guess.
     x1 : float
         Second guess.
-    xtol : float, optional
+    xtol : float
         Absolute tolerance for `x` value. The algorithm will terminate when the
-        change in `x` between two iterations is smaller than `xtol`.
-    ftol : float, optional
+        change in `x` between two iterations is less or equal than `xtol`.
+    ftol : float
         Absolute tolerance for function value. The algorithm will terminate
-        when `|f(x)|<ftol`.
+        when `|f(x)|<=ftol`.
     maxiter : int
         Maximum number of iterations.
 
@@ -159,15 +165,127 @@ def fzero_secant(f: Callable[[float], float],
         x2 = x1 - f1*(x1 - x0)/(f1 - f0)
         f2 = f(x2)
         niter += 1
-        if (abs(x2 - x1) < xtol) or (abs(f2) < ftol):
+        if (abs(x2 - x1) <= xtol) or (abs(f2) <= ftol):
             success = True
             break
-        x0 = x1
-        x1 = x2
-        f0 = f1
-        f1 = f2
+        x0, f0 = x1, f1
+        x1, f1 = x2, f2
 
     return RootResult(success, niter, x2, f2)
+
+
+def fzero_brent(f: Callable[[float], float],
+                xa: float,
+                xb: float,
+                xtol: float = 1e-6,
+                ftol: float = 1e-6,
+                maxiter: int = 50
+                ) -> RootResult:
+    r"""Find the root of a scalar function using Brent's method.
+
+    Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.brentq.html),
+    this method also terminates based on the function value. This is sometimes
+    a more meaningful stop criterion.
+
+    **References**
+
+    * William H. Press, Saul A. Teukolsky, William T. Vetterling, and 
+      Brian P. Flannery. 2007. "Numerical Recipes 3rd Edition: The Art of 
+      Scientific Computing" (3rd. ed.). Cambridge University Press, USA.
+
+    Parameters
+    ----------
+    f : Callable[[float], float]
+        Function whose root is to be found.
+    xa : float
+        Lower bound of the bracketing interval.
+    xb : float
+        Upper bound of the bracketing interval.
+    xtol : float
+        Absolute tolerance for `x` value. The algorithm will terminate when the
+        change in `x` between two iterations is less or equal than `xtol`.
+    ftol : float
+        Absolute tolerance for function value. The algorithm will terminate
+        when `|f(x)|<=ftol`.
+    maxiter : int
+        Maximum number of iterations.
+
+    Returns
+    -------
+    RootResult
+        Dataclass with root solution results.
+
+    Examples
+    --------
+    Find a root of the Flory-Huggins equation.
+    >>> from polykin.math import fzero_brent
+    >>> from math import log
+    >>> def f(x, a=0.6, chi=0.4):
+    ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
+    >>> sol = fzero_brent(f, 0.1, 0.9)
+    >>> print(f"x= {sol.x:.3f}")
+    x= 0.213
+    """
+
+    fa = f(xa)
+    if (abs(fa) < ftol):
+        return RootResult(True, 0, xa, fa)
+    fb = f(xb)
+    if (abs(fb) < ftol):
+        return RootResult(True, 0, xb, fb)
+
+    if (fa*fb) > 0.0:
+        raise ValueError("Root is not bracketed.")
+
+    xc, fc = xb, fb
+    success = False
+    for iter in range(maxiter):
+        if (fb*fc > 0.0):
+            xc, fc = xa, fa
+            d = xb - xa
+            e = d
+        if abs(fc) < abs(fb):
+            xa, fa = xb, fb
+            xb, fb = xc, fc
+            xc, fc = xa, fa
+        tol1 = 2*eps*abs(xb) + 0.5*xtol
+        xm = 0.5*(xc - xb)
+        if (abs(xm) <= tol1) or (abs(fb) <= ftol):
+            # return xb
+            success = True
+            break
+        if (abs(e) >= tol1) and (abs(fa) > abs(fb)):
+            s = fb/fa
+            if xa == xc:
+                p = 2*xm*s
+                q = 1 - s
+            else:
+                q = fa/fc
+                r = fb/fc
+                p = s*(2*xm*q*(q - r) - (xb - xa)*(r - 1))
+                q = (q - 1)*(r - 1)*(s - 1)
+            if p > 0:
+                q = -q
+            p = abs(p)
+            min1 = 3*xm*q - abs(tol1*q)
+            min2 = abs(e*q)
+            if 2*p < min(min1, min2):
+                e = d
+                d = p/q
+            else:
+                d = xm
+                e = d
+        else:
+            d = xm
+            e = d
+        xa, fa = xb, fb
+        if abs(d) > tol1:
+            xb += d
+        else:
+            xb += math.copysign(tol1, xm)
+        fb = f(xb)
+
+    return RootResult(success, iter+1, xb, fb)
 
 
 @njit
