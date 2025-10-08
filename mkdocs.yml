@@ -188,6 +188,7 @@ nav:
           - reference/thermo/index.md
           - Activity Coeff. Models: reference/thermo/acm/
           - Equations of State: reference/thermo/eos/
+          - Flash Solvers: reference/thermo/flash/
       - Step-Growth Polymerization:
           - reference/stepgrowth/index.md
           - Analytical Solutions: reference/stepgrowth/solutions.md
