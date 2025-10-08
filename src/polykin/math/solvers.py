@@ -153,10 +153,10 @@ def fzero_secant(f: Callable[[float], float],
     """
 
     f0 = f(x0)
-    if (abs(f0) < ftol):
+    if (abs(f0) <= ftol):
         return RootResult(True, 0, x0, f0)
     f1 = f(x1)
-    if (abs(f1) < ftol):
+    if (abs(f1) <= ftol):
         return RootResult(True, 0, x1, f1)
 
     success = False
@@ -228,10 +228,10 @@ def fzero_brent(f: Callable[[float], float],
     """
 
     fa = f(xa)
-    if (abs(fa) < ftol):
+    if (abs(fa) <= ftol):
         return RootResult(True, 0, xa, fa)
     fb = f(xb)
-    if (abs(fb) < ftol):
+    if (abs(fb) <= ftol):
         return RootResult(True, 0, xb, fb)
 
     if (fa*fb) > 0.0:
@@ -249,40 +249,40 @@ def fzero_brent(f: Callable[[float], float],
             xb, fb = xc, fc
             xc, fc = xa, fa
         tol1 = 2*eps*abs(xb) + 0.5*xtol
-        xm = 0.5*(xc - xb)
-        if (abs(xm) <= tol1) or (abs(fb) <= ftol):
-            # return xb
+        m = 0.5*(xc - xb)
+        if (abs(m) <= tol1) or (abs(fb) <= ftol):
             success = True
+            # return xb
             break
         if (abs(e) >= tol1) and (abs(fa) > abs(fb)):
             s = fb/fa
             if xa == xc:
-                p = 2*xm*s
+                p = 2*m*s
                 q = 1 - s
             else:
                 q = fa/fc
                 r = fb/fc
-                p = s*(2*xm*q*(q - r) - (xb - xa)*(r - 1))
+                p = s*(2*m*q*(q - r) - (xb - xa)*(r - 1))
                 q = (q - 1)*(r - 1)*(s - 1)
             if p > 0:
                 q = -q
             p = abs(p)
-            min1 = 3*xm*q - abs(tol1*q)
+            min1 = 3*m*q - abs(tol1*q)
             min2 = abs(e*q)
             if 2*p < min(min1, min2):
                 e = d
                 d = p/q
             else:
-                d = xm
+                d = m
                 e = d
         else:
-            d = xm
+            d = m
             e = d
         xa, fa = xb, fb
         if abs(d) > tol1:
             xb += d
         else:
-            xb += math.copysign(tol1, xm)
+            xb += math.copysign(tol1, m)
         fb = f(xb)
 
     return RootResult(success, iter+1, xb, fb)
