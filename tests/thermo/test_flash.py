@@ -3,7 +3,7 @@ from numpy import allclose, isclose
 
 from polykin.properties.equations import Antoine
 from polykin.thermo.acm import UNIQUAC
-from polykin.thermo.flash.vle import (flash2_PV, flash2_TP,
+from polykin.thermo.flash.vle import (flash2_PV, flash2_PT,
                                       residual_Rachford_Rice,
                                       solve_Rachford_Rice)
 
@@ -88,8 +88,8 @@ def test_solve_flash_residual():
         assert isclose(sol.beta, 0.1219, atol=1e-4)
 
 
-def test_flash2_TP():
-    sol = flash2_TP(F=1.0,
+def test_flash2_PT():
+    sol = flash2_PT(F=1.0,
                     z=np.array([0.5, 0.5]),
                     T=373.0,
                     P=0.4e5,

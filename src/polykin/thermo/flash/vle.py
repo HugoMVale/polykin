@@ -10,7 +10,9 @@ from polykin.utils.exceptions import ConvergenceError, ConvergenceWarning
 from polykin.utils.types import FloatVector
 
 __all__ = [
-    'flash2_TP',
+    'FlashResult',
+    'flash2_PV',
+    'flash2_PT',
     'residual_Rachford_Rice',
     'solve_Rachford_Rice'
 ]
@@ -159,7 +161,33 @@ def dew_P(
 
 @dataclass(frozen=True)
 class FlashResult():
-    """Flash result dataclass."""
+    """Flash result dataclass.
+
+    Attributes
+    ----------
+    success : bool
+        Flag indicating if the solver converged.
+    T : float
+        Temperature (K).
+    P : float
+        Pressure (Pa).
+    F : float
+        Feed mole flowrate (mol/s).
+    L : float
+        Liquid mole flowrate (mol/s).
+    V : float
+        Vapor mole flowrate (mol/s).
+    beta : float
+        Vapor phase fraction (mol/mol). 
+    z : FloatVector
+        Feed mole fractions (mol/mol).
+    x : FloatVector
+        Liquid mole fractions (mol/mol).    
+    y : FloatVector
+        Vapor mole fractions (mol/mol).
+    K : FloatVector
+        K-values.
+    """
     success: bool
     T: float
     P: float
@@ -173,11 +201,11 @@ class FlashResult():
     K: FloatVector
 
 
-def flash2_TP(
+def flash2_PT(
     F: float,
     z: FloatVector,
-    T: float,
     P: float,
+    T: float,
     Kcalc: Callable[[float, float, FloatVector, FloatVector], FloatVector],
     *,
     beta0: float | None = None,
@@ -187,6 +215,11 @@ def flash2_TP(
     alpha_outer: float = 1.0,
 ) -> FlashResult:
     r"""Solve a 2-phase flash problem at given temperature and pressure.
+
+    **References**
+
+    *  M.L. Michelsen and J. Mollerup, "Thermodynamic models: Fundamentals and
+       computational aspects", Tie-Line publications, 2nd edition, 2007.
 
     Parameters
     ----------
@@ -199,7 +232,7 @@ def flash2_TP(
     P : float
         Pressure (Pa).
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
-        Function to calculate K-values.
+        Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
     beta0 : float | None
         Initial guess for vapor phase fraction.
     maxiter : int
@@ -282,7 +315,7 @@ def solve_Rachford_Rice(
     z: FloatVector,
     beta0: float | None = None,
     maxiter: int = 50,
-    atol_F: float = 1e-9
+    atol_res: float = 1e-9
 ) -> RachfordRiceResult:
     r"""Solve the Rachford-Rice flash residual equation.
 
@@ -292,9 +325,6 @@ def solve_Rachford_Rice(
 
     **References**
 
-    *  H.H. Rachford and J.D. Rice, "Procedure for Use of Electronic Digital
-       Computers in Calculating Flash Vaporization Hydrocarbon Equilibrium", 
-       J Pet Technol 4 (1952): 19-3.
     *  M.L. Michelsen and J. Mollerup, "Thermodynamic models: Fundamentals and
        computational aspects", Tie-Line publications, 2nd edition, 2007.
 
@@ -308,7 +338,7 @@ def solve_Rachford_Rice(
         Initial guess for vapor phase fraction (mol/mol).
     maxiter : int
         Maximum number of iterations.
-    atol_F : float
+    atol_res : float
         Absolute tolerance for residual.
 
     Returns
@@ -352,7 +382,7 @@ def solve_Rachford_Rice(
         F, dF = residual_Rachford_Rice(beta, K, z, derivative=True)
 
         # Check convergence
-        if abs(F) < atol_F:
+        if abs(F) < atol_res:
             success = True
             break
 
@@ -440,9 +470,14 @@ def flash2_PV(
     maxiter: int = 50,
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
-
 ) -> FlashResult:
     r"""Solve a 2-phase flash problem at given pressure and vapor fraction.
+
+    **References**
+
+    *  J.F. Boston, H.I. Britt, "A radically different formulation and solution
+       of the single-stage flash problem", Computers & Chemical Engineering,
+       Volume 2, Issues 2-3, 1978, p. 109-122,
 
     Parameters
     ----------
@@ -455,7 +490,7 @@ def flash2_PV(
     beta : float
         Vapor phase fraction (mol/mol).
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
-        Function to calculate K-values.
+        Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
     T0 : float
         Initial guess for temperature (K).
     maxiter : int
