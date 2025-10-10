@@ -238,7 +238,7 @@ def flash2_PT(
     maxiter : int
         Maximum number of iterations.    
     atol_inner : float
-        Absolute tolerance for the inner Rachford-Rice loop.
+        Absolute tolerance for the inner beta-loop.
     rtol_outer : float
         Relative tolerance for the outer K-values loop.
     alpha_outer : float
@@ -540,7 +540,7 @@ def flash2_PV(
                 ConvergenceWarning)
             break
 
-        # Step 5
+        # Compute x, y
         R = sol.x
         p = z/(1 - R + Kb0*R*exp(u))
         eup = exp(u)*p
@@ -585,6 +585,7 @@ def _parameters_PV(
         all: bool = False,
         B: float = 0.0
 ) -> tuple:
+    """Calculate volatility parameters for PV flash."""
 
     # Evaluations at T
     K = Kcalc(T, P, x, y)
