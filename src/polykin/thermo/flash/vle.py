@@ -8,6 +8,7 @@ from numpy import dot, exp, log
 from polykin.math import fzero_brent
 from polykin.utils.exceptions import ConvergenceError, ConvergenceWarning
 from polykin.utils.types import FloatVector
+from polykin.utils.math import eps
 
 __all__ = [
     'FlashResult',
@@ -262,15 +263,14 @@ def flash2_PT(
 
         # Find beta
         sol = solve_Rachford_Rice(K, z, beta0, maxiter, atol_inner)
+        beta = sol.beta
         if not sol.success:
             warnings.warn(
                 f"Inner Rachford-Rice loop did not converge after {maxiter} iterations.\n"
                 f"Solution: {sol}.",
                 ConvergenceWarning)
-            break
 
         # Compute x, y
-        beta = sol.beta
         x = z/(1 + beta*(K - 1))
         y = K*x
         x /= x.sum()
@@ -382,7 +382,7 @@ def solve_Rachford_Rice(
         F, dF = residual_Rachford_Rice(beta, K, z, derivative=True)
 
         # Check convergence
-        if abs(F) < atol_res:
+        if abs(F) <= atol_res:
             success = True
             break
 
@@ -529,19 +529,23 @@ def flash2_PV(
         v_old = np.concatenate((u, [A]))
 
         # Inner R-loop
-        sol = fzero_brent(lambda R: fobj(R, u, Kb0, beta, z),
-                          0.0, 1.0,
-                          maxiter=maxiter,
-                          xtol=atol_inner,
-                          ftol=atol_inner)
-        if not sol.success:
-            warnings.warn(
-                f"Inner R-loop did not converge after {maxiter} iterations.",
-                ConvergenceWarning)
-            break
+        if abs(beta - 0) <= eps:
+            R = 0.0
+        elif abs(beta - 1) < eps:
+            R = 1.0
+        else:
+            sol = fzero_brent(lambda R: fobj(R, u, Kb0, beta, z),
+                              0.0, 1.0,
+                              maxiter=maxiter,
+                              xtol=atol_inner,
+                              ftol=atol_inner)
+            R = sol.x
+            if not sol.success:
+                warnings.warn(
+                    f"Inner R-loop did not converge after {maxiter} iterations.",
+                    ConvergenceWarning)
 
         # Compute x, y
-        R = sol.x
         p = z/(1 - R + Kb0*R*exp(u))
         eup = exp(u)*p
         sum_p = p.sum()
