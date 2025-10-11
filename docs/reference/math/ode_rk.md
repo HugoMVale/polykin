@@ -1,6 +1,6 @@
 # polykin.math
 
-::: polykin.math.solvers
+::: polykin.math.ode
     options:
         members:
             - ode_rk

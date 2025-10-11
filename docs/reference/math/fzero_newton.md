@@ -1,6 +1,6 @@
 # polykin.math
 
-::: polykin.math.solvers
+::: polykin.math.roots
     options:
         members:
             - fzero_newton

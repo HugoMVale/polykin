@@ -12,7 +12,7 @@ from numpy import arctan, cos, exp, log, sin, sqrt
 from scipy.stats.distributions import f as Fdist
 from scipy.stats.distributions import t as tdist
 
-from polykin.math.solvers import RootResult, fzero_secant
+from polykin.math.roots import RootResult, fzero_secant
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
