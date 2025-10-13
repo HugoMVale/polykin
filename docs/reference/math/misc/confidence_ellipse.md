@@ -1,6 +1,6 @@
-# polykin.math
+# polykin.math.misc
 
-::: polykin.math.jcr
+::: polykin.math.misc
     options:
         members:
             - confidence_ellipse

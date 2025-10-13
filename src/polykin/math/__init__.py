@@ -2,14 +2,11 @@
 #
 # Copyright Hugo Vale 2024
 
-
 """
 This module implements auxiliary mathematical methods.
 """
 
 from .derivatives import *
-from .filters import *
-from .jcr import *
-from .ode import *
+from .misc import *
 from .roots import *
 from .special import *

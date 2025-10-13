@@ -1,6 +1,6 @@
-# polykin.math
+# polykin.math.derivatives
 
 ::: polykin.math.derivatives
     options:
         members:
-            - derivative_centered
+            - derivative_complex

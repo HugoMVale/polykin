@@ -172,7 +172,12 @@ nav:
           - Convection Correlations: reference/hmt/correlations/
           - Heat Exchange: reference/hmt/hex/
           - Transient Diffusion: reference/hmt/diffusion/
-      - Mathematics: reference/math/
+      - Mathematics:
+          - reference/math/index.md
+          - Derivatives: reference/math/derivatives/
+          - Miscellaneous: reference/math/misc/
+          - Root Solvers: reference/math/roots/
+          - Special Functions: reference/math/special/
       - Properties:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md

@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy import all, isclose
 
-from polykin.math.filters import simplify_polyline
+from polykin.math import simplify_polyline
 
 
 def test_polyline():

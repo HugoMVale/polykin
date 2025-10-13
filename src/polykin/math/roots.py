@@ -6,6 +6,8 @@ import math
 from dataclasses import dataclass
 from typing import Callable
 
+import numpy as np
+
 from polykin.math.derivatives import derivative_complex
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
@@ -25,6 +27,10 @@ class RootResult():
     ----------
     success: bool
         If `True`, the root was found.
+    message: str
+        Description of the exit status.
+    nfeval: int
+        Number of function evaluations.
     niter: int
         Number of iterations.
     x: float
@@ -33,6 +39,8 @@ class RootResult():
         Function value at root.
     """
     success: bool
+    message: str
+    nfeval: int
     niter: int
     x: float
     f: float
@@ -49,7 +57,7 @@ def fzero_newton(f: Callable[[complex], complex],
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-newton.html),
     this method uses complex step differentiation to estimate the derivative of
     $f(x)$ without loss of precision. Therefore, there is no need to provide
-    $f'(x)$. It's application is restricted to real functions that can be
+    $f'(x)$. Its application is restricted to real functions that can be
     evaluated with complex inputs, but which per se do not implement complex
     arithmetic.
 
@@ -84,23 +92,38 @@ def fzero_newton(f: Callable[[complex], complex],
     >>> print(f"x= {sol.x:.3f}")
     x= 0.213
     """
+
+    nfeval = 0
+    message = ""
+
     success = False
-    niter = 0
-    while niter < maxiter:
+    for niter in range(1, maxiter+1):
+
         dfdx, f0 = derivative_complex(f, x0)
-        if (abs(f0) <= ftol):
+        nfeval += 1
+
+        if abs(f0) <= ftol:
+            message = "|f(x0)| <= ftol"
             success = True
             break
+
+        if abs(dfdx) <= eps:
+            message = f"Nearly zero derivative at x={x0} (df/dx={dfdx})."
+            break
+
         x1 = x0 - f0 / dfdx
-        niter += 1
+
         if (abs(x1 - x0) <= xtol):
+            message = "|Δx| <= xtol"
             success = True
-            x0 = x1
-            f0 = f(x0).real
             break
+
         x0 = x1
 
-    return RootResult(success, niter, x0, f0)
+    else:
+        message = f"Maximum number of iterations ({maxiter}) reached."
+
+    return RootResult(success, message, nfeval, niter, x0, f0)
 
 
 def fzero_secant(f: Callable[[float], float],
@@ -121,7 +144,7 @@ def fzero_secant(f: Callable[[float], float],
     f : Callable[[float], float]
         Function whose root is to be found.
     x0 : float
-        Inital guess.
+        Initial guess.
     x1 : float
         Second guess.
     xtol : float
@@ -150,26 +173,52 @@ def fzero_secant(f: Callable[[float], float],
     x= 0.213
     """
 
+    nfeval = 0
+    message = ""
+
     f0 = f(x0)
-    if (abs(f0) <= ftol):
-        return RootResult(True, 0, x0, f0)
+    nfeval += 1
+    if abs(f0) <= ftol:
+        message = "|f(x0)| <= ftol"
+        return RootResult(True, message, nfeval, 0, x0, f0)
+
     f1 = f(x1)
-    if (abs(f1) <= ftol):
-        return RootResult(True, 0, x1, f1)
+    nfeval += 1
+    if abs(f1) <= ftol:
+        message = "|f(x1)| <= ftol"
+        return RootResult(True, message, nfeval, 0, x1, f1)
 
     success = False
-    niter = 0
-    while niter < maxiter:
-        x2 = x1 - f1*(x1 - x0)/(f1 - f0)
+    x2, f2 = np.nan, np.nan
+
+    for niter in range(1, maxiter+1):
+
+        Δf = f1 - f0
+        if abs(Δf) <= eps * max(abs(f0), abs(f1), 1.0):
+            message = f"Nearly zero slope between x0={x0} and x1={x1} (Δf={Δf})."
+            break
+
+        x2 = x1 - f1*(x1 - x0) / Δf
         f2 = f(x2)
-        niter += 1
-        if (abs(x2 - x1) <= xtol) or (abs(f2) <= ftol):
+        nfeval += 1
+
+        if (abs(x2 - x1) <= xtol):
+            message = "|Δx| <= xtol"
             success = True
             break
+
+        if (abs(f2) <= ftol):
+            message = "|f| <= ftol"
+            success = True
+            break
+
         x0, f0 = x1, f1
         x1, f1 = x2, f2
 
-    return RootResult(success, niter, x2, f2)
+    else:
+        message = f"Maximum number of iterations ({maxiter}) reached."
+
+    return RootResult(success, message, nfeval, niter, x2, f2)
 
 
 def fzero_brent(f: Callable[[float], float],
@@ -225,33 +274,51 @@ def fzero_brent(f: Callable[[float], float],
     x= 0.213
     """
 
+    nfeval = 0
+    message = ""
+
     fa = f(xa)
-    if (abs(fa) <= ftol):
-        return RootResult(True, 0, xa, fa)
+    nfeval += 1
+    if abs(fa) <= ftol:
+        message = "|f(xa)| <= ftol"
+        return RootResult(True, message, nfeval, 0, xa, fa)
+
     fb = f(xb)
-    if (abs(fb) <= ftol):
-        return RootResult(True, 0, xb, fb)
+    nfeval += 1
+    if abs(fb) <= ftol:
+        message = "|f(xb)| <= ftol"
+        return RootResult(True, message, nfeval, 0, xb, fb)
 
     if (fa*fb) > 0.0:
         raise ValueError("Root is not bracketed.")
 
     xc, fc = xb, fb
     success = False
-    for iter in range(maxiter):
+
+    for niter in range(1, maxiter+1):
+
         if (fb*fc > 0.0):
             xc, fc = xa, fa
             d = xb - xa
             e = d
+
         if abs(fc) < abs(fb):
             xa, fa = xb, fb
             xb, fb = xc, fc
             xc, fc = xa, fa
+
         tol1 = 2*eps*abs(xb) + 0.5*xtol
         m = 0.5*(xc - xb)
-        if (abs(m) <= tol1) or (abs(fb) <= ftol):
+        if abs(m) <= tol1:
+            message = "|Δx| <= xtol"
             success = True
-            # return xb
             break
+
+        if abs(fb) <= ftol:
+            message = "|f| <= ftol"
+            success = True
+            break
+
         if (abs(e) >= tol1) and (abs(fa) > abs(fb)):
             s = fb/fa
             if xa == xc:
@@ -276,11 +343,57 @@ def fzero_brent(f: Callable[[float], float],
         else:
             d = m
             e = d
+
         xa, fa = xb, fb
         if abs(d) > tol1:
             xb += d
         else:
             xb += math.copysign(tol1, m)
-        fb = f(xb)
 
-    return RootResult(success, iter+1, xb, fb)
+        fb = f(xb)
+        nfeval += 1
+
+    else:
+        message = f"Maximum number of iterations ({maxiter}) reached."
+
+    return RootResult(success, message, nfeval, niter, xb, fb)
+
+
+def fixpoint_anderson(
+        g: Callable,
+        x0: FloatVector,
+        m: int = 3,
+        xtol: float = 1e-6,
+        maxiter: int = 50,
+        alpha: float = 1.0,
+) -> FloatVector:
+
+    G = np.empty((m, x0.size))
+    xk = g(x0)
+    G[-1, :] = xk
+
+    success = False
+    for k in range(1, maxiter):
+        mk = min(m, k)
+        gk = g(xk)
+        fk = gk - xk
+
+        np.roll(G, -1, axis=1)
+        G[-1, :] = gk
+
+        # determine gamma
+        gamma = np.zeros(mk)
+
+        x_new = np.zeros_like(xk)
+        x_new[:] = gk
+        for i in range(mk):
+            idx = i - mk
+            print(i, idx)
+            x_new[:] += gamma[i] * (G[idx, :] - G[idx - 1, :])
+
+        if np.linalg.norm(x_new - xk, np.inf) <= xtol:
+            success = True
+            break
+        xk[:] = x_new
+
+    return xk

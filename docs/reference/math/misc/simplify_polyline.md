@@ -1,6 +1,6 @@
-# polykin.math
+# polykin.math.misc
 
-::: polykin.math.filters
+::: polykin.math.misc
     options:
         members:
             - simplify_polyline

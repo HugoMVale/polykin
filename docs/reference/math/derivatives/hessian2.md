@@ -1,4 +1,4 @@
-# polykin.math
+# polykin.math.derivatives
 
 ::: polykin.math.derivatives
     options:

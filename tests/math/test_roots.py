@@ -21,16 +21,19 @@ def test_fzero_newton():
     xtol = 1e-9
     res = fzero_newton(f, 1.5, xtol=xtol, ftol=1e-100)
     assert res.success
+    assert "xtol" in res.message
     assert isclose(res.x, SOL, atol=xtol)
     # stop ftol
     ftol = 1e-10
     res = fzero_newton(f, 1.5, xtol=1e-100, ftol=ftol)
     assert res.success
+    assert "ftol" in res.message
     assert abs(res.f) < ftol
     # stop maxiter
-    maxiter = 2
+    maxiter = 3
     res = fzero_newton(f, 1.5, maxiter=maxiter)
     assert not res.success
+    assert "iterations" in res.message
     assert res.niter == maxiter
 
 
@@ -39,16 +42,19 @@ def test_fzero_secant():
     xtol = 1e-9
     res = fzero_secant(f, 1.5, 1.4, xtol=xtol, ftol=1e-100)
     assert res.success
+    assert "xtol" in res.message
     assert isclose(res.x, SOL, atol=xtol)
     # stop ftol
     ftol = 1e-10
     res = fzero_secant(f, 1.5, 1.4, xtol=1e-100, ftol=ftol)
     assert res.success
+    assert "ftol" in res.message
     assert abs(res.f) < ftol
     # stop maxiter
-    maxiter = 2
+    maxiter = 3
     res = fzero_secant(f, 1.5, 1.4, maxiter=maxiter)
     assert not res.success
+    assert "iterations" in res.message
     assert res.niter == maxiter
 
 
@@ -57,16 +63,19 @@ def test_fzero_brent():
     xtol = 1e-9
     res = fzero_brent(f, 0.1, 1.0, xtol=xtol, ftol=1e-100)
     assert res.success
+    assert "xtol" in res.message
     assert isclose(res.x, SOL, atol=xtol)
     # stop ftol
     ftol = 1e-10
     res = fzero_brent(f, 0.1, 1.0, xtol=1e-100, ftol=ftol)
     assert res.success
+    assert "ftol" in res.message
     assert abs(res.f) < ftol
     # stop maxiter
-    maxiter = 2
+    maxiter = 3
     res = fzero_brent(f, 0.1, 1.0, maxiter=maxiter)
     assert not res.success
+    assert "iterations" in res.message
     assert res.niter == maxiter
     # no change of sign in interval
     with pytest.raises(ValueError):

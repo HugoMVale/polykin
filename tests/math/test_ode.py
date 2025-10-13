@@ -6,7 +6,7 @@ import pytest
 from numba import njit
 from numpy import exp, isclose
 
-from polykin.math.ode import ode_rk
+from polykin.math.derivatives.ode import ode_rk
 
 
 def test_ode_rk():
