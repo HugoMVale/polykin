@@ -2,7 +2,6 @@
 #
 # Copyright Hugo Vale 2024
 
-import math
 from dataclasses import dataclass
 from typing import Callable
 
@@ -10,12 +9,12 @@ import numpy as np
 
 from polykin.math.derivatives import derivative_complex
 from polykin.utils.math import eps
-from polykin.utils.types import FloatVector
 
 __all__ = [
     'fzero_newton',
     'fzero_secant',
-    'fzero_brent'
+    'fzero_brent',
+    'RootResult',
 ]
 
 
@@ -36,7 +35,7 @@ class RootResult():
     x: float
         Root value.
     f: float
-        Function value at root.
+        Function (residual) value at root.
     """
     success: bool
     message: str
@@ -60,6 +59,11 @@ def fzero_newton(f: Callable[[complex], complex],
     $f'(x)$. Its application is restricted to real functions that can be
     evaluated with complex inputs, but which per se do not implement complex
     arithmetic.
+
+    !!! note
+
+        The functions from the `math` module (e.g., `math.log`) do not support
+        complex arguments. Use the equivalent functions from `numpy` instead.
 
     Parameters
     ----------
@@ -165,7 +169,7 @@ def fzero_secant(f: Callable[[float], float],
     --------
     Find a root of the Flory-Huggins equation.
     >>> from polykin.math import fzero_secant
-    >>> from math import log
+    >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
     >>> sol = fzero_secant(f, 0.3, 0.31)
@@ -266,7 +270,7 @@ def fzero_brent(f: Callable[[float], float],
     --------
     Find a root of the Flory-Huggins equation.
     >>> from polykin.math import fzero_brent
-    >>> from math import log
+    >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
     >>> sol = fzero_brent(f, 0.1, 0.9)
@@ -348,7 +352,7 @@ def fzero_brent(f: Callable[[float], float],
         if abs(d) > tol1:
             xb += d
         else:
-            xb += math.copysign(tol1, m)
+            xb += np.copysign(tol1, m)
 
         fb = f(xb)
         nfeval += 1
@@ -357,43 +361,3 @@ def fzero_brent(f: Callable[[float], float],
         message = f"Maximum number of iterations ({maxiter}) reached."
 
     return RootResult(success, message, nfeval, niter, xb, fb)
-
-
-def fixpoint_anderson(
-        g: Callable,
-        x0: FloatVector,
-        m: int = 3,
-        xtol: float = 1e-6,
-        maxiter: int = 50,
-        alpha: float = 1.0,
-) -> FloatVector:
-
-    G = np.empty((m, x0.size))
-    xk = g(x0)
-    G[-1, :] = xk
-
-    success = False
-    for k in range(1, maxiter):
-        mk = min(m, k)
-        gk = g(xk)
-        fk = gk - xk
-
-        np.roll(G, -1, axis=1)
-        G[-1, :] = gk
-
-        # determine gamma
-        gamma = np.zeros(mk)
-
-        x_new = np.zeros_like(xk)
-        x_new[:] = gk
-        for i in range(mk):
-            idx = i - mk
-            print(i, idx)
-            x_new[:] += gamma[i] * (G[idx, :] - G[idx - 1, :])
-
-        if np.linalg.norm(x_new - xk, np.inf) <= xtol:
-            success = True
-            break
-        xk[:] = x_new
-
-    return xk
