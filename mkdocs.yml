@@ -176,6 +176,7 @@ nav:
           - reference/math/index.md
           - Derivatives: reference/math/derivatives/
           - Miscellaneous: reference/math/misc/
+          - Fixed-Point Solvers: reference/math/fixpoint/
           - Root Solvers: reference/math/roots/
           - Special Functions: reference/math/special/
       - Properties:

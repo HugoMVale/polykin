@@ -1,6 +1,6 @@
-# polykin.math.roots
+# polykin.math.fixpoint
 
-::: polykin.math.roots
+::: polykin.math.fixpoint
     options:
         members:
             - fixpoint_anderson

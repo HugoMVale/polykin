@@ -250,9 +250,9 @@ def fit_copo_data(data_Ff: list[CopoDataset_Ff] = [],
 
     See also
     --------
-    * [`confidence_ellipse`](../math/confidence_ellipse.md): linear method
+    * [`confidence_ellipse`](../math/misc/confidence_ellipse.md): linear method
       used to calculate the joint confidence region.
-    * [`confidence_region`](../math/confidence_region.md): exact method
+    * [`confidence_region`](../math/misc/confidence_region.md): exact method
       used to calculate the joint confidence region.
     * [`fit_Finemann_Ross`](fit_Finemann_Ross.md): alternative method.  
 

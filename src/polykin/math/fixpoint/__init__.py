@@ -3,5 +3,4 @@
 # Copyright Hugo Vale 2025
 
 
-from .scalar import *
-from .vector import *
+from .anderson import *

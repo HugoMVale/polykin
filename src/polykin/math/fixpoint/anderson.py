@@ -2,59 +2,31 @@
 #
 # Copyright Hugo Vale 2025
 
-from dataclasses import dataclass
 from typing import Callable
 
 import numpy as np
 
+from polykin.math.roots import VectorRootResult
 from polykin.utils.types import FloatVector
 
 __all__ = [
-    'fixpoint_anderson',
-    'VectorRootResult'
+    'fixpoint_anderson'
 ]
 
 
-@dataclass
-class VectorRootResult():
-    """Dataclass with vector root solution results.
-
-    Attributes
-    ----------
-    success: bool
-        If `True`, the root was found.
-    message: str
-        Description of the exit status.
-    nfeval: int
-        Number of function evaluations.
-    niter: int
-        Number of iterations.
-    x: FloatVector
-        Root value.
-    f: FloatVector
-        Function (residual) value at root.
-    """
-    success: bool
-    message: str
-    nfeval: int
-    niter: int
-    x: FloatVector
-    f: FloatVector
-
-
 def fixpoint_anderson(
-        g: Callable,
+        g: Callable[[FloatVector], FloatVector],
         x0: FloatVector,
         m: int = 3,
         xtol: float = 1e-6,
         maxiter: int = 50
 ) -> VectorRootResult:
-    r"""Find the solution of a n-dimensional fixed-point function using Anderson
+    r"""Find the solution of a N-dimensional fixed-point function using Anderson
     acceleration.
 
     Parameters
     ----------
-    g : Callable
+    g : Callable[[FloatVector], FloatVector]
         Identity function for the fixed-point problem, i.e. `g(x) = x`.
     x0 : FloatVector
         Initial guess.

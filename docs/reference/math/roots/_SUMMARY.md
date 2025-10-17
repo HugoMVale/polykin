@@ -1,5 +1,4 @@
 * [](index.md)
-* [fixpoint_anderson](fixpoint_anderson.md)
 * [fzero_brent](fzero_brent.md)
 * [fzero_newton](fzero_newton.md)
 * [fzero_secant](fzero_secant.md)
