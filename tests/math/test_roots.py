@@ -24,18 +24,22 @@ def test_fzero_newton():
     assert res.success
     assert "xtol" in res.message
     assert isclose(res.x, f.sol, atol=xtol)
+    assert isclose(res.f, f(res.x))
+    assert res.nfeval == res.niter
     # stop ftol
     ftol = 1e-10
     res = fzero_newton(f, 1.5, xtol=1e-100, ftol=ftol)
     assert res.success
     assert "ftol" in res.message
-    assert abs(res.f) < ftol
+    assert abs(res.f) <= ftol
+    assert isclose(res.f, f(res.x))
     # stop maxiter
     maxiter = 3
     res = fzero_newton(f, 1.5, maxiter=maxiter)
     assert not res.success
     assert "iterations" in res.message
     assert res.niter == maxiter
+    assert isclose(res.f, f(res.x))
 
 
 def test_fzero_secant():
@@ -45,18 +49,22 @@ def test_fzero_secant():
     assert res.success
     assert "xtol" in res.message
     assert isclose(res.x, f.sol, atol=xtol)
+    assert isclose(res.f, f(res.x))
+    assert res.nfeval == res.niter + 2
     # stop ftol
     ftol = 1e-10
     res = fzero_secant(f, 1.5, 1.4, xtol=1e-100, ftol=ftol)
     assert res.success
     assert "ftol" in res.message
-    assert abs(res.f) < ftol
+    assert abs(res.f) <= ftol
+    assert isclose(res.f, f(res.x))
     # stop maxiter
     maxiter = 3
     res = fzero_secant(f, 1.5, 1.4, maxiter=maxiter)
     assert not res.success
     assert "iterations" in res.message
     assert res.niter == maxiter
+    assert isclose(res.f, f(res.x))
 
 
 def test_fzero_brent():
@@ -66,18 +74,21 @@ def test_fzero_brent():
     assert res.success
     assert "xtol" in res.message
     assert isclose(res.x, f.sol, atol=xtol)
+    assert isclose(res.f, f(res.x))
     # stop ftol
     ftol = 1e-10
     res = fzero_brent(f, 0.1, 1.0, xtol=1e-100, ftol=ftol)
     assert res.success
     assert "ftol" in res.message
     assert abs(res.f) < ftol
+    assert isclose(res.f, f(res.x))
     # stop maxiter
     maxiter = 3
     res = fzero_brent(f, 0.1, 1.0, maxiter=maxiter)
     assert not res.success
     assert "iterations" in res.message
     assert res.niter == maxiter
+    assert isclose(res.f, f(res.x))
     # no change of sign in interval
     with pytest.raises(ValueError):
         _ = fzero_brent(f, 0.1, 0.2)

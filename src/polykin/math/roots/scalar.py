@@ -51,7 +51,12 @@ def fzero_newton(f: Callable[[complex], complex],
                  ftol: float = 1e-6,
                  maxiter: int = 50
                  ) -> RootResult:
-    r"""Find the root of a scalar function using the newton method.
+    r"""Find the root of a scalar function using the Newton-Raphson method.
+
+    The Newton-Raphson method uses the first derivative of the function to
+    iteratively find the root according to the formula:
+
+    $$ x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)} $$   
 
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-newton.html),
     this method uses complex step differentiation to estimate the derivative of
@@ -99,35 +104,38 @@ def fzero_newton(f: Callable[[complex], complex],
 
     nfeval = 0
     message = ""
-
     success = False
-    for niter in range(1, maxiter+1):
 
-        dfdx, f0 = derivative_complex(f, x0)
+    x = x0
+
+    for k in range(maxiter):
+
+        dfdx, fx = derivative_complex(f, x)
         nfeval += 1
 
-        if abs(f0) <= ftol:
-            message = "|f(x0)| <= ftol"
+        if abs(fx) <= ftol:
+            message = "|f(x)| <= ftol"
             success = True
             break
 
         if abs(dfdx) <= eps:
-            message = f"Nearly zero derivative at x={x0} (df/dx={dfdx})."
+            message = f"Nearly zero derivative at x={x} (df/dx={dfdx})."
             break
 
-        x1 = x0 - f0 / dfdx
+        Δx = - fx / dfdx
 
-        if (abs(x1 - x0) <= xtol):
+        if (abs(Δx) <= xtol):
             message = "|Δx| <= xtol"
             success = True
             break
 
-        x0 = x1
+        if k + 1 < maxiter:
+            x += Δx
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(success, message, nfeval, niter, x0, f0)
+    return RootResult(success, message, nfeval, k+1, x, fx)
 
 
 def fzero_secant(f: Callable[[float], float],
@@ -139,6 +147,11 @@ def fzero_secant(f: Callable[[float], float],
                  ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
+    The secant method uses two initial guesses and approximates the derivative
+    of the function to iteratively find the root according to the formula:
+
+    $$ x_{k+1} = x_k - f(x_k) \frac{x_k - x_{k-1}}{f(x_k) - f(x_{k-1})} $$
+
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-secant.html),
     this method also terminates based on the function value. This is sometimes
     a more meaningful stop criterion.
@@ -148,9 +161,9 @@ def fzero_secant(f: Callable[[float], float],
     f : Callable[[float], float]
         Function whose root is to be found.
     x0 : float
-        Initial guess.
+        First initial guess.
     x1 : float
-        Second guess.
+        Second initial guess.
     xtol : float
         Absolute tolerance for `x` value. The algorithm will terminate when the
         change in `x` between two iterations is less or equal than `xtol`.
@@ -179,6 +192,7 @@ def fzero_secant(f: Callable[[float], float],
 
     nfeval = 0
     message = ""
+    success = False
 
     f0 = f(x0)
     nfeval += 1
@@ -192,14 +206,13 @@ def fzero_secant(f: Callable[[float], float],
         message = "|f(x1)| <= ftol"
         return RootResult(True, message, nfeval, 0, x1, f1)
 
-    success = False
     x2, f2 = np.nan, np.nan
 
-    for niter in range(1, maxiter+1):
+    for k in range(maxiter):
 
         Δf = f1 - f0
         if abs(Δf) <= eps * max(abs(f0), abs(f1), 1.0):
-            message = f"Nearly zero slope between x0={x0} and x1={x1} (Δf={Δf})."
+            message = f"Nearly zero slope between x[k-1]={x0} and x[k]={x1} (Δf={Δf})."
             break
 
         x2 = x1 - f1*(x1 - x0) / Δf
@@ -212,7 +225,7 @@ def fzero_secant(f: Callable[[float], float],
             break
 
         if (abs(f2) <= ftol):
-            message = "|f| <= ftol"
+            message = "|f(x)| <= ftol"
             success = True
             break
 
@@ -222,7 +235,7 @@ def fzero_secant(f: Callable[[float], float],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(success, message, nfeval, niter, x2, f2)
+    return RootResult(success, message, nfeval, k+1, x2, f2)
 
 
 def fzero_brent(f: Callable[[float], float],
@@ -233,6 +246,10 @@ def fzero_brent(f: Callable[[float], float],
                 maxiter: int = 50
                 ) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
+
+    Brent's method is a root-finding algorithm combining bisection, secant,
+    and inverse quadratic interpolation. It is robust like the bisection method
+    and fast like the secant method.
 
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.brentq.html),
     this method also terminates based on the function value. This is sometimes
@@ -280,6 +297,7 @@ def fzero_brent(f: Callable[[float], float],
 
     nfeval = 0
     message = ""
+    success = False
 
     fa = f(xa)
     nfeval += 1
@@ -297,9 +315,8 @@ def fzero_brent(f: Callable[[float], float],
         raise ValueError("Root is not bracketed.")
 
     xc, fc = xb, fb
-    success = False
 
-    for niter in range(1, maxiter+1):
+    for k in range(maxiter):
 
         if (fb*fc > 0.0):
             xc, fc = xa, fa
@@ -319,7 +336,7 @@ def fzero_brent(f: Callable[[float], float],
             break
 
         if abs(fb) <= ftol:
-            message = "|f| <= ftol"
+            message = "|f(x)| <= ftol"
             success = True
             break
 
@@ -360,4 +377,4 @@ def fzero_brent(f: Callable[[float], float],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(success, message, nfeval, niter, xb, fb)
+    return RootResult(success, message, nfeval, k+1, xb, fb)
