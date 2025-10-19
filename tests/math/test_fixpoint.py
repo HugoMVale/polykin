@@ -44,7 +44,7 @@ def test_fixpoint_wegstein():
     assert allclose(res.f, g(res.x) - res.x)
     # stop xtol, no acceleration
     xtol = 1e-8
-    res = fixpoint_wegstein(g, np.array([0.0, 0.0]), kwait=100, xtol=xtol)
+    res = fixpoint_wegstein(g, np.array([0.0, 0.0]), wait=100, xtol=xtol)
     assert res.success
     assert "xtol" in res.message
     assert allclose(res.x, g.sol, atol=xtol)

@@ -3,4 +3,5 @@
 # Copyright Hugo Vale 2025
 
 
-from .vector import *
+from .anderson import *
+from .wegstein import *

@@ -7,6 +7,7 @@ This module implements auxiliary mathematical methods.
 """
 
 from .derivatives import *
+from .fixpoint import *
 from .misc import *
 from .roots import *
 from .special import *
