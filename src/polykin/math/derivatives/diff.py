@@ -8,11 +8,12 @@ import numpy as np
 from numpy import cbrt
 
 from polykin.utils.math import eps
-from polykin.utils.types import Float2x2Matrix
+from polykin.utils.types import Float2x2Matrix, FloatMatrix, FloatVector
 
 __all__ = ['derivative_complex',
            'derivative_centered',
-           'hessian2']
+           'hessian2',
+           'jacobian']
 
 
 def derivative_complex(f: Callable[[complex], complex],
@@ -96,7 +97,7 @@ def derivative_centered(f: Callable[[float], float],
     >>> from polykin.math import derivative_centered
     >>> def f(x): return x**3
     >>> derivative_centered(f, 1.)
-    (3.0000000003141882, 1.0000000009152836)
+    (np.float64(3.0000000003141882), np.float64(1.0000000009152836))
     """
 
     if h == 0:
@@ -186,3 +187,64 @@ def hessian2(f: Callable[[tuple[float, float]], float],
     H[1, 0] = H[0, 1]
 
     return H
+
+
+def jacobian(
+    f: Callable[[FloatVector], FloatVector],
+    x: FloatVector,
+    fx: FloatVector | None = None,
+    sx: FloatVector | None = None
+) -> FloatMatrix:
+    r"""Calculate the numerical Jacobian of a vector function 
+    $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
+
+    $$
+    \mathbf{J} = \begin{pmatrix}
+    \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} & \cdots & \frac{\partial f_1}{\partial x_n} \\
+    \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} & \cdots & \frac{\partial f_2}{\partial x_n} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \frac{\partial f_m}{\partial x_1} & \frac{\partial f_m}{\partial x_2} & \cdots & \frac{\partial f_m}{\partial x_n}
+    \end{pmatrix}
+    $$
+
+    Parameters
+    ----------
+    f : Callable[[FloatVector], FloatVector]
+        Function to be diferentiated.
+    x : FloatVector
+        Differentiation point.
+    fx : FloatVector | None
+        Function values at `x`, if available.
+    sx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]/sx[i]` is close to 1.
+
+    Returns
+    -------
+    FloatMatrix
+        Jacobian matrix.
+
+    Examples
+    --------
+    Evaluate the numerical jacobian of f(x)=(x1**2)*(x2**3) at (2.0, -2.0).
+    >>> from polykin.math import jacobian
+    >>> import numpy as np
+    >>> def fnc(x): return x[0]**2 * x[1]**3
+    >>> jacobian(fnc, np.array([2.0, -2.0]))
+    array([[-32.00000024,  47.99999928]])
+    """
+
+    fx = fx if fx is not None else f(x)
+    sx = sx if sx is not None else np.ones(x.size)
+
+    jac = np.empty((fx.size, x.size))
+    h0 = np.sqrt(eps)
+    xp = x.copy()
+
+    for i in range(x.size):
+        h = h0*max(abs(x[i]), sx[i])
+        xtemp = xp[i]
+        xp[i] += h
+        jac[:, i] = (f(xp) - fx)/h
+        xp[i] = xtemp
+
+    return jac
