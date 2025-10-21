@@ -3,5 +3,5 @@
 # Copyright Hugo Vale 2025
 
 
-from .diff import *
+from .ndiff import *
 from .ode import *
