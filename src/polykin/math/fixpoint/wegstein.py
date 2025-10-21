@@ -18,7 +18,7 @@ __all__ = [
 def fixpoint_wegstein(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
-    xtol: float = 1e-6,
+    tolx: float = 1e-6,
     wait: int = 1,
     qmin: float = -5.0,
     qmax: float = 0.0,
@@ -57,9 +57,9 @@ def fixpoint_wegstein(
         Identity function for the fixed-point problem, i.e. `g(x) = x`.
     x0 : FloatVector
         Initial guess.
-    xtol : float
+    tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
-        `||g(x_k) - x_k||∞ <= xtol`.
+        `||g(x_k) - x_k||∞ <= tolx`.
     wait : int
         Number of direct substitution iterations before the first acceleration
         iteration.
@@ -91,10 +91,10 @@ def fixpoint_wegstein(
     ...     g2 = np.sin(x2) - 0.2*x1 + 1.2
     ...     return np.array([g1, g2])
     >>> sol = fixpoint_wegstein(g, x0=np.array([0.0, 0.0]), qmax=0.5)
-    >>> print(f"x={sol.x}")
-    x=[0.97458605 1.93830731]
-    >>> print(f"g(x)={g(sol.x)}")
-    g(x)=[0.97458605 1.93830731]
+    >>> print(f"x = {sol.x}")
+    x = [0.97458605 1.93830731]
+    >>> print(f"g(x) = {g(sol.x)}")
+    g(x) = [0.97458605 1.93830731]
     """
 
     nfeval = 0
@@ -115,8 +115,8 @@ def fixpoint_wegstein(
         nfeval += 1
         fx = gx - x
 
-        if np.linalg.norm(fx, np.inf) <= xtol:
-            message = "||g(x) - x||∞ <= xtol"
+        if np.linalg.norm(fx, np.inf) <= tolx:
+            message = "||g(x) - x||∞ ≤ tolx"
             success = True
             break
 

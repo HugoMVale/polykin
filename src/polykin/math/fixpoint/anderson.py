@@ -19,7 +19,7 @@ def fixpoint_anderson(
         g: Callable[[FloatVector], FloatVector],
         x0: FloatVector,
         m: int = 3,
-        xtol: float = 1e-6,
+        tolx: float = 1e-6,
         maxiter: int = 50
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
@@ -52,9 +52,9 @@ def fixpoint_anderson(
         Initial guess.
     m : int
         Number of previous steps (`m >= 1`) to use in the acceleration.
-    xtol : float
+    tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
-        `||g(x_k) - x_k||∞ <= xtol`.
+        `||g(x_k) - x_k||∞ <= tolx`.
     maxiter : int
         Maximum number of iterations.
 
@@ -79,10 +79,10 @@ def fixpoint_anderson(
     ...     g2 = np.sin(x2) - 0.2*x1 + 1.2
     ...     return np.array([g1, g2])
     >>> sol = fixpoint_anderson(g, x0=np.array([0.0, 0.0]))
-    >>> print(f"x={sol.x}")
-    x=[0.97458605 1.93830731]
+    >>> print(f"x = {sol.x}")
+    x = [0.97458605 1.93830731]
     >>> print(f"g(x)={g(sol.x)}")
-    g(x)=[0.97458605 1.93830731]
+    g(x) = [0.97458605 1.93830731]
     """
 
     nfeval = 0
@@ -99,8 +99,8 @@ def fixpoint_anderson(
     nfeval += 1
     f0 = g0 - x0
 
-    if np.linalg.norm(f0, np.inf) <= xtol:
-        message = "||g(x0) - x0||∞ <= xtol"
+    if np.linalg.norm(f0, np.inf) <= tolx:
+        message = "||g(x0) - x0||∞ ≤ tolx"
         return VectorRootResult(True, message, nfeval, 0, x0, f0)
 
     x = g0
@@ -124,8 +124,8 @@ def fixpoint_anderson(
         ΔG[-1, :] += gx
         ΔF[:, -1] += fx
 
-        if np.linalg.norm(fx, np.inf) <= xtol:
-            message = "||g(x) - x||∞ <= xtol"
+        if np.linalg.norm(fx, np.inf) <= tolx:
+            message = "||g(x) - x||∞ <= tolx"
             success = True
             break
 

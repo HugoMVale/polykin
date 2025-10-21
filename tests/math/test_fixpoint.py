@@ -18,12 +18,12 @@ g.sol = np.array([0.97458605, 1.93830731])
 
 
 def test_fixpoint_anderson():
-    # stop xtol
-    xtol = 1e-13
-    res = fixpoint_anderson(g, np.array([0.0, 0.0]), m=2, xtol=xtol)
+    # stop tolx
+    tolx = 1e-13
+    res = fixpoint_anderson(g, np.array([0.0, 0.0]), m=2, tolx=tolx)
     assert res.success
-    assert "xtol" in res.message
-    assert allclose(res.x, g.sol, atol=xtol)
+    assert "tolx" in res.message
+    assert allclose(res.x, g.sol, atol=tolx)
     assert allclose(res.f, g(res.x) - res.x)
     # stop maxiter
     maxiter = 3
@@ -35,19 +35,19 @@ def test_fixpoint_anderson():
 
 
 def test_fixpoint_wegstein():
-    # stop xtol, normal
-    xtol = 1e-8
-    res = fixpoint_wegstein(g, np.array([0.0, 0.0]), qmax=0.5, xtol=xtol)
+    # stop tolx, normal
+    tolx = 1e-8
+    res = fixpoint_wegstein(g, np.array([0.0, 0.0]), qmax=0.5, tolx=tolx)
     assert res.success
-    assert "xtol" in res.message
-    assert allclose(res.x, g.sol, atol=xtol)
+    assert "tolx" in res.message
+    assert allclose(res.x, g.sol, atol=tolx)
     assert allclose(res.f, g(res.x) - res.x)
-    # stop xtol, no acceleration
-    xtol = 1e-8
-    res = fixpoint_wegstein(g, np.array([0.0, 0.0]), wait=100, xtol=xtol)
+    # stop tolx, no acceleration
+    tolx = 1e-8
+    res = fixpoint_wegstein(g, np.array([0.0, 0.0]), wait=100, tolx=tolx)
     assert res.success
-    assert "xtol" in res.message
-    assert allclose(res.x, g.sol, atol=xtol)
+    assert "tolx" in res.message
+    assert allclose(res.x, g.sol, atol=tolx)
     assert allclose(res.f, g(res.x) - res.x)
     # stop maxiter
     maxiter = 3
