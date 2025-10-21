@@ -3,10 +3,10 @@
 # Copyright Hugo Vale 2024
 
 import numpy as np
-from numpy import exp, isclose, allclose
+from numpy import allclose, exp, isclose
 
 from polykin.math import (derivative_centered, derivative_complex, hessian2,
-                          jacobian)
+                          jacobian, scalex)
 
 
 def fnc1(x): return 2*exp(x)
@@ -50,3 +50,14 @@ def test_jacobian():
     J = jacobian(fnc3, x)
     assert allclose(J, np.array([[-0.07055999, 0.1], [-0.2, -0.41614682]]),
                     rtol=1e-6)
+
+
+def test_scalex():
+    sx = scalex(np.array([0.0, 0.0]))
+    assert allclose(sx, np.ones_like(sx))
+    sx = scalex(np.array([0.0, -1e2]))
+    assert allclose(sx, [1e-1, 1e-2])
+    sx = scalex(np.array([0.0, 0.1, -1e2]))
+    assert allclose(sx, [1e2, 1e1, 1e-2])
+    sx = scalex(np.array([0.0, 1.0, 5.0]))
+    assert allclose(sx, [10.0, 0.2, 0.2])

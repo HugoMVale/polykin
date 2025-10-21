@@ -8,12 +8,16 @@ import numpy as np
 from numpy import cbrt
 
 from polykin.utils.math import eps
-from polykin.utils.types import Float2x2Matrix, FloatMatrix, FloatVector
+from polykin.utils.types import (Float2x2Matrix, FloatArray, FloatMatrix,
+                                 FloatVector)
 
-__all__ = ['derivative_complex',
-           'derivative_centered',
-           'hessian2',
-           'jacobian']
+__all__ = [
+    'derivative_complex',
+    'derivative_centered',
+    'hessian2',
+    'jacobian',
+    'scalex'
+]
 
 
 def derivative_complex(f: Callable[[complex], complex],
@@ -216,7 +220,7 @@ def jacobian(
     fx : FloatVector | None
         Function values at `x`, if available.
     sx : FloatVector | None
-        Scaling factors for `x`. Ideally, `x[i]/sx[i]` is close to 1.
+        Scaling factors for `x`. Ideally, `x[i]*sx[i]` is close to 1.
 
     Returns
     -------
@@ -234,17 +238,54 @@ def jacobian(
     """
 
     fx = fx if fx is not None else f(x)
-    sx = sx if sx is not None else np.ones(x.size)
+    sx = sx if sx is not None else scalex(x)
 
     jac = np.empty((fx.size, x.size))
     h0 = np.sqrt(eps)
     xp = x.copy()
 
     for i in range(x.size):
-        h = h0*max(abs(x[i]), sx[i])
+        h = h0*max(abs(x[i]), 1/sx[i])
         xtemp = xp[i]
         xp[i] += h
         jac[:, i] = (f(xp) - fx)/h
         xp[i] = xtemp
 
     return jac
+
+
+def scalex(x: FloatArray) -> FloatArray:
+    r"""Calculate a scaling factors for a given array.
+
+    The scaling factors are computed according to the heuristic procedure 
+    implemented in ODRPACK95.
+
+    Parameters
+    ----------
+    x : FloatArray
+        Array to be scaled.
+
+    Returns
+    -------
+    FloatArray
+        Scaling array.
+    """
+
+    sx = np.ones_like(x)
+
+    iszero = x == 0.0
+
+    if len(x[~iszero]) == 0:
+        return sx
+
+    xmax = np.max(np.abs(x))
+    xmin = np.min(np.abs(x[~iszero]))
+
+    sx[iszero] = 1e1/xmin
+
+    if np.log10(xmax/xmin) >= 1.0:
+        sx[~iszero] = 1/np.abs(x[~iszero])
+    else:
+        sx[~iszero] = 1/xmax
+
+    return sx
