@@ -255,7 +255,7 @@ def jacobian(
 
 
 def scalex(x: FloatArray) -> FloatArray:
-    r"""Calculate a scaling factors for a given array.
+    r"""Calculate scaling factors for a given array.
 
     The scaling factors are computed according to the heuristic procedure 
     implemented in ODRPACK95.
