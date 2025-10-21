@@ -18,20 +18,20 @@ f.sol = min(np.roots((2, 4, 1, -2)), key=lambda x: abs(x - 0.5))
 
 
 def test_fzero_newton():
-    # stop xtol
-    xtol = 1e-9
-    res = fzero_newton(f, 1.5, xtol=xtol, ftol=1e-100)
+    # stop tolx
+    tolx = 1e-9
+    res = fzero_newton(f, 1.5, tolx=tolx, tolf=1e-100)
     assert res.success
-    assert "xtol" in res.message
-    assert isclose(res.x, f.sol, atol=xtol)
+    assert "tolx" in res.message
+    assert isclose(res.x, f.sol, atol=tolx)
     assert isclose(res.f, f(res.x))
     assert res.nfeval == res.niter
-    # stop ftol
-    ftol = 1e-10
-    res = fzero_newton(f, 1.5, xtol=1e-100, ftol=ftol)
+    # stop tolf
+    tolf = 1e-10
+    res = fzero_newton(f, 1.5, tolx=1e-100, tolf=tolf)
     assert res.success
-    assert "ftol" in res.message
-    assert abs(res.f) <= ftol
+    assert "tolf" in res.message
+    assert abs(res.f) <= tolf
     assert isclose(res.f, f(res.x))
     # stop maxiter
     maxiter = 3
@@ -43,20 +43,20 @@ def test_fzero_newton():
 
 
 def test_fzero_secant():
-    # stop xtol
-    xtol = 1e-9
-    res = fzero_secant(f, 1.5, 1.4, xtol=xtol, ftol=1e-100)
+    # stop tolx
+    tolx = 1e-9
+    res = fzero_secant(f, 1.5, 1.4, tolx=tolx, tolf=1e-100)
     assert res.success
-    assert "xtol" in res.message
-    assert isclose(res.x, f.sol, atol=xtol)
+    assert "tolx" in res.message
+    assert isclose(res.x, f.sol, atol=tolx)
     assert isclose(res.f, f(res.x))
     assert res.nfeval == res.niter + 2
-    # stop ftol
-    ftol = 1e-10
-    res = fzero_secant(f, 1.5, 1.4, xtol=1e-100, ftol=ftol)
+    # stop tolf
+    tolf = 1e-10
+    res = fzero_secant(f, 1.5, 1.4, tolx=1e-100, tolf=tolf)
     assert res.success
-    assert "ftol" in res.message
-    assert abs(res.f) <= ftol
+    assert "tolf" in res.message
+    assert abs(res.f) <= tolf
     assert isclose(res.f, f(res.x))
     # stop maxiter
     maxiter = 3
@@ -68,19 +68,19 @@ def test_fzero_secant():
 
 
 def test_fzero_brent():
-    # stop xtol
-    xtol = 1e-9
-    res = fzero_brent(f, 0.1, 1.0, xtol=xtol, ftol=1e-100)
+    # stop tolx
+    tolx = 1e-9
+    res = fzero_brent(f, 0.1, 1.0, tolx=tolx, tolf=1e-100)
     assert res.success
-    assert "xtol" in res.message
-    assert isclose(res.x, f.sol, atol=xtol)
+    assert "tolx" in res.message
+    assert isclose(res.x, f.sol, atol=tolx)
     assert isclose(res.f, f(res.x))
-    # stop ftol
-    ftol = 1e-10
-    res = fzero_brent(f, 0.1, 1.0, xtol=1e-100, ftol=ftol)
+    # stop tolf
+    tolf = 1e-10
+    res = fzero_brent(f, 0.1, 1.0, tolx=1e-100, tolf=tolf)
     assert res.success
-    assert "ftol" in res.message
-    assert abs(res.f) < ftol
+    assert "tolf" in res.message
+    assert abs(res.f) < tolf
     assert isclose(res.f, f(res.x))
     # stop maxiter
     maxiter = 3

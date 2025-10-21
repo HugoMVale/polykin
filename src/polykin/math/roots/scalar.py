@@ -20,8 +20,8 @@ __all__ = [
 
 def fzero_newton(f: Callable[[complex], complex],
                  x0: float,
-                 xtol: float = 1e-6,
-                 ftol: float = 1e-6,
+                 tolx: float = 1e-6,
+                 tolf: float = 1e-6,
                  maxiter: int = 50
                  ) -> RootResult:
     r"""Find the root of a scalar function using the Newton-Raphson method.
@@ -49,12 +49,12 @@ def fzero_newton(f: Callable[[complex], complex],
         Function whose root is to be found.
     x0 : float
         Inital guess.
-    xtol : float
+    tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when the
-        change in `x` between two iterations is less or equal than `xtol`.
-    ftol : float
+        change in `x` between two iterations is less or equal than `tolx`.
+    tolf : float
         Absolute tolerance for function value. The algorithm will terminate
-        when `|f(x)|<=ftol`.
+        when `|f(x)| <= tolf`.
     maxiter : int
         Maximum number of iterations.
 
@@ -71,8 +71,8 @@ def fzero_newton(f: Callable[[complex], complex],
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
     >>> sol = fzero_newton(f, 0.3)
-    >>> print(f"x= {sol.x:.3f}")
-    x= 0.213
+    >>> print(f"x = {sol.x:.3f}")
+    x = 0.213
     """
 
     nfeval = 0
@@ -86,8 +86,8 @@ def fzero_newton(f: Callable[[complex], complex],
         dfdx, fx = derivative_complex(f, x)
         nfeval += 1
 
-        if abs(fx) <= ftol:
-            message = "|f(x)| <= ftol"
+        if abs(fx) <= tolf:
+            message = "|f(x)| ≤ tolf"
             success = True
             break
 
@@ -97,8 +97,8 @@ def fzero_newton(f: Callable[[complex], complex],
 
         Δx = - fx / dfdx
 
-        if (abs(Δx) <= xtol):
-            message = "|Δx| <= xtol"
+        if (abs(Δx) <= tolx):
+            message = "|Δx| ≤ tolx"
             success = True
             break
 
@@ -114,8 +114,8 @@ def fzero_newton(f: Callable[[complex], complex],
 def fzero_secant(f: Callable[[float], float],
                  x0: float,
                  x1: float,
-                 xtol: float = 1e-6,
-                 ftol: float = 1e-6,
+                 tolx: float = 1e-6,
+                 tolf: float = 1e-6,
                  maxiter: int = 50
                  ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
@@ -137,12 +137,12 @@ def fzero_secant(f: Callable[[float], float],
         First initial guess.
     x1 : float
         Second initial guess.
-    xtol : float
+    tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when the
-        change in `x` between two iterations is less or equal than `xtol`.
-    ftol : float
+        change in `x` between two iterations is less or equal than `tolx`.
+    tolf : float
         Absolute tolerance for function value. The algorithm will terminate
-        when `|f(x)|<=ftol`.
+        when `|f(x)| <= tolf`.
     maxiter : int
         Maximum number of iterations.
 
@@ -159,8 +159,8 @@ def fzero_secant(f: Callable[[float], float],
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
     >>> sol = fzero_secant(f, 0.3, 0.31)
-    >>> print(f"x= {sol.x:.3f}")
-    x= 0.213
+    >>> print(f"x = {sol.x:.3f}")
+    x = 0.213
     """
 
     nfeval = 0
@@ -169,14 +169,14 @@ def fzero_secant(f: Callable[[float], float],
 
     f0 = f(x0)
     nfeval += 1
-    if abs(f0) <= ftol:
-        message = "|f(x0)| <= ftol"
+    if abs(f0) <= tolf:
+        message = "|f(x0)| ≤ tolf"
         return RootResult(True, message, nfeval, 0, x0, f0)
 
     f1 = f(x1)
     nfeval += 1
-    if abs(f1) <= ftol:
-        message = "|f(x1)| <= ftol"
+    if abs(f1) <= tolf:
+        message = "|f(x1)| ≤ tolf"
         return RootResult(True, message, nfeval, 0, x1, f1)
 
     x2, f2 = np.nan, np.nan
@@ -192,13 +192,13 @@ def fzero_secant(f: Callable[[float], float],
         f2 = f(x2)
         nfeval += 1
 
-        if (abs(x2 - x1) <= xtol):
-            message = "|Δx| <= xtol"
+        if (abs(x2 - x1) <= tolx):
+            message = "|Δx| ≤ tolx"
             success = True
             break
 
-        if (abs(f2) <= ftol):
-            message = "|f(x)| <= ftol"
+        if (abs(f2) <= tolf):
+            message = "|f(x)| ≤ tolf"
             success = True
             break
 
@@ -214,8 +214,8 @@ def fzero_secant(f: Callable[[float], float],
 def fzero_brent(f: Callable[[float], float],
                 xa: float,
                 xb: float,
-                xtol: float = 1e-6,
-                ftol: float = 1e-6,
+                tolx: float = 1e-6,
+                tolf: float = 1e-6,
                 maxiter: int = 50
                 ) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
@@ -242,12 +242,12 @@ def fzero_brent(f: Callable[[float], float],
         Lower bound of the bracketing interval.
     xb : float
         Upper bound of the bracketing interval.
-    xtol : float
+    tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when the
-        change in `x` between two iterations is less or equal than `xtol`.
-    ftol : float
+        change in `x` between two iterations is less or equal than `tolx`.
+    tolf : float
         Absolute tolerance for function value. The algorithm will terminate
-        when `|f(x)|<=ftol`.
+        when `|f(x)|<=tolf`.
     maxiter : int
         Maximum number of iterations.
 
@@ -264,8 +264,8 @@ def fzero_brent(f: Callable[[float], float],
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
     >>> sol = fzero_brent(f, 0.1, 0.9)
-    >>> print(f"x= {sol.x:.3f}")
-    x= 0.213
+    >>> print(f"x = {sol.x:.3f}")
+    x = 0.213
     """
 
     nfeval = 0
@@ -274,14 +274,14 @@ def fzero_brent(f: Callable[[float], float],
 
     fa = f(xa)
     nfeval += 1
-    if abs(fa) <= ftol:
-        message = "|f(xa)| <= ftol"
+    if abs(fa) <= tolf:
+        message = "|f(xa)| ≤ tolf"
         return RootResult(True, message, nfeval, 0, xa, fa)
 
     fb = f(xb)
     nfeval += 1
-    if abs(fb) <= ftol:
-        message = "|f(xb)| <= ftol"
+    if abs(fb) <= tolf:
+        message = "|f(xb)| ≤ tolf"
         return RootResult(True, message, nfeval, 0, xb, fb)
 
     if (fa*fb) > 0.0:
@@ -301,15 +301,15 @@ def fzero_brent(f: Callable[[float], float],
             xb, fb = xc, fc
             xc, fc = xa, fa
 
-        tol1 = 2*eps*abs(xb) + 0.5*xtol
+        tol1 = 2*eps*abs(xb) + 0.5*tolx
         m = 0.5*(xc - xb)
         if abs(m) <= tol1:
-            message = "|Δx| <= xtol"
+            message = "|Δx| ≤ tolx"
             success = True
             break
 
-        if abs(fb) <= ftol:
-            message = "|f(x)| <= ftol"
+        if abs(fb) <= tolf:
+            message = "|f(x)| ≤ tolf"
             success = True
             break
 

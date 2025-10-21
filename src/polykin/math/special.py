@@ -71,7 +71,7 @@ def i2erfc(x: float) -> float:
 
 
 @functools.cache
-def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
+def roots_xtanx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
     r"""Determine the first `N` roots of the transcendental equation 
     `x_n*tan(x_n) = a`.
 
@@ -81,7 +81,7 @@ def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
         Parameter.
     N : int
         Number of roots.
-    xtol : float
+    tolx : float
         Tolerance.
 
     Returns
@@ -108,8 +108,8 @@ def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
         for i in range(N):
             sol = fzero_newton(f=lambda x: x*tan(x) - a,
                                x0=pi*(i + 0.5*a/(a+1)),
-                               xtol=xtol,
-                               ftol=1e-10)
+                               tolx=tolx,
+                               tolf=1e-10)
             result[i] = sol.x
     else:
         for i in range(N):
@@ -117,7 +117,7 @@ def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
             e = 1.0
             for _ in range(0, 10):
                 e_new = arctan(a/(x0 + e))
-                if abs(e_new - e) < xtol:
+                if abs(e_new - e) < tolx:
                     break
                 e = e_new
             result[i] = x0 + e
@@ -126,7 +126,7 @@ def roots_xtanx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
 
 
 @functools.cache
-def roots_xcotx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
+def roots_xcotx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
     r"""Determine the first `N` roots of the transcendental equation 
     `1 - x_n*cot(x_n) = a`.
 
@@ -136,7 +136,7 @@ def roots_xcotx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
         Parameter.
     N : int
         Number of roots.
-    xtol : float
+    tolx : float
         Tolerance.
 
     Returns
@@ -163,8 +163,8 @@ def roots_xcotx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
         for i in range(N):
             sol = fzero_newton(f=lambda x: x/tan(x) + a - 1,
                                x0=(i + 1/2)*pi,
-                               xtol=xtol,
-                               ftol=1e-10)
+                               tolx=tolx,
+                               tolf=1e-10)
             result[i] = sol.x
     else:
         for i in range(N):
@@ -172,7 +172,7 @@ def roots_xcotx(a: float, N: int, xtol: float = 1e-6) -> FloatVector:
             e = 0.0
             for _ in range(0, 30):
                 e_new = np.arctan((x0 + e)/(1 - a))
-                if abs(e_new - e) < xtol:
+                if abs(e_new - e) < tolx:
                     break
                 e = e_new
             result[i] = x0 + e

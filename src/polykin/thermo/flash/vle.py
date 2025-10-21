@@ -537,8 +537,8 @@ def flash2_PV(
             sol = fzero_brent(lambda R: fobj(R, u, Kb0, beta, z),
                               0.0, 1.0,
                               maxiter=maxiter,
-                              xtol=atol_inner,
-                              ftol=atol_inner)
+                              tolx=atol_inner,
+                              tolf=atol_inner)
             R = sol.x
             if not sol.success:
                 warnings.warn(

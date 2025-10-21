@@ -268,13 +268,13 @@ def confidence_region(center: tuple[float, float],
             f=lambda x: nsse(x, θ)/nsse_boundary - 1.0,
             x0=log(r0*1.02),
             x1=log(r0),
-            xtol=abs(log(1 + rtol)),
-            ftol=1e-4,
+            tolx=abs(log(1 + rtol)),
+            tolf=1e-4,
             maxiter=100)
         return solution
 
     # Find radius at each angle using previous solution as initial guess
-    angles = np.linspace(0., 2*np.pi, npoints)
+    angles = np.linspace(0.0, 2*np.pi, npoints)
     r = np.zeros_like(angles)
     r_guess_0 = abs(width/2) if width > 0 else 0.25*center[0]
     r_guess = r_guess_0
