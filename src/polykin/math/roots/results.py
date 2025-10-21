@@ -38,6 +38,14 @@ class RootResult():
     x: float
     f: float
 
+    def __repr__(self) -> str:
+        return (f"success: {self.success}\n"
+                f"message: {self.message}\n"
+                f" nfeval: {self.nfeval}\n"
+                f"  niter: {self.niter}\n"
+                f"      x: {self.x}\n"
+                f"      f: {self.f}")
+
 
 @dataclass
 class VectorRootResult():
@@ -64,3 +72,11 @@ class VectorRootResult():
     niter: int
     x: FloatVector
     f: FloatVector
+
+    def __repr__(self) -> str:
+        return (f"success: {self.success}\n"
+                f"message: {self.message}\n"
+                f" nfeval: {self.nfeval}\n"
+                f"  niter: {self.niter}\n"
+                f"      x: {self.x}\n"
+                f"      f: {self.f}")
