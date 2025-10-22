@@ -22,7 +22,8 @@ def fzero_newton(f: Callable[[complex], complex],
                  x0: float,
                  tolx: float = 1e-6,
                  tolf: float = 1e-6,
-                 maxiter: int = 50
+                 maxiter: int = 50,
+                 verbose: bool = False
                  ) -> RootResult:
     r"""Find the root of a scalar function using the Newton-Raphson method.
 
@@ -57,6 +58,8 @@ def fzero_newton(f: Callable[[complex], complex],
         when `|f(x)| <= tolf`.
     maxiter : int
         Maximum number of iterations.
+    verbose : bool
+        Print iteration information.
 
     Returns
     -------
@@ -85,6 +88,10 @@ def fzero_newton(f: Callable[[complex], complex],
 
         dfdx, fx = derivative_complex(f, x)
         nfeval += 1
+
+        if verbose:
+            print(f"Iteration {k+1}: x = {x}, f(x) = {fx}, df/dx = {dfdx}",
+                  flush=True)
 
         if abs(fx) <= tolf:
             message = "|f(x)| ≤ tolf"
@@ -116,7 +123,8 @@ def fzero_secant(f: Callable[[float], float],
                  x1: float,
                  tolx: float = 1e-6,
                  tolf: float = 1e-6,
-                 maxiter: int = 50
+                 maxiter: int = 50,
+                 verbose: bool = False
                  ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
@@ -145,6 +153,8 @@ def fzero_secant(f: Callable[[float], float],
         when `|f(x)| <= tolf`.
     maxiter : int
         Maximum number of iterations.
+    verbose : bool
+        Print iteration information.
 
     Returns
     -------
@@ -189,8 +199,12 @@ def fzero_secant(f: Callable[[float], float],
             break
 
         x2 = x1 - f1*(x1 - x0) / Δf
+
         f2 = f(x2)
         nfeval += 1
+
+        if verbose:
+            print(f"Iteration {k+1}: x = {x2}, f(x) = {f2}", flush=True)
 
         if (abs(x2 - x1) <= tolx):
             message = "|Δx| ≤ tolx"
@@ -216,7 +230,8 @@ def fzero_brent(f: Callable[[float], float],
                 xb: float,
                 tolx: float = 1e-6,
                 tolf: float = 1e-6,
-                maxiter: int = 50
+                maxiter: int = 50,
+                verbose: bool = False
                 ) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
 
@@ -250,6 +265,8 @@ def fzero_brent(f: Callable[[float], float],
         when `|f(x)|<=tolf`.
     maxiter : int
         Maximum number of iterations.
+    verbose : bool
+        Print iteration information.
 
     Returns
     -------
@@ -301,8 +318,12 @@ def fzero_brent(f: Callable[[float], float],
             xb, fb = xc, fc
             xc, fc = xa, fa
 
+        if verbose:
+            print(f"Iteration {k+1}: x = {xb}, f(x) = {fb}", flush=True)
+
         tol1 = 2*eps*abs(xb) + 0.5*tolx
         m = 0.5*(xc - xb)
+
         if abs(m) <= tol1:
             message = "|Δx| ≤ tolx"
             success = True
