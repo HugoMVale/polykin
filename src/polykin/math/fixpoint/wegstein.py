@@ -6,6 +6,7 @@ from typing import Callable
 
 import numpy as np
 
+from polykin.math import scalex
 from polykin.math.roots import VectorRootResult
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
@@ -19,6 +20,7 @@ def fixpoint_wegstein(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
     tolx: float = 1e-6,
+    sx: FloatVector | None = None,
     wait: int = 1,
     qmin: float = -5.0,
     qmax: float = 0.0,
@@ -59,7 +61,9 @@ def fixpoint_wegstein(
         Initial guess.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
-        `||g(x_k) - x_k||∞ <= tolx`.
+        `||(g(x) - x)*sx||∞ <= tolx`.
+    sx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]*sx[i]` is close to 1.
     wait : int
         Number of direct substitution iterations before the first acceleration
         iteration.
@@ -101,6 +105,8 @@ def fixpoint_wegstein(
     message = ""
     success = False
 
+    sx = sx if sx is not None else scalex(x0)
+
     x = x0.copy()
     n = x.size
     gx = np.full(n, np.nan)
@@ -115,8 +121,8 @@ def fixpoint_wegstein(
         nfeval += 1
         fx = gx - x
 
-        if np.linalg.norm(fx, np.inf) <= tolx:
-            message = "||g(x) - x||∞ ≤ tolx"
+        if np.linalg.norm(fx*sx, np.inf) <= tolx:
+            message = "||(g(x) - x)*sx||∞ ≤ tolx"
             success = True
             break
 

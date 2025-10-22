@@ -6,6 +6,7 @@ from typing import Callable
 
 import numpy as np
 
+from polykin.math import scalex
 from polykin.math.roots import VectorRootResult
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
@@ -20,6 +21,7 @@ def fixpoint_anderson(
         x0: FloatVector,
         m: int = 3,
         tolx: float = 1e-6,
+        sx: FloatVector | None = None,
         maxiter: int = 50
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
@@ -54,7 +56,9 @@ def fixpoint_anderson(
         Number of previous steps (`m >= 1`) to use in the acceleration.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
-        `||g(x_k) - x_k||∞ <= tolx`.
+        `||(g(x) - x)*sx||∞ <= tolx`.
+    sx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]*sx[i]` is close to 1.
     maxiter : int
         Maximum number of iterations.
 
@@ -89,6 +93,8 @@ def fixpoint_anderson(
     message = ""
     success = False
 
+    sx = sx if sx is not None else scalex(x0)
+
     # Different ordering of arrays to optimize memory access
     n = x0.size
     m = max(m, 1)
@@ -99,8 +105,8 @@ def fixpoint_anderson(
     nfeval += 1
     f0 = g0 - x0
 
-    if np.linalg.norm(f0, np.inf) <= tolx:
-        message = "||g(x0) - x0||∞ ≤ tolx"
+    if np.linalg.norm(f0*sx, np.inf) <= tolx:
+        message = "||(g(x0) - x0)*sx||∞ ≤ tolx"
         return VectorRootResult(True, message, nfeval, 0, x0, f0)
 
     x = g0
@@ -124,8 +130,8 @@ def fixpoint_anderson(
         ΔG[-1, :] += gx
         ΔF[:, -1] += fx
 
-        if np.linalg.norm(fx, np.inf) <= tolx:
-            message = "||g(x) - x||∞ <= tolx"
+        if np.linalg.norm(fx*sx, np.inf) <= tolx:
+            message = "||(g(x) - x)*sx||∞ <= tolx"
             success = True
             break
 
