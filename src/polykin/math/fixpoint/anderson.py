@@ -5,6 +5,7 @@
 from typing import Callable
 
 import numpy as np
+import scipy
 
 from polykin.math import scalex
 from polykin.math.roots import VectorRootResult
@@ -105,8 +106,8 @@ def fixpoint_anderson(
     nfeval += 1
     f0 = g0 - x0
 
-    if np.linalg.norm(f0*sx, np.inf) <= tolx:
-        message = "||(g(x0) - x0)*sx||∞ ≤ tolx"
+    if np.linalg.norm(f0*sx, np.inf) <= 1e-2*tolx:
+        message = "||(g(x0) - x0)*sx||∞ ≤ 1e-2*tolx"
         return VectorRootResult(True, message, nfeval, 0, x0, f0)
 
     x = g0
@@ -135,12 +136,19 @@ def fixpoint_anderson(
             success = True
             break
 
-        # There are methods to reuse/update the QR decomposition from the
-        # previous iteration, but this is more complex to implement.
         try:
-            Q, R = np.linalg.qr(ΔF[:, -mk:])
-            gamma = np.linalg.lstsq(R, Q.T @ fx, rcond=None)[0]
-        except np.linalg.LinAlgError:
+
+            if k == 1:
+                Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode='economic')
+            if k > m:
+                Q, R = scipy.linalg.qr_delete(Q, R, 0, which='col')
+            if k > 1:
+                Q, R = scipy.linalg.qr_insert(
+                    Q, R, ΔF[:, -1], mk-1, which='col')
+
+            gamma = scipy.linalg.lstsq(R, Q.T @ fx)[0]
+
+        except scipy.linalg.LinAlgError:
             message = "Error in QR decomposition or least-squares solution."
             break
 

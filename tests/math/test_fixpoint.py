@@ -20,11 +20,12 @@ g.sol = np.array([0.97458605, 1.93830731])
 def test_fixpoint_anderson():
     # stop tolx
     tolx = 1e-13
-    res = fixpoint_anderson(g, np.array([0.0, 0.0]), m=2, tolx=tolx)
-    assert res.success
-    assert "tolx" in res.message
-    assert allclose(res.x, g.sol, atol=tolx)
-    assert allclose(res.f, g(res.x) - res.x)
+    for m in range(1, 5):
+        res = fixpoint_anderson(g, np.array([0.0, 0.0]), m=m, tolx=tolx)
+        assert res.success
+        assert "tolx" in res.message
+        assert allclose(res.x, g.sol, atol=tolx)
+        assert allclose(res.f, g(res.x) - res.x)
     # stop maxiter
     maxiter = 3
     res = fixpoint_anderson(g, np.array([0.0, 0.0]), maxiter=maxiter)
