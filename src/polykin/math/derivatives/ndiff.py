@@ -229,7 +229,7 @@ def jacobian(
 
     Examples
     --------
-    Evaluate the numerical jacobian of f(x)=(x1**2)*(x2**3) at (2.0, -2.0).
+    Evaluate the numerical jacobian of f(x)=(x1^2)*(x2^3) at (2.0, -2.0).
     >>> from polykin.math import jacobian
     >>> import numpy as np
     >>> def fnc(x): return x[0]**2 * x[1]**3
@@ -242,14 +242,14 @@ def jacobian(
 
     jac = np.empty((fx.size, x.size))
     h0 = np.sqrt(eps)
-    xp = x.copy()
+    xh = x.copy()
 
     for i in range(x.size):
         h = h0*max(abs(x[i]), 1/sx[i])
-        xtemp = xp[i]
-        xp[i] += h
-        jac[:, i] = (f(xp) - fx)/h
-        xp[i] = xtemp
+        xtemp = xh[i]
+        xh[i] += h
+        jac[:, i] = (f(xh) - fx)/h
+        xh[i] = xtemp
 
     return jac
 
