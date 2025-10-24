@@ -110,13 +110,13 @@ def fixpoint_wegstein(
     x = x0.copy()
     n = x.size
     gx = np.full(n, np.nan)
-    xp = np.full(n, np.nan)
+    xm = np.full(n, np.nan)
 
     wait = max(wait, 1)
 
     for k in range(maxiter):
 
-        gxp = gx
+        gxm = gx
         gx = g(x)
         nfeval += 1
         fx = gx - x
@@ -128,17 +128,17 @@ def fixpoint_wegstein(
 
         if k + 1 < maxiter:
             if k < wait:
-                xp = x
+                xm = x
                 x = gx
             else:
-                Δx = x - xp
-                Δg = gx - gxp
+                Δx = x - xm
+                Δg = gx - gxm
                 s = np.zeros(n)
                 mask_s = np.abs(Δx) > eps
                 np.divide(Δg, Δx, out=s, where=mask_s)
                 q = s / (s - 1)
                 q = np.clip(q, qmin, qmax)
-                xp = x
+                xm = x
                 x = q*x + (1 - q)*gx
 
     else:
