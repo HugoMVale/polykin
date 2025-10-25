@@ -132,7 +132,7 @@ def fixpoint_anderson(
         ΔF[:, -1] += fx
 
         if np.linalg.norm(fx*sx, np.inf) <= tolx:
-            message = "||(g(x) - x)*sx||∞ <= tolx"
+            message = "||(g(x) - x)*sx||∞ ≤ tolx"
             success = True
             break
 
@@ -146,10 +146,14 @@ def fixpoint_anderson(
                 Q, R = scipy.linalg.qr_insert(
                     Q, R, ΔF[:, -1], mk-1, which='col')
 
-            gamma = scipy.linalg.lstsq(R, Q.T @ fx)[0]
-
         except scipy.linalg.LinAlgError:
-            message = "Error in QR decomposition or least-squares solution."
+            message = "Error in QR factorization/update."
+            break
+
+        try:
+            gamma = np.linalg.lstsq(R, Q.T @ fx)[0]
+        except np.linalg.LinAlgError:
+            message = "Error in least-squares solution."
             break
 
         if k + 1 < maxiter:
