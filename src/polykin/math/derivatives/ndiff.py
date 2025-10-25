@@ -14,15 +14,16 @@ from polykin.utils.types import (Float2x2Matrix, FloatArray, FloatMatrix,
 __all__ = [
     'derivative_complex',
     'derivative_centered',
-    'hessian2',
-    'jacobian',
+    'jacobian_forward',
+    'hessian2_centered',
     'scalex'
 ]
 
 
-def derivative_complex(f: Callable[[complex], complex],
-                       x: float
-                       ) -> tuple[float, float]:
+def derivative_complex(
+    f: Callable[[complex], complex],
+    x: float
+) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     complex differentiation method.
 
@@ -58,17 +59,18 @@ def derivative_complex(f: Callable[[complex], complex],
     Evaluate the numerical derivative of f(x)=x**3 at x=1.
     >>> from polykin.math import derivative_complex
     >>> def f(x): return x**3
-    >>> derivative_complex(f, 1.)
+    >>> derivative_complex(f, 1.0)
     (3.0, 1.0)
     """
     fz = f(complex(x, eps))
     return (fz.imag/eps, fz.real)
 
 
-def derivative_centered(f: Callable[[float], float],
-                        x: float,
-                        h: float = 0.
-                        ) -> tuple[float, float]:
+def derivative_centered(
+    f: Callable[[float], float],
+    x: float,
+    h: float = 0.
+) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     centered finite-difference scheme.
 
@@ -100,7 +102,7 @@ def derivative_centered(f: Callable[[float], float],
     Evaluate the numerical derivative of f(x)=x**3 at x=1.
     >>> from polykin.math import derivative_centered
     >>> def f(x): return x**3
-    >>> derivative_centered(f, 1.)
+    >>> derivative_centered(f, 1.0)
     (np.float64(3.0000000003141882), np.float64(1.0000000009152836))
     """
 
@@ -117,10 +119,11 @@ def derivative_centered(f: Callable[[float], float],
     return (df, fx)
 
 
-def hessian2(f: Callable[[tuple[float, float]], float],
-             x: tuple[float, float],
-             h: float = 0.
-             ) -> Float2x2Matrix:
+def hessian2_centered(
+    f: Callable[[tuple[float, float]], float],
+    x: tuple[float, float],
+    h: float = 0.
+) -> Float2x2Matrix:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
 
@@ -166,10 +169,10 @@ def hessian2(f: Callable[[tuple[float, float]], float],
 
     Examples
     --------
-    Evaluate the numerical Hessian of f(x,y)=(x**2)*(y**3) at (2., -2.).
-    >>> from polykin.math import hessian2
-    >>> def fnc(x): return x[0]**2 * x[1]**3
-    >>> hessian2(fnc, (2., -2.))
+    Evaluate the numerical Hessian of f(x,y)=(x**2)*(y**3) at (2, -2).
+    >>> from polykin.math import hessian2_centered
+    >>> def f(x): return x[0]**2 * x[1]**3
+    >>> hessian2_centered(f, (2.0, -2.0))
     array([[-15.99999951,  47.99999983],
            [ 47.99999983, -47.99999983]])
     """
@@ -193,7 +196,7 @@ def hessian2(f: Callable[[tuple[float, float]], float],
     return H
 
 
-def jacobian(
+def jacobian_forward(
     f: Callable[[FloatVector], FloatVector],
     x: FloatVector,
     fx: FloatVector | None = None,
@@ -229,11 +232,11 @@ def jacobian(
 
     Examples
     --------
-    Evaluate the numerical jacobian of f(x)=(x1^2)*(x2^3) at (2.0, -2.0).
-    >>> from polykin.math import jacobian
+    Evaluate the numerical jacobian of f(x) = x1**2 * x2**3 at (2, -2).
+    >>> from polykin.math import jacobian_forward
     >>> import numpy as np
-    >>> def fnc(x): return x[0]**2 * x[1]**3
-    >>> jacobian(fnc, np.array([2.0, -2.0]))
+    >>> def f(x): return x[0]**2 * x[1]**3
+    >>> jacobian_forward(f, np.array([2.0, -2.0]))
     array([[-32.00000024,  47.99999928]])
     """
 
@@ -269,6 +272,14 @@ def scalex(x: FloatArray) -> FloatArray:
     -------
     FloatArray
         Scaling array.
+
+    Examples
+    --------
+    Scale the following array.
+    >>> from polykin.math import scalex
+    >>> import numpy as np
+    >>> scalex(np.array([1e-2, 0.0, 1.0, 1e3]))
+    array([1.e+02, 1.e+03, 1.e+00, 1.e-03])
     """
 
     sx = np.ones_like(x)

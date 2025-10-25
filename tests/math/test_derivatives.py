@@ -5,8 +5,8 @@
 import numpy as np
 from numpy import allclose, exp, isclose
 
-from polykin.math import (derivative_centered, derivative_complex, hessian2,
-                          jacobian, scalex)
+from polykin.math import (derivative_centered, derivative_complex,
+                          hessian2_centered, jacobian_forward, scalex)
 
 
 def fnc1(x): return 2*exp(x)
@@ -34,20 +34,20 @@ def test_derivative_complex():
     assert isclose(df, fx)
 
 
-def test_hessian2():
+def test_hessian2_centered():
     x0 = 3.
     x1 = -2.
-    H = hessian2(fnc2, (x0, x1))
+    H = hessian2_centered(fnc2, (x0, x1))
     assert allclose(H, np.array(
         [[2*x1**3, 6*x0*x1**2], [6*x0*x1**2, 6*x1*x0**2]]), rtol=1e-6)
-    H = hessian2(fnc2, (x0, x1), h=1e-2)
+    H = hessian2_centered(fnc2, (x0, x1), h=1e-2)
     assert allclose(H, np.array(
         [[2*x1**3, 6*x0*x1**2], [6*x0*x1**2, 6*x1*x0**2]]), rtol=1e-4)
 
 
-def test_jacobian():
+def test_jacobian_forward():
     x = np.array([3.0, -2.0])
-    J = jacobian(fnc3, x)
+    J = jacobian_forward(fnc3, x)
     assert allclose(J, np.array([[-0.07055999, 0.1], [-0.2, -0.41614682]]),
                     rtol=1e-6)
 

@@ -3,4 +3,4 @@
 ::: polykin.math.derivatives
     options:
         members:
-            - hessian2
+            - hessian2_centered

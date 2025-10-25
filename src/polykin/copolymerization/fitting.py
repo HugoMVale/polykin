@@ -20,7 +20,8 @@ from polykin.copolymerization.binary import (inst_copolymer_binary,
 from polykin.copolymerization.copodataset import (CopoDataset_Ff,
                                                   CopoDataset_fx,
                                                   CopoDataset_Fx)
-from polykin.math import confidence_ellipse, confidence_region, hessian2
+from polykin.math import (confidence_ellipse, confidence_region,
+                          hessian2_centered)
 from polykin.utils.exceptions import FitError
 from polykin.utils.tools import pprint_matrix
 from polykin.utils.types import Float2x2Matrix, FloatVectorLike
@@ -457,7 +458,7 @@ def _fit_copo_NLLS(data_Ff: list[CopoDataset_Ff],
     npar = 2
     if ndata > npar:
         s_sq = sse_opt/(ndata - npar)
-        H = hessian2(sse, r_opt, h=1e-4)
+        H = hessian2_centered(sse, r_opt, h=1e-4)
         Hinv = np.linalg.inv(H)
         cov = 2*Hinv*s_sq
     else:

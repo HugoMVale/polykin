@@ -3,4 +3,4 @@
 ::: polykin.math.derivatives
     options:
         members:
-            - jacobian
+            - jacobian_forward
