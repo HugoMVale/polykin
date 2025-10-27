@@ -243,18 +243,18 @@ def jacobian_forward(
     fx = fx if fx is not None else f(x)
     sx = sx if sx is not None else scalex(x)
 
-    jac = np.empty((fx.size, x.size))
+    J = np.empty((fx.size, x.size))
     h0 = np.sqrt(eps)
     xh = x.copy()
 
     for i in range(x.size):
-        h = h0*max(abs(x[i]), 1/sx[i])
+        h = h0*max(abs(x[i]), abs(1/sx[i]))
         xtemp = xh[i]
         xh[i] += h
-        jac[:, i] = (f(xh) - fx)/h
+        J[:, i] = (f(xh) - fx)/h
         xh[i] = xtemp
 
-    return jac
+    return J
 
 
 def scalex(x: FloatArray) -> FloatArray:
