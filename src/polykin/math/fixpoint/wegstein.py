@@ -61,7 +61,7 @@ def fixpoint_wegstein(
         Initial guess.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
-        `||(g(x) - x)*sx||∞ <= tolx`.
+        `||sx*(g(x) - x)||∞ <= tolx`.
     sx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sx[i]` is close to 1.
     wait : int
@@ -121,8 +121,8 @@ def fixpoint_wegstein(
         nfeval += 1
         fx = gx - x
 
-        if np.linalg.norm(fx*sx, np.inf) <= tolx:
-            message = "||(g(x) - x)*sx||∞ ≤ tolx"
+        if np.linalg.norm(sx*fx, np.inf) <= tolx:
+            message = "||sx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
 

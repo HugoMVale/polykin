@@ -57,7 +57,7 @@ def fixpoint_anderson(
         Number of previous steps (`m >= 1`) to use in the acceleration.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
-        `||(g(x) - x)*sx||∞ <= tolx`.
+        `||sx*(g(x) - x)||∞ <= tolx`.
     sx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sx[i]` is close to 1.
     maxiter : int
@@ -106,8 +106,8 @@ def fixpoint_anderson(
     nfeval += 1
     f0 = g0 - x0
 
-    if np.linalg.norm(f0*sx, np.inf) <= 1e-2*tolx:
-        message = "||(g(x0) - x0)*sx||∞ ≤ 1e-2*tolx"
+    if np.linalg.norm(sx*f0, np.inf) <= 1e-2*tolx:
+        message = "||sx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
         return VectorRootResult(True, message, nfeval, 0, x0, f0)
 
     x = g0
@@ -131,8 +131,8 @@ def fixpoint_anderson(
         ΔG[-1, :] += gx
         ΔF[:, -1] += fx
 
-        if np.linalg.norm(fx*sx, np.inf) <= tolx:
-            message = "||(g(x) - x)*sx||∞ ≤ tolx"
+        if np.linalg.norm(sx*fx, np.inf) <= tolx:
+            message = "||sx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
 
