@@ -39,7 +39,9 @@ class RootResult():
     f: float
 
     def __repr__(self) -> str:
-        return (f"success: {self.success}\n"
+        green, red, reset = "\033[92m", "\033[91m", "\033[0m"
+        color = green if self.success else red
+        return (f"success: {color}{self.success}{reset}\n"
                 f"message: {self.message}\n"
                 f" nfeval: {self.nfeval}\n"
                 f"  niter: {self.niter}\n"
@@ -74,7 +76,9 @@ class VectorRootResult():
     f: FloatVector
 
     def __repr__(self) -> str:
-        return (f"success: {self.success}\n"
+        green, red, reset = "\033[92m", "\033[91m", "\033[0m"
+        color = green if self.success else red
+        return (f"success: {color}{self.success}{reset}\n"
                 f"message: {self.message}\n"
                 f" nfeval: {self.nfeval}\n"
                 f"  niter: {self.niter}\n"
