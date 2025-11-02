@@ -7,8 +7,6 @@ from typing import Any, Iterable, Literal, Union
 
 import numpy as np
 
-from polykin.utils.exceptions import RangeWarning
-
 from .exceptions import RangeError, ShapeError
 from .types import FloatMatrix, FloatOrArray, FloatOrArrayLike
 
@@ -428,3 +426,21 @@ def pprint_matrix(matrix: FloatMatrix,
         line += "]]\n" if i == nrows-1 else "]\n"
         result += line
     return result
+
+
+def colored_bool(value: bool) -> str:
+    """Color boolean as green if `True`, red if `False`.
+
+    Parameters
+    ----------
+    value : bool
+        Boolean.
+
+    Returns
+    -------
+    str
+        Colored boolean.
+    """
+    green, red, reset = "\033[92m", "\033[91m", "\033[0m"
+    color = green if value else red
+    return f"{color}{value}{reset}"
