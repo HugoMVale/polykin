@@ -53,11 +53,11 @@ def test_jacobian_forward():
 
 
 def test_scalex():
-    sx = scalex(np.array([0.0, 0.0]))
-    assert allclose(sx, np.ones_like(sx))
-    sx = scalex(np.array([0.0, -1e2]))
-    assert allclose(sx, [1e-1, 1e-2])
-    sx = scalex(np.array([0.0, 0.1, -1e2]))
-    assert allclose(sx, [1e2, 1e1, 1e-2])
-    sx = scalex(np.array([0.0, 1.0, 5.0]))
-    assert allclose(sx, [10.0, 0.2, 0.2])
+    sclx = scalex(np.array([0.0, 0.0]))
+    assert allclose(sclx, np.ones_like(sclx))
+    sclx = scalex(np.array([0.0, -1e2]))
+    assert allclose(sclx, [1e-1, 1e-2])
+    sclx = scalex(np.array([0.0, 0.1, -1e2]))
+    assert allclose(sclx, [1e2, 1e1, 1e-2])
+    sclx = scalex(np.array([0.0, 1.0, 5.0]))
+    assert allclose(sclx, [10.0, 0.2, 0.2])

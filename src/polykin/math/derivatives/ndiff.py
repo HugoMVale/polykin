@@ -200,7 +200,7 @@ def jacobian_forward(
     f: Callable[[FloatVector], FloatVector],
     x: FloatVector,
     fx: FloatVector | None = None,
-    sx: FloatVector | None = None
+    sclx: FloatVector | None = None
 ) -> FloatMatrix:
     r"""Calculate the numerical Jacobian of a vector function 
     $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
@@ -222,8 +222,8 @@ def jacobian_forward(
         Differentiation point.
     fx : FloatVector | None
         Function values at `x`, if available.
-    sx : FloatVector | None
-        Scaling factors for `x`. Ideally, `x[i]*sx[i]` is close to 1.
+    sclx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1.
 
     Returns
     -------
@@ -241,14 +241,14 @@ def jacobian_forward(
     """
 
     fx = fx if fx is not None else f(x)
-    sx = sx if sx is not None else scalex(x)
+    sclx = sclx if sclx is not None else scalex(x)
 
     J = np.empty((fx.size, x.size))
     h0 = np.sqrt(eps)
     xh = x.copy()
 
     for i in range(x.size):
-        h = h0*max(abs(x[i]), abs(1/sx[i]))
+        h = h0*max(abs(x[i]), abs(1/sclx[i]))
         xtemp = xh[i]
         xh[i] += h
         J[:, i] = (f(xh) - fx)/h
@@ -282,21 +282,21 @@ def scalex(x: FloatArray) -> FloatArray:
     array([1.e+02, 1.e+03, 1.e+00, 1.e-03])
     """
 
-    sx = np.ones_like(x)
+    sclx = np.ones_like(x)
 
     iszero = x == 0.0
 
     if len(x[~iszero]) == 0:
-        return sx
+        return sclx
 
     xmax = np.max(np.abs(x))
     xmin = np.min(np.abs(x[~iszero]))
 
-    sx[iszero] = 1e1/xmin
+    sclx[iszero] = 1e1/xmin
 
     if np.log10(xmax/xmin) >= 1.0:
-        sx[~iszero] = 1/np.abs(x[~iszero])
+        sclx[~iszero] = 1/np.abs(x[~iszero])
     else:
-        sx[~iszero] = 1/xmax
+        sclx[~iszero] = 1/xmax
 
-    return sx
+    return sclx
