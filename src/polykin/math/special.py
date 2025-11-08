@@ -8,7 +8,7 @@ import numpy as np
 from numpy import arctan, exp, inf, pi, sqrt, tan
 from scipy.special import erfc
 
-from polykin.math import fzero_newton
+from polykin.math import root_newton
 from polykin.utils.types import FloatVector
 
 __all__ = ['ierfc',
@@ -106,10 +106,10 @@ def roots_xtanx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
             result[i] = (i + 1/2)*pi
     elif a < 1e2:
         for i in range(N):
-            sol = fzero_newton(f=lambda x: x*tan(x) - a,
-                               x0=pi*(i + 0.5*a/(a+1)),
-                               tolx=tolx,
-                               tolf=1e-10)
+            sol = root_newton(f=lambda x: x*tan(x) - a,
+                              x0=pi*(i + 0.5*a/(a+1)),
+                              tolx=tolx,
+                              tolf=1e-10)
             result[i] = sol.x
     else:
         for i in range(N):
@@ -161,10 +161,10 @@ def roots_xcotx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
             result[i] = (i + 1)*pi
     elif a < 2:
         for i in range(N):
-            sol = fzero_newton(f=lambda x: x/tan(x) + a - 1,
-                               x0=(i + 1/2)*pi,
-                               tolx=tolx,
-                               tolf=1e-10)
+            sol = root_newton(f=lambda x: x/tan(x) + a - 1,
+                              x0=(i + 1/2)*pi,
+                              tolx=tolx,
+                              tolf=1e-10)
             result[i] = sol.x
     else:
         for i in range(N):

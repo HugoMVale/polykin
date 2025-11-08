@@ -12,19 +12,19 @@ from polykin.utils.math import eps
 from .results import RootResult
 
 __all__ = [
-    'fzero_newton',
-    'fzero_secant',
-    'fzero_brent',
+    'root_newton',
+    'root_secant',
+    'root_brent',
 ]
 
 
-def fzero_newton(f: Callable[[complex], complex],
-                 x0: float,
-                 tolx: float = 1e-6,
-                 tolf: float = 1e-6,
-                 maxiter: int = 50,
-                 verbose: bool = False
-                 ) -> RootResult:
+def root_newton(f: Callable[[complex], complex],
+                x0: float,
+                tolx: float = 1e-6,
+                tolf: float = 1e-6,
+                maxiter: int = 50,
+                verbose: bool = False
+                ) -> RootResult:
     r"""Find the root of a scalar function using the Newton-Raphson method.
 
     The Newton-Raphson method uses the first derivative of the function to
@@ -69,11 +69,11 @@ def fzero_newton(f: Callable[[complex], complex],
     Examples
     --------
     Find a root of the Flory-Huggins equation.
-    >>> from polykin.math import fzero_newton
+    >>> from polykin.math import root_newton
     >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
-    >>> sol = fzero_newton(f, 0.3)
+    >>> sol = root_newton(f, 0.3)
     >>> print(f"x = {sol.x:.3f}")
     x = 0.213
     """
@@ -118,14 +118,14 @@ def fzero_newton(f: Callable[[complex], complex],
     return RootResult(success, message, nfeval, k+1, x, fx)
 
 
-def fzero_secant(f: Callable[[float], float],
-                 x0: float,
-                 x1: float,
-                 tolx: float = 1e-6,
-                 tolf: float = 1e-6,
-                 maxiter: int = 50,
-                 verbose: bool = False
-                 ) -> RootResult:
+def root_secant(f: Callable[[float], float],
+                x0: float,
+                x1: float,
+                tolx: float = 1e-6,
+                tolf: float = 1e-6,
+                maxiter: int = 50,
+                verbose: bool = False
+                ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
     The secant method uses two initial guesses and approximates the derivative
@@ -164,11 +164,11 @@ def fzero_secant(f: Callable[[float], float],
     Examples
     --------
     Find a root of the Flory-Huggins equation.
-    >>> from polykin.math import fzero_secant
+    >>> from polykin.math import root_secant
     >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
-    >>> sol = fzero_secant(f, 0.3, 0.31)
+    >>> sol = root_secant(f, 0.3, 0.31)
     >>> print(f"x = {sol.x:.3f}")
     x = 0.213
     """
@@ -225,14 +225,14 @@ def fzero_secant(f: Callable[[float], float],
     return RootResult(success, message, nfeval, k+1, x2, f2)
 
 
-def fzero_brent(f: Callable[[float], float],
-                xa: float,
-                xb: float,
-                tolx: float = 1e-6,
-                tolf: float = 1e-6,
-                maxiter: int = 50,
-                verbose: bool = False
-                ) -> RootResult:
+def root_brent(f: Callable[[float], float],
+               xa: float,
+               xb: float,
+               tolx: float = 1e-6,
+               tolf: float = 1e-6,
+               maxiter: int = 50,
+               verbose: bool = False
+               ) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
 
     Brent's method is a root-finding algorithm combining bisection, secant,
@@ -276,11 +276,11 @@ def fzero_brent(f: Callable[[float], float],
     Examples
     --------
     Find a root of the Flory-Huggins equation.
-    >>> from polykin.math import fzero_brent
+    >>> from polykin.math import root_brent
     >>> from numpy import log
     >>> def f(x, a=0.6, chi=0.4):
     ...     return log(x) + (1 - x) + chi*(1 - x)**2 - log(a)
-    >>> sol = fzero_brent(f, 0.1, 0.9)
+    >>> sol = root_brent(f, 0.1, 0.9)
     >>> print(f"x = {sol.x:.3f}")
     x = 0.213
     """

@@ -12,7 +12,7 @@ from numpy import arctan, cos, exp, log, sin, sqrt
 from scipy.stats.distributions import f as Fdist
 from scipy.stats.distributions import t as tdist
 
-from polykin.math.roots import RootResult, fzero_secant
+from polykin.math.roots import RootResult, root_secant
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
@@ -264,7 +264,7 @@ def confidence_region(center: tuple[float, float],
 
     def find_radius(θ: float, r0: float) -> RootResult:
         "Find boundary ln(radius) at given angle θ."
-        solution = fzero_secant(
+        solution = root_secant(
             f=lambda x: nsse(x, θ)/nsse_boundary - 1.0,
             x0=log(r0*1.02),
             x1=log(r0),

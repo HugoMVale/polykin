@@ -5,7 +5,7 @@ from typing import Callable
 import numpy as np
 from numpy import dot, exp, log
 
-from polykin.math import fzero_brent
+from polykin.math import root_brent
 from polykin.utils.exceptions import ConvergenceError, ConvergenceWarning
 from polykin.utils.types import FloatVector
 from polykin.utils.math import eps
@@ -534,11 +534,11 @@ def flash2_PV(
         elif abs(beta - 1) < eps:
             R = 1.0
         else:
-            sol = fzero_brent(lambda R: fobj(R, u, Kb0, beta, z),
-                              0.0, 1.0,
-                              maxiter=maxiter,
-                              tolx=atol_inner,
-                              tolf=atol_inner)
+            sol = root_brent(lambda R: fobj(R, u, Kb0, beta, z),
+                             0.0, 1.0,
+                             maxiter=maxiter,
+                             tolx=atol_inner,
+                             tolf=atol_inner)
             R = sol.x
             if not sol.success:
                 warnings.warn(

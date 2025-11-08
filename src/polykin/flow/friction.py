@@ -5,7 +5,7 @@
 from numpy import inf, log10, pi, sqrt
 from scipy.constants import g
 
-from polykin.math import fzero_newton
+from polykin.math import root_newton
 from polykin.utils.tools import check_range_warn
 
 __all__ = ['fD_Colebrook',
@@ -331,7 +331,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     def fnc(f):
         return 2*log10(er/3.7 + 2.51/(Re*sqrt(f))) + 1/sqrt(f)
 
-    sol = fzero_newton(fnc, fD_Haaland(Re, er), 1e-5)
+    sol = root_newton(fnc, fD_Haaland(Re, er), 1e-5)
 
     return sol.x
 
@@ -550,7 +550,7 @@ def vt_sphere(D: float,
         Cd = Cd_sphere(Re)
         return vt - sqrt(4*D*g*(rhop - rho)/(3*Cd*rho))
 
-    sol = fzero_newton(fnc, x0=1.)
+    sol = root_newton(fnc, x0=1.)
 
     return sol.x
 
