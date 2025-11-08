@@ -3,6 +3,8 @@
 biblio
 notes.md
 .vscode
+.python-version
+uv.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
