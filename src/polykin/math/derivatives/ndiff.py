@@ -224,7 +224,8 @@ def jacobian_forward(
     fx : FloatVector | None
         Function values at `x`, if available.
     sclx : FloatVector | None
-        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1.
+        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
+        default, the factors are set internally based on the magnitudes of `x`.
     epsf : float | None
         Floating-point precision associated with the function `f`. If `None`, 
         it is set to the machine precision of `float64`, which is appropriate 

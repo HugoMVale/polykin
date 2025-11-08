@@ -59,7 +59,8 @@ def fixpoint_anderson(
         Absolute tolerance for `x` value. The algorithm will terminate when
         `||sclx*(g(x) - x)||∞ <= tolx`.
     sclx : FloatVector | None
-        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1.
+        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
+        default, the factors are set internally based on the magnitudes of `x`.
     maxiter : int
         Maximum number of iterations.
 
