@@ -231,7 +231,7 @@ def jacobian_forward(
         for functions evaluated by closed-form expressions. For functions 
         evaluated through numerical procedures (e.g., iterative solvers),
         `epsf` should be set to `10**(-ndigit)`, where `ndigit` is the number
-        of reliable decimal digits in the results returned by `f`.
+        of reliable base 10 digits in the result returned by `f`.
 
     Returns
     -------
