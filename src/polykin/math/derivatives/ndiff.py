@@ -69,7 +69,7 @@ def derivative_complex(
 def derivative_centered(
     f: Callable[[float], float],
     x: float,
-    h: float = 0.
+    h: float = 0.0
 ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     centered finite-difference scheme.
@@ -122,7 +122,7 @@ def derivative_centered(
 def hessian2_centered(
     f: Callable[[tuple[float, float]], float],
     x: tuple[float, float],
-    h: float = 0.
+    h: float = 0.0
 ) -> Float2x2Matrix:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
@@ -200,7 +200,8 @@ def jacobian_forward(
     f: Callable[[FloatVector], FloatVector],
     x: FloatVector,
     fx: FloatVector | None = None,
-    sclx: FloatVector | None = None
+    sclx: FloatVector | None = None,
+    epsf: float | None = None
 ) -> FloatMatrix:
     r"""Calculate the numerical Jacobian of a vector function 
     $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
@@ -224,6 +225,13 @@ def jacobian_forward(
         Function values at `x`, if available.
     sclx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1.
+    epsf : float | None
+        Floating-point precision associated with the function `f`. If `None`, 
+        it is set to the machine precision of `float64`, which is appropriate 
+        for functions evaluated by closed-form expressions. For functions 
+        evaluated through numerical procedures (e.g., iterative solvers),
+        `epsf` should be set to `10**(-ndigit)`, where `ndigit` is the number
+        of reliable decimal digits in the results returned by `f`.
 
     Returns
     -------
@@ -243,8 +251,9 @@ def jacobian_forward(
     fx = fx if fx is not None else f(x)
     sclx = sclx if sclx is not None else scalex(x)
 
+    h0 = np.sqrt(epsf if epsf is not None and (epsf > eps) else eps)
+
     J = np.empty((fx.size, x.size))
-    h0 = np.sqrt(eps)
     xh = x.copy()
 
     for i in range(x.size):
