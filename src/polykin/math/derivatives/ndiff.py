@@ -201,7 +201,7 @@ def jacobian_forward(
     x: FloatVector,
     fx: FloatVector | None = None,
     sclx: FloatVector | None = None,
-    epsf: float | None = None
+    ndigit: int | None = None
 ) -> FloatMatrix:
     r"""Calculate the numerical Jacobian of a vector function 
     $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
@@ -226,13 +226,12 @@ def jacobian_forward(
     sclx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
         default, the factors are set internally based on the magnitudes of `x`.
-    epsf : float | None
-        Floating-point precision associated with the function `f`. If `None`, 
-        it is set to the machine precision of `float64`, which is appropriate 
-        for functions evaluated by closed-form expressions. For functions 
-        evaluated through numerical procedures (e.g., iterative solvers),
-        `epsf` should be set to `10**(-ndigit)`, where `ndigit` is the number
-        of reliable base 10 digits in the result returned by `f`.
+    ndigit : int | None
+        Number of reliable base-10 digits in the values returned by `f`. This
+        parameter is optional when the function is evaluated analytically,
+        but is essential when the function involves numerical procedures (such
+        as root finding or ODE integration). If `None`, machine precision is
+        assumed.
 
     Returns
     -------
@@ -252,7 +251,8 @@ def jacobian_forward(
     fx = fx if fx is not None else f(x)
     sclx = sclx if sclx is not None else scalex(x)
 
-    h0 = np.sqrt(epsf if epsf is not None and (epsf > eps) else eps)
+    η = eps if ndigit is None else 10**(-ndigit)
+    h0 = np.sqrt(η)
 
     J = np.empty((fx.size, x.size))
     xh = x.copy()
