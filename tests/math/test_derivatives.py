@@ -3,16 +3,20 @@
 # Copyright Hugo Vale 2024
 
 import numpy as np
-from numpy import allclose, exp, isclose
+from numpy import allclose, isclose
 
 from polykin.math import (derivative_centered, derivative_complex,
                           hessian2_centered, jacobian_forward, scalex)
 
+# %% Test functions
 
-def fnc1(x): return 2*exp(x)
+
+def fnc1(x):
+    return 2*np.exp(x)
 
 
-def fnc2(x): return x[0]**2 * x[1]**3
+def fnc2(x):
+    return x[0]**2 * x[1]**3
 
 
 def fnc3(x):
@@ -20,6 +24,8 @@ def fnc3(x):
     f1 = 0.5*np.cos(x1) + 0.1*x2 + 0.5
     f2 = np.sin(x2) - 0.2*x1 + 1.2
     return np.array([f1, f2])
+
+# %% Tests
 
 
 def test_derivative_centered():
