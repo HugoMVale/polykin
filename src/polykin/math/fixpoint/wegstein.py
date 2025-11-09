@@ -102,9 +102,10 @@ def fixpoint_wegstein(
     g(x) = [0.97458605 1.93830731]
     """
 
-    nfeval = 0
-    message = ""
+    method = "Wegstein fixed-point"
     success = False
+    message = ""
+    nfeval = 0
 
     sclx = sclx if sclx is not None else scalex(x0)
 
@@ -145,4 +146,4 @@ def fixpoint_wegstein(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(success, message, nfeval, k+1, x, fx)
+    return VectorRootResult(method, success, message, nfeval, None, k+1, x, fx)

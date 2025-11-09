@@ -78,9 +78,10 @@ def root_newton(f: Callable[[complex], complex],
     x = 0.213
     """
 
-    nfeval = 0
-    message = ""
+    method = "Newton-Raphson (complex step)"
     success = False
+    message = ""
+    nfeval = 0
 
     x = x0
 
@@ -115,7 +116,7 @@ def root_newton(f: Callable[[complex], complex],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(success, message, nfeval, k+1, x, fx)
+    return RootResult(method, success, message, nfeval, k+1, x, fx)
 
 
 def root_secant(f: Callable[[float], float],
@@ -173,21 +174,22 @@ def root_secant(f: Callable[[float], float],
     x = 0.213
     """
 
-    nfeval = 0
-    message = ""
+    method = "Secant"
     success = False
+    message = ""
+    nfeval = 0
 
     f0 = f(x0)
     nfeval += 1
     if abs(f0) <= tolf:
         message = "|f(x0)| ≤ tolf"
-        return RootResult(True, message, nfeval, 0, x0, f0)
+        return RootResult(method, True, message, nfeval, 0, x0, f0)
 
     f1 = f(x1)
     nfeval += 1
     if abs(f1) <= tolf:
         message = "|f(x1)| ≤ tolf"
-        return RootResult(True, message, nfeval, 0, x1, f1)
+        return RootResult(method, True, message, nfeval, 0, x1, f1)
 
     x2, f2 = np.nan, np.nan
 
@@ -222,7 +224,7 @@ def root_secant(f: Callable[[float], float],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(success, message, nfeval, k+1, x2, f2)
+    return RootResult(method, success, message, nfeval, k+1, x2, f2)
 
 
 def root_brent(f: Callable[[float], float],
@@ -285,21 +287,22 @@ def root_brent(f: Callable[[float], float],
     x = 0.213
     """
 
-    nfeval = 0
-    message = ""
+    method = "Brent"
     success = False
+    message = ""
+    nfeval = 0
 
     fa = f(xa)
     nfeval += 1
     if abs(fa) <= tolf:
         message = "|f(xa)| ≤ tolf"
-        return RootResult(True, message, nfeval, 0, xa, fa)
+        return RootResult(method, True, message, nfeval, 0, xa, fa)
 
     fb = f(xb)
     nfeval += 1
     if abs(fb) <= tolf:
         message = "|f(xb)| ≤ tolf"
-        return RootResult(True, message, nfeval, 0, xb, fb)
+        return RootResult(method, True, message, nfeval, 0, xb, fb)
 
     if (fa*fb) > 0.0:
         raise ValueError("Root is not bracketed.")
@@ -371,4 +374,4 @@ def root_brent(f: Callable[[float], float],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(success, message, nfeval, k+1, xb, fb)
+    return RootResult(method, success, message, nfeval, k+1, xb, fb)

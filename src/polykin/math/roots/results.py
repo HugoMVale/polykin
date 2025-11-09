@@ -19,6 +19,8 @@ class RootResult():
 
     Attributes
     ----------
+    method: str
+        Method used to find the root.
     success: bool
         If `True`, the root was found.
     message: str
@@ -32,6 +34,7 @@ class RootResult():
     f: float
         Function (residual) value at root.
     """
+    method: str
     success: bool
     message: str
     nfeval: int
@@ -40,7 +43,8 @@ class RootResult():
     f: float
 
     def __repr__(self) -> str:
-        return (f"success: {colored_bool(self.success)}\n"
+        return (f" method: {self.method}\n"
+                f"success: {colored_bool(self.success)}\n"
                 f"message: {self.message}\n"
                 f" nfeval: {self.nfeval}\n"
                 f"  niter: {self.niter}\n"
@@ -54,12 +58,16 @@ class VectorRootResult():
 
     Attributes
     ----------
+    method: str
+        Method used to find the root.
     success: bool
         If `True`, the root was found.
     message: str
         Description of the exit status.
     nfeval: int
         Number of function evaluations.
+    njeval: int | None
+        Number of Jacobian evaluations.
     niter: int
         Number of iterations.
     x: FloatVector
@@ -67,17 +75,21 @@ class VectorRootResult():
     f: FloatVector
         Function (residual) value at root.
     """
+    method: str
     success: bool
     message: str
     nfeval: int
+    njeval: int | None
     niter: int
     x: FloatVector
     f: FloatVector
 
     def __repr__(self) -> str:
-        return (f"success: {colored_bool(self.success)}\n"
+        return (f" method: {self.method}\n"
+                f"success: {colored_bool(self.success)}\n"
                 f"message: {self.message}\n"
                 f" nfeval: {self.nfeval}\n"
+                f" njeval: {self.njeval}\n"
                 f"  niter: {self.niter}\n"
                 f"      x: {self.x}\n"
                 f"      f: {self.f}")

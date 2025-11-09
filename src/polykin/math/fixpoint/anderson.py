@@ -9,7 +9,6 @@ import scipy
 
 from polykin.math import scalex
 from polykin.math.roots import VectorRootResult
-from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
 
 __all__ = [
@@ -91,9 +90,10 @@ def fixpoint_anderson(
     g(x) = [0.97458605 1.93830731]
     """
 
-    nfeval = 0
-    message = ""
+    method = "Anderson fix-point"
     success = False
+    message = ""
+    nfeval = 0
 
     sclx = sclx if sclx is not None else scalex(x0)
 
@@ -109,7 +109,7 @@ def fixpoint_anderson(
 
     if np.linalg.norm(sclx*f0, np.inf) <= 1e-2*tolx:
         message = "||sclx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
-        return VectorRootResult(True, message, nfeval, 0, x0, f0)
+        return VectorRootResult(method, True, message, nfeval, None, 0, x0, f0)
 
     x = g0
     gx = g0
@@ -163,4 +163,4 @@ def fixpoint_anderson(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(success, message, nfeval, k+1, x, fx)
+    return VectorRootResult(method, success, message, nfeval, None, k+1, x, fx)
