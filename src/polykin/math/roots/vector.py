@@ -11,10 +11,9 @@ from numpy import dot, isclose, sqrt
 from numpy.linalg import norm
 
 from polykin.math.derivatives import jacobian_forward, scalex
+from polykin.math.roots.results import VectorRootResult
 from polykin.utils.math import eps
 from polykin.utils.types import FloatMatrix, FloatVector
-
-from .results import VectorRootResult
 
 all = ['rootvec_qnewton']
 
@@ -141,6 +140,24 @@ def rootvec_qnewton(
     -------
     VectorRootResult
         Dataclass with root solution results.
+
+    Examples
+    --------
+    Find the steady-state concentration of species A, B, and C at the outlet of
+    a CSTR, assuming a consecutive scheme of type A+B→C, C+B→D.
+    >>> from polykin.math import rootvec_qnewton
+    >>> import numpy as np
+    >>> def f(x, A0=1.0, B0=2.0, C0=0.0, k1=1e-3, k2=5e-4, tau=1e3):
+    ...     "Steady-state mole balances: inflow - outflow ± reaction" 
+    ...     A, B, C = x
+    ...     f = np.zeros_like(x)
+    ...     f[0] = (A0 - A)/tau - k1*A*B
+    ...     f[1] = (B0 - B)/tau - k1*A*B
+    ...     f[2] = (C0 - C)/tau + k1*A*B - k2*C*B
+    ...     return f
+    >>> sol = rootvec_qnewton(f, np.array([0.5, 1.0, 0.5]))
+    >>> sol.x
+    array([0.41421356, 1.41421356, 0.34314575])
     """
 
     method = "Quasi-Newton"
