@@ -63,8 +63,9 @@ def fixpoint_wegstein(
         Absolute tolerance for `x` value. The algorithm will terminate when
         `||sclx*(g(x) - x)||∞ <= tolx`.
     sclx : FloatVector | None
-        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
-        default, the factors are set internally based on the magnitudes of `x`.
+        Positive scaling factors for the components of `x`. Ideally, these
+        should be chosen so that `sclx*x` is of order 1 near the solution for
+        all components. By default, scaling is determined automatically from `x0`.
     wait : int
         Number of direct substitution iterations before the first acceleration
         iteration.
