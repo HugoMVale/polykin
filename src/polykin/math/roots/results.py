@@ -9,7 +9,7 @@ from polykin.utils.types import FloatVector
 
 __all__ = [
     'RootResult',
-    'VectorRootResult'
+    'MultiRootResult'
 ]
 
 
@@ -53,8 +53,8 @@ class RootResult():
 
 
 @dataclass
-class VectorRootResult():
-    """Dataclass with vector root solution results.
+class MultiRootResult():
+    """Dataclass with multi-root solution results.
 
     Attributes
     ----------

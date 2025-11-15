@@ -8,7 +8,7 @@ import numpy as np
 import scipy
 
 from polykin.math import scalex
-from polykin.math.roots import VectorRootResult
+from polykin.math.roots import MultiRootResult
 from polykin.utils.types import FloatVector
 
 __all__ = [
@@ -23,7 +23,7 @@ def fixpoint_anderson(
         tolx: float = 1e-6,
         sclx: FloatVector | None = None,
         maxiter: int = 50
-) -> VectorRootResult:
+) -> MultiRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
     Anderson acceleration method.
 
@@ -65,7 +65,7 @@ def fixpoint_anderson(
 
     Returns
     -------
-    VectorRootResult
+    MultiRootResult
         Dataclass with root solution results.
 
     See also
@@ -109,7 +109,7 @@ def fixpoint_anderson(
 
     if np.linalg.norm(sclx*f0, np.inf) <= 1e-2*tolx:
         message = "||sclx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
-        return VectorRootResult(method, True, message, nfeval, None, 0, x0, f0)
+        return MultiRootResult(method, True, message, nfeval, None, 0, x0, f0)
 
     x = g0
     gx = g0
@@ -163,4 +163,4 @@ def fixpoint_anderson(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(method, success, message, nfeval, None, k+1, x, fx)
+    return MultiRootResult(method, success, message, nfeval, None, k+1, x, fx)

@@ -3,4 +3,4 @@
 ::: polykin.math.roots
     options:
         members:
-            - VectorRootResult
+            - MultiRootResult
