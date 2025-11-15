@@ -14,14 +14,14 @@ from polykin.math.derivatives import jacobian_forward, scalex
 from polykin.utils.math import eps
 from polykin.utils.types import FloatMatrix, FloatVector
 
-from .results import MultiRootResult
+from .results import VectorRootResult
 
-all = ['multiroot_qnewton']
+all = ['rootvec_qnewton']
 
 # %% quasi-Newton's method for systems of nonlinear equations
 
 
-def multiroot_qnewton(
+def rootvec_qnewton(
     f: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
     *,
@@ -38,7 +38,7 @@ def multiroot_qnewton(
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
     jac0: FloatMatrix | None = None,
     verbose: bool = False,
-) -> MultiRootResult:
+) -> VectorRootResult:
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
     method with optional global strategies.
 
@@ -182,7 +182,7 @@ def multiroot_qnewton(
     # Check initial solution with tight tolerance
     if norm(sclf*fc, np.inf) <= 1e-2*tolf:
         message = "||sclf*f(x0)||∞ ≤ 1e-2*tolf"
-        return MultiRootResult(method, True, message, nfeval, njeval, 0, x0, fc, J)
+        return VectorRootResult(method, True, message, nfeval, njeval, 0, x0, fc, J)
 
     # Set maximum step length for global methods
     maxlen = max(0.0, maxlenfac)*float(max(norm(sclx*x0), norm(sclx)))
@@ -322,7 +322,7 @@ def multiroot_qnewton(
     if broyden_update:
         J = (Q @ R) / sclf[:, None]
 
-    return MultiRootResult(method, success, message, nfeval, njeval, niter, xc, fc, J)
+    return VectorRootResult(method, success, message, nfeval, njeval, niter, xc, fc, J)
 
 
 def _update_broyden_qr(

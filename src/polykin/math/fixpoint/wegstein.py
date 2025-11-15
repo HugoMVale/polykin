@@ -7,7 +7,7 @@ from typing import Callable
 import numpy as np
 
 from polykin.math import scalex
-from polykin.math.roots import MultiRootResult
+from polykin.math.roots import VectorRootResult
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
 
@@ -25,7 +25,7 @@ def fixpoint_wegstein(
     qmin: float = -5.0,
     qmax: float = 0.0,
     maxiter: int = 50,
-) -> MultiRootResult:
+) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the 
     bounded Wegstein acceleration method.
 
@@ -78,7 +78,7 @@ def fixpoint_wegstein(
 
     Returns
     -------
-    MultiRootResult
+    VectorRootResult
         Dataclass with root solution results.
 
     See also
@@ -147,4 +147,4 @@ def fixpoint_wegstein(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return MultiRootResult(method, success, message, nfeval, None, k+1, x, fx, None)
+    return VectorRootResult(method, success, message, nfeval, None, k+1, x, fx, None)

@@ -5,7 +5,7 @@
 import numpy as np
 from numpy import allclose
 
-from polykin.math.roots import multiroot_qnewton
+from polykin.math.roots import rootvec_qnewton
 
 # %% Test problems
 
@@ -86,13 +86,13 @@ f_example65.xs = np.array([1.0, 1.0])
 # %% Tests
 
 
-def test_multiroot_qnewton():
+def test_rootvec_qnewton():
     # With global method, all work even with Broyden's update
     funcs = [f_rosenbrock, f_powell_singular, f_trignometric, f_example65]
     for global_method in ['line-search', 'dogleg']:
         for broyden_update in [False, True]:
             for f in funcs:
-                sol = multiroot_qnewton(
+                sol = rootvec_qnewton(
                     f, f.x0, tolf=1e-8,
                     global_method=global_method,
                     broyden_update=broyden_update)
@@ -103,7 +103,7 @@ def test_multiroot_qnewton():
     # Without global method, most work as well
     funcs = [f_rosenbrock, f_powell_singular, f_trignometric]
     for f in funcs:
-        sol = multiroot_qnewton(
+        sol = rootvec_qnewton(
             f, f.x0, tolf=1e-8, global_method=None)
         assert sol.success
         if not f.__name__ == 'f_powell_singular':
@@ -111,6 +111,6 @@ def test_multiroot_qnewton():
 
     # Easy ones also work with approximate jac0 and Broyden update
     f = f_example65
-    sol = multiroot_qnewton(f, f.x0,
-                            broyden_update=True, jac0=np.eye(f.x0.size))
+    sol = rootvec_qnewton(f, f.x0,
+                          broyden_update=True, jac0=np.eye(f.x0.size))
     assert sol.success
