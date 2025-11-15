@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 
 from polykin.utils.tools import colored_bool
-from polykin.utils.types import FloatVector
+from polykin.utils.types import FloatMatrix, FloatVector
 
 __all__ = [
     'RootResult',
@@ -74,6 +74,8 @@ class MultiRootResult():
         Root value.
     f: FloatVector
         Function (residual) value at root.
+    jac: FloatMatrix
+        Jacobian value at root.
     """
     method: str
     success: bool
@@ -83,6 +85,7 @@ class MultiRootResult():
     niter: int
     x: FloatVector
     f: FloatVector
+    jac: FloatMatrix | None
 
     def __repr__(self) -> str:
         return (f" method: {self.method}\n"
@@ -92,4 +95,6 @@ class MultiRootResult():
                 f" njeval: {self.njeval}\n"
                 f"  niter: {self.niter}\n"
                 f"      x: {self.x}\n"
-                f"      f: {self.f}")
+                f"      f: {self.f}\n"
+                f"    jac: {self.jac}"
+                )

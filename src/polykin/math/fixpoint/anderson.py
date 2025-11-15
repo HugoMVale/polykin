@@ -110,7 +110,7 @@ def fixpoint_anderson(
 
     if np.linalg.norm(sclx*f0, np.inf) <= 1e-2*tolx:
         message = "||sclx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
-        return MultiRootResult(method, True, message, nfeval, None, 0, x0, f0)
+        return MultiRootResult(method, True, message, nfeval, None, 0, x0, f0, None)
 
     x = g0
     gx = g0
@@ -164,4 +164,4 @@ def fixpoint_anderson(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return MultiRootResult(method, success, message, nfeval, None, k+1, x, fx)
+    return MultiRootResult(method, success, message, nfeval, None, k+1, x, fx, None)

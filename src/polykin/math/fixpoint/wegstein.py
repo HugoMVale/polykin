@@ -147,4 +147,4 @@ def fixpoint_wegstein(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return MultiRootResult(method, success, message, nfeval, None, k+1, x, fx)
+    return MultiRootResult(method, success, message, nfeval, None, k+1, x, fx, None)
