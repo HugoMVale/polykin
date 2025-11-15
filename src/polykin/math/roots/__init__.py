@@ -3,6 +3,6 @@
 # Copyright Hugo Vale 2025
 
 
-# from .broyden import *
+from .multiroot import *
 from .results import *
 from .scalar import *
