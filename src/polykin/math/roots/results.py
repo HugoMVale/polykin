@@ -15,7 +15,7 @@ __all__ = [
 
 @dataclass
 class RootResult():
-    """Dataclass with root solution results.
+    """Dataclass with scalar root solution results.
 
     Attributes
     ----------
@@ -75,7 +75,7 @@ class VectorRootResult():
     f: FloatVector
         Function (residual) value at root.
     jac: FloatMatrix
-        Jacobian value at root.
+        Last Jacobian value evaluated or estimated.
     """
     method: str
     success: bool
