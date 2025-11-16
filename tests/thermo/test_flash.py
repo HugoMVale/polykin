@@ -3,7 +3,7 @@ from numpy import allclose, isclose
 
 from polykin.properties.equations import Antoine
 from polykin.thermo.acm import UNIQUAC
-from polykin.thermo.flash.vle import (flash2_PV, flash2_PT,
+from polykin.thermo.flash.vle import (flash2_PT, flash2_PV, flash2_TV,
                                       residual_Rachford_Rice,
                                       solve_Rachford_Rice)
 
@@ -95,24 +95,26 @@ def test_flash2_PT():
                     P=0.4e5,
                     Kcalc=Kcalc)
     assert sol.success
-    assert allclose(sol.x, [0.2910601, 0.7089399], rtol=1e-3)
-    assert allclose(sol.y, [0.96042225, 0.03957775], rtol=1e-3)
+    assert isclose(sol.beta, 0.31214672, rtol=1e-5)
+    assert allclose(sol.x, [0.2910601, 0.7089399], rtol=1e-5)
+    assert allclose(sol.y, [0.96042225, 0.03957775], rtol=1e-5)
 
 
 def test_flash2_PV():
     sol = flash2_PV(F=1.0,
                     z=np.array([0.5, 0.5]),
                     P=0.4e5,
-                    beta=0.2,
+                    beta=0.31214672,
                     Kcalc=Kcalc,
                     T0=300.0)
     assert sol.success
-    assert allclose(sol.x, [0.3814322, 0.6185678], rtol=1e-3)
-    assert allclose(sol.y, [0.97427121, 0.02572879], rtol=1e-3)
-    assert allclose(sol.T, 367.1325398903182, atol=0.01)
+    assert allclose(sol.x, [0.2910601, 0.7089399], rtol=1e-5)
+    assert allclose(sol.y, [0.96042225, 0.03957775], rtol=1e-5)
+    assert allclose(sol.T, 373.0, atol=0.01)
 
 
 def test_flash2_PV_bubble():
+    "Bubble Temperature"
     sol = flash2_PV(F=1.0,
                     z=np.array([0.5, 0.5]),
                     P=0.6e5,
@@ -121,10 +123,11 @@ def test_flash2_PV_bubble():
                     T0=300.0)
 
     assert isclose(sol.T, 372.7277, atol=0.01)
-    assert allclose(sol.y, [0.9803498, 0.0196502], rtol=1e-4)
+    assert allclose(sol.y, [0.9803498, 0.0196502], rtol=1e-5)
 
 
 def test_flash2_PV_dew():
+    "Dew Temperature"
     sol = flash2_PV(F=1.0,
                     z=np.array([0.9803498, 0.0196502]),
                     P=0.6e5,
@@ -133,21 +136,43 @@ def test_flash2_PV_dew():
                     T0=300.0)
 
     assert isclose(sol.T, 372.7277, atol=0.01)
-    assert allclose(sol.x, [0.5, 0.5], rtol=1e-4)
+    assert allclose(sol.x, [0.5, 0.5], rtol=1e-5)
 
 
-# def test_bubble_P():
-#     P, y, _ = bubble_P(T=373.15,
-#                        x=np.array([0.5, 0.5]),
-#                        Kcalc=Kcalc,
-#                        P0=1e5)
-#     assert isclose(P/1e5, 0.6088, rtol=1e-3)
-#     assert allclose(y, [0.98019598, 0.01980402], rtol=1e-3)
+def test_flash2_TV():
+    sol = flash2_TV(F=1.0,
+                    z=np.array([0.5, 0.5]),
+                    T=373.0,
+                    beta=0.31214672,
+                    Kcalc=Kcalc,
+                    P0=1e5)
+    assert sol.success
+    assert allclose(sol.x, [0.2910601, 0.7089399], rtol=1e-5)
+    assert allclose(sol.y, [0.96042225, 0.03957775], rtol=1e-5)
+    assert allclose(sol.P, 0.4e5, rtol=1e-3)
 
-# def test_dew_P():
-#     P, x, K = dew_P(T=373.15,
-#                     y=np.array([0.9, 0.1]),
-#                     Kcalc=Kcalc,
-#                     P0=1e5)
-#     assert isclose(P/1e5, 0.1925, rtol=1e-3)
-#     assert allclose(x, [0.11173842, 0.88826158], rtol=1e-3)
+
+def test_flash2_TV_bubble():
+    "Bubble Pressure"
+    sol = flash2_TV(F=1.0,
+                    z=np.array([0.5, 0.5]),
+                    T=372.7277,
+                    beta=0.0,
+                    Kcalc=Kcalc,
+                    P0=1e5)
+
+    assert isclose(sol.P, 0.6e5, rtol=1e-3)
+    assert allclose(sol.y, [0.9803498, 0.0196502], rtol=1e-5)
+
+
+def test_flash2_TV_dew():
+    "Dew Pressure"
+    sol = flash2_TV(F=1.0,
+                    z=np.array([0.9803498, 0.0196502]),
+                    T=372.7277,
+                    beta=1.0,
+                    Kcalc=Kcalc,
+                    P0=1e5)
+
+    assert isclose(sol.P, 0.6e5, rtol=1e-3)
+    assert allclose(sol.x, [0.5, 0.5], rtol=1e-5)
