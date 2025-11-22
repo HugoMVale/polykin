@@ -2,13 +2,11 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Union
-
 import numpy as np
 from numpy import log
 from scipy.constants import R
 
-from polykin.utils.types import FloatArray, FloatVector
+from polykin.utils.types import FloatVector
 
 from .base import GasEoS
 
@@ -25,64 +23,99 @@ class IdealGas(GasEoS):
     where $P$ is the pressure, $T$ is the temperature, and $v$ is the molar
     volume.
 
-    !!! important
-
-        The ideal gas model is very convenient, but its validity is limited to
-        low pressures and high temperatures.
+    Parameters
+    ----------
+    N : int
+        Number of components.
+    name : str
+        Name.
     """
+
+    def __init__(self,
+                 N: int,
+                 name: str = ''
+                 ) -> None:
+
+        super().__init__(N, name)
 
     def Z(self,
           T=None,
           P=None,
-          y=None):
+          y=None
+          ) -> float:
         r"""Calculate the compressibility factor of the fluid.
+
+        $$ Z = 1 $$
 
         Returns
         -------
         float
-            Compressibility factor of the vapor.
+            Compressibility factor.
         """
-        return 1.
+        return 1.0
 
     def P(self,
-          T: Union[float, FloatArray],
-          v: Union[float, FloatArray],
+          T: float,
+          v: float,
           y=None
-          ) -> Union[float, FloatArray]:
+          ) -> float:
         r"""Calculate the pressure of the fluid.
 
         Parameters
         ----------
-        T : float | FloatArray
+        T : float
             Temperature. Unit = K.
-        v : float | FloatArray
+        v : float
             Molar volume. Unit = m³/mol.
 
         Returns
         -------
-        float | FloatArray
+        float
              Pressure. Unit = Pa.
         """
         return R*T/v
 
-    def phiV(self,
-             T=None,
-             P=None,
-             y=None
-             ) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the vapor
-        phase.
+    def phi(self,
+            T=None,
+            P=None,
+            y=None
+            ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components.
+
+        $$ \hat{\phi}_i = 1 $$
 
         Returns
         -------
         FloatVector
             Fugacity coefficients of all components.
         """
-        if y is None:
-            return np.array([1.])
-        else:
-            return np.ones_like(y)
+        return np.ones(self.N)
 
-    def DA(self, T, V, n, v0):
+    def DA(self,
+           T: float,
+           V: float,
+           n: FloatVector,
+           v0: float
+           ) -> float:
+        r"""Calculate the departure of Helmholtz energy.
+
+        $$ A(T,V,n) - A^{\circ}(T,V,n)$$
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        V : float
+            Volume. Unit = m³.
+        n : FloatVector
+            Mole amounts of all components. Unit = mol.
+        v0 : float
+            Molar volume in reference state. Unit = m³/mol.
+
+        Returns
+        -------
+        float
+            Helmholtz energy departure, $A - A^{\circ}$. Unit = J.
+        """
         nT = n.sum()
         return -nT*R*T*log(V/(nT*v0))
