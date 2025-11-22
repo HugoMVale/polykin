@@ -4,7 +4,7 @@
 
 import functools
 from abc import abstractmethod
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -17,15 +17,18 @@ from polykin.properties.mixing_rules import geometric_interaction_mixing
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
-from .base import GasAndLiquidEoS
+from .base import GasLiquidEoS
 
-__all__ = ['RedlichKwong',
-           'Soave',
-           'PengRobinson',
-           'Z_cubic_roots']
+__all__ = [
+    'PengRobinson',
+    'RedlichKwong',
+    'Soave',
+    'Z_cubic_roots'
+]
 
 
-class Cubic(GasAndLiquidEoS):
+class CubicEoS(GasLiquidEoS):
+    """Base class for cubic equations of state."""
 
     Tc: FloatVector
     Pc: FloatVector
@@ -40,15 +43,22 @@ class Cubic(GasAndLiquidEoS):
                  Tc: Union[float, FloatVectorLike],
                  Pc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix]
+                 k: Optional[FloatSquareMatrix],
+                 name: str = ''
                  ) -> None:
 
         Tc, Pc, w = convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, w])
 
+        N = len(Tc)
+        super().__init__(N, name)
         self.Tc = Tc
         self.Pc = Pc
         self.w = w
         self.k = k
+
+    @abstractmethod
+    def _alpha(self, T: float) -> FloatVector:
+        pass
 
     @functools.cache
     def a(self,
@@ -83,12 +93,12 @@ class Cubic(GasAndLiquidEoS):
 
     def am(self,
            T: float,
-           y: FloatVector
+           z: FloatVector
            ) -> float:
         r"""Calculate the mixture attractive parameter from the corresponding
         pure-component parameters.
 
-        $$ a_m = \sum_i \sum_j y_i y_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) $$
+        $$ a_m = \sum_i \sum_j z_i z_j (a_i a_j)^{1/2} (1 - \bar{k}_{ij}) $$
 
         **References**
 
@@ -99,7 +109,7 @@ class Cubic(GasAndLiquidEoS):
         ----------
         T : float
             Temperature. Unit = K.
-        y : FloatVector
+        z : FloatVector
             Mole fractions of all components. Unit = mol/mol.
 
         Returns
@@ -107,15 +117,15 @@ class Cubic(GasAndLiquidEoS):
         float
             Mixture attractive parameter, $a_m$. Unit = J·m³.
         """
-        return geometric_interaction_mixing(y, self.a(T), self.k)
+        return geometric_interaction_mixing(z, self.a(T), self.k)
 
     def bm(self,
-           y: FloatVector
+           z: FloatVector
            ) -> float:
         r"""Calculate the mixture repulsive parameter from the corresponding
         pure-component parameters.
 
-        $$ b_m = \sum_i y_i b_i $$
+        $$ b_m = \sum_i z_i b_i $$
 
         **References**
 
@@ -124,7 +134,7 @@ class Cubic(GasAndLiquidEoS):
 
         Parameters
         ----------
-        y : FloatVector
+        z : FloatVector
             Mole fractions of all components. Unit = mol/mol.
 
         Returns
@@ -132,67 +142,11 @@ class Cubic(GasAndLiquidEoS):
         float
             Mixture repulsive parameter, $b_m$. Unit = m³/mol.
         """
-        return dot(y, self.b)
-
-    def P(self,
-          T: float,
-          v: float,
-          y: FloatVector
-          ) -> float:
-        r"""Calculate the pressure of the fluid.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        v : float
-            Molar volume. Unit = m³/mol.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        float
-            Pressure. Unit = Pa.
-        """
-        am = self.am(T, y)
-        bm = self.bm(y)
-        u = self._u
-        w = self._w
-        return R*T/(v - bm) - am/(v**2 + u*v*bm + w*bm**2)
-
-    def Z(self,
-          T: float,
-          P: float,
-          y: FloatVector
-          ) -> FloatVector:
-        r"""Calculate the compressibility factors of the coexisting phases a
-        fluid.
-
-        The calculation is handled by
-        [`Z_cubic_roots`](Z_cubic_roots.md).
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Compressibility factor of the vapor and/or liquid phases.
-        """
-        A = self.am(T, y)*P/(R*T)**2
-        B = self.bm(y)*P/(R*T)
-        return Z_cubic_roots(self._u, self._w, A, B)
+        return dot(z, self.b)
 
     def Bm(self,
            T: float,
-           y: FloatVector
+           z: FloatVector
            ) -> float:
         r"""Calculate the second virial coefficient of the mixture.
 
@@ -207,7 +161,7 @@ class Cubic(GasAndLiquidEoS):
         ----------
         T : float
             Temperature. Unit = K.
-        y : FloatVector
+        z : FloatVector
             Mole fractions of all components. Unit = mol/mol.
 
         Returns
@@ -215,36 +169,79 @@ class Cubic(GasAndLiquidEoS):
         float
             Mixture second virial coefficient, $B_m$. Unit = m³/mol.
         """
-        return self.bm(y) - self.am(T, y)/(R*T)
+        return self.bm(z) - self.am(T, z)/(R*T)
 
-    @abstractmethod
-    def _alpha(self, T: float) -> FloatVector:
-        pass
+    def P(self,
+          T: float,
+          v: float,
+          z: FloatVector
+          ) -> float:
+        r"""Calculate the pressure of the fluid.
 
-    def DA(self, T, V, n, v0):
-        nT = n.sum()
-        y = n/nT
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        v : float
+            Molar volume. Unit = m³/mol.
+        z : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        float
+            Pressure. Unit = Pa.
+        """
+        am = self.am(T, z)
+        bm = self.bm(z)
         u = self._u
         w = self._w
-        d = sqrt(u**2 - 4*w)
-        am = self.am(T, y)
-        bm = self.bm(y)
+        return R*T/(v - bm) - am/(v**2 + u*v*bm + w*bm**2)
 
-        return nT*am/(bm*d)*log((2*V + nT*bm*(u - d))/(2*V + nT*bm*(u + d))) \
-            - nT*R*T*log((V - nT*bm)/(nT*v0))
+    def Z(self,
+          T: float,
+          P: float,
+          z: FloatVector
+          ) -> FloatVector:
+        r"""Calculate the compressibility factors for the possible phases of a
+        fluid.
 
-    def phiV(self,
-             T: float,
-             P: float,
-             y: FloatVector
-             ) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the vapor
+        The calculation is handled by [`Z_cubic_roots`](Z_cubic_roots.md).
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        z : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Compressibility factors of the possible phases. If two phases
+            are possible, the first result is the lowest value (liquid).
+        """
+        A = self.am(T, z)*P/(R*T)**2
+        B = self.bm(z)*P/(R*T)
+        return Z_cubic_roots(self._u, self._w, A, B)
+
+    def phi(self,
+            T: float,
+            P: float,
+            z: FloatVector,
+            phase: Literal['L', 'V']
+            ) -> FloatVector:
+        r"""Calculate the fugacity coefficients of all components in a given
         phase.
+
+        For each component, the fugacity coefficient is given by:
 
         \begin{aligned}
         \ln \hat{\phi}_i &= \frac{b_i}{b_m}(Z-1)-\ln(Z-B^*)
-        +\frac{A^*}{B^*\sqrt{u^2-4w}}\left(\frac{b_i}{b_m}-\delta_i  \right)\ln{\frac{2Z+B^*(u+\sqrt{u^2-4w})}{2Z+B^*(u-\sqrt{u^2-4w})}} \\
-        \delta_i &= \frac{2a_i^{1/2}}{a_m}\sum_j y_j a_j^{1/2}(1-\bar{k}_{ij})
+        +\frac{A^*}{B^*\sqrt{u^2-4w}}\left(\frac{b_i}{b_m}-\delta_i\right)\ln{\frac{2Z+B^*(u+\sqrt{u^2-4w})}{2Z+B^*(u-\sqrt{u^2-4w})}} \\
+        \delta_i &= \frac{2a_i^{1/2}}{a_m}\sum_j z_j a_j^{1/2}(1-\bar{k}_{ij})
         \end{aligned}
 
         **References**
@@ -258,8 +255,11 @@ class Cubic(GasAndLiquidEoS):
             Temperature. Unit = K.
         P : float
             Pressure. Unit = Pa.
-        y : FloatVector
+        z : FloatVector
             Mole fractions of all components. Unit = mol/mol.
+        phase : Literal['L', 'V']
+            Phase of the fluid. Only relevant for systems where both liquid
+            and vapor phases may exist.
 
         Returns
         -------
@@ -270,41 +270,46 @@ class Cubic(GasAndLiquidEoS):
         w = self._w
         d = sqrt(u**2 - 4*w)
         a = self.a(T)
-        am = self.am(T, y)
+        am = self.am(T, z)
         b = self.b
-        bm = self.bm(y)
+        bm = self.bm(z)
         k = self.k
         A = am*P/(R*T)**2
         B = bm*P/(R*T)
         b_bm = b/bm
-        Z = self.Z(T, P, y)
+        Z = self.Z(T, P, z)
 
         if k is None:
-            delta = 2*sqrt(a/am)
+            δ = 2*sqrt(a/am)
         else:
-            delta = np.sum(y * sqrt(a) * (1 - k), axis=1)
+            δ = np.sum(z * sqrt(a) * (1 - k), axis=1)
 
-        # get only vapor solution !!!
-        z = max(Z)
-        lnphi = b_bm*(z - 1) - log(z - B) + A/(B*d) * \
-            (b_bm - delta)*log((2*z + B*(u + d))/(2*z + B*(u - d)))
+        if phase == 'L':
+            Zi = Z[0]
+        elif phase == 'V':
+            Zi = Z[-1]
+        else:
+            raise ValueError(f"Invalid phase: {phase}.")
 
-        return exp(lnphi)
+        ln_phi = b_bm*(Zi - 1) - log(Zi - B) + A/(B*d) * \
+            (b_bm - δ)*log((2*Zi + B*(u + d))/(2*Zi + B*(u - d)))
 
-    # def plot(self, T, y, Prange: tuple):
-    #     fig, ax = plt.subplots()
-    #     V = []
-    #     P = []
-    #     for p in np.linspace(*Prange, 100):
-    #         v = self.v(T, p, y)
-    #         V += v.tolist()
-    #         P += [p]*len(v)
-    #     X = np.concatenate(([V], [P])).T
-    #     X = X[X[:, 0].argsort()]
-    #     ax.semilogx(X[:, 0], X[:, 1])
+        return exp(ln_phi)
+
+    def DA(self, T, V, n, v0):
+        nT = n.sum()
+        z = n/nT
+        u = self._u
+        w = self._w
+        d = sqrt(u**2 - 4*w)
+        am = self.am(T, z)
+        bm = self.bm(z)
+
+        return nT*am/(bm*d)*log((2*V + nT*bm*(u - d))/(2*V + nT*bm*(u + d))) \
+            - nT*R*T*log((V - nT*bm)/(nT*v0))
 
 
-class RedlichKwong(Cubic):
+class RedlichKwong(CubicEoS):
     r"""[Redlich-Kwong](https://en.wikipedia.org/wiki/Redlich%E2%80%93Kwong_equation_of_state)
     equation of state.
 
@@ -313,8 +318,8 @@ class RedlichKwong(Cubic):
     $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v (v + b_m)} $$
 
     where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
-    volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
-    $y$ is the vector of mole fractions.
+    volume, $a_m(T,z)$ and $b_m(z)$ are the mixture EOS parameters, and
+    $z$ is the vector of mole fractions.
 
     For a single component, the parameters $a$ and $b$ are given by:
 
@@ -340,8 +345,8 @@ class RedlichKwong(Cubic):
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
     """
-    _u = 1.
-    _w = 0.
+    _u = 1.0
+    _w = 0.0
     _Ωa = 0.42748
     _Ωb = 0.08664
 
@@ -357,7 +362,7 @@ class RedlichKwong(Cubic):
         return sqrt(self.Tc/T)
 
 
-class Soave(Cubic):
+class Soave(CubicEoS):
     r"""[Soave](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Soave_modification_of_Redlich%E2%80%93Kwong)
     equation of state.
 
@@ -366,8 +371,8 @@ class Soave(Cubic):
     $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v (v + b_m)} $$
 
     where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
-    volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
-    $y$ is the vector of mole fractions.
+    volume, $a_m(T,z)$ and $b_m(z)$ are the mixture EOS parameters, and
+    $z$ is the vector of mole fractions.
 
     For a single component, the parameters $a$ and $b$ are given by:
 
@@ -396,8 +401,8 @@ class Soave(Cubic):
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
     """
-    _u = 1.
-    _w = 0.
+    _u = 1.0
+    _w = 0.0
     _Ωa = 0.42748
     _Ωb = 0.08664
 
@@ -414,10 +419,10 @@ class Soave(Cubic):
         w = self.w
         Tr = T/self.Tc
         fw = 0.48 + 1.574*w - 0.176*w**2
-        return (1. + fw*(1. - sqrt(Tr)))**2
+        return (1 + fw*(1 - sqrt(Tr)))**2
 
 
-class PengRobinson(Cubic):
+class PengRobinson(CubicEoS):
     r"""[Peng-Robinson](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Peng%E2%80%93Robinson_equation_of_state)
     equation of state.
 
@@ -426,8 +431,8 @@ class PengRobinson(Cubic):
     $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v^2 + 2 v b_m - b_m^2} $$
 
     where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
-    volume, $a_m(T,y)$ and $b_m(y)$ are the mixture EOS parameters, and
-    $y$ is the vector of mole fractions.
+    volume, $a_m(T,z)$ and $b_m(z)$ are the mixture EOS parameters, and
+    $z$ is the vector of mole fractions.
 
     For a single component, the parameters $a$ and $b$ are given by:
 
@@ -456,8 +461,8 @@ class PengRobinson(Cubic):
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
     """
-    _u = 2.
-    _w = -1.
+    _u = 2.0
+    _w = -1.0
     _Ωa = 0.45724
     _Ωb = 0.07780
 
@@ -474,16 +479,17 @@ class PengRobinson(Cubic):
         w = self.w
         Tr = T/self.Tc
         fw = 0.37464 + 1.54226*w - 0.26992*w**2
-        return (1. + fw*(1. - sqrt(Tr)))**2
+        return (1 + fw*(1 - sqrt(Tr)))**2
 
 # %%
 
 
-def Z_cubic_roots(u: float,
-                  w: float,
-                  A: float,
-                  B: float
-                  ) -> FloatVector:
+def Z_cubic_roots(
+    u: float,
+    w: float,
+    A: float,
+    B: float
+) -> FloatVector:
     r"""Find the compressibility factor roots of a cubic EOS.
 
     \begin{gathered}
@@ -523,8 +529,8 @@ def Z_cubic_roots(u: float,
         Compressibility factor(s) of the coexisting phases. If there are two
         phases, the first result is the lowest value (liquid).
     """
-    c3 = 1.
-    c2 = -(1. + B - u*B)
+    c3 = 1.0
+    c2 = -(1 + B - u*B)
     c1 = (A + w*B**2 - u*B - u*B**2)
     c0 = -(A*B + w*B**2 + w*B**3)
 

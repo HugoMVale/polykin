@@ -14,11 +14,6 @@ from polykin.utils.exceptions import ShapeError
 
 
 @pytest.fixture
-def ideal_gas():
-    return IdealGas()
-
-
-@pytest.fixture
 def air_parameters():
     Tc = [126.2, 154.6]
     Pc = [33.9e5, 50.4e5]
@@ -31,8 +26,8 @@ def air_parameters():
             'state': {'T': T, 'P': P, 'y': y}}
 
 
-def test_IdealGas(ideal_gas: IdealGas, air_parameters: dict[str, Any]):
-    eos = ideal_gas
+def test_IdealGas(air_parameters: dict[str, Any]):
+    eos = IdealGas(2)
     state = air_parameters['state']
     assert isclose(eos.Z(**state), 1.)
     assert isclose(eos.v(**state), 24.4e-3, rtol=1e-2)
@@ -40,7 +35,8 @@ def test_IdealGas(ideal_gas: IdealGas, air_parameters: dict[str, Any]):
         **state), state['y']), state['P'], rtol=1e-2)
 
 
-def test_air(air_parameters: dict[str, Any], ideal_gas: IdealGas):
+def test_air(air_parameters: dict[str, Any]):
+    ideal_gas = IdealGas(2)
     p = air_parameters['p']
     state = air_parameters['state']
     for EOS in [Virial]:
@@ -91,8 +87,8 @@ def test_Virial_phi():
     y = np.array([0.5, 0.5])
     T = 273.15 + 50.
     P = 25e3
-    assert all(isclose(eos.phiV(T, P, y), [0.987, 0.983], rtol=1e-3))
-    assert all(isclose(eos.fV(T, P, y), np.array(
+    assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-3))
+    assert all(isclose(eos.f(T, P, y), np.array(
         [0.987, 0.983])*P/2, rtol=1e-3))
 
 
@@ -115,7 +111,7 @@ def test_Virial_butene():
     assert isclose(eos.Z(273.15 + 200., 70e5, y), 0.512, rtol=0.2)
     T = 273.15
     P = 1.2771e5
-    assert isclose(eos.phiV(T, P, y), 0.956, rtol=0.001)
+    assert isclose(eos.phi(T, P, y), 0.956, rtol=0.001)
     DX = eos.DX(T, P, y, P0=P)
     assert isclose(DX['S'], -0.8822, rtol=0.01)
     assert isclose(DX['H'], -344, rtol=0.01)
@@ -133,7 +129,7 @@ def test_RK():
 
 def test_Virial_RK_ammonia():
     "Example 3.10, p. 93, Smith-Van Ness-Abbott."
-    ideal = IdealGas()
+    ideal = IdealGas(1)
     rk = RedlichKwong(Tc=[405.7], Pc=[112.8e5])
     virial = Virial(Tc=[405.7], Pc=[112.8e5], Zc=[0.28], w=[.253])
     T = 273.15 + 65.
@@ -150,7 +146,7 @@ def test_Cubic_Z():
     Tc = [408.2]
     Pc = [36.5e5]
     w = [0.183]
-    state = {'T': 300., 'y': np.array([1.])}
+    state = {'T': 300., 'z': np.array([1.0])}
     eos = Soave(Tc, Pc, w)
     Z = eos.Z(**state, P=3.706e5)
     assert all(isclose(Z, (0.01687, 0.9057), rtol=1e-3))
@@ -164,14 +160,14 @@ def test_Cubic_Z():
 
 def test_Cubic_butene():
     "Example 10.7, p. 343, Smith-Van Ness-Abbott."
-    y = np.array([1.])
-    T = 273.15 + 200.
+    z = np.array([1.0])
+    T = 273.15 + 200
     P = 70e5
     for EOS in [Soave, PengRobinson]:
         eos = EOS(Tc=[420.0], Pc=[40.43e5], w=[0.191])
-        assert isclose(eos.Z(T, P, y), 0.512, rtol=0.1)
-        assert isclose(eos.phiV(T, P, y), 0.638, rtol=0.05)
-        assert isclose(eos.fV(T, P, y), 44.7e5, rtol=0.05)
+        assert isclose(eos.Z(T, P, z), 0.512, rtol=0.1)
+        assert isclose(eos.phi(T, P, z, 'V'), 0.638, rtol=0.05)
+        assert isclose(eos.f(T, P, z, 'V'), 44.7e5, rtol=0.05)
 
 
 def test_Cubic_phi():
@@ -186,7 +182,7 @@ def test_Cubic_phi():
     T = 273.15 + 50
     P = 25e3
     for eos in [rk, srk, pr]:
-        assert all(isclose(eos.phiV(T, P, y), [0.987, 0.983], rtol=1e-2))
+        assert all(isclose(eos.phi(T, P, y, 'V'), [0.987, 0.983], rtol=1e-2))
 
 
 def test_Cubic_B():
@@ -206,7 +202,7 @@ def test_Z_Cubic_interaction():
     Tc = [282.4, 126.2]
     Pc = [50.4e5, 33.9e5]
     w = [0.089, 0.039]
-    k = np.array([[0., 0.080], [0., 0.]])  # Reid, p. 83
+    k = np.array([[0.0, 0.080], [0.0, 0.0]])  # Reid, p. 83
     T = 350.
     P = 100e5
     y = np.array([0.5, 0.5])

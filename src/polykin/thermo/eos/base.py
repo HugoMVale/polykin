@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable, Literal
 
 # import numpy as np
 from numpy import sqrt
@@ -18,129 +18,26 @@ __all__ = ['EoS']
 
 
 class EoS(ABC):
-    pass
+    """Base class for equation of state."""
 
+    _N: int
+    name: str
 
-# %%
-class GasOrLiquidEoS(EoS):
+    def __init__(self,
+                 N: int,
+                 name: str
+                 ) -> None:
+        self._N = N
+        self.name = name
 
-    def v(self,
-          T: float,
-          P: float,
-          y: FloatVector
-          ) -> FloatVector:
-        r"""Calculate the molar volumes of the coexisting phases a fluid.
-
-        $$ v = \frac{Z R T}{P} $$
-
-        where $v$ is the molar volume, $Z$ is the compressibility factor,
-        $T$ is the temperature, $P$ is the pressure, and $y$ is the mole
-        fraction vector.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Molar volume of the vapor and/or liquid phases. Unit = m³/mol.
-        """
-        return self.Z(T, P, y)*R*T/P
-
-    def fV(self,
-            T: float,
-            P: float,
-            y: FloatVector
-           ) -> FloatVector:
-        r"""Calculate the fugacity of all components in the vapor phase.
-
-        $$ \hat{f}_i = \hat{\phi}_i y_i P $$
-
-        $\hat{f}_i$ is the fugacity in the vapor phase, $\hat{\phi}_i(T,P,y)$
-        is the fugacity coefficient, $P$ is the pressure, and $y_i$ is the mole
-        fraction in the vapor phase.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Fugacity coefficients of all components.
-        """
-        return self.phiV(T, P, y)*y*P
+    @property
+    def N(self) -> int:
+        "Number of components."
+        return self._N
 
     @abstractmethod
-    def P(self,
-          T: float,
-          v: float,
-          y: FloatVector
-          ) -> float:
-        r"""Calculate the pressure of the fluid.
-
-        $$ P = P(T,v,y) $$
-
-        where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
-        volume, $Z$ is the compressibility factor, and $y$ is is the mole
-        fraction vector.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        v : float
-            Molar volume. Unit = m³/mol.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Pressure. Unit = Pa.
-        """
-        pass
-
-    @abstractmethod
-    def Z(self,
-          T: float,
-          P: float,
-          y: FloatVector
-          ) -> FloatVector:
-        r"""Calculate the compressibility factors of the coexisting phases a
-        fluid.
-
-        $$ Z = \frac{P v}{R T} $$
-
-        where $Z$ is the compressibility factor, $P$ is the pressure, $T$ is
-        the temperature, $v$ is the molar volume, and $y$ is the mole fraction
-        vector.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Compressibility factor of the vapor and/or liquid phases.
-        """
+    def Z(self, T, P, z) -> float | FloatVector:
+        """Calculate the compressibility factor of the fluid."""
         pass
 
     @abstractmethod
@@ -165,36 +62,10 @@ class GasOrLiquidEoS(EoS):
         v0 : float
             Molar volume in reference state. Unit = m³/mol.
 
-
         Returns
         -------
-        FloatVector
+        float
             Helmholtz energy departure, $A - A^{\circ}$. Unit = J.
-        """
-        pass
-
-    @abstractmethod
-    def phiV(self,
-             T: float,
-             P: float,
-             y: FloatVector
-             ) -> FloatVector:
-        r"""Calculate the fugacity coefficients of all components in the vapor
-        phase.
-
-        Parameters
-        ----------
-        T : float
-            Temperature. Unit = K.
-        P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
-
-        Returns
-        -------
-        FloatVector
-            Fugacity coefficients of all components.
         """
         pass
 
@@ -204,6 +75,7 @@ class GasOrLiquidEoS(EoS):
            y: FloatVector,
            P0: float = 1e5
            ) -> dict[str, float]:
+
         v0 = R*T/P0
         nt = 1.
         n = nt*y
@@ -225,7 +97,23 @@ class GasOrLiquidEoS(EoS):
         return result
 
 
-class GasEoS(GasOrLiquidEoS):
+class GasEoS(EoS):
+    """Base class for gas equations of state."""
+
+    @abstractmethod
+    def P(self, T: float, v: float, y: FloatVector) -> float:
+        """Calculate the pressure of the fluid."""
+        pass
+
+    @abstractmethod
+    def Z(self, T: float, P: float, y: FloatVector) -> float:
+        """Calculate the compressibility factor of the fluid."""
+        pass
+
+    @abstractmethod
+    def phi(self, T: float, P: float, y: FloatVector) -> FloatVector:
+        """Calculate the fugacity coefficients of all components."""
+        pass
 
     def v(self,
           T: float,
@@ -236,9 +124,9 @@ class GasEoS(GasOrLiquidEoS):
 
         $$ v = \frac{Z R T}{P} $$
 
-        where $v$ is the molar volue, $Z$ is the compressibility factor,
-        $T$ is the temperature, $P$ is the pressure, and $y$ is the mole
-        fraction vector.
+        where $v$ is the molar volume, $Z(T, P, y)$ is the compressibility
+        factor, $T$ is the temperature, $P$ is the pressure, and $y$ is the
+        mole fraction vector.
 
         Parameters
         ----------
@@ -256,11 +144,119 @@ class GasEoS(GasOrLiquidEoS):
         """
         return self.Z(T, P, y)*R*T/P
 
+    def f(self,
+          T: float,
+          P: float,
+          y: FloatVector
+          ) -> FloatVector:
+        r"""Calculate the fugacity of all components.
+
+        For each component, the fugacity is given by:
+
+        $$ \hat{f}_i = \hat{\phi}_i y_i P $$
+
+        where $\hat{\phi}_i(T,P,y)$ is the fugacity coefficient, $P$ is the 
+        pressure, and $y_i$ is the mole fraction.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        y : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Fugacities of all components. Unit = Pa.
+        """
+        return self.phi(T, P, y)*y*P
+
+
+class GasLiquidEoS(EoS):
+    """Base class for gas-liquid equations of state."""
+
     @abstractmethod
-    def Z(self, T: float, P: float, y: FloatVector) -> float:
-        """Calculate the compressibility factor of the fluid."""
+    def P(self, T: float, v: float, z: FloatVector) -> float:
+        """Calculate the pressure of the fluid."""
         pass
 
+    @abstractmethod
+    def Z(self, T: float, P: float, z: FloatVector) -> FloatVector:
+        """Calculate the compressibility factors for the possible phases of a
+        fluid."""
+        pass
 
-class GasAndLiquidEoS(GasOrLiquidEoS):
-    pass
+    @abstractmethod
+    def phi(self, T: float, P: float, z: FloatVector, phase: Literal['L', 'V']
+            ) -> FloatVector:
+        """Calculate the fugacity coefficients of all components in a given
+        phase.
+        """
+        pass
+
+    def v(self,
+          T: float,
+          P: float,
+          z: FloatVector
+          ) -> FloatVector:
+        r"""Calculate the molar volumes of the possible phases a fluid.
+
+        $$ v = \frac{Z R T}{P} $$
+
+        where $v$ is the molar volume, $Z(T, P, z)$ is the compressibility
+        factor, $T$ is the temperature, and $P$ is the pressure, and $z$ is the
+        mole fraction vector.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        z : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            Molar volumes of the possible phases. If two phases are possible,
+            the first result is the lowest value (liquid). Unit = m³/mol.
+        """
+        return self.Z(T, P, z)*R*T/P
+
+    def f(self,
+          T: float,
+          P: float,
+          z: FloatVector,
+          phase: Literal['L', 'V']
+          ) -> FloatVector:
+        r"""Calculate the fugacity of all components in a given phase.
+
+        For each component, the fugacity is given by:
+
+        $$ \hat{f}_i = \hat{\phi}_i z_i P $$
+
+        where $\hat{\phi}_i(T,P,y)$ is the fugacity coefficient, $P$ is the 
+        pressure, and $z_i$ is the mole fraction.
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        z : FloatVector
+            Mole fractions of all components. Unit = mol/mol.
+        phase : Literal['L', 'V']
+            Phase of the fluid. Only relevant for systems where both liquid
+            and vapor phases may exist.
+
+        Returns
+        -------
+        FloatVector
+            Fugacities of all components. Unit = Pa.
+        """
+        return self.phi(T, P, z, phase)*z*P
