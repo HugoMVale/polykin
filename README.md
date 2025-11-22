@@ -34,6 +34,8 @@ development stage, but the following modules can already be used:
   - [x] Poison
   - [x] Schulz-Zimm
   - [x] Weibull-Nycander-Gold
+- Flash solvers
+  - [x] 2-Phase PT, PV, TV
 - Fluid Flow
   - [x] Pressure drop and drag equations
   - [x] Rheology
@@ -49,12 +51,15 @@ development stage, but the following modules can already be used:
   - [x] Termination composite model
 - Math
   - [x] Joint confidence regions
+  - [x] Root and fixed-point solvers
 - [ ] Models
 - Physical property correlations
   - [x] Antoine
   - [x] DIPPR
   - [x] Wagner
   - [x] Yaws
+- Reactors
+  - [x] Residence time distributions
 - Step-growth polymerization
   - [x] Analytical solutions for $M_n$ and $M_w$
 - Transport properties (estimation methods, mixing rules, etc.)
