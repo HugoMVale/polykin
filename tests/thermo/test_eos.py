@@ -166,12 +166,14 @@ def test_Cubic_Psat():
     T = 300.0
     # Soave
     eos = Soave(Tc, Pc, w)
-    Psat = eos.Psat(T)
+    Psat = eos.Psat(T, Psat0=2e5)
     assert isclose(Psat, 3.706e5, rtol=1e-3)
     # PR
     eos = PengRobinson(Tc, Pc, w)
     Psat = eos.Psat(T)
     assert isclose(Psat, 3.683e5, rtol=1e-3)
+    Psat = eos.Psat(Tc[0]-0.1)
+    assert isclose(Psat, Pc[0], rtol=1e-2)
     # T>Tc
     with pytest.raises(ValueError):
         _ = eos.Psat(Tc[0] + 1.0)

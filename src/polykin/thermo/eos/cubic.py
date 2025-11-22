@@ -333,6 +333,7 @@ class CubicEoS(GasLiquidEoS):
         if Psat0 is None:
             Psat0 = Psat_guess_Wilson(T, self.Tc[0], self.Pc[0], self.w[0])
 
+        # Solve as fixed-point problem (Newton fails when T is close to Tc)
         def g(x, T=T, z=np.array([1.0])):
             return x*self.K(T, x[0], z, z)
 
