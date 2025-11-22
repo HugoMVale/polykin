@@ -13,6 +13,7 @@ from polykin.utils.types import FloatMatrix, FloatVector, Number
 
 
 class ActivityModel(ABC):
+    """Base class for activity coefficient models."""
 
     _N: int
     name: str
@@ -258,7 +259,7 @@ class PolymerActivityModel(ActivityModel):
         float
             Gibbs energy of mixing per mole of segments. Unit = J/mol.
         """
-        x = 0  # to be done
+        x = 0  # !!! to be done
         return self.gE(T, xs, DP, F) - T*self._Dsmix_ideal(T, x)
 
     def Dhmix(self,
@@ -315,7 +316,7 @@ class PolymerActivityModel(ActivityModel):
         float
             Entropy of mixing per mole of segments. Unit = J/(mol·K).
         """
-        x = 0  # fix!!
+        x = 0  # !!! fix
         return self.sE(T, xs, DP, F) + self._Dsmix_ideal(T, x)
 
     def hE(self,

@@ -35,7 +35,7 @@ class IdealSolution(SmallSpeciesActivityModel):
         super().__init__(N, name)
 
     def gE(self, T: float, x: FloatVector) -> float:
-        return 0.
+        return 0.0
 
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return np.ones(self.N)
