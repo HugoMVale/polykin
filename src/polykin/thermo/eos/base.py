@@ -260,3 +260,33 @@ class GasLiquidEoS(EoS):
             Fugacities of all components. Unit = Pa.
         """
         return self.phi(T, P, z, phase)*z*P
+
+    def K(self,
+          T: float,
+          P: float,
+          x: FloatVector,
+          y: FloatVector
+          ) -> FloatVector:
+        r"""Calculate the K-values of all components.
+
+        $$ K_i = \frac{\hat{\phi}_i^L}{\hat{\phi}_i^V} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        P : float
+            Pressure. Unit = Pa.
+        x : FloatVector
+            Liquid mole fractions of all components. Unit = mol/mol.
+        y : FloatVector
+            Vapor mole fractions of all components. Unit = mol/mol.
+
+        Returns
+        -------
+        FloatVector
+            K-values of all components.
+        """
+        phiV = self.phi(T, P, y, 'V')
+        phiL = self.phi(T, P, x, 'L')
+        return phiL/phiV
