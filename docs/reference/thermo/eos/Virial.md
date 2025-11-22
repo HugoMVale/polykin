@@ -4,8 +4,6 @@
     options:
         members:
             - Virial
-            - B_pure
-            - B_mixture
 
 ## Examples
 

@@ -1,4 +1,6 @@
 * [](index.md)
+* [B_mixture](B_mixture.md)
+* [B_pure](B_pure.md)
 * [IdealGas](IdealGas.md)
 * [PengRobinson](PengRobinson.md)
 * [RedlichKwong](RedlichKwong.md)
