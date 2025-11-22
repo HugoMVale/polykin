@@ -13,7 +13,9 @@ import numpy as np
 from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
+from polykin.math import fixpoint_wegstein
 from polykin.properties.mixing_rules import geometric_interaction_mixing
+from polykin.utils.exceptions import ConvergenceError
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
@@ -296,6 +298,52 @@ class CubicEoS(GasLiquidEoS):
 
         return exp(ln_phi)
 
+    def Psat(self,
+             T: float,
+             Psat0: float | None = None
+             ) -> float:
+        r"""Calculate the saturation pressure of the fluid.
+
+        !!! note
+
+            The saturation pressure is only defined for single-component
+            systems. For multicomponent systems, a specific flash solver
+            must be used: [polykin.thermo.flash](../flash/index.md).
+
+        Parameters
+        ----------
+        T : float
+            Temperature. Unit = K.
+        Psat0 : float | None
+            Initial guess for the saturation pressure. By default, the value
+            is estimated using the Wilson equation. Unit = Pa.
+
+        Returns
+        -------
+        float
+            Saturation pressure. Unit = Pa.
+        """
+
+        if self.N != 1:
+            raise ValueError("Psat is only defined for single-component systems.")
+
+        if T >= self.Tc[0]:
+            raise ValueError(f"T >= Tc = {self.Tc[0]} K.")
+
+        if Psat0 is None:
+            Psat0 = Psat_guess_Wilson(T, self.Tc[0], self.Pc[0], self.w[0])
+
+        def g(x, T=T, z=np.array([1.0])):
+            return x*self.K(T, x[0], z, z)
+
+        sol = fixpoint_wegstein(g, np.array([Psat0]))
+
+        if sol.success:
+            return sol.x[0]
+        else:
+            raise ConvergenceError(
+                f"Psat failed to converge. Solution: {sol}.")
+
     def DA(self, T, V, n, v0):
         nT = n.sum()
         z = n/nT
@@ -419,7 +467,7 @@ class Soave(CubicEoS):
         w = self.w
         Tr = T/self.Tc
         fw = 0.48 + 1.574*w - 0.176*w**2
-        return (1 + fw*(1 - sqrt(Tr)))**2
+        return (1.0 + fw*(1.0 - sqrt(Tr)))**2
 
 
 class PengRobinson(CubicEoS):
@@ -479,7 +527,7 @@ class PengRobinson(CubicEoS):
         w = self.w
         Tr = T/self.Tc
         fw = 0.37464 + 1.54226*w - 0.26992*w**2
-        return (1 + fw*(1 - sqrt(Tr)))**2
+        return (1.0 + fw*(1.0 - sqrt(Tr)))**2
 
 # %%
 
@@ -542,3 +590,8 @@ def Z_cubic_roots(
         Z.append(max(roots))
 
     return np.array(Z)
+
+
+def Psat_guess_Wilson(T: float, Tc: float, Pc: float, w: float) -> float:
+    """Estimate the saturation pressure of a pure component."""
+    return Pc*exp(5.37**(1 + w)*(1 - Tc/T))

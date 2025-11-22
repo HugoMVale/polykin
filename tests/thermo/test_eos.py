@@ -158,6 +158,28 @@ def test_Cubic_Z():
     assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
 
 
+def test_Cubic_Psat():
+    "Example 3-3, p. 46, Reid-Prausnitz-Poling."
+    Tc = [408.2]
+    Pc = [36.5e5]
+    w = [0.183]
+    T = 300.0
+    # Soave
+    eos = Soave(Tc, Pc, w)
+    Psat = eos.Psat(T)
+    assert isclose(Psat, 3.706e5, rtol=1e-3)
+    # PR
+    eos = PengRobinson(Tc, Pc, w)
+    Psat = eos.Psat(T)
+    assert isclose(Psat, 3.683e5, rtol=1e-3)
+    # T>Tc
+    with pytest.raises(ValueError):
+        _ = eos.Psat(Tc[0] + 1.0)
+    # N>1
+    with pytest.raises(ValueError):
+        _ = Soave([1e3, 2e3], [1e5, 1e7], [0.1, 0.2]).Psat(Tc[0] + 1.0)
+
+
 def test_Cubic_butene():
     "Example 10.7, p. 343, Smith-Van Ness-Abbott."
     z = np.array([1.0])
