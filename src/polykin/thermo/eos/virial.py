@@ -183,7 +183,7 @@ class Virial(GasEoS):
         Returns
         -------
         float
-             Pressure. Unit = Pa.
+            Pressure. Unit = Pa.
         """
         Bm = self.Bm(T, y)
         return R*T/(v - Bm)
