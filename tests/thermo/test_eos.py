@@ -6,7 +6,7 @@ from typing import Any
 
 import numpy as np
 import pytest
-from numpy import all, isclose
+from numpy import allclose, isclose
 
 from polykin.thermo.eos import (IdealGas, PengRobinson, RedlichKwong, Soave,
                                 Virial)
@@ -87,9 +87,8 @@ def test_Virial_phi():
     y = np.array([0.5, 0.5])
     T = 273.15 + 50.
     P = 25e3
-    assert all(isclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-3))
-    assert all(isclose(eos.f(T, P, y), np.array(
-        [0.987, 0.983])*P/2, rtol=1e-3))
+    assert allclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-3)
+    assert allclose(eos.f(T, P, y), np.array([0.987, 0.983])*P/2, rtol=1e-3)
 
 
 def test_Virial_isopropanol():
@@ -120,11 +119,11 @@ def test_Virial_butene():
 def test_RK():
     "Example 3.7, p. 84, Smith-Van Ness-Abbott."
     eos = RedlichKwong(Tc=[416.3], Pc=[66.8e5])
-    T = 273.15 + 60.
+    T = 273.15 + 60.0
     P = 13.76e5
-    y = np.array([1.])
+    y = np.array([1.0])
     assert isclose(eos.b, 44.891e-6, rtol=1e-3)
-    assert all(isclose(eos.v(T, P, y), [71.34e-6, 1713e-6], rtol=1e-3))
+    assert allclose(eos.v(T, P, y), [71.34e-6, 1713e-6], rtol=1e-3)
 
 
 def test_Virial_RK_ammonia():
@@ -141,6 +140,18 @@ def test_Virial_RK_ammonia():
     assert isclose(virial.P(T, v, y), 23.76e5, rtol=1e-3)
 
 
+def test_Cubic_butene():
+    "Example 10.7, p. 343, Smith-Van Ness-Abbott."
+    z = np.array([1.0])
+    T = 273.15 + 200
+    P = 70e5
+    for EOS in [Soave, PengRobinson]:
+        eos = EOS(Tc=[420.0], Pc=[40.43e5], w=[0.191])
+        assert isclose(eos.Z(T, P, z), 0.512, rtol=0.1)
+        assert isclose(eos.phi(T, P, z, 'V'), 0.638, rtol=0.05)
+        assert isclose(eos.f(T, P, z, 'V'), 44.7e5, rtol=0.05)
+
+
 def test_Cubic_Z():
     "Example 3-3, p. 46, Reid-Prausnitz-Poling."
     Tc = [408.2]
@@ -149,13 +160,13 @@ def test_Cubic_Z():
     state = {'T': 300., 'z': np.array([1.0])}
     eos = Soave(Tc, Pc, w)
     Z = eos.Z(**state, P=3.706e5)
-    assert all(isclose(Z, (0.01687, 0.9057), rtol=1e-3))
+    assert allclose(Z, (0.01687, 0.9057), rtol=1e-3)
     eos = PengRobinson(Tc, Pc, w)
     Z = eos.Z(**state, P=3.683e5)
-    assert all(isclose(Z, (0.01479, 0.9015), rtol=1e-3))
+    assert allclose(Z, (0.01479, 0.9015), rtol=1e-3)
     eos = RedlichKwong(Tc, Pc)
     Z = eos.Z(**state, P=3.706e5)
-    assert all(isclose(Z, (0.01687, 0.9057), rtol=0.05))
+    assert allclose(Z, (0.01687, 0.9057), rtol=0.05)
 
 
 def test_Cubic_Psat():
@@ -182,18 +193,6 @@ def test_Cubic_Psat():
         _ = Soave([1e3, 2e3], [1e5, 1e7], [0.1, 0.2]).Psat(Tc[0] + 1.0)
 
 
-def test_Cubic_butene():
-    "Example 10.7, p. 343, Smith-Van Ness-Abbott."
-    z = np.array([1.0])
-    T = 273.15 + 200
-    P = 70e5
-    for EOS in [Soave, PengRobinson]:
-        eos = EOS(Tc=[420.0], Pc=[40.43e5], w=[0.191])
-        assert isclose(eos.Z(T, P, z), 0.512, rtol=0.1)
-        assert isclose(eos.phi(T, P, z, 'V'), 0.638, rtol=0.05)
-        assert isclose(eos.f(T, P, z, 'V'), 44.7e5, rtol=0.05)
-
-
 def test_Cubic_phi():
     "Example 10.8, p. 347, Smith-Van Ness-Abbott."
     Tc = [535.5, 591.8]
@@ -206,7 +205,19 @@ def test_Cubic_phi():
     T = 273.15 + 50
     P = 25e3
     for eos in [rk, srk, pr]:
-        assert all(isclose(eos.phi(T, P, y, 'V'), [0.987, 0.983], rtol=1e-2))
+        assert allclose(eos.phi(T, P, y, 'V'), [0.987, 0.983], rtol=1e-2)
+
+
+def test_Cubic_K():
+    # Ethane/Heptane
+    Tc = [305.4, 540.3]
+    Pc = [48.8e5, 27.4e5]
+    w = [0.099, 0.349]
+    x = np.array([0.2654, 1-0.2654])
+    y = np.array([0.90, 0.10])
+    eos = Soave(Tc, Pc, w)
+    K = eos.K(400.0, 15e5, x, y)
+    assert allclose(K, [5.598, 0.2012], rtol=1e-3)
 
 
 def test_Cubic_B():

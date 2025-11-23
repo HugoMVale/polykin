@@ -269,7 +269,7 @@ class GasLiquidEoS(EoS):
           ) -> FloatVector:
         r"""Calculate the K-values of all components.
 
-        $$ K_i = \frac{\hat{\phi}_i^L}{\hat{\phi}_i^V} $$
+        $$ K_i = \frac{y_i}{x_i} = \frac{\hat{\phi}_i^L}{\hat{\phi}_i^V} $$
 
         Parameters
         ----------
