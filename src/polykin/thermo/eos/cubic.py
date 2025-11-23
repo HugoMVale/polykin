@@ -4,7 +4,7 @@
 
 import functools
 from abc import abstractmethod
-from typing import Literal, Optional, Union
+from typing import Iterable, Literal, Optional, Union
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -393,6 +393,8 @@ class RedlichKwong(CubicEoS):
         Critical pressures of all components. Unit = Pa.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
+    name : str
+        Name.
     """
     _u = 1.0
     _w = 0.0
@@ -402,10 +404,12 @@ class RedlichKwong(CubicEoS):
     def __init__(self,
                  Tc: Union[float, FloatVectorLike],
                  Pc: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix] = None
+                 k: Optional[FloatSquareMatrix] = None,
+                 name: str = ''
                  ) -> None:
 
-        super().__init__(Tc, Pc, np.zeros_like(Tc), k)
+        w = np.zeros_like(Tc) if isinstance(Tc, Iterable) else 0.0
+        super().__init__(Tc, Pc, w, k, name)
 
     def _alpha(self, T: float) -> FloatVector:
         return sqrt(self.Tc/T)
@@ -449,6 +453,8 @@ class Soave(CubicEoS):
         Acentric factors of all components.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
+    name : str
+        Name.
     """
     _u = 1.0
     _w = 0.0
@@ -459,10 +465,11 @@ class Soave(CubicEoS):
                  Tc: Union[float, FloatVectorLike],
                  Pc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix] = None
+                 k: Optional[FloatSquareMatrix] = None,
+                 name: str = ''
                  ) -> None:
 
-        super().__init__(Tc, Pc, w, k)
+        super().__init__(Tc, Pc, w, k, name)
 
     def _alpha(self, T: float) -> FloatVector:
         w = self.w
@@ -509,6 +516,8 @@ class PengRobinson(CubicEoS):
         Acentric factors of all components.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
+    name : str
+        Name.
     """
     _u = 2.0
     _w = -1.0
@@ -519,10 +528,11 @@ class PengRobinson(CubicEoS):
                  Tc: Union[float, FloatVectorLike],
                  Pc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix] = None
+                 k: Optional[FloatSquareMatrix] = None,
+                 name: str = ''
                  ) -> None:
 
-        super().__init__(Tc, Pc, w, k)
+        super().__init__(Tc, Pc, w, k, name)
 
     def _alpha(self, T: float) -> FloatVector:
         w = self.w
