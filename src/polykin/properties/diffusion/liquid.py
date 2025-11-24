@@ -31,6 +31,13 @@ def DL_Wilke_Chang(T: float,
     section. The numerical factor has been adjusted to convert the equation to
     SI units.
 
+    !!! tip
+
+        This equation can also be applied when the solvent B is itself a mixture
+        of components. In that case, $M_B$ and $\phi$ should be taken as the
+        corresponding mole-average properties of the mixture, and $\eta_B$
+        should be the viscosity of the solvent mixture.
+
     **References**
 
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
