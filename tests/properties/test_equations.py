@@ -9,7 +9,8 @@ from polykin import plotequations
 from polykin.properties.equations.dippr import (DIPPR100, DIPPR101, DIPPR102,
                                                 DIPPR104, DIPPR105, DIPPR106,
                                                 DIPPR107)
-from polykin.properties.equations.vapor_pressure import Antoine, Wagner
+from polykin.properties.equations.vapor_pressure import (Antoine, Wagner25,
+                                                         Wagner36)
 from polykin.properties.equations.viscosity import Yaws
 
 # %% DIPPR equations
@@ -99,16 +100,28 @@ def test_Antoine_fit_fitonly(Pvap_water):
     assert np.isclose(popt['B'], 2303., rtol=1e-3)
 
 
-def test_Wagner():
+def test_Wagner25():
     """Pvap of water
     Parameters: doi: 10.5541/ijot.372148
     """
-    p = Wagner(Tc=647.096,
-               Pc=220.64,  # bar
-               a=-7.861942, b=1.879246, c=-2.266807,
-               d=-2.128615,
-               Tmin=273., Tmax=647., unit='bar')
-    assert np.isclose(p(100., 'C'), 1.01325, rtol=2e-2)
+    p = Wagner25(Tc=647.096,
+                 Pc=220.64,  # bar
+                 a=-7.861942, b=1.879246, c=-2.266807,
+                 d=-2.128615,
+                 Tmin=273., Tmax=647., unit='bar')
+    assert np.isclose(p(100.0, 'C'), 1.01325, rtol=1e-2)
+
+
+def test_Wagner36():
+    """Pvap of water
+    Parameters: Reid-Prausnitz, p. 669.
+    """
+    p = Wagner36(Tc=647.096,
+                 Pc=220.64,  # bar
+                 a=-7.76451, b=1.45838, c=-2.77580,
+                 d=-1.23303,
+                 Tmin=273., Tmax=647., unit='bar')
+    assert np.isclose(p(100.0, 'C'), 1.01325, rtol=1e-2)
 
 # %% Viscosity
 

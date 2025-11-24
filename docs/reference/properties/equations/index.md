@@ -23,7 +23,8 @@
 ::: polykin.properties.equations.vapor_pressure
     options:
         members:
-            - Wagner
+            - Wagner25
+            - Wagner36
 
 ::: polykin.properties.equations.viscosity
     options:
