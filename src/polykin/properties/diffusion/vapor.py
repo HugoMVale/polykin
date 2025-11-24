@@ -2,9 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
+import numpy as np
 from numpy import exp, sqrt
 
-__all__ = ['DV_Wilke_Lee']
+from polykin.utils.types import FloatVectorLike
+
+__all__ = ['DV_Wilke_Lee', 'DVMX']
 
 
 def DV_Wilke_Lee(T: float,
@@ -121,3 +124,28 @@ def DV_Wilke_Lee(T: float,
     omegaD = A/Ts**B + C/exp(D*Ts) + E/exp(F*Ts) + G/exp(H*Ts)
 
     return 1e-2*(3.03 - 0.98/sqrt(MAB))*T**1.5 / (P*sqrt(MAB)*sAB**2*omegaD)
+
+
+def DVMX(x: FloatVectorLike, D: FloatVectorLike) -> float:
+    r"""Estimate the diffusion coefficient of a dilute component $i$ in a
+    homogeneous gas mixture.
+
+    $$ D_{im} = \sum_{j, j\neq i} x_j \left( \sum_{j, j\neq i} \frac{x_j}{D_{ij}} \right)^{-1} $$
+
+    Parameters
+    ----------
+    x : FloatVectorLike
+        Mole fractions of all mixture components except $i$. There is no need
+        to (re)normalize the vector. Unit = mol/mol.
+    D : FloatVectorLike
+        Binary diffusion coefficient of $i$ in each mixture component $j$.
+        Unit = m²/s.
+
+    Returns
+    -------
+    float
+        Pseudo-binary diffusion coefficient. Unit = m²/s.
+    """
+    x = np.asarray(x)
+    D = np.asarray(D)
+    return np.sum(x)/np.sum(x/D)

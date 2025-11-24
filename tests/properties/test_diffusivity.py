@@ -6,7 +6,8 @@ import numpy as np
 import pytest
 
 from polykin.properties.diffusion import (DL_Hayduk_Minhas, DL_Wilke_Chang,
-                                          DV_Wilke_Lee, VrentasDudaBinary)
+                                          DV_Wilke_Lee, VrentasDudaBinary,
+                                          DVMX)
 
 # %% VrentasDudaBinary
 
@@ -110,7 +111,7 @@ def test_hayduk_minhas_2():
 def test_hayduk_minhas_input():
     with pytest.raises(ValueError):
         _ = DL_Hayduk_Minhas(T=293.,
-                             method='nomethod',
+                             method='bad-method',
                              MA=106.17e-3,
                              rhoA=761.,
                              viscB=1e-3,
@@ -168,3 +169,16 @@ def test_wilke_lee_input():
                          TA=318.3,
                          TB=None  # issue
                          )
+
+
+def test_DVMX():
+    # Binary mixture
+    x = [0.95]  # intentionally not normalized
+    D = [1e9]
+    result = DVMX(x, D)
+    assert (np.isclose(result, D[0]))
+    # Ternary mixture
+    x = [0.45, 0.50]
+    D = [1e9, 1e8]
+    result = DVMX(x, D)
+    assert (np.isclose(result, 1.74e8, rtol=1e-2))
