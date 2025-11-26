@@ -3,4 +3,4 @@
 ::: polykin.properties.vaporization.pvap
     options:
         members:
-            - PVAP_Pitzer
+            - PL_Pitzer
