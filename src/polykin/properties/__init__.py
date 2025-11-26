@@ -7,6 +7,10 @@ This module implements methods to evaluate physical property equations and
 estimate physical properties.
 """
 
+from .diffusion import *
 from .equations import *
-from .mixing_rules import *
+from .pvt import *
 from .pvt_polymer import *
+from .thermal_conductivity import *
+from .vaporization.dhvl import *
+from .viscosity import *
