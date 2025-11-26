@@ -14,7 +14,7 @@ from numpy import dot, exp, log, sqrt
 from scipy.constants import R
 
 from polykin.math import fixpoint_wegstein
-from polykin.properties.mixing_rules import geometric_interaction_mixing
+from polykin.properties.pvt.mixing_rules import geometric_interaction_mixing
 from polykin.utils.exceptions import ConvergenceError
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
