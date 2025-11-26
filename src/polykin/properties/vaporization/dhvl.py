@@ -5,17 +5,15 @@
 
 from typing import Literal
 
-import numpy as np
 from numpy import log, log10
 from scipy.constants import R
 
-from polykin.utils.types import FloatArray, FloatArrayLike
-
-__all__ = ['DHVL_Pitzer',
-           'DHVL_Vetere',
-           'DHVL_Watson',
-           'DHVL_Kistiakowsky_Vetere'
-           ]
+__all__ = [
+    'DHVL_Pitzer',
+    'DHVL_Vetere',
+    'DHVL_Watson',
+    'DHVL_Kistiakowsky_Vetere'
+]
 
 
 def DHVL_Pitzer(T: float,
@@ -60,7 +58,7 @@ def DHVL_Pitzer(T: float,
     Examples
     --------
     Estimate the vaporization enthalpy of vinyl chloride at 50°C.
-    >>> from polykin.properties.vaporization_enthalpy import DHVL_Pitzer
+    >>> from polykin.properties.vaporization import DHVL_Pitzer
     >>> DHVL = DHVL_Pitzer(T=273.15+50, Tc=425., w=0.122)
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     17.5 kJ/mol
@@ -114,7 +112,7 @@ def DHVL_Vetere(Tb: float,
     --------
     Estimate the vaporization enthalpy of vinyl chloride at the normal boiling
     temperature.
-    >>> from polykin.properties.vaporization_enthalpy import DHVL_Vetere
+    >>> from polykin.properties.vaporization import DHVL_Vetere
     >>> DHVL = DHVL_Vetere(Tb=259.8, Tc=425., Pc=51.5e5)
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     21.6 kJ/mol
@@ -168,8 +166,7 @@ def DHVL_Kistiakowsky_Vetere(
     --------
     Estimate the vaporization enthalpy of butadiene at the normal boiling
     temperature.
-    >>> from polykin.properties.vaporization_enthalpy \
-    ...      import DHVL_Kistiakowsky_Vetere
+    >>> from polykin.properties.vaporization import DHVL_Kistiakowsky_Vetere
     >>> DHVL = DHVL_Kistiakowsky_Vetere(Tb=268.6, M=54.1e-3, kind='hydrocarbon')
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     22.4 kJ/mol
@@ -239,7 +236,7 @@ def DHVL_Watson(hvap1: float,
     --------
     Estimate the vaporization enthalpy of vinyl chloride at 50°C from the known
     value at the normal boiling temperature.
-    >>> from polykin.properties.vaporization_enthalpy import DHVL_Watson
+    >>> from polykin.properties.vaporization import DHVL_Watson
     >>> DHVL = DHVL_Watson(hvap1=22.9, T1=258., T2=273.15+50, Tc=425.)
     >>> print(f"{DHVL:.1f} kJ/mol")
     19.0 kJ/mol
