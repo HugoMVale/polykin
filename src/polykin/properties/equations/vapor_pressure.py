@@ -62,9 +62,10 @@ class Antoine(PropertyEquationT):
     --------
     * [`DIPPR101`](./#polykin.properties.equations.dippr.DIPPR101):
       alternative method, applicable to wider temperature ranges.
-    * [`Wagner`](./#polykin.properties.equations.vapor_pressure.Wagner):
+    * [`Wagner25`](./#polykin.properties.equations.vapor_pressure.Wagner25):
       alternative method, applicable to wider temperature ranges.
-
+    * [`Wagner36`](./#polykin.properties.equations.vapor_pressure.Wagner36):
+      alternative method, applicable to wider temperature ranges.
     """
 
     _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K', True),
@@ -173,6 +174,11 @@ class Wagner25(PropertyEquationT):
         Symbol of vapor pressure.
     name : str
         Name.
+
+    See also
+    --------
+    * [`Wagner36`](./#polykin.properties.equations.vapor_pressure.Wagner36):
+      similar method, with different exponents.
     """
 
     _pinfo = {'a': ('', True), 'b': ('', True), 'c': ('', True),
@@ -286,6 +292,11 @@ class Wagner36(PropertyEquationT):
         Symbol of vapor pressure.
     name : str
         Name.
+
+    See also
+    --------
+    * [`Wagner25`](./#polykin.properties.equations.vapor_pressure.Wagner25):
+      similar method, with different exponents.
     """
 
     _pinfo = {'a': ('', True), 'b': ('', True), 'c': ('', True),
