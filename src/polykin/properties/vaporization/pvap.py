@@ -4,10 +4,10 @@
 
 from numpy import exp, log
 
-all = ['PVAP_Pizter']
+all = ['PL_Pizter']
 
 
-def PVAP_Pitzer(
+def PL_Pitzer(
     T: float,
     Tb: float,
     Tc: float,
@@ -46,8 +46,8 @@ def PVAP_Pitzer(
     Examples
     --------
     Estimate the vapor pressure of butyl acrylate at 25°C.
-    >>> from polykin.properties.vaporization import PVAP_Pitzer
-    >>> pvap = PVAP_Pitzer(298.15, Tb=420.0, Tc=644.0, Pc=45.40e5)
+    >>> from polykin.properties.vaporization import PL_Pitzer
+    >>> pvap = PL_Pitzer(298.15, Tb=420.0, Tc=644.0, Pc=45.40e5)
     >>> print(f"{pvap:.1e} Pa")
     6.6e+02 Pa
     """
