@@ -183,9 +183,10 @@ nav:
           - reference/properties/index.md
           - Equations: reference/properties/equations/index.md
           - Diffusion: reference/properties/diffusion/
+          - PVT: reference/properties/pvt/
           - PVT Polymer: reference/properties/pvt_polymer/
           - Thermal Conductivity: reference/properties/thermal_conductivity/
-          - Vaporization Enthalpy: reference/properties/vaporization_enthalpy/
+          - Vaporization: reference/properties/vaporization/
           - Viscosity: reference/properties/viscosity/
       - Reactors:
           - reference/reactors/index.md
