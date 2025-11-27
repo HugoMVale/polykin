@@ -4,7 +4,7 @@
 
 from numpy import exp, log
 
-all = ['PL_Pizter']
+__all__ = ['PL_Pitzer']
 
 
 def PL_Pitzer(
@@ -52,13 +52,14 @@ def PL_Pitzer(
     6.6e+02 Pa
     """
 
-    Tr = T/Tc
-    f0 = 5.92714 - 6.09648/Tr - 1.28862*log(Tr) + 0.169347*Tr**6
-    f1 = 15.2518 - 15.6875/Tr - 13.4721*log(Tr) + 0.43577*Tr**6
+    def F(t):
+        f0 = 5.92714 - 6.09648/t - 1.28862*log(t) + 0.169347*t**6
+        f1 = 15.2518 - 15.6875/t - 13.4721*log(t) + 0.43577*t**6
+        return (f0, f1)
 
-    Tbr = Tb/Tc
-    a = - log(Pc/101325) - 5.92714 + 6.09648/Tbr + 1.28862*log(Tbr) - 0.169347*Tbr**6
-    b = 15.2518 - 15.6875/Tbr - 13.4721*log(Tbr) + 0.43577*Tbr**6
+    f0, f1 = F(T/Tc)
+    a, b = F(Tb/Tc)
+    a = - log(Pc/101325) - a
     w = a/b
 
     return Pc*exp(f0 + w*f1)
