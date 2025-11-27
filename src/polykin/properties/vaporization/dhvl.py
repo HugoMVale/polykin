@@ -59,7 +59,7 @@ def DHVL_Pitzer(T: float,
     --------
     Estimate the vaporization enthalpy of vinyl chloride at 50°C.
     >>> from polykin.properties.vaporization import DHVL_Pitzer
-    >>> DHVL = DHVL_Pitzer(T=273.15+50, Tc=425., w=0.122)
+    >>> DHVL = DHVL_Pitzer(T=273.15+50, Tc=425.0, w=0.122)
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     17.5 kJ/mol
     """
@@ -113,7 +113,7 @@ def DHVL_Vetere(Tb: float,
     Estimate the vaporization enthalpy of vinyl chloride at the normal boiling
     temperature.
     >>> from polykin.properties.vaporization import DHVL_Vetere
-    >>> DHVL = DHVL_Vetere(Tb=259.8, Tc=425., Pc=51.5e5)
+    >>> DHVL = DHVL_Vetere(Tb=259.8, Tc=425.0, Pc=51.5e5)
     >>> print(f"{DHVL/1e3:.1f} kJ/mol")
     21.6 kJ/mol
     """
@@ -237,7 +237,7 @@ def DHVL_Watson(hvap1: float,
     Estimate the vaporization enthalpy of vinyl chloride at 50°C from the known
     value at the normal boiling temperature.
     >>> from polykin.properties.vaporization import DHVL_Watson
-    >>> DHVL = DHVL_Watson(hvap1=22.9, T1=258., T2=273.15+50, Tc=425.)
+    >>> DHVL = DHVL_Watson(hvap1=22.9, T1=258.0, T2=273.15+50, Tc=425.0)
     >>> print(f"{DHVL:.1f} kJ/mol")
     19.0 kJ/mol
     """
