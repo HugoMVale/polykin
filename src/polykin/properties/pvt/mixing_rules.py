@@ -85,11 +85,11 @@ def geometric_interaction_mixing(y: FloatVector,
         Qm = (dot(y, sqrt(Q)))**2
     else:
         N = y.size
-        Qm = 0.
+        Qm = 0.0
         for i in range(N):
             Qm += y[i]**2 * Q[i]
             for j in range(i+1, N):
-                Qm += 2*y[i]*y[j]*sqrt(Q[i]*Q[j])*(1. - k[i, j])
+                Qm += 2*y[i]*y[j]*sqrt(Q[i]*Q[j])*(1 - k[i, j])
     return Qm
 
 # %% Pseudocritical properties
