@@ -3,4 +3,4 @@
 ::: polykin.properties.vaporization.pvap
     options:
         members:
-            - PL_Pitzer
+            - PL_Lee_Kesler

@@ -4,10 +4,10 @@
 
 from numpy import exp, log
 
-__all__ = ['PL_Pitzer']
+__all__ = ['PL_Lee_Kesler']
 
 
-def PL_Pitzer(
+def PL_Lee_Kesler(
     T: float,
     Tb: float,
     Tc: float,
@@ -46,19 +46,19 @@ def PL_Pitzer(
     Examples
     --------
     Estimate the vapor pressure of butyl acrylate at 25°C.
-    >>> from polykin.properties.vaporization import PL_Pitzer
-    >>> pvap = PL_Pitzer(298.15, Tb=420.0, Tc=644.0, Pc=45.40e5)
+    >>> from polykin.properties.vaporization import PL_Lee_Kesler
+    >>> pvap = PL_Lee_Kesler(298.15, Tb=420.0, Tc=644.0, Pc=45.40e5)
     >>> print(f"{pvap:.1e} Pa")
     6.6e+02 Pa
     """
 
-    def F(t):
+    def fLK(t):
         f0 = 5.92714 - 6.09648/t - 1.28862*log(t) + 0.169347*t**6
         f1 = 15.2518 - 15.6875/t - 13.4721*log(t) + 0.43577*t**6
         return (f0, f1)
 
-    f0, f1 = F(T/Tc)
-    a, b = F(Tb/Tc)
+    f0, f1 = fLK(T/Tc)
+    a, b = fLK(Tb/Tc)
     a = - log(Pc/101325) - a
     w = a/b
 

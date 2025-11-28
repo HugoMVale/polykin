@@ -8,7 +8,7 @@ from numpy import isclose
 
 from polykin.properties.vaporization import (DHVL_Kistiakowsky_Vetere,
                                              DHVL_Pitzer, DHVL_Vetere,
-                                             DHVL_Watson, PL_Pitzer)
+                                             DHVL_Watson, PL_Lee_Kesler)
 
 
 def test_hvap_pitzer():
@@ -53,14 +53,14 @@ def test_hvapb_kistiakowsky_vetere():
         _ = DHVL_Kistiakowsky_Vetere(Tb=309.2, kind='ester')
 
 
-def test_PL_Pitzer():
+def test_PL_Lee_Kesler():
     "Example 7-1, page 208, Reid-Prausnitz-Poling."
     Tb = 409.3
     Tc = 617.1
     Pc = 36.0e5
     for T, Pvap in zip([347.2, 460], [0.132e5, 3.353e5]):
-        res = PL_Pitzer(T, Tb, Tc, Pc)
+        res = PL_Lee_Kesler(T, Tb, Tc, Pc)
         assert isclose(res, Pvap, rtol=2e-2)
     # trivial consistency check
-    res = PL_Pitzer(Tb, Tb, Tc, Pc)
+    res = PL_Lee_Kesler(Tb, Tb, Tc, Pc)
     assert isclose(res, 101325.0)
