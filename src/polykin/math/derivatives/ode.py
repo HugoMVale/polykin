@@ -59,11 +59,11 @@ def ode_rk(f: Callable[[float, float], float],
     >>> from numba import njit
     >>> def ydot(t, y):
     ...     return y + t
-    >>> ode_rk(njit(ydot), 0., 2., 1., 1e-3, order=1)
+    >>> ode_rk(njit(ydot), 0.0, 2.0, 1.0, 1e-3, order=1)
     11.763351307112204
-    >>> ode_rk(njit(ydot), 0., 2., 1., 1e-3, order=2)
+    >>> ode_rk(njit(ydot), 0.0, 2.0, 1.0, 1e-3, order=2)
     11.778107275517668
-    >>> ode_rk(njit(ydot), 0., 2., 1., 1e-3, order=4)
+    >>> ode_rk(njit(ydot), 0.0, 2.0, 1.0, 1e-3, order=4)
     11.778112197860988
     """
 
