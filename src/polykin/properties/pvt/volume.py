@@ -21,6 +21,11 @@ def VL_Rackett(
     $T_r=T/T_c$ is the reduced temperature, and $Z_{RA}$ is the Rackett
     compressibility factor.
 
+    If $Z_{RA}$ is not known, it will be estimated from the acentric factor 
+    $\omega$ using the following approximation:
+
+    $$ Z_{RA} = 0.29056 - 0.08775 \omega $$
+
     **References**
 
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
@@ -35,9 +40,9 @@ def VL_Rackett(
     Pc : float
         Critical pressure (Pa).
     ZRA : float | None
-        Rackett compressibility factor. If provided, it will be used. 
+        Rackett compressibility factor. If provided, it is used directly.
     w : float | None
-        Acentric factor. If provided, it will be used to estimate `ZRA`.
+        Acentric factor. Used to estimate `ZRA` if `ZRA` is not given.
 
     Returns
     -------
@@ -47,6 +52,7 @@ def VL_Rackett(
     Examples
     --------
     Estimate the molar saturated liquid volume of butadiene at 350 K.
+
     >>> from polykin.properties.pvt import VL_Rackett
     >>> vL = VL_Rackett(350.0, 425.0, 43.3e5, w=0.195)
     >>> print(f"{vL:.2e} m³/mol")
