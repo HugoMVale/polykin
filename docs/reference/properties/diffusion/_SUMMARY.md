@@ -1,6 +1,7 @@
 * [](index.md)
 * [VrentasDudaBinary](VrentasDudaBinary.md)
 * [DL_Hayduk_Minhas](DL_Hayduk_Minhas.md)
+* [DL_Stokes_Einstein](DL_Stokes_Einstein.md)
 * [DL_Wilke_Chang](DL_Wilke_Chang.md)
 * [DV_Wilke_Lee](DV_Wilke_Lee.md)
 * [DVMX](DVMX.md)

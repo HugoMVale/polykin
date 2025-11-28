@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2023
 
-import numpy as np
 import pytest
+from numpy import isclose
 
-from polykin.properties.diffusion import (DL_Hayduk_Minhas, DL_Wilke_Chang,
-                                          DV_Wilke_Lee, VrentasDudaBinary,
-                                          DVMX)
+from polykin.properties.diffusion import (DVMX, DL_Hayduk_Minhas,
+                                          DL_Stokes_Einstein, DL_Wilke_Chang,
+                                          DV_Wilke_Lee, VrentasDudaBinary)
 
 # %% VrentasDudaBinary
 
@@ -39,12 +39,12 @@ def test_repr(vrentas_instance):
 
 def test_selfd(vrentas_instance):
     D1 = vrentas_instance.selfd(0.2, 308.)
-    assert (np.isclose(D1, 1.435e-8, atol=0, rtol=1e-3))
+    assert isclose(D1, 1.435e-8, atol=0, rtol=1e-3)
 
 
 def test_mutual(vrentas_instance):
     D = vrentas_instance.mutual(0.2, 308.)
-    assert (np.isclose(D, 7.884e-9, atol=0, rtol=1e-3))
+    assert isclose(D, 7.884e-9, atol=0, rtol=1e-3)
 
 
 def test_call(vrentas_instance):
@@ -53,17 +53,17 @@ def test_call(vrentas_instance):
     D1 = vrentas_instance.selfd(w1, T)
     D = vrentas_instance.mutual(w1, T)
 
-    assert (np.isclose(D1, vrentas_instance([w1], T, 'K', selfd=True)[0]))
-    assert (np.isclose(D, vrentas_instance(w1, T, 'K')))
-    assert (np.isclose(D1, vrentas_instance(w1, 25., 'C', selfd=True)))
-    assert (np.isclose(D, vrentas_instance(w1, 25., 'C')))
+    assert isclose(D1, vrentas_instance([w1], T, 'K', selfd=True)[0])
+    assert isclose(D, vrentas_instance(w1, T, 'K'))
+    assert isclose(D1, vrentas_instance(w1, 25.0, 'C', selfd=True))
+    assert isclose(D, vrentas_instance(w1, 25.0, 'C'))
 
 
 def test_plot(vrentas_instance):
-    out1 = vrentas_instance.plot(T=25., Tunit='C', return_objects=True)
+    out1 = vrentas_instance.plot(T=25.0, Tunit='C', return_objects=True)
     assert len(out1) == 2
-    out2 = vrentas_instance.plot(T=50., Tunit='C', selfd=True,
-                                 w1range=(0., 0.5),
+    out2 = vrentas_instance.plot(T=50.0, Tunit='C', selfd=True,
+                                 w1range=(0.0, 0.5),
                                  ylim=(1e-12, 1e-8),
                                  axes=out1[1],
                                  return_objects=True)
@@ -83,7 +83,7 @@ def test_wilke_chang():
                             viscB=1e-3,
                             phi=2.6
                             )
-    assert (np.isclose(result, 0.77e-9, atol=0, rtol=1e-2))
+    assert isclose(result, 0.77e-9, atol=0, rtol=1e-2)
 
 
 def test_hayduk_minhas_1():
@@ -94,7 +94,7 @@ def test_hayduk_minhas_1():
                               rhoA=613.,
                               viscB=0.298e-3,
                               )
-    assert (np.isclose(result, 4.2e-9, atol=0, rtol=3e-2))
+    assert isclose(result, 4.2e-9, atol=0, rtol=3e-2)
 
 
 def test_hayduk_minhas_2():
@@ -105,7 +105,7 @@ def test_hayduk_minhas_2():
                               rhoA=761.,
                               viscB=1e-3,
                               )
-    assert (np.isclose(result, 6.97e-10, atol=0, rtol=1e-2))
+    assert isclose(result, 6.97e-10, atol=0, rtol=1e-2)
 
 
 def test_hayduk_minhas_input():
@@ -131,7 +131,7 @@ def test_wilke_lee_air():
                           TA=318.3,
                           TB=None
                           )
-    assert (np.isclose(result, 0.10e-4, atol=0, rtol=1e-2))
+    assert isclose(result, 0.10e-4, atol=0, rtol=1e-2)
 
 
 def test_wilke_lee():
@@ -145,7 +145,7 @@ def test_wilke_lee():
                           TA=318.3,
                           TB=373.
                           )
-    assert (np.isclose(result, 0.10e-4, atol=0, rtol=1e-1))
+    assert isclose(result, 0.10e-4, atol=0, rtol=1e-1)
 
 
 def test_wilke_lee_input():
@@ -176,9 +176,14 @@ def test_DVMX():
     x = [0.95]  # intentionally not normalized
     D = [1e9]
     result = DVMX(x, D)
-    assert (np.isclose(result, D[0]))
+    assert isclose(result, D[0])
     # Ternary mixture
     x = [0.45, 0.50]
-    D = [1e9, 1e8]
+    D = [1e-9, 1e-8]
     result = DVMX(x, D)
-    assert (np.isclose(result, 1.74e8, rtol=1e-2))
+    assert isclose(result, 1.9e-9, atol=0, rtol=1e-2)
+
+
+def test_DL_Stokes_Einstein():
+    D = DL_Stokes_Einstein(T=298.15, R=100e-9, mu=1e-3)
+    assert isclose(D, 2.18e-12, atol=0, rtol=1e-2)
