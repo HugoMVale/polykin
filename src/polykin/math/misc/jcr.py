@@ -227,8 +227,8 @@ def confidence_region(center: tuple[float, float],
     >>> from polykin.math import confidence_region
     >>> import matplotlib.pyplot as plt
     >>> def sse(x):
-    ...     return 1. + ((x[0]-10)**2 + (x[1]-20)**2 + (x[0]-10)*np.sin((x[1]-20)**2))
-    >>> x, y = confidence_region(center=(10, 20.), sse=sse, ndata=10, alpha=0.10)
+    ...     return 1 + ((x[0]-10)**2 + (x[1]-20)**2 + (x[0]-10)*np.sin((x[1]-20)**2))
+    >>> x, y = confidence_region(center=(10, 20), sse=sse, ndata=10, alpha=0.10)
     >>> fig, ax = plt.subplots()
     >>> ax.plot(x,y)
     """
