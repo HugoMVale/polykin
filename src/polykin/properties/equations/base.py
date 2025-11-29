@@ -67,8 +67,7 @@ class PropertyEquationT(PropertyEquation):
         Parameters
         ----------
         T : float | FloatArrayLike
-            Temperature.
-            Unit = `Tunit`.
+            Temperature [`Tunit`].
         Tunit : Literal['C', 'K']
             Temperature unit.
 
@@ -120,9 +119,9 @@ class PropertyEquationT(PropertyEquation):
         kind : Literal['linear', 'semilogy', 'Arrhenius']
             Kind of plot to be generated.
         Trange : tuple[float, float] | None
-            Temperature range for x-axis. If `None`, the validity range
-            (Tmin, Tmax) will be used. If no validity range was defined, the
-            range will default to 0-100°C.
+            Temperature range for x-axis [`Tunit`]. If `None`, the validity
+            range (Tmin, Tmax) will be used. If no validity range was defined,
+            the range will default to 0-100°C.
         Tunit : Literal['C', 'K']
             Temperature unit.
         title : str | None
@@ -143,7 +142,7 @@ class PropertyEquationT(PropertyEquation):
         check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
         check_in_set(Tunit, {'K', 'C'}, 'Tunit')
         if Trange is not None:
-            Trange_min = 0.
+            Trange_min = 0.0
             if Tunit == 'C':
                 Trange_min = -273.15
             check_valid_range(Trange, Trange_min, np.inf, 'Trange')
@@ -232,11 +231,11 @@ class PropertyEquationT(PropertyEquation):
         Parameters
         ----------
         T : FloatVector
-            Temperature. Unit = K.
+            Temperature [K].
         Y : FloatVector
-            Property to be fitted. Unit = Any.
+            Property to be fitted [Any].
         sigmaY : FloatVector | None
-            Standard deviation of Y. Unit = [Y].
+            Standard deviation of Y [Y].
         fit_only : list[str] | None
             List with name of parameters to be fitted.
         logY : bool
@@ -306,9 +305,6 @@ class PropertyEquationT(PropertyEquation):
             result['message'] = solution[3]
 
         return result
-
-
-# %% Functions
 
 
 def plotequations(eqs: list[PropertyEquationT],

@@ -33,22 +33,17 @@ class Yaws(PropertyEquationT):
     A : float
         Parameter of equation.
     B : float
-        Parameter of equation.
-        Unit = K.
+        Parameter of equation [K].
     C : float
-        Parameter of equation.
-        Unit = K⁻¹.
+        Parameter of equation [K⁻¹].
     D : float
-        Parameter of equation.
-        Unit = K⁻².
+        Parameter of equation [K⁻²].
     base10 : bool
         If `True` base of logarithm is `10`, otherwise it is $e$.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of viscosity.
     symbol : str
@@ -90,18 +85,15 @@ class Yaws(PropertyEquationT):
         Parameters
         ----------
         T : float | FloatArray
-            Temperature. Unit = K.
+            Temperature [K].
         A : float
             Parameter of equation.
         B : float
-            Parameter of equation.
-            Unit = K.
+            Parameter of equation [K].
         C : float
-            Parameter of equation.
-            Unit = K⁻¹.
+            Parameter of equation [K⁻¹].
         D : float
-            Parameter of equation.
-            Unit = K⁻².
+            Parameter of equation [K⁻²].
         base10 : bool
             If `True` base of logarithm is `10`, otherwise it is $e$.
 

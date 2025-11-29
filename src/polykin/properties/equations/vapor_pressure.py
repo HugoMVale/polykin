@@ -4,6 +4,7 @@
 
 # This module implements commonly used equations to evaluate the vapor
 # pressure of pure components.
+
 from typing import Union
 
 import numpy as np
@@ -38,19 +39,15 @@ class Antoine(PropertyEquationT):
     A : float
         Parameter of equation.
     B : float
-        Parameter of equation.
-        Unit = K.
+        Parameter of equation [K].
     C : float
-        Parameter of equation.
-        Unit = K.
+        Parameter of equation [K].
     base10 : bool
         If `True` base of logarithm is `10`, otherwise it is $e$.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of vapor pressure.
     symbol : str
@@ -74,7 +71,7 @@ class Antoine(PropertyEquationT):
     def __init__(self,
                  A: float,
                  B: float,
-                 C: float = 0.,
+                 C: float = 0.0,
                  base10: bool = True,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
@@ -98,29 +95,26 @@ class Antoine(PropertyEquationT):
         Parameters
         ----------
         T : float | FloatArray
-            Temperature.
-            Unit = K.
+            Temperature [K].
         A : float
             Parameter of equation.
         B : float
-            Parameter of equation.
+            Parameter of equation [K].
         C : float
-            Parameter of equation.
+            Parameter of equation [K].
         base10 : bool
             If `True` base of logarithm is `10`, otherwise it is $e$.
 
         Returns
         -------
         float | FloatArray
-            Vapor pressure. Unit = Any.
+            Vapor pressure [Any].
         """
         x = A - B/(T + C)
         if base10:
             return 10**x
         else:
             return exp(x)
-
-# %% Wagner
 
 
 class Wagner25(PropertyEquationT):
@@ -149,11 +143,9 @@ class Wagner25(PropertyEquationT):
     Parameters
     ----------
     Tc : float
-        Critical temperature.
-        Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure.
-        Unit = Any.
+        Critical pressure [Any].
     a : float
         Parameter of equation.
     b : float
@@ -163,11 +155,9 @@ class Wagner25(PropertyEquationT):
     d : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of vapor pressure.
     symbol : str
@@ -215,7 +205,7 @@ class Wagner25(PropertyEquationT):
         Parameters
         ----------
         T : float | FloatArray
-            Temperature. Unit = K.
+            Temperature [K].
         a : float
             Parameter of equation.
         b : float
@@ -225,16 +215,14 @@ class Wagner25(PropertyEquationT):
         d : float
             Parameter of equation.
         Pc : float
-            Critical pressure.
-            Unit = Any.
+            Critical pressure [Any].
         Tc : float
-            Critical temperature.
-            Unit = K.
+            Critical temperature [K].
 
         Returns
         -------
         float | FloatArray
-            Vapor pressure. Unit = [Pc].
+            Vapor pressure [Pc].
         """
         Tr = T/Tc
         t = 1 - Tr
@@ -267,11 +255,9 @@ class Wagner36(PropertyEquationT):
     Parameters
     ----------
     Tc : float
-        Critical temperature.
-        Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure.
-        Unit = Any.
+        Critical pressure [Any].
     a : float
         Parameter of equation.
     b : float
@@ -281,11 +267,9 @@ class Wagner36(PropertyEquationT):
     d : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of vapor pressure.
     symbol : str
@@ -333,7 +317,7 @@ class Wagner36(PropertyEquationT):
         Parameters
         ----------
         T : float | FloatArray
-            Temperature. Unit = K.
+            Temperature [K].
         a : float
             Parameter of equation.
         b : float
@@ -343,16 +327,14 @@ class Wagner36(PropertyEquationT):
         d : float
             Parameter of equation.
         Pc : float
-            Critical pressure.
-            Unit = Any.
+            Critical pressure [Any].
         Tc : float
-            Critical temperature.
-            Unit = K.
+            Critical temperature [K].
 
         Returns
         -------
         float | FloatArray
-            Vapor pressure. Unit = [Pc].
+            Vapor pressure [Pc].
         """
         Tr = T/Tc
         t = 1 - Tr

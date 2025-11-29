@@ -13,24 +13,26 @@ from polykin.utils.types import FloatArray
 
 from .base import PropertyEquationT
 
-__all__ = ['DIPPR100',
-           'DIPPR101',
-           'DIPPR102',
-           'DIPPR104',
-           'DIPPR105',
-           'DIPPR106',
-           'DIPPR107']
+__all__ = [
+    'DIPPR100',
+    'DIPPR101',
+    'DIPPR102',
+    'DIPPR104',
+    'DIPPR105',
+    'DIPPR106',
+    'DIPPR107'
+]
 
 
 class DIPPR(PropertyEquationT):
-    """_Abstract_ class for all
+    """Abstract class for all
     [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
     temperature-dependent equations."""
     pass
 
 
 class DIPPRP4(DIPPR):
-    """_Abstract_ class for DIPPR equations with 4 parameters (A-D)."""
+    """Abstract class for DIPPR equations with 4 parameters (A-D)."""
 
     def __init__(self,
                  A: float,
@@ -49,7 +51,7 @@ class DIPPRP4(DIPPR):
 
 
 class DIPPRP5(DIPPR):
-    """_Abstract_ class for DIPPR equations with 5 parameters (A-E)."""
+    """Abstract class for DIPPR equations with 5 parameters (A-E)."""
 
     def __init__(self,
                  A: float,
@@ -91,11 +93,9 @@ class DIPPR100(DIPPRP5):
     E : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
@@ -108,11 +108,11 @@ class DIPPR100(DIPPRP5):
               'D': ('#/K³', True), 'E': ('#/K⁴', True)}
 
     def __init__(self,
-                 A: float = 0.,
-                 B: float = 0.,
-                 C: float = 0.,
-                 D: float = 0.,
-                 E: float = 0.,
+                 A: float = 0.0,
+                 B: float = 0.0,
+                 C: float = 0.0,
+                 D: float = 0.0,
+                 E: float = 0.0,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = '-',
@@ -157,11 +157,9 @@ class DIPPR101(DIPPRP5):
     E : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
@@ -175,9 +173,9 @@ class DIPPR101(DIPPRP5):
     def __init__(self,
                  A: float,
                  B: float,
-                 C: float = 0.,
-                 D: float = 0.,
-                 E: float = 0.,
+                 C: float = 0.0,
+                 D: float = 0.0,
+                 E: float = 0.0,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = '-',
@@ -220,11 +218,9 @@ class DIPPR102(DIPPRP4):
     D : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
@@ -239,8 +235,8 @@ class DIPPR102(DIPPRP4):
     def __init__(self,
                  A: float,
                  B: float,
-                 C: float = 0.,
-                 D: float = 0.,
+                 C: float = 0.0,
+                 D: float = 0.0,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = '-',
@@ -284,11 +280,9 @@ class DIPPR104(DIPPRP5):
     E : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
@@ -303,9 +297,9 @@ class DIPPR104(DIPPRP5):
     def __init__(self,
                  A: float,
                  B: float,
-                 C: float = 0.,
-                 D: float = 0.,
-                 E: float = 0.,
+                 C: float = 0.0,
+                 D: float = 0.0,
+                 E: float = 0.0,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = '-',
@@ -348,11 +342,9 @@ class DIPPR105(DIPPRP4):
     D : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
@@ -403,8 +395,7 @@ class DIPPR106(DIPPR):
     Parameters
     ----------
     Tc : float
-        Critical temperature.
-        Unit = K.
+        Critical temperature [K].
     A : float
         Parameter of equation.
     B : float
@@ -416,11 +407,9 @@ class DIPPR106(DIPPR):
     E : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
@@ -436,9 +425,9 @@ class DIPPR106(DIPPR):
                  Tc: float,
                  A: float,
                  B: float,
-                 C: float = 0.,
-                 D: float = 0.,
-                 E: float = 0.,
+                 C: float = 0.0,
+                 D: float = 0.0,
+                 E: float = 0.0,
                  Tmin: float = 0.0,
                  Tmax: float = np.inf,
                  unit: str = '-',
@@ -487,11 +476,9 @@ class DIPPR107(DIPPRP5):
     E : float
         Parameter of equation.
     Tmin : float
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of output variable $Y$.
     symbol : str
