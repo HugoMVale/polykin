@@ -41,14 +41,14 @@ class ActivityModel(ABC):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar entropy of mixing. Unit = J/(mol·K).
+            Molar entropy of mixing [J/(mol·K)].
         """
         p = x > 0
         return -R*dot(x[p], log(x[p]))
@@ -67,14 +67,14 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar Gibbs energy of mixing. Unit = J/mol.
+            Molar Gibbs energy of mixing [J/mol].
         """
         return self.gE(T, x) - T*self._Dsmix_ideal(T, x)
 
@@ -89,14 +89,14 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar enthalpy of mixing. Unit = J/mol.
+            Molar enthalpy of mixing [J/mol].
         """
         return self.hE(T, x)
 
@@ -111,14 +111,14 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar entropy of mixing. Unit = J/(mol·K).
+            Molar entropy of mixing [J/(mol·K)].
         """
         return self.sE(T, x) + self._Dsmix_ideal(T, x)
 
@@ -133,14 +133,14 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar excess enthalpy. Unit = J/mol.
+            Molar excess enthalpy [J/mol].
         """
         return self.gE(T, x) + T*self.sE(T, x)
 
@@ -155,14 +155,14 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar excess entropy. Unit = J/(mol·K).
+            Molar excess entropy [J/(mol·K)].
         """
         return -1*derivative_complex(lambda t: self.gE(t, x), T)[0]
 
@@ -177,9 +177,9 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
@@ -198,14 +198,14 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar excess Gibbs energy. Unit = J/mol.
+            Molar excess Gibbs energy [J/mol].
         """
         pass
 
@@ -219,9 +219,9 @@ class SmallSpeciesActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         x : FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
@@ -246,9 +246,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
@@ -257,7 +257,7 @@ class PolymerActivityModel(ActivityModel):
         Returns
         -------
         float
-            Gibbs energy of mixing per mole of segments. Unit = J/mol.
+            Gibbs energy of mixing per mole of segments [J/mol].
         """
         x = 0  # !!! to be done
         return self.gE(T, xs, DP, F) - T*self._Dsmix_ideal(T, x)
@@ -275,9 +275,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
@@ -286,7 +286,7 @@ class PolymerActivityModel(ActivityModel):
         Returns
         -------
         float
-            Enthalpy of mixing per mole of segments. Unit = J/mol.
+            Enthalpy of mixing per mole of segments [J/mol].
         """
         return self.hE(T, xs, DP, F)
 
@@ -303,9 +303,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
@@ -314,7 +314,7 @@ class PolymerActivityModel(ActivityModel):
         Returns
         -------
         float
-            Entropy of mixing per mole of segments. Unit = J/(mol·K).
+            Entropy of mixing per mole of segments [J/(mol·K)].
         """
         x = 0  # !!! fix
         return self.sE(T, xs, DP, F) + self._Dsmix_ideal(T, x)
@@ -332,9 +332,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
@@ -343,7 +343,7 @@ class PolymerActivityModel(ActivityModel):
         Returns
         -------
         float
-            Excess enthalpy per mole of segments. Unit = J/mol.
+            Excess enthalpy per mole of segments [J/mol].
         """
         return self.gE(T, xs, DP, F) + T*self.sE(T, xs, DP, F)
 
@@ -360,9 +360,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
@@ -371,7 +371,7 @@ class PolymerActivityModel(ActivityModel):
         Returns
         -------
         float
-            Excess entropy per mole of segments. Unit = J/(mol·K).
+            Excess entropy per mole of segments [J/(mol·K)].
         """
         return -1*derivative_complex(lambda t: self.gE(t, xs, DP, F), T)[0]
 
@@ -384,14 +384,14 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
 
         Returns
         -------
         FloatVector (N)
-            Mole fractions of all components. Unit = mol/mol.
+            Mole fractions of all components [mol/mol].
         """
         x = xs/DP
         x /= x.sum()
@@ -407,14 +407,14 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
         Returns
         -------
         FloatVector (Nseg)
-            Mole fractions of all segments. Unit = mol/mol.
+            Mole fractions of all segments [mol/mol].
         """
         N = xs.shape[0]
         Np, Nru = F.shape
@@ -438,9 +438,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
@@ -449,7 +449,7 @@ class PolymerActivityModel(ActivityModel):
         Returns
         -------
         float
-            Excess Gibbs energy per mole of segments. Unit = J/mol.
+            Excess Gibbs energy per mole of segments [J/mol].
         """
         pass
 
@@ -465,9 +465,9 @@ class PolymerActivityModel(ActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         xs : FloatVector (N)
-            Segment-based mole fractions of all components. Unit = mol/mol.
+            Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
             Degree of polymerization of all polymer components. 
         F : FloatMatrix (Np, Nru)
