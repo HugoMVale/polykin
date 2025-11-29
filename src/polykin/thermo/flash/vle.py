@@ -115,7 +115,7 @@ def flash2_PT(
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
     beta0 : float | None
-        Initial guess for vapor phase fraction.
+        Initial guess for vapor phase fraction [mol/mol].
     maxiter : int
         Maximum number of iterations.    
     atol_inner : float
