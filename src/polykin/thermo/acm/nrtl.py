@@ -76,7 +76,6 @@ class NRTL(SmallSpeciesActivityModel):
     See also
     --------
     * [`NRTL_gamma`](NRTL_gamma.md): related activity coefficient method.
-
     """
 
     _a: FloatSquareMatrix
@@ -234,7 +233,6 @@ def NRTL_gamma(x: FloatVector,
     See also
     --------
     * [`NRTL`](NRTL.md): related class.
-
     """
 
     G = exp(-alpha*tau)
