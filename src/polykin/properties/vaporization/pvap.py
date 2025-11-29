@@ -30,18 +30,18 @@ def PL_Lee_Kesler(
     Parameters
     ----------
     T : float
-        Temperature. Unit = K.
+        Temperature [K].
     Tb : float
-        Normal boiling temperature. Unit = K.
+        Normal boiling temperature [K].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure. Unit = Pa.
+        Critical pressure [Pa].
 
     Returns
     -------
     float
-        Vapor pressure. Unit = Pa.
+        Vapor pressure [Pa].
 
     Examples
     --------

@@ -34,28 +34,28 @@ def DV_Wilke_Lee(T: float,
     Parameters
     ----------
     T : float
-        Temperature. Unit = K.
+        Temperature [K].
     P : float
-        Pressure. Unit = Pa.
+        Pressure [Pa].
     MA : float
-        Molar mass of component A. Unit = kg/mol.
+        Molar mass of component A [kg/mol].
     MA : float
-        Molar mass of component B. Unit = kg/mol.
+        Molar mass of component B [kg/mol].
     rhoA : float
-        Density of component A at the normal boiling point. Unit = kg/m³.
+        Density of component A at the normal boiling point [kg/m³].
     rhoB : float | None
-        Density of component B at the normal boiling point. If `None`,
-        air is assumeed to be the component B. Unit = kg/m³.
+        Density of component B at the normal boiling point [kg/m³]. If `None`,
+        air is assumed to be the component B.
     TA : float
-        Normal boiling temperature of component A. Unit = K.
+        Normal boiling temperature of component A [K].
     TB : float | None
-        Normal boiling temperature of component B. If `None`, air is assumeed
-        to be the component B. Unit = K.
+        Normal boiling temperature of component B [K]. If `None`, air is assumed
+        to be the component B.
 
     Returns
     -------
     float
-        Binary diffusion coefficient. Unit = m²/s.
+        Binary diffusion coefficient [m²/s].
 
     Examples
     --------
@@ -134,17 +134,16 @@ def DVMX(x: FloatVectorLike, D: FloatVectorLike) -> float:
 
     Parameters
     ----------
-    x : FloatVectorLike
-        Mole fractions of all mixture components except $i$. There is no need
-        to (re)normalize the vector. Unit = mol/mol.
-    D : FloatVectorLike
-        Binary diffusion coefficient of $i$ in each mixture component $j$.
-        Unit = m²/s.
+    x : FloatVectorLike (N)
+        Mole fractions of all mixture components except $i$ [mol/mol]. There is
+        no need to (re)normalize the vector.
+    D : FloatVectorLike (N)
+        Binary diffusion coefficient of $i$ in each mixture component $j$ [m²/s].
 
     Returns
     -------
     float
-        Pseudo-binary diffusion coefficient. Unit = m²/s.
+        Pseudo-binary diffusion coefficient [m²/s].
     """
     x = np.asarray(x)
     D = np.asarray(D)

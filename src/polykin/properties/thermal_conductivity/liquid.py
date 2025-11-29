@@ -40,16 +40,16 @@ def KLMX2_Li(w: FloatVectorLike,
     Parameters
     ----------
     w : FloatVectorLike
-        Mass fractions of all components. Unit = Any.
+        Mass fractions of all components [Any].
     k : FloatVectorLike
-        Thermal conductivities of all components. Unit = Any.
+        Thermal conductivities of all components [Any].
     rho : FloatVectorLike
-        Densities of all components, $\rho$. Unit = Any.
+        Densities of all components, $\rho$ [Any].
 
     Returns
     -------
     float
-        Mixture thermal conductivity, $k_m$. Unit = [k].
+        Mixture thermal conductivity, $k_m$ [k].
 
     Examples
     --------

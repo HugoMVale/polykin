@@ -8,9 +8,11 @@ from scipy.constants import N_A, R
 
 from polykin.utils.types import FloatVectorLike
 
-__all__ = ['KVPC_Stiel_Thodos',
-           'KVMXPC_Stiel_Thodos',
-           'KVMX2_Wassilijewa']
+__all__ = [
+    'KVPC_Stiel_Thodos',
+    'KVMXPC_Stiel_Thodos',
+    'KVMX2_Wassilijewa'
+]
 
 # %% Pressure correction
 
@@ -41,20 +43,20 @@ def KVPC_Stiel_Thodos(v: float,
     Parameters
     ----------
     v : float
-        Gas molar volume. Unit = m³/mol.
+        Gas molar volume [m³/mol].
     M : float
-        Molar mass. Unit = kg/mol.
+        Molar mass [kg/mol].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure. Unit = Pa.
+        Critical pressure [Pa].
     Zc : float
         Critical compressibility factor.
 
     Returns
     -------
     float
-        Residual thermal conductivity, $(k - k^{\circ})$. Unit = W/(m·K).
+        Residual thermal conductivity, $(k - k^{\circ})$ [W/(m·K)].
 
     Examples
     --------
@@ -104,24 +106,24 @@ def KVMXPC_Stiel_Thodos(v: float,
     Parameters
     ----------
     v : float
-        Gas molar volume. Unit = m³/mol.
-    y : FloatVectorLike
-        Mole fractions of all components. Unit = mol/mol.
-    M : FloatVectorLike
-        Molar masses of all components. Unit = kg/mol.
-    Tc : FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    Zc : FloatVectorLike
+        Gas molar volume [m³/mol].
+    y : FloatVectorLike (N)
+        Mole fractions of all components [mol/mol].
+    M : FloatVectorLike (N)
+        Molar masses of all components [kg/mol].
+    Tc : FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    Zc : FloatVectorLike (N)
         Critical compressibility factors of all components.
-    w : FloatVectorLike
+    w : FloatVectorLike (N)
         Acentric factors of all components.
 
     Returns
     -------
     float
-        Residual thermal conductivity, $(k_m - k_m^{\circ})$. Unit = W/(m·K).
+        Residual thermal conductivity, $(k_m - k_m^{\circ})$ [W/(m·K)].
 
     Examples
     --------
@@ -202,17 +204,17 @@ def KVMX2_Wassilijewa(y: FloatVectorLike,
 
     Parameters
     ----------
-    y : FloatVectorLike
-        Mole fractions of all components. Unit = Any.
-    k : FloatVectorLike
-        Thermal conductivities of all components. Unit = Any.
-    M : FloatVectorLike
-        Molar masses of all components. Unit = Any.
+    y : FloatVectorLike (N)
+        Mole fractions of all components [Any].
+    k : FloatVectorLike (N)
+        Thermal conductivities of all components [Any].
+    M : FloatVectorLike (N)
+        Molar masses of all components [Any].
 
     Returns
     -------
     float
-        Mixture thermal conductivity, $k_m$. Unit = [k].
+        Mixture thermal conductivity, $k_m$ [k].
 
     Examples
     --------

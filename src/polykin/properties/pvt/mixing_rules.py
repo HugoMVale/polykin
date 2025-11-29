@@ -7,9 +7,11 @@ from scipy.constants import R
 
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
-__all__ = ['quadratic_mixing',
-           'geometric_interaction_mixing',
-           'pseudocritical_properties']
+__all__ = [
+    'quadratic_mixing',
+    'geometric_interaction_mixing',
+    'pseudocritical_properties'
+]
 
 # %% Mixing rules
 
@@ -34,15 +36,15 @@ def quadratic_mixing(y: FloatVector,
 
     Parameters
     ----------
-    y : FloatVector
+    y : FloatVector (N)
         Composition, usually molar or mass fractions.
-    Q : FloatSquareMatrix
+    Q : FloatSquareMatrix (N,N)
         Matrix of pure component and interaction parameters.
 
     Returns
     -------
     float
-        Mixture parameter, $Q_m$. Unit = [Q].
+        Mixture parameter, $Q_m$ [Q].
     """
     return dot(y, dot(y, Q))
 
@@ -69,9 +71,9 @@ def geometric_interaction_mixing(y: FloatVector,
 
     Parameters
     ----------
-    y : FloatVector
+    y : FloatVector (N)
         Composition, usually molar or mass fractions.
-    Q : FloatVector
+    Q : FloatVector (N)
         Pure component property.
     k : FloatSquareMatrix | None
         Binary interaction parameter matrix.
@@ -79,7 +81,7 @@ def geometric_interaction_mixing(y: FloatVector,
     Returns
     -------
     float
-        Mixture parameter, $Q_m$. Unit = [Q].
+        Mixture parameter, $Q_m$ [Q].
     """
     if k is None:
         Qm = (dot(y, sqrt(Q)))**2
@@ -121,15 +123,15 @@ def pseudocritical_properties(y: FloatVector,
 
     Parameters
     ----------
-    y : FloatVector
-        Mole fractions of all components. Unit = mol/mol.
-    Tc : FloatVector
-        Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
-        Critical pressures of all components. Unit = Pa.
-    Zc : FloatVector
+    y : FloatVector (N)
+        Mole fractions of all components [mol/mol].
+    Tc : FloatVector (N)
+        Critical temperatures of all components [K].
+    Pc : FloatVector (N)
+        Critical pressures of all components [Pa].
+    Zc : FloatVector (N)
         Critical compressibility factors of all components.
-    w : FloatVector | None
+    w : FloatVector (N) | None
         Acentric factors of all components.
 
     Returns

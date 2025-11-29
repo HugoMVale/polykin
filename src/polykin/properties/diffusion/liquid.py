@@ -49,15 +49,15 @@ def DL_Wilke_Chang(
     Parameters
     ----------
     T : float
-        Temperature (K).
+        Temperature [K].
     MA : float
-        Molar mass of solute A (kg/mol).
+        Molar mass of solute A [kg/mol].
     MB : float
-        Molar mass of solvent B (kg/mol).
+        Molar mass of solvent B [kg/mol].
     rhoA : float
-        Density of solute A at the normal boiling point, $\rho_A$ (kg/m³).
+        Density of solute A at the normal boiling point, $\rho_A$ [kg/m³].
     viscB : float
-        Viscostity of solvent B, $\eta_B$ (Pa.s).
+        Viscostity of solvent B, $\eta_B$ [Pa.s].
     phi : float
         Association factor of solvent B, $\phi$. The following values are
         recomended: {water: 2.6, methanol: 1.9, ethanol: 1.5,
@@ -66,7 +66,7 @@ def DL_Wilke_Chang(
     Returns
     -------
     float
-        Diffusion coefficient of A in B at infinite dilution (m²/s).
+        Diffusion coefficient of A in B at infinite dilution [m²/s].
 
     See also
     --------
@@ -109,21 +109,21 @@ def DL_Hayduk_Minhas(
     Parameters
     ----------
     T : float
-        Temperature (K).
+        Temperature [K].
     method : Literal['paraffin', 'aqueous']
         Method selection. Chose `'paraffin'` for normal paraffin solutions and
         `'aqueous'` for solutes in aqueous solutions.
     MA : float
-        Molar mass of solute A (kg/mol).
+        Molar mass of solute A [kg/mol].
     rhoA : float
-        Density of solute A at the normal boiling point (kg/m³).
+        Density of solute A at the normal boiling point [kg/m³].
     viscB : float
-        Viscostity of solvent B (Pa.s).
+        Viscostity of solvent B [Pa.s].
 
     Returns
     -------
     float
-        Diffusion coefficient of A in B at infinite dilution (m²/s).
+        Diffusion coefficient of A in B at infinite dilution [m²/s].
 
     See also
     --------
@@ -184,16 +184,16 @@ def DL_Stokes_Einstein(
     Parameters
     ----------
     T : float
-        Temperature (K).
+        Temperature [K].
     R : float
-        Particle radius (m).
+        Particle radius [m].
     mu : float
-        Viscosity (Pa.s).
+        Viscosity [Pa.s].
 
     Returns
     -------
     float
-        Diffusion coefficient (m²/s).
+        Diffusion coefficient [m²/s].
 
     Examples
     --------

@@ -39,16 +39,16 @@ def DHVL_Pitzer(T: float,
     Parameters
     ----------
     T : float
-        Temperature. Unit = K.
+        Temperature [K].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
     w : float
         Acentric factor.
 
     Returns
     -------
     float
-        Vaporization enthalpy. Unit = J/mol.
+        Vaporization enthalpy [J/mol].
 
     See also
     --------
@@ -92,16 +92,16 @@ def DHVL_Vetere(Tb: float,
     Parameters
     ----------
     Tb : float
-        Normal boiling point temperature. Unit = K.
+        Normal boiling point temperature [K].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure. Unit = Pa.
+        Critical pressure [Pa].
 
     Returns
     -------
     float
-        Vaporization enthalpy at the normal boiling point. Unit = J/mol.
+        Vaporization enthalpy at the normal boiling point [J/mol].
 
     See also
     --------
@@ -145,9 +145,9 @@ def DHVL_Kistiakowsky_Vetere(
     Parameters
     ----------
     Tb : float
-        Normal boiling point temperature. Unit = K.
+        Normal boiling point temperature [K].
     M : float | None
-        Molar mass. Must be provided except if `kind='any'`. Unit = kg/mol.
+        Molar mass [kg/mol]. Must be provided except if `kind='any'`.
     kind : Literal['any', 'acid_alcohol', 'ester', 'hydrocarbon', 'polar']
         Type of compound. `'any'` corresponds ot the original correlation
         proposed by Kistiakowsky.
@@ -155,7 +155,7 @@ def DHVL_Kistiakowsky_Vetere(
     Returns
     -------
     float
-        Vaporization enthalpy at the normal boiling point. Unit = J/mol.
+        Vaporization enthalpy at the normal boiling point [J/mol].
 
     See also
     --------
@@ -218,19 +218,18 @@ def DHVL_Watson(hvap1: float,
     Parameters
     ----------
     hvap1 : float
-        Vaporization enthalpy at `T1`. Unit = Any.
+        Vaporization enthalpy at `T1` [Any].
     T1 : float
-        Temperature corresponding to `hvap1`. Unit = K.
+        Temperature corresponding to `hvap1` [K].
     T2 : float
-        Temperature at which the vaporization temperature is to be computed.
-        Unit = K.
+        Temperature at which the vaporization enthalpy is to be computed [K].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
 
     Returns
     -------
     float
-        Vaporization temperature at `T2`. Unit = [hvap1].
+        Vaporization temperature at `T2` [hvap1].
 
     Examples
     --------

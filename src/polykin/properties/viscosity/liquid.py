@@ -35,9 +35,9 @@ def MULMX2_Perry(x: FloatVectorLike,
     Parameters
     ----------
     x : FloatVectorLike
-        Mole fractions of all components. Unit = mol/mol.
+        Mole fractions of all components [mol/mol].
     mu : FloatVectorLike
-        Viscosities of all components, $\mu$. Unit = Any.
+        Viscosities of all components, $\mu$ [Any].
     hydrocarbons : bool
         Method selection. `True` for hydrocarbon mixtures, `False` for
         nonhydrocarbon mixtures.
@@ -45,7 +45,7 @@ def MULMX2_Perry(x: FloatVectorLike,
     Returns
     -------
     float
-        Mixture viscosity, $\mu_m$. Unit = [mu].
+        Mixture viscosity, $\mu_m$ [mu].
 
     Examples
     --------

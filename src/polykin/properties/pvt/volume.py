@@ -4,6 +4,8 @@
 
 from scipy.constants import R
 
+__all__ = ['VL_Rackett']
+
 
 def VL_Rackett(
     T: float,
@@ -34,11 +36,11 @@ def VL_Rackett(
     Parameters
     ----------
     T : float
-        Temperature (K).
+        Temperature [K].
     Tc : float
-        Critical temperature (K).
+        Critical temperature [K].
     Pc : float
-        Critical pressure (Pa).
+        Critical pressure [Pa].
     ZRA : float | None
         Rackett compressibility factor. If provided, it is used directly.
     w : float | None
@@ -47,7 +49,7 @@ def VL_Rackett(
     Returns
     -------
     float
-        Saturated liquid molar volume (m³/mol).
+        Saturated liquid molar volume [m³/mol].
 
     Examples
     --------

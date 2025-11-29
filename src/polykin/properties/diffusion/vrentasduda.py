@@ -15,11 +15,8 @@ from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
                                  convert_check_temperature)
 from polykin.utils.types import FloatArray, FloatArrayLike
 
-# %%
 
 __all__ = ['VrentasDudaBinary']
-
-# %% Vrentas-Duda
 
 
 class VrentasDudaBinary():
@@ -57,39 +54,29 @@ class VrentasDudaBinary():
     Parameters
     ----------
     D0 : float
-        Pre-exponential factor.
-        Unit = L²/T.
+        Pre-exponential factor [L²/T].
     E : float
-        Activation energy required to overcome the atractive forces
-        between neighboring molecules.
-        Units = J/mol/K.
+        Activation energy required to overcome the atractive forces between
+        neighboring molecules [J/mol/K].
     v1star : float
-        Specific volume of solvent at 0 K.
-        Unit = L³/M.
+        Specific volume of solvent at 0 K [L³/M].
     v2star : float
-        Specific volume of polymer at 0 K.
-        Unit = L³/M.
+        Specific volume of polymer at 0 K [L³/M].
     z : float
-        Ratio between the critical volume of the polymer and the
-        solvent jumping units, $\xi$.
+        Ratio between the critical volume of the polymer and the solvent
+        jumping units, $\xi$.
     K11 : float
-        Free-volume parameter of solvent.
-        Unit = L³/M/K.
+        Free-volume parameter of solvent [L³/M/K].
     K12 : float
-        Free-volume parameter of polymer.
-        Unit = L³/M/K.
+        Free-volume parameter of polymer [L³/M/K].
     K21 : float
-        Free-volume parameter of solvent.
-        Unit = K.
+        Free-volume parameter of solvent [K].
     K22 : float
-        Free-volume parameter of polymer.
-        Unit = K.
+        Free-volume parameter of polymer [K].
     Tg1 : float
-        Glas-transition temperature of solvent.
-        Unit = K.
+        Glas-transition temperature of solvent [K].
     Tg2 : float
-        Glas-transition temperature of polymer.
-        Unit = K.
+        Glas-transition temperature of polymer [K].
     y : float
         Overlap factor, $\gamma$.
     X : float
@@ -146,26 +133,26 @@ class VrentasDudaBinary():
                  K12: float,
                  K21: float,
                  K22: float,
-                 Tg1: float = 0.,
-                 Tg2: float = 0.,
-                 y: float = 1.,
+                 Tg1: float = 0.0,
+                 Tg2: float = 0.0,
+                 y: float = 1.0,
                  X: float = 0.5,
                  unit: str = 'm²/s',
                  name: str = ''
                  ) -> None:
 
-        check_bounds(D0, 0., np.inf, 'D0')
-        check_bounds(E, 0., np.inf, 'E')
-        check_bounds(v1star, 0., np.inf, 'v1star')
-        check_bounds(v2star, 0., np.inf, 'v2star')
-        check_bounds(z, 0., np.inf, 'z')
-        check_bounds(K11, 0., np.inf, 'K11')
-        check_bounds(K12, 0., np.inf, 'K12')
+        check_bounds(D0, 0.0, np.inf, 'D0')
+        check_bounds(E, 0.0, np.inf, 'E')
+        check_bounds(v1star, 0.0, np.inf, 'v1star')
+        check_bounds(v2star, 0.0, np.inf, 'v2star')
+        check_bounds(z, 0.0, np.inf, 'z')
+        check_bounds(K11, 0.0, np.inf, 'K11')
+        check_bounds(K12, 0.0, np.inf, 'K12')
         check_bounds(K21, -np.inf, np.inf, 'K21')
         check_bounds(K22, -np.inf, np.inf, 'K22')
-        check_bounds(Tg1, 0., np.inf, 'Tg1')
-        check_bounds(Tg2, 0., np.inf, 'Tg2')
-        check_bounds(y, 0.5, 1., 'y')
+        check_bounds(Tg1, 0.0, np.inf, 'Tg1')
+        check_bounds(Tg2, 0.0, np.inf, 'Tg2')
+        check_bounds(y, 0.5, 1.0, 'y')
         check_bounds(X, -10, 10, 'X')
 
         self.D0 = D0
@@ -216,11 +203,9 @@ class VrentasDudaBinary():
         Parameters
         ----------
         w1 : float | FloatArrayLike
-            Mass fraction of solvent.
-            Unit = kg/kg.
+            Mass fraction of solvent [kg/kg].
         T : float | FloatArrayLike
-            Temperature.
-            Unit = `Tunit`.
+            Temperature [`Tunit`].
         Tunit : Literal['C', 'K']
             Temperature unit.
         selfd: bool
@@ -235,7 +220,7 @@ class VrentasDudaBinary():
         if isinstance(w1, (list, tuple)):
             w1 = np.array(w1, dtype=np.float64)
 
-        check_bounds(w1, 0., 1., 'w1')
+        check_bounds(w1, 0.0, 1.0, 'w1')
 
         TK = convert_check_temperature(T, Tunit)
         if selfd:
@@ -253,11 +238,9 @@ class VrentasDudaBinary():
         Parameters
         ----------
         w1 : float | FloatArray
-            Mass fraction of solvent.
-            Unit = kg/kg.
+            Mass fraction of solvent [kg/kg].
         T : float | FloatArray
-            Temperature.
-            Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -294,11 +277,9 @@ class VrentasDudaBinary():
         Parameters
         ----------
         w1 : float | FloatArray
-            Mass fraction of solvent.
-            Unit = kg/kg.
+            Mass fraction of solvent [kg/kg].
         T : float | FloatArray
-            Temperature.
-            Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -326,11 +307,9 @@ class VrentasDudaBinary():
         Parameters
         ----------
         T : float | FloatArrayLike
-            Temperature.
-            Unit = `Tunit`.
+            Temperature [`Tunit`].
         w1range : tuple[float, float]
-            Range of solvent mass fraction to be ploted.
-            Unit = kg/kg.
+            Range of solvent mass fraction to be ploted [kg/kg].
         Tunit : Literal['C', 'K']
             Temperature unit.
         selfd: bool
@@ -355,7 +334,7 @@ class VrentasDudaBinary():
 
         # Check inputs
         check_in_set(Tunit, {'K', 'C'}, 'Tunit')
-        check_valid_range(w1range, 0., 1., 'w1range')
+        check_valid_range(w1range, 0.0, 1.0, 'w1range')
 
         # Plot objects
         if axes is None:

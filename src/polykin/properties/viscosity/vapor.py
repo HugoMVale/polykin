@@ -9,12 +9,13 @@ from scipy.constants import R
 from polykin.properties.pvt.mixing_rules import pseudocritical_properties
 from polykin.utils.types import FloatArray, FloatVectorLike
 
-__all__ = ['MUVMX2_Herning_Zipperer',
-           'MUVPC_Jossi',
-           'MUVMXPC_Dean_Stiel',
-           'MUV_Lucas',
-           'MUVMX_Lucas'
-           ]
+__all__ = [
+    'MUVMX2_Herning_Zipperer',
+    'MUVPC_Jossi',
+    'MUVMXPC_Dean_Stiel',
+    'MUV_Lucas',
+    'MUVMX_Lucas'
+]
 
 # %% Mixing rules
 
@@ -43,17 +44,17 @@ def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
 
     Parameters
     ----------
-    y : FloatVectorLike
-        Mole fractions of all components. Unit = Any.
-    mu : FloatVectorLike
-        Viscosities of all components, $\mu$. Unit = Any.
-    M : FloatVectorLike
-        Molar masses of all components. Unit = Any.
+    y : FloatVectorLike (N)
+        Mole fractions of all components [Any].
+    mu : FloatVectorLike (N)
+        Viscosities of all components, $\mu$ [Any].
+    M : FloatVectorLike (N)
+        Molar masses of all components [Any].
 
     Returns
     -------
     float
-        Mixture viscosity, $\mu_m$. Unit = [mu].
+        Mixture viscosity, $\mu_m$ [mu].
 
     Examples
     --------
@@ -104,16 +105,16 @@ def MUVPC_Jossi(rhor: float,
     rhor : float
         Reduced gas density, $\rho_r$.
     M : float
-        Molar mass. Unit = kg/mol.
+        Molar mass [kg/mol].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperatur [K].
     Pc : float
-        Critical pressure. Unit = Pa.
+        Critical pressure [Pa].
 
     Returns
     -------
     float
-        Residual viscosity, $(\mu - \mu^\circ)$. Unit = Pa·s.
+        Residual viscosity, $(\mu - \mu^\circ)$ [Pa·s].
 
     Examples
     --------
@@ -158,22 +159,22 @@ def MUVMXPC_Dean_Stiel(v: float,
     Parameters
     ----------
     v : float
-        Gas molar volume. Unit = m³/mol.
-    y : FloatVectorLike
-        Mole fractions of all components. Unit = mol/mol.
-    M : FloatVectorLike
-        Molar masses of all components. Unit = kg/mol.
-    Tc : FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    Zc : FloatVectorLike
+        Gas molar volume [m³/mol].
+    y : FloatVectorLike (N)
+        Mole fractions of all components [mol/mol].
+    M : FloatVectorLike (N)
+        Molar masses of all components [kg/mol].
+    Tc : FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    Zc : FloatVectorLike (N)
         Critical compressibility factors of all components.
 
     Returns
     -------
     float
-        Residual viscosity, $(\mu_m - \mu_m^\circ)$. Unit = Pa·s.
+        Residual viscosity, $(\mu_m - \mu_m^\circ)$ [Pa·s].
 
     Examples
     --------
@@ -231,24 +232,24 @@ def MUV_Lucas(T: float,
     Parameters
     ----------
     T : float
-        Temperature. Unit = K.
+        Temperature [K].
     P : float
-        Pressure. Unit = Pa.
+        Pressure [Pa].
     M : float
-        Molar mass. Unit = kg/mol.
+        Molar mass [kg/mol].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure. Unit = Pa.
+        Critical pressure [Pa].
     Zc : float
         Critical compressibility factor.
     dm : float
-        Dipole moment. Unit = debye.
+        Dipole moment [debye].
 
     Returns
     -------
     float
-        Gas viscosity, $\mu$. Unit = Pa·s.
+        Gas viscosity, $\mu$ [Pa·s].
 
     Examples
     --------
@@ -287,26 +288,26 @@ def MUVMX_Lucas(T: float,
     Parameters
     ----------
     T : float
-        Temperature. Unit = K.
+        Temperature [K].
     P : float
-        Pressure. Unit = Pa.
-    y : FloatVectorLike
-        Mole fractions of all components. Unit = mol/mol.
-    M : FloatVectorLike
-        Molar masses of all components. Unit = kg/mol.
-    Tc : FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    Zc : FloatVectorLike
+        Pressure [Pa].
+    y : FloatVectorLike (N)
+        Mole fractions of all components [mol/mol].
+    M : FloatVectorLike (N)
+        Molar masses of all components [kg/mol].
+    Tc : FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    Zc : FloatVectorLike (N)
         Critical compressibility factors of all components.
-    dm : FloatVectorLike
-        Dipole moments of all components. Unit = debye.
+    dm : FloatVectorLike (N)
+        Dipole moments of all components [debye].
 
     Returns
     -------
     float
-        Gas mixture viscosity, $\mu_m$. Unit = Pa·s.
+        Gas mixture viscosity, $\mu_m$ [Pa·s].
 
     Examples
     --------
