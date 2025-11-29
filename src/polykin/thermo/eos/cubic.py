@@ -72,12 +72,12 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
-        FloatVector
-            Attractive parameters of all components, $a_i$. Unit = J·m³.
+        FloatVector (N)
+            Attractive parameters of all components, $a_i$ [J·m³].
         """
         return self._Ωa * (R*self.Tc)**2 / self.Pc * self._alpha(T)
 
@@ -88,8 +88,8 @@ class CubicEoS(GasLiquidEoS):
 
         Returns
         -------
-        FloatVector
-            Repulsive parameters of all components, $b_i$. Unit = m³/mol.
+        FloatVector (N)
+            Repulsive parameters of all components, $b_i$ [m³/mol].
         """
         return self._Ωb*R*self.Tc/self.Pc
 
@@ -110,14 +110,14 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Temperature [K].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Mixture attractive parameter, $a_m$. Unit = J·m³.
+            Mixture attractive parameter, $a_m$ [J·m³].
         """
         return geometric_interaction_mixing(z, self.a(T), self.k)
 
@@ -136,13 +136,13 @@ class CubicEoS(GasLiquidEoS):
 
         Parameters
         ----------
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Mixture repulsive parameter, $b_m$. Unit = m³/mol.
+            Mixture repulsive parameter, $b_m$ [m³/mol].
         """
         return dot(z, self.b)
 
@@ -162,14 +162,14 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Temperature [K].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Mixture second virial coefficient, $B_m$. Unit = m³/mol.
+            Mixture second virial coefficient, $B_m$ [m³/mol].
         """
         return self.bm(z) - self.am(T, z)/(R*T)
 
@@ -183,16 +183,16 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         v : float
-            Molar volume. Unit = m³/mol.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Molar volume [m³/mol].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Pressure. Unit = Pa.
+            Pressure [Pa].
         """
         am = self.am(T, z)
         bm = self.bm(z)
@@ -213,11 +213,11 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
@@ -254,18 +254,18 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
         phase : Literal['L', 'V']
             Phase of the fluid. Only relevant for systems where both liquid
             and vapor phases may exist.
 
         Returns
         -------
-        FloatVector
+        FloatVector (N)
             Fugacity coefficients of all components.
         """
         u = self._u
@@ -313,15 +313,15 @@ class CubicEoS(GasLiquidEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         Psat0 : float | None
-            Initial guess for the saturation pressure. By default, the value
-            is estimated using the Wilson equation. Unit = Pa.
+            Initial guess for the saturation pressure [Pa]. By default, the
+            value is estimated using the Wilson equation.
 
         Returns
         -------
         float
-            Saturation pressure. Unit = Pa.
+            Saturation pressure [Pa].
         """
 
         if self.N != 1:
@@ -387,11 +387,11 @@ class RedlichKwong(CubicEoS):
 
     Parameters
     ----------
-    Tc : float | FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : float | FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    k : FloatSquareMatrix | None
+    Tc : float | FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : float | FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    k : FloatSquareMatrix (N,N) | None
         Binary interaction parameter matrix.
     name : str
         Name.
@@ -445,13 +445,13 @@ class Soave(CubicEoS):
 
     Parameters
     ----------
-    Tc : float | FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : float | FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    w : float | FloatVectorLike
+    Tc : float | FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : float | FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    w : float | FloatVectorLike (N)
         Acentric factors of all components.
-    k : FloatSquareMatrix | None
+    k : FloatSquareMatrix (N,N) | None
         Binary interaction parameter matrix.
     name : str
         Name.
@@ -508,13 +508,13 @@ class PengRobinson(CubicEoS):
 
     Parameters
     ----------
-    Tc : float | FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : float | FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    w : float | FloatVectorLike
+    Tc : float | FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : float | FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    w : float | FloatVectorLike (N)
         Acentric factors of all components.
-    k : FloatSquareMatrix | None
+    k : FloatSquareMatrix (N,N) | None
         Binary interaction parameter matrix.
     name : str
         Name.
@@ -539,8 +539,6 @@ class PengRobinson(CubicEoS):
         Tr = T/self.Tc
         fw = 0.37464 + 1.54226*w - 0.26992*w**2
         return (1.0 + fw*(1.0 - sqrt(Tr)))**2
-
-# %%
 
 
 def Z_cubic_roots(

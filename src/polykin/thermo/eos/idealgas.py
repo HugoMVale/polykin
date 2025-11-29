@@ -64,14 +64,14 @@ class IdealGas(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         v : float
-            Molar volume. Unit = m³/mol.
+            Molar volume [m³/mol].
 
         Returns
         -------
         float
-             Pressure. Unit = Pa.
+            Pressure [Pa].
         """
         return R*T/v
 
@@ -86,7 +86,7 @@ class IdealGas(GasEoS):
 
         Returns
         -------
-        FloatVector
+        FloatVector (N)
             Fugacity coefficients of all components.
         """
         return np.ones(self.N)
@@ -104,18 +104,18 @@ class IdealGas(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         V : float
-            Volume. Unit = m³.
-        n : FloatVector
-            Mole amounts of all components. Unit = mol.
+            Volume [m³].
+        n : FloatVector (N)
+            Mole amounts of all components [mol].
         v0 : float
-            Molar volume in reference state. Unit = m³/mol.
+            Molar volume in reference state [m³/mol].
 
         Returns
         -------
         float
-            Helmholtz energy departure, $A - A^{\circ}$. Unit = J.
+            Helmholtz energy departure, $A - A^{\circ}$ [J].
         """
         nT = n.sum()
         return -nT*R*T*log(V/(nT*v0))

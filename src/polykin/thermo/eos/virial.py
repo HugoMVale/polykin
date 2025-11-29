@@ -47,13 +47,13 @@ class Virial(GasEoS):
 
     Parameters
     ----------
-    Tc : float | FloatVectorLike
-        Critical temperatures of all components. Unit = K.
-    Pc : float | FloatVectorLike
-        Critical pressures of all components. Unit = Pa.
-    Zc : float | FloatVectorLike
+    Tc : float | FloatVectorLike (N)
+        Critical temperatures of all components [K].
+    Pc : float | FloatVectorLike (N)
+        Critical pressures of all components [Pa].
+    Zc : float | FloatVectorLike (N)
         Critical compressibility factors of all components.
-    w : float | FloatVectorLike
+    w : float | FloatVectorLike (N)
         Acentric factors of all components.
     name : str
         Name.
@@ -98,14 +98,14 @@ class Virial(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Temperature [K].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Mixture second virial coefficient, $B_m$. Unit = m³/mol.
+            Mixture second virial coefficient, $B_m$ [m³/mol].
         """
         return quadratic_mixing(y, self.Bij(T))
 
@@ -120,11 +120,11 @@ class Virial(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
-        FloatSquareMatrix
+        FloatSquareMatrix (N,N)
             Matrix of interaction virial coefficients, $B_{ij}$.
             Unit = m³/mol.
         """
@@ -150,11 +150,11 @@ class Virial(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
@@ -174,16 +174,16 @@ class Virial(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         v : float
-            Molar volume. Unit = m³/mol.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Molar volume [m³/mol].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Pressure. Unit = Pa.
+            Pressure [Pa].
         """
         Bm = self.Bm(T, y)
         return R*T/(v - Bm)
@@ -213,15 +213,15 @@ class Virial(GasEoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
-        FloatVector
+        FloatVector (N)
             Fugacity coefficients of all components.
         """
         B = self.Bij(T)
@@ -264,18 +264,18 @@ def B_pure(T: Union[float, FloatArray],
     Parameters
     ----------
     T : float | FloatArray
-        Temperature. Unit = K.
+        Temperature [K].
     Tc : float
-        Critical temperature. Unit = K.
+        Critical temperature [K].
     Pc : float
-        Critical pressure. Unit = Pa.
+        Critical pressure [Pa].
     w : float
         Acentric factor.
 
     Returns
     -------
     float | FloatArray
-        Second virial coefficient, $B$. Unit = m³/mol.
+        Second virial coefficient, $B$ [m³/mol].
     """
     Tr = T/Tc
     B0 = 0.083 - 0.422/Tr**1.6
@@ -313,20 +313,20 @@ def B_mixture(T: float,
     Parameters
     ----------
     T : float
-        Temperature. Unit = K.
-    Tc : FloatVector
-        Critical temperatures of all components. Unit = K.
-    Pc : FloatVector
-        Critical pressures of all components. Unit = Pa.
-    Zc : FloatVector
+        Temperature [K].
+    Tc : FloatVector (N)
+        Critical temperatures of all components [K].
+    Pc : FloatVector (N)
+        Critical pressures of all components [Pa].
+    Zc : FloatVector (N)
         Critical compressibility factors of all components.
-    w : FloatVector
+    w : FloatVector (N)
         Acentric factors of all components.
 
     Returns
     -------
-    FloatSquareMatrix
-        Matrix of interaction virial coefficients $B_{ij}$. Unit = m³/mol.
+    FloatSquareMatrix (N,N)
+        Matrix of interaction virial coefficients $B_{ij}$ [m³/mol].
     """
     vc = Zc*R*Tc/Pc
     N = Tc.size

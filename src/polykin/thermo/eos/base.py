@@ -14,8 +14,6 @@ from polykin.utils.types import FloatVector
 
 __all__ = ['EoS']
 
-# %%
-
 
 class EoS(ABC):
     """Base class for equation of state."""
@@ -54,18 +52,18 @@ class EoS(ABC):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         V : float
-            Volume. Unit = m³.
-        n : FloatVector
-            Mole amounts of all components. Unit = mol.
+            Volume [m³].
+        n : FloatVector (N)
+            Mole amounts of all components [mol].
         v0 : float
-            Molar volume in reference state. Unit = m³/mol.
+            Molar volume in reference state [m³/mol].
 
         Returns
         -------
         float
-            Helmholtz energy departure, $A - A^{\circ}$. Unit = J.
+            Helmholtz energy departure, $A - A^{\circ}$ [J].
         """
         pass
 
@@ -131,16 +129,16 @@ class GasEoS(EoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Molar volume of the fluid. Unit = m³/mol.
+            Molar volume of the fluid [m³/mol].
         """
         return self.Z(T, P, y)*R*T/P
 
@@ -161,16 +159,16 @@ class GasEoS(EoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        y : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
-        FloatVector
-            Fugacities of all components. Unit = Pa.
+        FloatVector (N)
+            Fugacities of all components [Pa].
         """
         return self.phi(T, P, y)*y*P
 
@@ -213,17 +211,17 @@ class GasLiquidEoS(EoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         FloatVector
-            Molar volumes of the possible phases. If two phases are possible,
-            the first result is the lowest value (liquid). Unit = m³/mol.
+            Molar volumes of the possible phases [m³/mol]. If two phases are
+            possible, the first result is the lowest value (liquid).
         """
         return self.Z(T, P, z)*R*T/P
 
@@ -245,19 +243,19 @@ class GasLiquidEoS(EoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        z : FloatVector
-            Mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
         phase : Literal['L', 'V']
             Phase of the fluid. Only relevant for systems where both liquid
             and vapor phases may exist.
 
         Returns
         -------
-        FloatVector
-            Fugacities of all components. Unit = Pa.
+        FloatVector (N)
+            Fugacities of all components [Pa].
         """
         return self.phi(T, P, z, phase)*z*P
 
@@ -274,17 +272,17 @@ class GasLiquidEoS(EoS):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         P : float
-            Pressure. Unit = Pa.
-        x : FloatVector
-            Liquid mole fractions of all components. Unit = mol/mol.
-        y : FloatVector
-            Vapor mole fractions of all components. Unit = mol/mol.
+            Pressure [Pa].
+        x : FloatVector (N)
+            Liquid mole fractions of all components [mol/mol].
+        y : FloatVector (N)
+            Vapor mole fractions of all components [mol/mol].
 
         Returns
         -------
-        FloatVector
+        FloatVector (N)
             K-values of all components.
         """
         phiV = self.phi(T, P, y, 'V')
