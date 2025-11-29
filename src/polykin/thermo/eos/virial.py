@@ -125,8 +125,7 @@ class Virial(GasEoS):
         Returns
         -------
         FloatSquareMatrix (N,N)
-            Matrix of interaction virial coefficients, $B_{ij}$.
-            Unit = m³/mol.
+            Matrix of interaction virial coefficients, $B_{ij}$ [m³/mol].
         """
         return B_mixture(T, self.Tc, self.Pc, self.Zc, self.w)
 
