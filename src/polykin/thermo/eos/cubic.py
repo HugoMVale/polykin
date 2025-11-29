@@ -24,13 +24,47 @@ from .base import GasLiquidEoS
 __all__ = [
     'PengRobinson',
     'RedlichKwong',
-    'Soave',
+    'SoaveRedlichKwong',
     'Z_cubic_roots'
 ]
 
 
 class CubicEoS(GasLiquidEoS):
-    """Base class for cubic equations of state."""
+    r"""Base class for cubic equations of state.
+
+    This abstract class represents a general two-parameter cubic EOS of the
+    form:
+
+    $$ P = \frac{R T}{v - b_m} - \frac{a_m}{v^2 + u b_m v + w b_m^2} $$
+
+    where $P$ is the pressure, $T$ is the temperature, $v$ is the molar
+    volume, $a_m(T,z)$ and $b_m(z)$ are the mixture EOS parameters, $z$ is the
+    vector of mole fractions, and $u$ and $w$ are numerical constants that
+    determine the specific EOS.
+
+    For a pure component, the parameters $a$ and $b$ are given by:
+
+    \begin{aligned}
+    a &= \Omega_a \left( \frac{R^2 T_{c}^2}{P_{c}} \right) \alpha(T) \\ 
+    b &= \Omega_b \left( \frac{R T_{c}}{P_{c}} \right)
+    \end{aligned}
+
+    where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
+    $\Omega_a$ and $\Omega_b$ are numerical constants that determine the
+    specific EOS, and $\alpha(T)$ is a temperature-dependent function.
+
+    To implement a specific cubic EOS, subclasses must:
+
+    * Define the class-level constants `_Ωa`, `_Ωb`, `_u` and `_w`.
+    * Implement the temperature-dependent function `_alpha(T)`.
+    * Optionally override the mixing-rule functions `am(T, z)` and `bm(z)`.
+
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
+        liquids 4th edition, 1986, p. 42.
+
+    """
 
     Tc: FloatVector
     Pc: FloatVector
@@ -415,8 +449,8 @@ class RedlichKwong(CubicEoS):
         return sqrt(self.Tc/T)
 
 
-class Soave(CubicEoS):
-    r"""[Soave](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Soave_modification_of_Redlich%E2%80%93Kwong)
+class SoaveRedlichKwong(CubicEoS):
+    r"""[Soave-Redlich-Kwong](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Soave_modification_of_Redlich%E2%80%93Kwong)
     equation of state.
 
     This EOS is based on the following $P(v,T)$ relationship:
@@ -558,11 +592,11 @@ def Z_cubic_roots(
         B = \frac{b_m P}{R T}
     \end{gathered}
 
-    | Equation      | $u$ | $w$ |
-    |---------------|:---:|:---:|
-    | Redlich-Kwong |  1  |  0  |
-    | Soave         |  1  |  0  |
-    | Peng-Robinson |  2  | -1  |
+    | Equation            | $u$ | $w$ |
+    |---------------------|:---:|:---:|
+    | Redlich-Kwong       |  1  |  0  |
+    | Soave-Redlich-Kwong |  1  |  0  |
+    | Peng-Robinson       |  2  | -1  |
 
     **References**
 

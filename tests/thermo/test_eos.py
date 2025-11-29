@@ -8,8 +8,8 @@ import numpy as np
 import pytest
 from numpy import allclose, isclose
 
-from polykin.thermo.eos import (IdealGas, PengRobinson, RedlichKwong, Soave,
-                                Virial)
+from polykin.thermo.eos import (IdealGas, PengRobinson, RedlichKwong,
+                                SoaveRedlichKwong, Virial)
 from polykin.utils.exceptions import ShapeError
 
 
@@ -145,7 +145,7 @@ def test_Cubic_butene():
     z = np.array([1.0])
     T = 273.15 + 200
     P = 70e5
-    for EOS in [Soave, PengRobinson]:
+    for EOS in [SoaveRedlichKwong, PengRobinson]:
         eos = EOS(Tc=[420.0], Pc=[40.43e5], w=[0.191])
         assert isclose(eos.Z(T, P, z), 0.512, rtol=0.1)
         assert isclose(eos.phi(T, P, z, 'V'), 0.638, rtol=0.05)
@@ -158,7 +158,7 @@ def test_Cubic_Z():
     Pc = [36.5e5]
     w = [0.183]
     state = {'T': 300., 'z': np.array([1.0])}
-    eos = Soave(Tc, Pc, w)
+    eos = SoaveRedlichKwong(Tc, Pc, w)
     Z = eos.Z(**state, P=3.706e5)
     assert allclose(Z, (0.01687, 0.9057), rtol=1e-3)
     eos = PengRobinson(Tc, Pc, w)
@@ -176,7 +176,7 @@ def test_Cubic_Psat():
     w = [0.183]
     T = 300.0
     # Soave
-    eos = Soave(Tc, Pc, w)
+    eos = SoaveRedlichKwong(Tc, Pc, w)
     Psat = eos.Psat(T, Psat0=2e5)
     assert isclose(Psat, 3.706e5, rtol=1e-3)
     # PR
@@ -190,7 +190,7 @@ def test_Cubic_Psat():
         _ = eos.Psat(Tc[0] + 1.0)
     # N>1
     with pytest.raises(ValueError):
-        _ = Soave([1e3, 2e3], [1e5, 1e7], [0.1, 0.2]).Psat(Tc[0] + 1.0)
+        _ = SoaveRedlichKwong([1e3, 2e3], [1e5, 1e7], [0.1, 0.2]).Psat(Tc[0] + 1.0)
 
 
 def test_Cubic_phi():
@@ -199,7 +199,7 @@ def test_Cubic_phi():
     Pc = [41.5e5, 41.1e5]
     w = [0.323, 0.262]
     rk = RedlichKwong(Tc, Pc)
-    srk = Soave(Tc, Pc, w)
+    srk = SoaveRedlichKwong(Tc, Pc, w)
     pr = PengRobinson(Tc, Pc, w)
     y = np.array([0.5, 0.5])
     T = 273.15 + 50
@@ -215,7 +215,7 @@ def test_Cubic_K():
     w = [0.099, 0.349]
     x = np.array([0.2654, 1-0.2654])
     y = np.array([0.90, 0.10])
-    eos = Soave(Tc, Pc, w)
+    eos = SoaveRedlichKwong(Tc, Pc, w)
     K = eos.K(400.0, 15e5, x, y)
     assert allclose(K, [5.598, 0.2012], rtol=1e-3)
 
@@ -227,7 +227,7 @@ def test_Cubic_B():
     Zc = [0.248]
     w = [0.665]
     virial = Virial(Tc, Pc, Zc, w)
-    srk = Soave(Tc, Pc, w)
+    srk = SoaveRedlichKwong(Tc, Pc, w)
     T = 273.15 + 200.
     y = np.array([1.])
     assert isclose(virial.Bm(T, y), srk.Bm(T, y), rtol=0.1)
@@ -256,7 +256,7 @@ def test_Cubic_departures():
     T = 398.15
     P = 100e5
     y = np.array([1.])
-    for EOS in [Soave, PengRobinson]:
+    for EOS in [SoaveRedlichKwong, PengRobinson]:
         eos = EOS(Tc, Pc, w)
         DX = eos.DX(T, P, y)
         assert isclose(DX['H']/M, -235, rtol=0.01)
