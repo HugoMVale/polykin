@@ -53,22 +53,21 @@ class FloryHuggins():
     ----------
     N : int
         Number of components.
-    a : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
-        be supplied.
-    b : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
-        be supplied.
-    c : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
-        be supplied.
-    d : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
-        be supplied.
-    e : FloatSquareMatrix | None
-        Matrix (N,N) of parameters, by default 0. Only the upper triangle must
-        be supplied.
-
+    a : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0. Only the upper triangle
+        must be supplied.
+    b : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters [K], by default 0. Only the upper
+        triangle must be supplied.
+    c : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters, by default 0. Only the upper triangle
+        must be supplied.
+    d : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters [1/K], by default 0. Only the upper
+        triangle must be supplied.
+    e : FloatSquareMatrix (N,N) | None
+        Matrix of interaction parameters [1/K²], by default 0. Only the upper
+        triangle must be supplied.
     """
 
     _N: int
@@ -86,7 +85,6 @@ class FloryHuggins():
                  d: Optional[FloatSquareMatrix] = None,
                  e: Optional[FloatSquareMatrix] = None
                  ) -> None:
-        """Construct `FloryHuggins` with the given parameters."""
 
         # Set default values
         if a is None:
@@ -140,7 +138,7 @@ class FloryHuggins():
 
         Returns
         -------
-        FloatSquareMatrix
+        FloatSquareMatrix (N,N)
             Matrix of interaction parameters.
         """
         return self._a + self._b/T + self._c*log(T) + self._d*T + self._e*T**2
@@ -155,9 +153,9 @@ class FloryHuggins():
         ----------
         T : float
             Temperature [K].
-        phi : FloatVector
+        phi : FloatVector (N)
             Volume, mass or segment fractions of all components.
-        m : FloatVector
+        m : FloatVector (N)
             Characteristic size of all components, typically equal to 1 for
             small molecules and equal to the average degree of polymerization
             for polymers.
@@ -184,9 +182,9 @@ class FloryHuggins():
         ----------
         T : float
             Temperature [K].
-        phi : FloatVector
+        phi : FloatVector (N)
             Volume, mass or segment fractions of all components.
-        m : FloatVector
+        m : FloatVector (N)
             Characteristic size of all components, typically equal to 1 for
             small molecules and equal to the average degree of polymerization
             for polymers.
@@ -211,9 +209,9 @@ class FloryHuggins():
         ----------
         T : float
             Temperature [K].
-        phi : FloatVector
+        phi : FloatVector (N)
             Volume, mass or segment fractions of all components.
-        m : FloatVector
+        m : FloatVector (N)
             Characteristic size of all components, typically equal to 1 for
             small molecules and equal to the average degree of polymerization
             for polymers.
@@ -225,20 +223,20 @@ class FloryHuggins():
         """
         return -derivative_complex(lambda t: self.Dgmix(t, phi, m), T)[0]
 
-    def a(self,
-          T: float,
-          phi: FloatVector,
-          m: FloatVector
-          ) -> FloatVector:
+    def activity(self,
+                 T: float,
+                 phi: FloatVector,
+                 m: FloatVector
+                 ) -> FloatVector:
         r"""Activities, $a_i$.
 
         Parameters
         ----------
         T : float
             Temperature [K].
-        phi : FloatVector
+        phi : FloatVector (N)
             Volume, mass or segment fractions of all components.
-        m : FloatVector
+        m : FloatVector (N)
             Characteristic size of all components, typically equal to 1 for
             small molecules and equal to the average degree of polymerization
             for polymers.
@@ -286,16 +284,16 @@ def FloryHuggins_activity(phi: FloatVector,
 
     Parameters
     ----------
-    phi : FloatVector
+    phi : FloatVector (N)
         Volume, mass or segment fractions of all components, $\phi_i$. The
         composition variable must match the one used in the determination of
         $\chi_{ij}$.
-    m : FloatVector
+    m : FloatVector (N)
         Characteristic size of all components, typically equal to 1 for small
         molecules and equal to the average degree of polymerization for
         polymers.
-    chi : FloatSquareMatrix
-        Matrix (N,N) of interaction parameters, $\chi_{ij}$. It is expected
+    chi : FloatSquareMatrix (N,N)
+        Matrix of interaction parameters, $\chi_{ij}$. It is expected
         (but not checked) that $\chi_{ij}=\chi_{ji}$ and $\chi_{ii}=0$.
 
     Returns
@@ -307,7 +305,6 @@ def FloryHuggins_activity(phi: FloatVector,
     --------
     * [`FloryHuggins2_activity`](FloryHuggins2_activity.md): equivalent
       method for binary solvent-polymer systems.
-
     """
     A = dot(phi, 1/m)
     B = dot(chi, phi)
@@ -375,7 +372,6 @@ def FloryHuggins2_activity(phi1: Union[float, FloatArray],
     >>> a = FloryHuggins2_activity(phi1=0.25, m=1e6, chi=0.29)
     >>> print(f"{a:.2f}")
     0.62
-
     """
     phi2 = 1 - phi1
     return phi1*exp((1 - 1/m)*phi2 + chi*phi2**2)

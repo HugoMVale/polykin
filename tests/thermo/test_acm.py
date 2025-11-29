@@ -138,7 +138,7 @@ def test_FloryHuggins():
     m = np.array([1, 13])
     acm = FloryHuggins(N, b=X*T)
     Dgmix = acm.Dgmix(T, phi, m)
-    a = acm.a(T, phi, m)
+    a = acm.activity(T, phi, m)
     assert isclose(Dgmix, R*T*np.sum(phi/m*np.log(a)))
 
 
