@@ -67,18 +67,17 @@ class UNIQUAC(SmallSpeciesActivityModel):
     a : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     b : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0. Unit = K.
+        Matrix of interaction parameters [K], by default 0.
     c : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     d : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0.
+        Matrix of interaction parameters [1/K], by default 0.
     name : str
         Name.
 
     See also
     --------
     * [`UNIQUAC_gamma`](UNIQUAC_gamma.md): related activity coefficient method.
-
     """
 
     _q: FloatVector
@@ -148,7 +147,7 @@ class UNIQUAC(SmallSpeciesActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -169,7 +168,7 @@ class UNIQUAC(SmallSpeciesActivityModel):
         phi = x*r/dot(x, r)
         theta = x*q/dot(x, q)
 
-        p = x > 0.
+        p = x > 0.0
         gC = np.sum(x[p]*(log(phi[p]/x[p]) + 5*q[p]*log(theta[p]/phi[p])))
         gR = -np.sum(q[p]*x[p]*log(dot(theta, tau)[p]))
 
@@ -221,7 +220,7 @@ def UNIQUAC_gamma(x: FloatVector,
     Parameters
     ----------
     x : FloatVector (N)
-        Mole fractions of all components. Unit = mol/mol.
+        Mole fractions of all components [mol/mol].
     q : FloatVector (N)
         Relative surface areas of all components.
     r : FloatVector (N)
@@ -238,7 +237,6 @@ def UNIQUAC_gamma(x: FloatVector,
     See also
     --------
     * [`UNIQUAC`](UNIQUAC.md): related class.
-
     """
 
     J = r/dot(x, r)
