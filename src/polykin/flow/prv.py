@@ -20,11 +20,11 @@ class PRVResult:
     Attributes
     ----------
     Pcf : float
-        Critical flow pressure (bara).
+        Critical flow pressure [bara].
     critical_flow : bool
         Flag indicating if the flow is sonic (`True`) or subsonic (`False`).
     A : float
-        Required effective discharge area (mm²).
+        Required effective discharge area [mm²].
     """
     Pcf: float
     critical_flow: bool
@@ -65,17 +65,17 @@ def area_relief_gas(W: float,
     Parameters
     ----------
     W : float
-        Required relieving mass flow rate (kg/h).
+        Required relieving mass flow rate [kg/h].
     P1 : float
-        Upstream relieving pressure, absolute (bara).
+        Upstream relieving pressure, absolute [bara].
     P2 : float
-        Downstream back pressure, absolute (bara).
+        Downstream back pressure, absolute [bara].
     T : float
-        Absolute relieving temperature of the gas at the valve inlet (K).
+        Absolute relieving temperature of the gas at the valve inlet [K].
     k : float
         Ideal gas specific heat ratio at relieving temperature.
     M : float
-        Molar mass of gas (g/mol).
+        Molar mass of gas [g/mol].
     Z : float
         Compressibility factor of the gas at relieving pressure and temperature.
         If a calculated value is not available, use `Z=1.0`, which leads to a 
@@ -167,15 +167,15 @@ def area_relief_liquid(Q: float,
     Parameters
     ----------
     Q : float
-        Required relieving volume flow rate (L/min).
+        Required relieving volume flow rate [L/min].
     P1 : float
-        Upstream relieving pressure (bar). It can be absolute or gauge, as long
+        Upstream relieving pressure [bar]. It can be absolute or gauge, as long
         as it is consistent with `P2`.
     P2 : float
-        Downstream back pressure (bar). It can be absolute or gauge, as long as
+        Downstream back pressure [bar]. It can be absolute or gauge, as long as
         it is consistent with `P1`.
     mu : float
-        Viscosity at the relieving temperature (cP).
+        Viscosity at the relieving temperature [cP].
     Gl : float
         Relative density of the liquid at the relieving temperature with respect 
         to water at standard conditions.
@@ -194,7 +194,7 @@ def area_relief_liquid(Q: float,
     Returns
     -------
     float
-        Effective discharge area (mm²).
+        Effective discharge area [mm²].
 
     Examples
     --------
@@ -265,17 +265,17 @@ def area_relief_2phase(W: float,
     Parameters
     ----------
     W : float
-        Required relieving mass flow rate (kg/h).
+        Required relieving mass flow rate [kg/h].
     P1 : float
-        Upstream relieving pressure, absolute (bara).
+        Upstream relieving pressure, absolute [bara].
     P2 : float
-        Downstream back pressure, absolute (bara).
+        Downstream back pressure, absolute [bara].
     v1 : float
         Overall specific volume of the two-phase mixture at upstream relieving
-        conditions (m³/kg).
+        conditions [m³/kg].
     v9 : float
         Overall specific volume of the two-phase mixture evaluated at 90% of
-        the upstream pressure (m³/kg). The flash calculation should be carried
+        the upstream pressure [m³/kg]. The flash calculation should be carried
         out isentropically, but an isenthalpic (adiabatic) flash is sufficient
         for low-vapor-content mixtures far from the thermodynamic critical point.
     Kd : float
@@ -335,7 +335,7 @@ def area_relief_2phase(W: float,
         G = sqrt(-2*(w*log(ηa) + (w - 1)*(1 - ηa))) * \
             sqrt(P1/v1)/(w*(1/ηa - 1) + 1)
 
-    # Area (mm²)
+    # Area [mm²]
     A = 277.8*W/(Kd*Kb*Kc*Kv*G)
 
     return PRVResult(Pcf/1e5, critical_flow, A)
@@ -369,17 +369,17 @@ def area_relief_2phase_subcooled(Q: float,
     Parameters
     ----------
     Q : float
-        Required relieving volume flow rate (L/min).
+        Required relieving volume flow rate [L/min].
     P1 : float
-        Upstream relieving pressure, absolute (bara).
+        Upstream relieving pressure, absolute [bara].
     P2 : float
-        Downstream back pressure, absolute (bara).
+        Downstream back pressure, absolute [bara].
     Ps : float
-        Saturation (bubble) pressure at upstream relieving temperature (bara).
+        Saturation (bubble) pressure at upstream relieving temperature [bara].
     rho1 : float
-        Liquid density at upstream relieving conditions (m³/kg).
+        Liquid density at upstream relieving conditions [m³/kg].
     rho9 : float
-        Overall density evaluated at 90% of the saturation pressure `Ps` (m³/kg). 
+        Overall density evaluated at 90% of the saturation pressure `Ps` [m³/kg]. 
         The flash calculation should be carried out isentropically, but an 
         isenthalpic (adiabatic) flash is sufficient for low-vapor-content mixtures
         far from the thermodynamic critical point.
@@ -449,7 +449,7 @@ def area_relief_2phase_subcooled(Q: float,
         G = sqrt(2*(1 - ηs) + 2*(ws*ηs*log(ηs/η) - (ws - 1)*(ηs - η))) * \
             sqrt(P1*rho1)/(ws*(ηs/η - 1) + 1)
 
-    # Area (mm²)
+    # Area [mm²]
     A = 16.67*Q*rho1/(Kd*Kb*Kc*Kv*G)
 
     return PRVResult(Pcf/1e5, critical_flow, A)

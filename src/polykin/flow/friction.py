@@ -41,18 +41,18 @@ def DP_Hagen_Poiseuille(Q: float,
     Parameters
     ----------
     Q : float
-        Volume flowrate (m³/s).
+        Volume flowrate [m³/s].
     D : float
-        Diameter (m).
+        Diameter [m].
     L : float
-        Length (m).
+        Length [m].
     mu : float
-        Viscosity (Pa·s).
+        Viscosity [Pa·s].
 
     Returns
     -------
     float
-        Pressure drop (Pa).
+        Pressure drop [Pa].
 
     Examples
     --------
@@ -99,13 +99,13 @@ def DP_Darcy_Weisbach(v: float,
     Parameters
     ----------
     v : float
-        Velocity (m/s).
+        Velocity [m/s].
     D : float
-        Diameter (m).
+        Diameter [m].
     L : float
-        Length (m).
+        Length [m].
     rho : float
-        Density (kg/m³).
+        Density [kg/m³].
     fD : float
         Darcy friction factor. Should not be confused with the Fanning friction
         factor.
@@ -113,7 +113,7 @@ def DP_Darcy_Weisbach(v: float,
     Returns
     -------
     float
-        Pressure drop (Pa).
+        Pressure drop [Pa].
 
     See also
     --------
@@ -171,22 +171,22 @@ def DP_tube(Q: float,
     Parameters
     ----------
     Q : float
-        Volume flowrate (m³/s).
+        Volume flowrate [m³/s].
     D : float
-        Diameter (m).
+        Diameter [m].
     L : float
-        Length (m).
+        Length [m].
     rho : float
-        Density (kg/m³).
+        Density [kg/m³].
     mu : float
-        Viscosity (Pa·s).
+        Viscosity [Pa·s].
     er : float
         Relative pipe roughness, $\epsilon/D$. Only required for turbulent flow.
 
     Returns
     -------
     float
-        Pressure drop (Pa).
+        Pressure drop [Pa].
 
     Examples
     --------
@@ -245,22 +245,22 @@ def DP_packed_bed(G: float,
     Parameters
     ----------
     G : float
-        Mass flux (kg/m²·s).
+        Mass flux [kg/m²·s].
     L : float
-        Packed bed length (m).
+        Packed bed length [m].
     Dp : float
-        Particle diameter (m).
+        Particle diameter [m].
     eps : float
         Bed porosity.
     rho : float
-        Fluid density (kg/m³).
+        Fluid density [kg/m³].
     mu : float
-        Fluid viscosity (Pa·s).
+        Fluid viscosity [Pa·s].
 
     Returns
     -------
     float
-        Pressure drop (Pa).
+        Pressure drop [Pa].
 
     Examples
     --------
@@ -455,18 +455,18 @@ def vt_Stokes(D: float,
     Parameters
     ----------
     D : float
-        Particle diameter (m).
+        Particle diameter [m].
     rhop : float
-        Particle density (kg/m³).
+        Particle density [kg/m³].
     rho : float
-        Fluid density (kg/m³).
+        Fluid density [kg/m³].
     mu : float
-        Fluid viscosity (Pa·s).
+        Fluid viscosity [Pa·s].
 
     Returns
     -------
     float
-        Terminal velocity (m/s).
+        Terminal velocity [m/s].
 
     See also
     --------
@@ -517,18 +517,18 @@ def vt_sphere(D: float,
     Parameters
     ----------
     D : float
-        Particle diameter (m).
+        Particle diameter [m].
     rhop : float
-        Particle density (kg/m³).
+        Particle density [kg/m³].
     rho : float
-        Fluid density (kg/m³).
+        Fluid density [kg/m³].
     mu : float
-        Fluid viscosity (Pa·s).
+        Fluid viscosity [Pa·s].
 
     Returns
     -------
     float
-        Terminal velocity (m/s).
+        Terminal velocity [m/s].
 
     See also
     --------
@@ -589,28 +589,28 @@ def DP_GL_Lockhart_Martinelli(mdotL: float,
     Parameters
     ----------
     mdotL : float
-        Mass flow rate of liquid (kg/s).
+        Mass flow rate of liquid [kg/s].
     mdotG : float
-        Mass flow rate of gas (kg/s).
+        Mass flow rate of gas [kg/s].
     D : float
-        Diameter (m).
+        Diameter [m].
     L : float
-        Length (m).
+        Length [m].
     rhoL : float
-        Density of liquid (kg/m³).
+        Density of liquid [kg/m³].
     rhoG : float
-        Density of gas (kg/m³).
+        Density of gas [kg/m³].
     muL : float
-        Viscosity of liquid (Pa·s).
+        Viscosity of liquid [Pa·s].
     muG : float
-        Viscosity of gas (Pa·s).
+        Viscosity of gas [Pa·s].
     er : float
         Relative pipe roughness, $\epsilon/D$. Only required for turbulent flow.
 
     Returns
     -------
     float
-        Pressure drop (Pa).
+        Pressure drop [Pa].
 
     See also
     --------
@@ -699,26 +699,26 @@ def DP_GL_Mueller_Bonn(mdotL: float,
     Parameters
     ----------
     mdotL : float
-        Mass flow rate of liquid (kg/s).
+        Mass flow rate of liquid [kg/s].
     mdotG : float
-        Mass flow rate of gas (kg/s).
+        Mass flow rate of gas [kg/s].
     D : float
-        Diameter (m).
+        Diameter [m].
     L : float
-        Length (m).
+        Length [m].
     rhoL : float
-        Density of liquid (kg/m³).
+        Density of liquid [kg/m³].
     rhoG : float
-        Density of gas (kg/m³).
+        Density of gas [kg/m³].
     muL : float
-        Viscosity of liquid (Pa·s).
+        Viscosity of liquid [Pa·s].
     muG : float
-        Viscosity of gas (Pa·s).
+        Viscosity of gas [Pa·s].
 
     Returns
     -------
     float
-        Pressure drop (Pa).
+        Pressure drop [Pa].
 
     See also
     --------

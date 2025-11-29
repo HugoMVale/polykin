@@ -29,16 +29,16 @@ def mu_PowerLaw(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate (1/s).
+        Shear rate [1/s].
     K : float
-        Consistency (Pa·s^n).
+        Consistency [Pa·s^n].
     n : float
         Flow index.
 
     Returns
     -------
     float | FloatArray
-        Viscosity at the given shear rate (Pa·s).
+        Viscosity at the given shear rate [Pa·s].
 
     Examples
     --------
@@ -73,18 +73,18 @@ def mu_Cross(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate (1/s).
+        Shear rate [1/s].
     mu0 : float
-        Zero-shear viscosity (Pa·s).
+        Zero-shear viscosity [Pa·s].
     lmbda : float
-        Relaxation constant (s).
+        Relaxation constant [s].
     n : float
         Power-law index.
 
     Returns
     -------
     float | FloatArray
-        Viscosity at the given shear rate (Pa·s).
+        Viscosity at the given shear rate [Pa·s].
 
     See also
     --------
@@ -126,18 +126,18 @@ def mu_Cross_modified(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate (1/s).
+        Shear rate [1/s].
     mu0 : float
-        Zero-shear viscosity (Pa·s).
+        Zero-shear viscosity [Pa·s].
     C : float
-        Relaxation constant (1/Pa).
+        Relaxation constant [1/Pa].
     n : float
         Power-law index.
 
     Returns
     -------
     float | FloatArray
-        Viscosity at the given shear rate (Pa·s).
+        Viscosity at the given shear rate [Pa·s].
 
     See also
     --------
@@ -182,13 +182,13 @@ def mu_Carreau_Yasuda(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate (1/s).
+        Shear rate [1/s].
     mu0 : float
-        Zero-shear viscosity (Pa·s).
+        Zero-shear viscosity [Pa·s].
     muinf : float
-        Infinite-shear viscosity (Pa·s).
+        Infinite-shear viscosity [Pa·s].
     lmbda : float
-        Relaxation constant (s).
+        Relaxation constant [s].
     n : float
         Power-law index.
     a : float
@@ -197,7 +197,7 @@ def mu_Carreau_Yasuda(gdot: float | FloatArray,
     Returns
     -------
     mu : float | FloatArray
-        Viscosity at the given shear rate (Pa·s).
+        Viscosity at the given shear rate [Pa·s].
 
     Examples
     --------
@@ -250,14 +250,14 @@ def aT_WLF(T: float,
     Parameters
     ----------
     T : float
-        Temperature (K).
+        Temperature [K].
     T0 : float
-        Reference temperature (K), usually taken to be the glass transition 
+        Reference temperature [K], usually taken to be the glass transition 
         temperature.
     C1 : float | None
         WLF constant. If None, the universal value is used.
     C2 : float | None
-        WLF constant (K). If None, the universal value is used.
+        WLF constant [K]. If None, the universal value is used.
 
     Returns
     -------
