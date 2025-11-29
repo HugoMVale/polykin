@@ -136,7 +136,7 @@ class FloryHuggins():
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -154,7 +154,7 @@ class FloryHuggins():
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         phi : FloatVector
             Volume, mass or segment fractions of all components.
         m : FloatVector
@@ -165,7 +165,7 @@ class FloryHuggins():
         Returns
         -------
         float
-            Gibbs energy of mixing per mole of sites. Unit = J/mol.
+            Gibbs energy of mixing per mole of sites [J/mol].
         """
         p = phi > 0.
         gC = dot(phi[p]/m[p], log(phi[p]))
@@ -183,7 +183,7 @@ class FloryHuggins():
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         phi : FloatVector
             Volume, mass or segment fractions of all components.
         m : FloatVector
@@ -194,7 +194,7 @@ class FloryHuggins():
         Returns
         -------
         float
-            Enthalpy of mixing per mole of sites. Unit = J/mol.
+            Enthalpy of mixing per mole of sites [J/mol].
         """
         return self.Dgmix(T, phi, m) + T*self.Dsmix(T, phi, m)
 
@@ -210,7 +210,7 @@ class FloryHuggins():
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         phi : FloatVector
             Volume, mass or segment fractions of all components.
         m : FloatVector
@@ -221,7 +221,7 @@ class FloryHuggins():
         Returns
         -------
         float
-            Entropy of mixing per mole of sites. Unit = J/(mol·K).
+            Entropy of mixing per mole of sites [J/(mol·K)].
         """
         return -derivative_complex(lambda t: self.Dgmix(t, phi, m), T)[0]
 
@@ -235,7 +235,7 @@ class FloryHuggins():
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
         phi : FloatVector
             Volume, mass or segment fractions of all components.
         m : FloatVector
