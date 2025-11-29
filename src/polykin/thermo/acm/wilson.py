@@ -49,11 +49,11 @@ class Wilson(SmallSpeciesActivityModel):
     a : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     b : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0. Unit = K.
+        Matrix of interaction parameters [K], by default 0.
     c : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     d : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0.
+        Matrix of interaction parameters [1/K], by default 0.
     name: str
         Name.
 
@@ -119,7 +119,7 @@ class Wilson(SmallSpeciesActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -156,7 +156,7 @@ def Wilson_gamma(x: FloatVector,
     Parameters
     ----------
     x : FloatVector (N)
-        Mole fractions of all components. Unit = mol/mol.
+        Mole fractions of all components [mol/mol].
     Lambda : FloatSquareMatrix (N,N)
         Interaction parameters, $\Lambda_{ij}$. It is expected (but not
         checked) that $\Lambda_{ii}=1$.
@@ -172,4 +172,4 @@ def Wilson_gamma(x: FloatVector,
 
     """
     A = dot(Lambda, x)
-    return exp(1. - dot(x/A, Lambda))/A
+    return exp(1 - dot(x/A, Lambda))/A
