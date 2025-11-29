@@ -32,23 +32,23 @@ class FlashResult():
     message: str
         Description of the exit status.
     T : float
-        Temperature (K).
+        Temperature [K].
     P : float
-        Pressure (Pa).
+        Pressure [Pa].
     F : float
-        Feed mole flowrate (mol/s).
+        Feed mole flowrate [mol/s].
     L : float
-        Liquid mole flowrate (mol/s).
+        Liquid mole flowrate [mol/s].
     V : float
-        Vapor mole flowrate (mol/s).
+        Vapor mole flowrate [mol/s].
     beta : float
-        Vapor phase fraction (mol/mol). 
+        Vapor phase fraction [mol/mol]. 
     z : FloatVector
-        Feed mole fractions (mol/mol).
+        Feed mole fractions [mol/mol].
     x : FloatVector
-        Liquid mole fractions (mol/mol).    
+        Liquid mole fractions [mol/mol].    
     y : FloatVector
-        Vapor mole fractions (mol/mol).
+        Vapor mole fractions [mol/mol].
     K : FloatVector
         K-values.
     """
@@ -105,13 +105,13 @@ def flash2_PT(
     Parameters
     ----------
     F : float
-        Feed mole flowrate (mol/s).
+        Feed mole flowrate [mol/s].
     z : FloatVector
-        Feed mole fractions (mol/mol).
+        Feed mole fractions [mol/mol].
     T : float
-        Temperature (K).
+        Temperature [K].
     P : float
-        Pressure (Pa).
+        Pressure [Pa].
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
     beta0 : float | None
@@ -204,17 +204,17 @@ def flash2_PV(
     Parameters
     ----------
     F : float
-        Feed mole flowrate (mol/s).
+        Feed mole flowrate [mol/s].
     z : FloatVector
-        Feed mole fractions (mol/mol).
+        Feed mole fractions [mol/mol].
     P : float
-        Pressure (Pa).
+        Pressure [Pa].
     beta : float
-        Vapor phase fraction (mol/mol).
+        Vapor phase fraction [mol/mol].
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
     T0 : float
-        Initial guess for temperature (K).
+        Initial guess for temperature [K].
     maxiter : int
         Maximum number of iterations.   
     atol_inner : float
@@ -321,17 +321,17 @@ def flash2_TV(
     Parameters
     ----------
     F : float
-        Feed mole flowrate (mol/s).
+        Feed mole flowrate [mol/s].
     z : FloatVector
-        Feed mole fractions (mol/mol).
+        Feed mole fractions [mol/mol].
     T : float
-        Temperature (K).
+        Temperature [K].
     beta : float
-        Vapor phase fraction (mol/mol).
+        Vapor phase fraction [mol/mol].
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
     P0 : float
-        Initial guess for pressure (Pa).
+        Initial guess for pressure [Pa].
     maxiter : int
         Maximum number of iterations.   
     atol_inner : float
@@ -455,9 +455,9 @@ def solve_Rachford_Rice(
     K : FloatVector(N)
         K-values.
     z : FloatVector(N)
-        Feed mole fractions (mol/mol).
+        Feed mole fractions [mol/mol].
     beta0 : float | None
-        Initial guess for vapor phase fraction (mol/mol).
+        Initial guess for vapor phase fraction [mol/mol].
     maxiter : int
         Maximum number of iterations.
     atol_res : float
@@ -553,11 +553,11 @@ def residual_Rachford_Rice(
     Parameters
     ----------
     beta : float
-        Vapor phase fraction (mol/mol).
+        Vapor phase fraction [mol/mol].
     K : FloatVector(N)
         K-values.
     z : FloatVector(N)
-        Feed mole fractions (mol/mol).
+        Feed mole fractions [mol/mol].
     derivative : bool
         Flag specifying if the derivative should be returned.
 
