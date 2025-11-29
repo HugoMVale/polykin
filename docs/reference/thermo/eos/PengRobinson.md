@@ -2,6 +2,7 @@
 
 ::: polykin.thermo.eos.cubic
     options:
+        show_bases: true
         members:
             - PengRobinson
 

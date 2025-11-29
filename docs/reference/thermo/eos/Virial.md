@@ -2,6 +2,7 @@
 
 ::: polykin.thermo.eos
     options:
+        show_bases: true
         members:
             - Virial
 

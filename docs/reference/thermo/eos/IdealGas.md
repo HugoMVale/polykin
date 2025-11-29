@@ -2,6 +2,7 @@
 
 ::: polykin.thermo.eos.idealgas
     options:
+        show_bases: true
         members:
             - IdealGas
 
