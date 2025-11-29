@@ -12,7 +12,7 @@ from scipy.constants import gas_constant as R
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike, FloatMatrix
+from polykin.utils.types import FloatMatrix, FloatSquareMatrix, FloatVector
 
 from .base import PolymerActivityModel
 
@@ -283,16 +283,16 @@ def PolyNRTL_a(phi: FloatVector,
 
     Parameters
     ----------
-    phi : FloatVector
+    phi : FloatVector (N)
         Volume, mass or segment fractions of all components, $\phi_i$. The
         composition variable must match the one used in the determination of
         $\chi_{ij}$.
-    m : FloatVector
+    m : FloatVector (N)
         Characteristic size of all components, typically equal to 1 for small
         molecules and equal to the average degree of polymerization for
         polymers.
-    chi : FloatSquareMatrix
-        Matrix (NxN) of interaction parameters, $\chi_{ij}$. It is expected
+    chi : FloatSquareMatrix (N,N)
+        Matrix of interaction parameters, $\chi_{ij}$. It is expected
         (but not checked) that $\chi_{ij}=\chi_{ji}$ and $\chi_{ii}=0$.
 
     Returns
@@ -300,10 +300,10 @@ def PolyNRTL_a(phi: FloatVector,
     FloatVector
         Activities of all components.
 
-    !!! note annotate "See also"
-
-        * [`FloryHuggins2_a`](FloryHuggins2_a.md): equivalent method for
-          binary solvent-polymer systems.
+    See also
+    --------
+    * [`FloryHuggins2_a`](FloryHuggins2_a.md): equivalent method for binary
+      solvent-polymer systems.
     """
     A = dot(phi, 1/m)
     B = dot(chi, phi)
