@@ -59,17 +59,17 @@ class NRTL(SmallSpeciesActivityModel):
     a : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     b : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0. Unit = K.
+        Matrix of interaction parameters [K], by default 0.
     c : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.3. Only the upper
         triangle must be supplied.
     d : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0. Only the upper triangle
-        must be supplied. Unit = 1/K.
+        Matrix of interaction parameters [1/K], by default 0. Only the upper
+        triangle must be supplied.
     e : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters, by default 0.
     f : FloatSquareMatrix (N,N) | None
-        Matrix of interaction parameters, by default 0.
+        Matrix of interaction parameters [1/K], by default 0.
     name: str
         Name.
 
@@ -151,7 +151,7 @@ class NRTL(SmallSpeciesActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -171,7 +171,7 @@ class NRTL(SmallSpeciesActivityModel):
         Parameters
         ----------
         T : float
-            Temperature. Unit = K.
+            Temperature [K].
 
         Returns
         -------
@@ -218,7 +218,7 @@ def NRTL_gamma(x: FloatVector,
     Parameters
     ----------
     x : FloatVector (N)
-        Mole fractions of all components. Unit = mol/mol.
+        Mole fractions of all components [mol/mol].
     tau : FloatSquareMatrix (N,N)
         Interaction parameters, $\tau_{ij}$. It is expected (but not checked)
         that $\tau_{ii}=0$.
