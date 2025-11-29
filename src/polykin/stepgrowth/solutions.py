@@ -55,7 +55,6 @@ def Case_1(pB: float,
         Conversion of B groups.
     r_BB_AA : float
         Initial molar ratio of BB/AA molecules (or, equivalently, B/A groups).
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBB : float
@@ -133,7 +132,6 @@ def Case_3(pB: float,
         Conversion of C groups.
     r_BC_AA : float
         Initial molar ratio of BC/AA molecules.
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBC : float
@@ -210,10 +208,8 @@ def Case_5(pB: float,
         Conversion of C groups.
     r_BC_A : float
         Initial molar ratio of (B + C)/A groups.
-        Unit = mol/mol.
     r_C_B : float
         Initial molar ratio of C/B groups.
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBB : float
@@ -288,7 +284,6 @@ def Case_6(pC: float,
         Conversion of C groups.
     r_BC_AA : float
         Initial molar ratio of BC/AA molecules.
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBC : float
@@ -360,7 +355,6 @@ def Case_7(pA: float,
         Conversion of C groups.
     r_CD_AB : float
         Initial molar ratio of CD/AB molecules.
-        Unit = mol/mol.
     MAB : float
         Molar mass of a reacted AB unit.
     MCD : float
@@ -433,10 +427,8 @@ def Case_8(pB: float,
         Conversion of C groups.
     r_BC_A : float
         Initial molar ratio of (B + C)/A groups.
-        Unit = mol/mol.
     r_CC_BB : float
         Initial molar ratio of CC/BB molecules (or, equivalently, C/B groups).
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBB : float
@@ -519,13 +511,10 @@ def Case_9(pB: float,
         Conversion of D groups.
     r_CD_AB : float
         Initial molar ratio of (C+D)/(A+B) groups.
-        Unit = mol/mol.
     r_BB_AA : float
         Initial molar ratio of BB/AA molecules (or, equivalently, B/A groups).
-        Unit = mol/mol.
     r_DD_CC : float
         Initial molar ratio of DD/CC molecules (or, equivalently, D/C groups).
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBB : float
@@ -613,10 +602,8 @@ def Case_10(pB: float,
         Conversion of D groups.
     r_BCD_A : float
         Initial molar ratio of (B + C + D)/A groups.
-        Unit = mol/mol.
     r_BC_DD : float
         Initial molar ratio of BC/DD molecules.
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBC : float
@@ -698,10 +685,8 @@ def Case_11(pB: float,
         Conversion of D groups.
     r_BC_AA : float
         Initial molar ratio of BC/AA molecules.
-        Unit = mol/mol.
     r_DD_AA : float
         Initial molar ratio of DD/AA molecules.
-        Unit = mol/mol.
     MAA : float
         Molar mass of a reacted AA unit.
     MBC : float
@@ -778,11 +763,9 @@ def Stockmayer(nA: FloatVectorLike,
     Parameters
     ----------
     nA : FloatVectorLike
-        Vector (N) with relative mole amounts of A monomers.
-        Unit = mol or mol/mol.
+        Vector (N) with relative mole amounts of A monomers [mol or mol/mol].
     nB : FloatVectorLike
-        Vector (M) with relative mole amounts of B monomers.
-        Unit = mol or mol/mol.
+        Vector (M) with relative mole amounts of B monomers [mol or mol/mol].
     f : IntVectorLike
         Vector (N) with functionality of A monomers.
     g : IntVectorLike
@@ -938,14 +921,11 @@ def Miller_1(nAf: float,
     Parameters
     ----------
     nAf : float
-        Relative mole amount of Af monomer.
-        Unit = mol or mol/mol.
+        Relative mole amount of Af monomer [mol or mol/mol].
     nA2 : float
-        Relative mole amount of A₂ monomer.
-        Unit = mol or mol/mol.
+        Relative mole amount of A₂ monomer [mol or mol/mol].
     nB2 : float
-        Relative mole amount of B¹B² monomer.
-        Unit = mol or mol/mol.
+        Relative mole amount of B¹B² monomer [mol or mol/mol].
     f : int
         Functionality of Af.
     MAf : float
@@ -1035,11 +1015,9 @@ def Miller_2(nAf: float,
     Parameters
     ----------
     nAf : float
-        Relative mole amount of Af monomer.
-        Unit = mol or mol/mol.
+        Relative mole amount of Af monomer [mol or mol/mol].
     nB2 : float
-        Relative mole amount of B₂ monomer.
-        Unit = mol or mol/mol.
+        Relative mole amount of B₂ monomer [mol or mol/mol].
     f : int
         Functionality of Af.
     MAf : float
