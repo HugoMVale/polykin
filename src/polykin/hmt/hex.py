@@ -31,22 +31,22 @@ def U_plane_wall(h1: float,
     Parameters
     ----------
     h1 : float
-        Heat transfer coefficient at surface 1 (W/(m²·K)).
+        Heat transfer coefficient at surface 1 [W/(m²·K)].
     h2 : float
-        Heat transfer coefficient at surface 2 (W/(m²·K)).
+        Heat transfer coefficient at surface 2 [W/(m²·K)].
     L : float
-        Wall thickness (m).
+        Wall thickness [m].
     k : float
-        Wall thermal conductivity (W/(m·K)).
+        Wall thermal conductivity [W/(m·K)].
     Rf1 : float
-        Fouling factor at surface 1 ((m²·K)/W).
+        Fouling factor at surface 1 [(m²·K)/W].
     Rf2 : float
-        Fouling factor at surface 2 ((m²·K)/W).
+        Fouling factor at surface 2 [(m²·K)/W].
 
     Returns
     -------
     float
-        Overall heat transfer coefficient (W/(m²·K)).
+        Overall heat transfer coefficient [W/(m²·K)].
 
     See also
     --------
@@ -98,24 +98,24 @@ def U_cylindrical_wall(hi: float,
     Parameters
     ----------
     hi : float
-        Heat transfer coefficient at inner surface (W/(m²·K)).
+        Heat transfer coefficient at inner surface [W/(m²·K)].
     ho : float
-        Heat transfer coefficient at outer surface (W/(m²·K)).
+        Heat transfer coefficient at outer surface [W/(m²·K)].
     di : float
-        Inner diameter (m).
+        Inner diameter [m].
     do : float
-        Outer diameter (m).
+        Outer diameter [m].
     k : float
-        Wall thermal conductivity (W/(m·K)).
+        Wall thermal conductivity [W/(m·K)].
     Rfi : float
-        Fouling factor at inner surface ((m²·K)/W).
+        Fouling factor at inner surface [(m²·K)/W].
     Rfo : float
-        Fouling factor at outer surface ((m²·K)/W).
+        Fouling factor at outer surface [(m²·K)/W].
 
     Returns
     -------
     float
-        Overall heat transfer coefficient based on outer surface (W/(m²·K)).
+        Overall heat transfer coefficient based on outer surface [W/(m²·K)].
 
     See also
     --------

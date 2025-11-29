@@ -43,11 +43,11 @@ def profile_constc_semiinf(t: float,
     Parameters
     ----------
     t : float
-        Time (s).
+        Time [s].
     x : float
-        Distance from surface (m).
+        Distance from surface [m].
     D : float
-        Diffusion coefficient (m²/s).
+        Diffusion coefficient [m²/s].
 
     Returns
     -------
