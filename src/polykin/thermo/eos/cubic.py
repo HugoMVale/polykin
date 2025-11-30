@@ -51,7 +51,8 @@ class CubicEoS(GasLiquidEoS):
 
     where $T_c$ is the critical temperature, $P_c$ is the critical pressure,
     $\Omega_a$ and $\Omega_b$ are numerical constants that determine the
-    specific EOS, and $\alpha(T)$ is a temperature-dependent function.
+    specific EOS, and $\alpha(T)$ is a dimensionless temperature-dependent
+    function.
 
     To implement a specific cubic EOS, subclasses must:
 
@@ -63,7 +64,6 @@ class CubicEoS(GasLiquidEoS):
 
     *   RC Reid, JM Prausniz, and BE Poling. The properties of gases &
         liquids 4th edition, 1986, p. 42.
-
     """
 
     Tc: FloatVector
@@ -80,7 +80,7 @@ class CubicEoS(GasLiquidEoS):
                  Pc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix],
-                 name: str = ''
+                 name: str = ""
                  ) -> None:
 
         Tc, Pc, w = convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, w])
@@ -430,6 +430,7 @@ class RedlichKwong(CubicEoS):
     name : str
         Name.
     """
+
     _u = 1.0
     _w = 0.0
     _Ωa = 0.42748
@@ -439,7 +440,7 @@ class RedlichKwong(CubicEoS):
                  Tc: Union[float, FloatVectorLike],
                  Pc: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None,
-                 name: str = ''
+                 name: str = ""
                  ) -> None:
 
         w = np.zeros_like(Tc) if isinstance(Tc, Iterable) else 0.0
@@ -465,7 +466,7 @@ class SoaveRedlichKwong(CubicEoS):
 
     \begin{aligned}
     a &= 0.42748 \frac{R^2 T_{c}^2}{P_{c}} [1 + f_\omega(1 - T_{r}^{1/2})]^2 \\
-    f_\omega &= 0.48 + 1.574\omega - 0.176\omega^2 \\
+    f_\omega &= 0.48 + 1.574\omega -0.176\omega^2 \\
     b &= 0.08664\frac{R T_{c}}{P_{c}}
     \end{aligned}
 
@@ -487,28 +488,40 @@ class SoaveRedlichKwong(CubicEoS):
         Acentric factors of all components.
     k : FloatSquareMatrix (N,N) | None
         Binary interaction parameter matrix.
+    use_graboski : bool
+        If `True`, use Graboski & Daubert's improved $f_\omega$ expression.
+        Otherwise, use Soave's original expression.
     name : str
         Name.
     """
+
     _u = 1.0
     _w = 0.0
     _Ωa = 0.42748
     _Ωb = 0.08664
+    use_graboski: bool
 
     def __init__(self,
                  Tc: Union[float, FloatVectorLike],
                  Pc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None,
-                 name: str = ''
+                 use_graboski: bool = False,
+                 name: str = ""
                  ) -> None:
 
         super().__init__(Tc, Pc, w, k, name)
+        self.use_graboski = use_graboski
 
     def _alpha(self, T: float) -> FloatVector:
         w = self.w
         Tr = T/self.Tc
-        fw = 0.48 + 1.574*w - 0.176*w**2
+
+        if self.use_graboski:
+            fw = 0.48508 + 1.55171*w - 0.1561*w**2
+        else:
+            fw = 0.48 + 1.574*w - 0.176*w**2
+
         return (1.0 + fw*(1.0 - sqrt(Tr)))**2
 
 
@@ -553,6 +566,7 @@ class PengRobinson(CubicEoS):
     name : str
         Name.
     """
+
     _u = 2.0
     _w = -1.0
     _Ωa = 0.45724
@@ -563,7 +577,7 @@ class PengRobinson(CubicEoS):
                  Pc: Union[float, FloatVectorLike],
                  w: Union[float, FloatVectorLike],
                  k: Optional[FloatSquareMatrix] = None,
-                 name: str = ''
+                 name: str = ""
                  ) -> None:
 
         super().__init__(Tc, Pc, w, k, name)
