@@ -4,7 +4,7 @@
 
 import functools
 from abc import abstractmethod
-from typing import Iterable, Literal, Optional, Union
+from typing import Iterable, Literal
 
 # import matplotlib.pyplot as plt
 import numpy as np
@@ -15,6 +15,7 @@ from scipy.constants import R
 
 from polykin.math import fixpoint_wegstein
 from polykin.properties.pvt.mixing_rules import geometric_interaction_mixing
+from polykin.properties.vaporization import PL_Wilson
 from polykin.utils.exceptions import ConvergenceError
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
@@ -22,6 +23,7 @@ from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 from .base import GasLiquidEoS
 
 __all__ = [
+    'CubicEoS',
     'PengRobinson',
     'RedlichKwong',
     'SoaveRedlichKwong',
@@ -69,17 +71,17 @@ class CubicEoS(GasLiquidEoS):
     Tc: FloatVector
     Pc: FloatVector
     w: FloatVector
-    k: Optional[FloatSquareMatrix]
+    k: FloatSquareMatrix | None
     _u: float
     _w: float
     _Ωa: float
     _Ωb: float
 
     def __init__(self,
-                 Tc: Union[float, FloatVectorLike],
-                 Pc: Union[float, FloatVectorLike],
-                 w: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix],
+                 Tc: float | FloatVectorLike,
+                 Pc: float | FloatVectorLike,
+                 w: float | FloatVectorLike,
+                 k: FloatSquareMatrix | None,
                  name: str = ""
                  ) -> None:
 
@@ -228,10 +230,10 @@ class CubicEoS(GasLiquidEoS):
         float
             Pressure [Pa].
         """
-        am = self.am(T, z)
-        bm = self.bm(z)
         u = self._u
         w = self._w
+        am = self.am(T, z)
+        bm = self.bm(z)
         return R*T/(v - bm) - am/(v**2 + u*v*bm + w*bm**2)
 
     def Z(self,
@@ -261,7 +263,8 @@ class CubicEoS(GasLiquidEoS):
         """
         A = self.am(T, z)*P/(R*T)**2
         B = self.bm(z)*P/(R*T)
-        return Z_cubic_roots(self._u, self._w, A, B)
+        Z = Z_cubic_roots(self._u, self._w, A, B)
+        return Z
 
     def phi(self,
             T: float,
@@ -365,7 +368,7 @@ class CubicEoS(GasLiquidEoS):
             raise ValueError(f"T >= Tc = {self.Tc[0]} K.")
 
         if Psat0 is None:
-            Psat0 = Psat_guess_Wilson(T, self.Tc[0], self.Pc[0], self.w[0])
+            Psat0 = PL_Wilson(T, self.Tc[0], self.Pc[0], self.w[0])
 
         # Solve as fixed-point problem (Newton fails when T is close to Tc)
         def g(x, T=T, z=np.array([1.0])):
@@ -437,9 +440,9 @@ class RedlichKwong(CubicEoS):
     _Ωb = 0.08664
 
     def __init__(self,
-                 Tc: Union[float, FloatVectorLike],
-                 Pc: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix] = None,
+                 Tc: float | FloatVectorLike,
+                 Pc: float | FloatVectorLike,
+                 k: FloatSquareMatrix | None = None,
                  name: str = ""
                  ) -> None:
 
@@ -502,11 +505,11 @@ class SoaveRedlichKwong(CubicEoS):
     use_graboski: bool
 
     def __init__(self,
-                 Tc: Union[float, FloatVectorLike],
-                 Pc: Union[float, FloatVectorLike],
-                 w: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix] = None,
-                 use_graboski: bool = False,
+                 Tc: float | FloatVectorLike,
+                 Pc: float | FloatVectorLike,
+                 w: float | FloatVectorLike,
+                 k: FloatSquareMatrix | None = None,
+                 use_graboski: bool = True,
                  name: str = ""
                  ) -> None:
 
@@ -573,10 +576,10 @@ class PengRobinson(CubicEoS):
     _Ωb = 0.07780
 
     def __init__(self,
-                 Tc: Union[float, FloatVectorLike],
-                 Pc: Union[float, FloatVectorLike],
-                 w: Union[float, FloatVectorLike],
-                 k: Optional[FloatSquareMatrix] = None,
+                 Tc: float | FloatVectorLike,
+                 Pc: float | FloatVectorLike,
+                 w: float | FloatVectorLike,
+                 k: FloatSquareMatrix | None = None,
                  name: str = ""
                  ) -> None:
 
@@ -647,8 +650,3 @@ def Z_cubic_roots(
         Z.append(max(roots))
 
     return np.array(Z)
-
-
-def Psat_guess_Wilson(T: float, Tc: float, Pc: float, w: float) -> float:
-    """Estimate the saturation pressure of a pure component."""
-    return Pc*exp(5.37**(1 + w)*(1 - Tc/T))
