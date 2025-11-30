@@ -2,13 +2,13 @@
 #
 # Copyright Hugo Vale 2023
 
-import numpy as np
 import pytest
-from numpy import isclose
+from numpy import isclose, log10
 
 from polykin.properties.vaporization import (DHVL_Kistiakowsky_Vetere,
                                              DHVL_Pitzer, DHVL_Vetere,
-                                             DHVL_Watson, PL_Lee_Kesler)
+                                             DHVL_Watson, PL_Lee_Kesler,
+                                             PL_Wilson)
 
 
 def test_hvap_pitzer():
@@ -64,3 +64,14 @@ def test_PL_Lee_Kesler():
     # trivial consistency check
     res = PL_Lee_Kesler(Tb, Tb, Tc, Pc)
     assert isclose(res, 101325.0)
+
+
+def test_PL_Wilson():
+    Tb = 418.3
+    Tc = 647.0
+    Pc = 39.9e5
+    w = 0.257
+    assert isclose(PL_Wilson(Tc, Tc, Pc, w), Pc)
+    Pvap = PL_Wilson(Tc*0.7, Tc, Pc, w)
+    assert isclose(log10(Pc/Pvap) - 1.0, w, rtol=1e-3)
+    assert isclose(PL_Wilson(Tb, Tc, Pc, w), 101325.0, rtol=5e-2)

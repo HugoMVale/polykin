@@ -4,7 +4,7 @@
 
 from numpy import exp, log
 
-__all__ = ['PL_Lee_Kesler']
+__all__ = ['PL_Lee_Kesler', 'PL_Wilson']
 
 
 def PL_Lee_Kesler(
@@ -63,3 +63,49 @@ def PL_Lee_Kesler(
     w = a/b
 
     return Pc*exp(f0 + w*f1)
+
+
+def PL_Wilson(
+    T: float,
+    Tc: float,
+    Pc: float,
+    w: float
+) -> float:
+    r"""Estimate the vapor pressure of a pure compound using the Wilson 
+    approximation.
+
+    $$ \ln \frac{P_{vap}}{P_c} = 5.373(1 + \omega)(1 - 1/T_r) $$
+
+    where $P_{vap}$ is the vapor pressure, $P_c$ is the critical pressure,
+    $\omega$ is the acentric factor, and $T_r$ is the reduced temperature.
+
+    **References**
+
+    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
+        4th edition, 1986, p. 207.
+
+    Parameters
+    ----------
+    T : float
+        Temperature [K].
+    Tc : float
+        Critical temperature [K].
+    Pc : float
+        Critical pressure [Pa].
+    w : float
+        Acentric factor.
+
+    Returns
+    -------
+    float
+        Vapor pressure [Pa].
+
+    Examples
+    --------
+    Estimate the vapor pressure of water at 100°C.
+    >>> from polykin.properties.vaporization import PL_Wilson
+    >>> pvap = PL_Wilson(373.15, Tc=647.3, Pc=221.2e5, w=0.344)
+    >>> print(f"{pvap:.1e} Pa")
+    1.1e+05 Pa
+    """
+    return Pc*exp(5.373*(1 + w)*(1 - Tc/T))
