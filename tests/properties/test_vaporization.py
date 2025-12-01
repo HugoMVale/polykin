@@ -7,8 +7,8 @@ from numpy import isclose, log10
 
 from polykin.properties.vaporization import (DHVL_Kistiakowsky_Vetere,
                                              DHVL_Pitzer, DHVL_Vetere,
-                                             DHVL_Watson, PL_Lee_Kesler,
-                                             PL_Wilson)
+                                             DHVL_Watson, PL_Ambrose_Walton,
+                                             PL_Lee_Kesler, PL_Wilson)
 
 
 def test_hvap_pitzer():
@@ -75,3 +75,12 @@ def test_PL_Wilson():
     Pvap = PL_Wilson(Tc*0.7, Tc, Pc, w)
     assert isclose(log10(Pc/Pvap) - 1.0, w, rtol=1e-3)
     assert isclose(PL_Wilson(Tb, Tc, Pc, w), 101325.0, rtol=5e-2)
+
+
+def test_PL_Ambrose_Walton():
+    "Acetone"
+    Tc = 508
+    Pc = 47e5
+    w = 0.309
+    Pvap = PL_Ambrose_Walton(329.0, Tc, Pc, w)
+    assert isclose(Pvap, 101325, rtol=5e-2)
