@@ -100,7 +100,7 @@ class Wilson(SmallSpeciesActivityModel):
 
         # Ensure Lambda_ii=1
         for array in [a, b, c, d]:
-            np.fill_diagonal(array, 0.)
+            np.fill_diagonal(array, 0.0)
 
         super().__init__(N, name)
         self._a = a
