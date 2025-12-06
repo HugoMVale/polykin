@@ -6,6 +6,7 @@
 * [Poisson](Poisson.md)
 * [SchulzZimm](SchulzZimm.md)
 * [WeibullNycanderGold_pdf](WeibullNycanderGold_pdf.md)
+* [convert_polymer_standards](convert_polymer_standards.md)
 * [convolve_moments](convolve_moments.md)
 * [convolve_moments_self](convolve_moments_self.md)
 * [plotdists](plotdists.md)
