@@ -3,4 +3,4 @@
 ::: polykin.distributions.misc
     options:
         members:
-            - convolve_moments_self
+            - reconstruct_Laguerre

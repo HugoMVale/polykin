@@ -10,3 +10,4 @@
 * [convolve_moments](convolve_moments.md)
 * [convolve_moments_self](convolve_moments_self.md)
 * [plotdists](plotdists.md)
+* [reconstruct_Laguerre](reconstruct_Laguerre.md)

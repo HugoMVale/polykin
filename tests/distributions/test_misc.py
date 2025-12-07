@@ -2,9 +2,11 @@
 #
 # Copyright Hugo Vale 2025
 
+import numpy as np
 from numpy import allclose, isclose
 
-from polykin.distributions import convert_polymer_standards
+from polykin.distributions import (Flory, convert_polymer_standards,
+                                   reconstruct_Laguerre)
 
 
 def test_convert_polymer_standards():
@@ -20,3 +22,13 @@ def test_convert_polymer_standards():
     # vector
     M2 = convert_polymer_standards([20.0, 100., 200.0], K1, K2, a1, a2)
     assert allclose(M2, [15.87,  85.68, 177.07], rtol=1e-3)
+
+
+def test_reconstruct_Laguerre():
+    d = Flory(100)
+    moments = [d._moment_length(i) for i in range(4)]
+    drec = reconstruct_Laguerre(moments)
+    n = np.arange(1, 5*d.DPz, 1)
+    pdf = drec(n)
+    for i in range(len(moments)):
+        assert isclose(np.dot(n**i, pdf), moments[i], rtol=1e-2)

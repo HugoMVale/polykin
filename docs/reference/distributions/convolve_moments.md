@@ -1,6 +1,6 @@
 # Distributions (polykin.distributions)
 
-::: polykin.distributions.base
+::: polykin.distributions.misc
     options:
         members:
             - convolve_moments
