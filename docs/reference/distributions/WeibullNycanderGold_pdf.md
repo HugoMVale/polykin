@@ -1,6 +1,6 @@
 # polykin.distributions
 
-::: polykin.distributions.analyticaldistributions
+::: polykin.distributions.gold
     options:
         members:
             - WeibullNycanderGold_pdf
