@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2025
 
 import numpy as np
-from numpy import isclose
+from numpy import allclose, isclose
 
 from polykin.distributions import WeibullNycanderGold_pdf
 
@@ -19,11 +19,11 @@ def test_WeibullNycanderGold_pdf():
     r = 2.0
     p0 = 0.3679
     res = _moments(p0, r)
-    assert np.all(isclose(res, (2.164, 2.849), rtol=1e-3))
+    assert allclose(res, (2.164, 2.849), rtol=1e-3)
     r = 10.0
     p0 = 0.4594
     res = _moments(p0, r)
-    assert np.all(isclose(res, (5.388, 7.110), rtol=1e-3))
+    assert allclose(res, (5.388, 7.110), rtol=1e-3)
 
 
 def _moments(p0, r):
