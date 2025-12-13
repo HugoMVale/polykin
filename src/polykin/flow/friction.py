@@ -6,6 +6,7 @@ from numpy import inf, log10, pi, sqrt
 from scipy.constants import g
 
 from polykin.math import root_newton
+from polykin.utils.exceptions import RootSolverError
 from polykin.utils.tools import check_range_warn
 
 __all__ = ['fD_Colebrook',
@@ -22,11 +23,12 @@ __all__ = ['fD_Colebrook',
            ]
 
 
-def DP_Hagen_Poiseuille(Q: float,
-                        D: float,
-                        L: float,
-                        mu: float
-                        ) -> float:
+def DP_Hagen_Poiseuille(
+    Q: float,
+    D: float,
+    L: float,
+    mu: float
+) -> float:
     r"""Calculate the pressure drop in a circular pipe using the
     Hagen-Poiseuille equation.
 
@@ -76,12 +78,13 @@ def DP_Hagen_Poiseuille(Q: float,
     return 128*mu*Q*L/(pi*D**4)
 
 
-def DP_Darcy_Weisbach(v: float,
-                      D: float,
-                      L: float,
-                      rho: float,
-                      fD: float,
-                      ) -> float:
+def DP_Darcy_Weisbach(
+    v: float,
+    D: float,
+    L: float,
+    rho: float,
+    fD: float,
+) -> float:
     r"""Calculate the pressure drop in a circular pipe using the Darcy-Weisbach
     equation.
 
@@ -146,13 +149,14 @@ def DP_Darcy_Weisbach(v: float,
     return fD * rho / 2 * v**2 / D * L
 
 
-def DP_tube(Q: float,
-            D: float,
-            L: float,
-            rho: float,
-            mu: float,
-            er: float = 0.0
-            ) -> float:
+def DP_tube(
+    Q: float,
+    D: float,
+    L: float,
+    rho: float,
+    mu: float,
+    er: float = 0.0
+) -> float:
     r"""Calculate the pressure drop due to friction for flow through a circular
     pipe.
 
@@ -214,13 +218,14 @@ def DP_tube(Q: float,
     return DP_Darcy_Weisbach(v, D, L, rho, fD)
 
 
-def DP_packed_bed(G: float,
-                  L: float,
-                  Dp: float,
-                  eps: float,
-                  rho: float,
-                  mu: float
-                  ) -> float:
+def DP_packed_bed(
+    G: float,
+    L: float,
+    Dp: float,
+    eps: float,
+    rho: float,
+    mu: float
+) -> float:
     r"""Calculate the pressure drop in a packed bed.
 
     In a packed bed, the pressure drop due to friction is given by:
@@ -333,7 +338,12 @@ def fD_Colebrook(Re: float, er: float) -> float:
 
     sol = root_newton(fnc, fD_Haaland(Re, er), 1e-5)
 
-    return sol.x
+    if sol.success:
+        fD = sol.x
+    else:
+        raise RootSolverError("fD_Colebrook: could not converge to a solution.")
+
+    return fD
 
 
 def fD_Haaland(Re: float, er: float) -> float:
@@ -389,16 +399,16 @@ def fD_Haaland(Re: float, er: float) -> float:
     return (1/(1.8*log10((er/3.7)**1.11 + 6.9/Re)))**2
 
 
-def Cd_sphere(Re: float) -> float:
+def Cd_sphere(Rep: float) -> float:
     r"""Calculate the drag coefficient of an isolated sphere.
 
     For laminar as well as for turbulent flow, the drag coefficient is given
     by:
 
-    $$ C_{d} = \frac{24}{Re} \left(1 + 0.173 Re^{0.657}\right) 
-             + \frac{0.413}{1 + 16300 Re^{-1.09}} $$
+    $$ C_{d} = \frac{24}{Re_p} \left(1 + 0.173 Re_p^{0.657}\right) 
+             + \frac{0.413}{1 + 16300 Re_p^{-1.09}} $$
 
-    where $Re$ is the particle Reynolds number.
+    where $Re_p = \rho v D_p / \mu$ is the particle Reynolds number.
 
     **References**
 
@@ -407,7 +417,7 @@ def Cd_sphere(Re: float) -> float:
 
     Parameters
     ----------
-    Re : float
+    Rep : float
         Particle Reynolds number.
 
     Returns
@@ -424,37 +434,38 @@ def Cd_sphere(Re: float) -> float:
     --------
     Calculate the drag coefficient for a tennis ball traveling at 30 m/s.
     >>> from polykin.flow import Cd_sphere
-    >>> D = 6.7e-2  # m
-    >>> mu = 1.6e-5 # Pa·s
-    >>> rho = 1.2   # kg/m³
-    >>> v = 30.     # m/s
-    >>> Re = rho*v*D/mu
-    >>> Cd = Cd_sphere(Re)
+    >>> Dp = 6.7e-2  # m
+    >>> mu = 1.6e-5  # Pa·s
+    >>> rho = 1.2    # kg/m³
+    >>> v = 30.      # m/s
+    >>> Rep = rho*v*Dp/mu
+    >>> Cd = Cd_sphere(Rep)
     >>> print(f"Cd = {Cd:.2f}")
     Cd = 0.47
     """
-    return 24/Re*(1 + 0.173*Re**0.657) + 0.413/(1 + 16300*Re**(-1.09))
+    return 24/Rep*(1 + 0.173*Rep**0.657) + 0.413/(1 + 16300*Rep**(-1.09))
 
 
-def vt_Stokes(D: float,
-              rhop: float,
-              rho: float,
-              mu: float
-              ) -> float:
+def vt_Stokes(
+    Dp: float,
+    rhop: float,
+    rho: float,
+    mu: float
+) -> float:
     r"""Calculate the terminal velocity of an isolated sphere using Stokes' law.
 
-    In laminar flow ($Re \lesssim 0.1$), the terminal velocity of an
+    In laminar flow ($Re_p \lesssim 0.1$), the terminal velocity of an
     isolated particle is given by:
 
-    $$ v_t = \frac{D^2 g (\rho_p - \rho)}{18 \mu} $$
+    $$ v_t = \frac{D_p^2 g (\rho_p - \rho)}{18 \mu} $$
 
-    where $D$ is the particle diameter, $g$ is the acceleration due to gravity,
+    where $D_p$ is the particle diameter, $g$ is the acceleration due to gravity,
     $\rho_p$ is the particle density, $\rho$ is the fluid density, and $\mu$ is
     the fluid viscosity.
 
     Parameters
     ----------
-    D : float
+    Dp : float
         Particle diameter [m].
     rhop : float
         Particle density [kg/m³].
@@ -480,34 +491,35 @@ def vt_Stokes(D: float,
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
     """
-    vt = D**2*g*(rhop - rho)/(18*mu)
+    vt = Dp**2*g*(rhop - rho)/(18*mu)
 
-    Re = rho*vt*D/mu
-    check_range_warn(Re, 0., 0.1, 'Re')
+    Rep = rho*vt*Dp/mu
+    check_range_warn(Rep, 0.0, 0.1, 'Re')
 
     return vt
 
 
-def vt_sphere(D: float,
-              rhop: float,
-              rho: float,
-              mu: float
-              ) -> float:
+def vt_sphere(
+    Dp: float,
+    rhop: float,
+    rho: float,
+    mu: float
+) -> float:
     r"""Calculate the terminal velocity of an isolated sphere in laminar or
     turbulent flow.
 
     In both laminar and turbulent flow, the terminal velocity of an isolated
     sphere is given by:
 
-    $$ v_t = \sqrt{\frac{4 D g (\rho_p - \rho)}{3 C_d \rho}} $$
+    $$ v_t = \sqrt{\frac{4 D_p g (\rho_p - \rho)}{3 C_d \rho}} $$
 
-    where $C_d$ is the drag coefficient. This implementation uses the drag
+    where $C_d(Re_p)$ is the drag coefficient. This implementation uses the drag
     correlation proposed by Turton and Levenspiel.
 
     !!! tip
 
-        In laminar flow, $v_t \propto D^2$, while in turbulent flow, 
-        $v_t \propto D^{1/2}$.
+        In laminar flow, $v_t \propto D_p^2$, while in turbulent flow, 
+        $v_t \propto D_p^{1/2}$.
 
     **References**
 
@@ -516,7 +528,7 @@ def vt_sphere(D: float,
 
     Parameters
     ----------
-    D : float
+    Dp : float
         Particle diameter [m].
     rhop : float
         Particle density [kg/m³].
@@ -546,25 +558,31 @@ def vt_sphere(D: float,
     """
 
     def fnc(vt):
-        Re = rho*vt*D/mu
-        Cd = Cd_sphere(Re)
-        return vt - sqrt(4*D*g*(rhop - rho)/(3*Cd*rho))
+        Rep = rho*vt*Dp/mu
+        Cd = Cd_sphere(Rep)
+        return vt - sqrt(4*Dp*g*(rhop - rho)/(3*Cd*rho))
 
-    sol = root_newton(fnc, x0=1.)
+    sol = root_newton(fnc, x0=1.0)
 
-    return sol.x
+    if sol.success:
+        vt = sol.x
+    else:
+        raise RootSolverError("vt_sphere: could not converge to a solution.")
+
+    return vt
 
 
-def DP_GL_Lockhart_Martinelli(mdotL: float,
-                              mdotG: float,
-                              D: float,
-                              L: float,
-                              rhoL: float,
-                              rhoG: float,
-                              muL: float,
-                              muG: float,
-                              er: float
-                              ) -> float:
+def DP_GL_Lockhart_Martinelli(
+    mdotL: float,
+    mdotG: float,
+    D: float,
+    L: float,
+    rhoL: float,
+    rhoG: float,
+    muL: float,
+    muG: float,
+    er: float
+) -> float:
     r"""Calculate the pressure drop due to friction in two-phase liquid-gas
     flow through a horizontal pipe using the Lockhart-Martinelli correlation.
 
@@ -674,15 +692,16 @@ def DP_GL_Lockhart_Martinelli(mdotL: float,
     return DP
 
 
-def DP_GL_Mueller_Bonn(mdotL: float,
-                       mdotG: float,
-                       D: float,
-                       L: float,
-                       rhoL: float,
-                       rhoG: float,
-                       muL: float,
-                       muG: float
-                       ) -> float:
+def DP_GL_Mueller_Bonn(
+    mdotL: float,
+    mdotG: float,
+    D: float,
+    L: float,
+    rhoL: float,
+    rhoG: float,
+    muL: float,
+    muG: float
+) -> float:
     r"""Calculate the pressure drop due to friction in two-phase liquid-gas
     flow through a horizontal pipe using the Mueller-Bonn correlation.
 
