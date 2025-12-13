@@ -4,7 +4,8 @@
 
 from dataclasses import dataclass
 
-from numpy import log, nan, sqrt
+from numpy import log as ln
+from numpy import nan, sqrt
 
 __all__ = ['area_relief_gas',
            'area_relief_liquid',
@@ -321,18 +322,18 @@ def area_relief_2phase(W: float,
 
     # Critical pressure ratio
     ηc = (1 + (1.0446 - 0.0093431*sqrt(w))*w**(-0.56261)
-          )**(-0.70356+0.014685*log(w))
+          )**(-0.70356+0.014685*ln(w))
 
     # Critical pressure
     Pcf = P1 * ηc
     critical_flow = (P2 <= Pcf)
 
-    # Mass flux (kg/s.m²)
+    # Mass flux [kg/s.m²]
     if critical_flow:
         G = ηc*sqrt(P1/(v1*w))
     else:
         ηa = P2/P1
-        G = sqrt(-2*(w*log(ηa) + (w - 1)*(1 - ηa))) * \
+        G = sqrt(-2*(w*ln(ηa) + (w - 1)*(1 - ηa))) * \
             sqrt(P1/v1)/(w*(1/ηa - 1) + 1)
 
     # Area [mm²]
@@ -434,7 +435,7 @@ def area_relief_2phase_subcooled(Q: float,
     ηa = P2/P1
     high_subcooling = (ηs < ηst)
 
-    # Mass flux (kg/s.m²)
+    # Mass flux [kg/s.m²]
     if high_subcooling:
         critical_flow = (P2 <= Ps)
         P = Ps if critical_flow else P2
@@ -446,7 +447,7 @@ def area_relief_2phase_subcooled(Q: float,
         Pcf = P1 * ηc
         critical_flow = (P2 <= Pcf)
         η = ηc if critical_flow else ηa
-        G = sqrt(2*(1 - ηs) + 2*(ws*ηs*log(ηs/η) - (ws - 1)*(ηs - η))) * \
+        G = sqrt(2*(1 - ηs) + 2*(ws*ηs*ln(ηs/η) - (ws - 1)*(ηs - η))) * \
             sqrt(P1*rho1)/(ws*(ηs/η - 1) + 1)
 
     # Area [mm²]
