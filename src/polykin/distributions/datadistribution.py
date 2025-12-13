@@ -36,7 +36,7 @@ class DataDistribution(IndividualDistribution):
         Switch size input between chain-length (if `False`) or molar
         mass (if `True`).
     M0 : float
-        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
+        Molar mass of the repeating unit [kg/mol].
     name : str
         Name.
     """
