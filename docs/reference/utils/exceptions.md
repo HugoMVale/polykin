@@ -6,8 +6,11 @@
             - ConvergenceError
             - ConvergenceWarning
             - FitError
+            - FitWarning
             - ODESolverError
+            - ODESolverWarning
             - RangeError
             - RangeWarning
             - RootSolverError
+            - RootSolverWarning
             - ShapeError

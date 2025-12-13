@@ -3,8 +3,6 @@
 # Copyright Hugo Vale 2023
 
 
-# %% Exceptions
-
 class ConvergenceError(ValueError):
     pass
 
@@ -17,7 +15,19 @@ class FitError(ValueError):
     pass
 
 
+class FitWarning(Warning):
+    pass
+
+
 class ODESolverError(ValueError):
+    pass
+
+
+class ODESolverWarning(Warning):
+    pass
+
+
+class RangeError(ValueError):
     pass
 
 
@@ -25,7 +35,7 @@ class RangeWarning(Warning):
     pass
 
 
-class RangeError(ValueError):
+class RootSolverWarning(Warning):
     pass
 
 
