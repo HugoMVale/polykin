@@ -31,7 +31,7 @@ def mu_PowerLaw(gdot: float | FloatArray,
     gdot : float | FloatArray
         Shear rate [s⁻¹].
     K : float
-        Consistency [Pa·s^n].
+        Consistency [Pa·sⁿ].
     n : float
         Flow index.
 
@@ -42,11 +42,11 @@ def mu_PowerLaw(gdot: float | FloatArray,
 
     Examples
     --------
-    Determine the viscosity of a fluid with a consistency of 10 Pa·s^n and a
+    Determine the viscosity of a fluid with a consistency of 10 Pa·sⁿ and a
     flow index of 0.2, at a shear rate of 1e3 s⁻¹.
     >>> from polykin.flow import mu_PowerLaw
     >>> gdot = 1e3  # s⁻¹
-    >>> K = 10.0    # Pa·s^n
+    >>> K = 10.0    # Pa·sⁿ
     >>> n = 0.2
     >>> mu = mu_PowerLaw(gdot, K, n)
     >>> print(f"mu={mu:.2e} Pa.s")
