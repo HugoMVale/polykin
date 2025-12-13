@@ -7,6 +7,7 @@ import functools
 import numpy as np
 import scipy.special as sp
 import scipy.stats as st
+from mpmath import polylog
 from numpy import exp, log, pi, sqrt
 
 from polykin.distributions.base import (AnalyticalDistributionP1,
@@ -28,7 +29,7 @@ class Flory(AnalyticalDistributionP1):
 
     $$ p(k) = (1-a)a^{k-1} $$
 
-    where $a=1-1/DP_n$. Mathematically speaking, this is a [geometric
+    where $a = 1 - 1/DP_n$. Mathematically speaking, this is a [geometric
     distribution](https://en.wikipedia.org/wiki/Geometric_distribution).
 
     Parameters
@@ -36,7 +37,7 @@ class Flory(AnalyticalDistributionP1):
     DPn : float
         Number-average degree of polymerization, $DP_n$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
+        Molar mass of the repeating unit [kg/mol].
     name : str
         Name
 
@@ -89,16 +90,19 @@ class Flory(AnalyticalDistributionP1):
     @functools.cache
     def _moment_length(self, order):
         a = self._a
+        p = 1 - a
         if order == 0:
             result = 1.0
         elif order == 1:
-            result = 1/(1 - a)
+            result = 1/p
         elif order == 2:
-            result = 2/(1 - a)**2 - 1/(1 - a)
+            result = 2/p**2 - 1/p
         elif order == 3:
-            result = 6/(1 - a)**3 - 6/(1 - a)**2 + 1/(1 - a)
+            result = 6/p**3 - 6/p**2 + 1/p
+        elif order == 4:
+            result = 24/p**4 - 36/p**3 + 14/p**2 - 1/p
         else:
-            raise ValueError("Not defined for order>3.")
+            result = float(p/a*polylog(-order, a))
         return result
 
     def _cdf_length(self, k, order):
@@ -112,11 +116,11 @@ class Flory(AnalyticalDistributionP1):
         return result / self._moment_length(order)
 
     def _random_length(self, size):
-        return self._rng.geometric((1-self._a), size)  # type: ignore
+        return self._rng.geometric((1 - self._a), size)  # type: ignore
 
     @functools.cached_property
     def _range_length_default(self):
-        return st.geom.ppf(self._ppf_bounds, p=(1-self._a))
+        return st.geom.ppf(self._ppf_bounds, p=(1 - self._a))
 
 
 class Poisson(AnalyticalDistributionP1):
@@ -127,14 +131,14 @@ class Poisson(AnalyticalDistributionP1):
 
     $$ p(k) = \frac{a^{k-1} e^{-a}}{\Gamma(k)} $$
 
-    where $a=DP_n-1$.
+    where $a = DP_n - 1$.
 
     Parameters
     ----------
     DPn : float
         Number-average degree of polymerization, $DP_n$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
+        Molar mass of the repeating unit [kg/mol].
     name : str
         Name
 
@@ -196,7 +200,9 @@ class Poisson(AnalyticalDistributionP1):
         elif order == 3:
             result = a**3 + 6*a**2 + 7*a + 1
         else:
-            raise ValueError("Not defined for order>3.")
+            # https://arxiv.org/pdf/2312.00704
+            result = sum(sp.stirling2(order + 1, j)*a**(j - 1)
+                         for j in range(1, order + 2))
         return result
 
     def _cdf_length(self, k, order):
@@ -236,7 +242,7 @@ class LogNormal(AnalyticalDistributionP2):
     PDI : float
         Polydispersity index, $PDI$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
+        Molar mass of the repeating unit [kg/mol].
     name : str
         Name.
 
@@ -247,7 +253,7 @@ class LogNormal(AnalyticalDistributionP2):
     chain lengths.
 
     >>> from polykin.distributions import LogNormal
-    >>> a = LogNormal(100, PDI=3., M0=0.050, name='A')
+    >>> a = LogNormal(100, PDI=3.0, M0=0.050, name='A')
     >>> a
     type: LogNormal
     name: A
@@ -344,7 +350,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     PDI : float
         Polydispersity index, $PDI$.
     M0 : float
-        Molar mass of the repeating unit, $M_0$. Unit = kg/mol.
+        Molar mass of the repeating unit [kg/mol].
     name : str
         Name.
 
@@ -355,7 +361,7 @@ class SchulzZimm(AnalyticalDistributionP2):
     representative chain lengths.
 
     >>> from polykin.distributions import SchulzZimm
-    >>> a = SchulzZimm(100, PDI=3., M0=0.050, name='A')
+    >>> a = SchulzZimm(100, PDI=3.0, M0=0.050, name='A')
     >>> a
     type: SchulzZimm
     name: A
