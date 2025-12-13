@@ -29,7 +29,7 @@ def mu_PowerLaw(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate [1/s].
+        Shear rate [s⁻¹].
     K : float
         Consistency [Pa·s^n].
     n : float
@@ -43,9 +43,9 @@ def mu_PowerLaw(gdot: float | FloatArray,
     Examples
     --------
     Determine the viscosity of a fluid with a consistency of 10 Pa·s^n and a
-    flow index of 0.2, at a shear rate of 1e3 1/s.
+    flow index of 0.2, at a shear rate of 1e3 s⁻¹.
     >>> from polykin.flow import mu_PowerLaw
-    >>> gdot = 1e3  # 1/s
+    >>> gdot = 1e3  # s⁻¹
     >>> K = 10.0    # Pa·s^n
     >>> n = 0.2
     >>> mu = mu_PowerLaw(gdot, K, n)
@@ -73,7 +73,7 @@ def mu_Cross(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate [1/s].
+        Shear rate [s⁻¹].
     mu0 : float
         Zero-shear viscosity [Pa·s].
     lmbda : float
@@ -95,9 +95,9 @@ def mu_Cross(gdot: float | FloatArray,
     --------
     Determine the viscosity of a fluid with a zero-shear viscosity of 1.0 Pa·s,
     a relaxation time of 1 second, and a power-law index of 0.2, at a shear rate
-    of 20 1/s.
+    of 20 s⁻¹.
     >>> from polykin.flow import mu_Cross
-    >>> gdot = 20.0   # 1/s
+    >>> gdot = 20.0   # s⁻¹
     >>> mu0 = 1.0     # Pa·s
     >>> lmbda = 1.0   # s
     >>> n = 0.2
@@ -126,11 +126,11 @@ def mu_Cross_modified(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate [1/s].
+        Shear rate [s⁻¹].
     mu0 : float
         Zero-shear viscosity [Pa·s].
     C : float
-        Relaxation constant [1/Pa].
+        Relaxation constant [Pa⁻¹].
     n : float
         Power-law index.
 
@@ -146,12 +146,12 @@ def mu_Cross_modified(gdot: float | FloatArray,
     Examples
     --------
     Determine the viscosity of a fluid with a zero-shear viscosity of 1e6 Pa·s,
-    a relaxation constant of 2e-5 1/Pa, and a power-law index of 0.2, at a shear
-    rate of 1.0 1/s.
+    a relaxation constant of 2e-5 Pas⁻¹, and a power-law index of 0.2, at a shear
+    rate of 1.0 s⁻¹.
     >>> from polykin.flow import mu_Cross_modified
-    >>> gdot = 1.0  # 1/s
+    >>> gdot = 1.0  # s⁻¹
     >>> mu0 = 1e6   # Pa·s
-    >>> C = 2e-5    # 1/Pa
+    >>> C = 2e-5    # Pa⁻¹
     >>> n = 0.2
     >>> mu = mu_Cross_modified(gdot, mu0, C, n)
     >>> print(f"mu={mu:.2e} Pa.s")
@@ -182,7 +182,7 @@ def mu_Carreau_Yasuda(gdot: float | FloatArray,
     Parameters
     ----------
     gdot : float | FloatArray
-        Shear rate [1/s].
+        Shear rate [s⁻¹].
     mu0 : float
         Zero-shear viscosity [Pa·s].
     muinf : float
@@ -204,9 +204,9 @@ def mu_Carreau_Yasuda(gdot: float | FloatArray,
     Determine the viscosity of a fluid with a zero-shear viscosity of 1.0 Pa·s,
     an infinite-shear viscosity of 0.001 Pa·s, a relaxation time of 1 second, 
     a power-law index of 0.2, and a Yasuda parameter of 2.0, at a shear rate of
-    20 1/s.
+    20 s⁻¹.
     >>> from polykin.flow import mu_Carreau_Yasuda
-    >>> gdot = 20.0   # 1/s
+    >>> gdot = 20.0   # s⁻¹
     >>> mu0 = 1.0     # Pa·s
     >>> muinf = 1e-3  # Pa·s
     >>> lmbda = 1.0   # s
