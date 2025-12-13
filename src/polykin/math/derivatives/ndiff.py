@@ -9,12 +9,13 @@ from numpy import cbrt
 
 from polykin.utils.math import eps
 from polykin.utils.types import (Float2x2Matrix, FloatArray, FloatMatrix,
-                                 FloatVector)
+                                 FloatSquareMatrix, FloatVector)
 
 __all__ = [
     'derivative_complex',
     'derivative_centered',
     'jacobian_forward',
+    'hessian_forward',
     'hessian2_centered',
     'scalex'
 ]
@@ -119,6 +120,180 @@ def derivative_centered(
     return (df, fx)
 
 
+def jacobian_forward(
+    f: Callable[[FloatVector], FloatVector],
+    x: FloatVector,
+    fx: FloatVector | None = None,
+    sclx: FloatVector | None = None,
+    ndigit: int | None = None
+) -> FloatMatrix:
+    r"""Calculate the numerical Jacobian of a vector function 
+    $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
+
+    $$ J_{ij} = \frac{\partial f_i}{\partial x_j} 
+              = \frac{f_i(\mathbf{x} + \mathbf{e}_j h_j) - f_i(\mathbf{x})}{h_j} $$
+
+    The step size $h_j$ is optimally determined according to the number of
+    reliable digits of $\mathbf{f}$ and the magnitude and scale of each
+    $\mathbf{x}$ component.
+
+    Typically, the first `ndigit/2` digits of the Jacobian are accurate.
+
+    **References**
+
+    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+      Optimization and Nonlinear Equations", SIAM, 1996, p. 314.
+
+    Parameters
+    ----------
+    f : Callable[[FloatVector], FloatVector]
+        Function to be diferentiated.
+    x : FloatVector
+        Differentiation point.
+    fx : FloatVector | None
+        Function values at `x`, if available.
+    sclx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
+        default, the factors are set internally based on the magnitudes of `x`.
+    ndigit : int | None
+        Number of reliable base-10 digits in the values returned by `f`. This
+        parameter is optional when the function is evaluated analytically,
+        but is essential when the function involves numerical procedures (such
+        as root finding or ODE integration). If `None`, machine precision is
+        assumed.
+
+    Returns
+    -------
+    FloatMatrix
+        Jacobian matrix.
+
+    Examples
+    --------
+    Evaluate the numerical jacobian of f(x) = x1**2 * x2**3 at (2, -2).
+    >>> from polykin.math import jacobian_forward
+    >>> import numpy as np
+    >>> def f(x): return x[0]**2 * x[1]**3
+    >>> jacobian_forward(f, np.array([2.0, -2.0]))
+    array([[-32.00000024,  47.99999928]])
+    """
+
+    fx = fx if fx is not None else f(x)
+    sclx = sclx if sclx is not None else scalex(x)
+
+    η = eps if ndigit is None else 10**(-ndigit)
+    h0 = np.sqrt(η)
+
+    J = np.empty((fx.size, x.size))
+    xh = x.copy()
+
+    for i in range(x.size):
+        h = h0*max(abs(x[i]), abs(1/sclx[i]))
+        xtemp = xh[i]
+        xh[i] += h
+        h = xh[i] - xtemp
+        J[:, i] = (f(xh) - fx)/h
+        xh[i] = xtemp
+
+    return J
+
+
+def hessian_forward(
+    f: Callable[[FloatVector], float],
+    x: FloatVector,
+    fx: float | None = None,
+    sclx: FloatVector | None = None,
+    ndigit: int | None = None
+) -> FloatSquareMatrix:
+    r"""Calculate the numerical Hessian of a scalar function $f(\mathbf{x})$
+    using the forward finite-difference scheme.
+
+    $$ H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j} 
+        = \frac{
+          f(\mathbf{x} + \mathbf{e}_i h_i + \mathbf{e}_j h_j) 
+        - f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x} + \mathbf{e}_j h_j)
+        + f(\mathbf{x})}{h_i h_j} $$
+
+    The step size $h_j$ is optimally determined according to the number of
+    reliable digits of $f$ and the magnitude and scale of each $\mathbf{x}$
+    component.
+
+    Typically, the first `ndigit/3` digits of the Hessian are accurate.
+
+    **References**
+
+    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+      Optimization and Nonlinear Equations", SIAM, 1996, p. 321.
+
+    Parameters
+    ----------
+    f : Callable[[FloatVector], float]
+        Function to be diferentiated.
+    x : FloatVector
+        Differentiation point.
+    fx : float | None
+        Function values at `x`, if available.
+    sclx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
+        default, the factors are set internally based on the magnitudes of `x`.
+    ndigit : int | None
+        Number of reliable base-10 digits in the values returned by `f`. This
+        parameter is optional when the function is evaluated analytically,
+        but is essential when the function involves numerical procedures (such
+        as root finding or ODE integration). If `None`, machine precision is
+        assumed.
+
+    Returns
+    -------
+    FloatSquareMatrix
+        Hessian matrix.
+
+    Examples
+    --------
+    Evaluate the numerical hessian of f(x) = x1**2 * x2**3 at (2, -2).
+    >>> from polykin.math import hessian_forward
+    >>> import numpy as np
+    >>> def f(x): return x[0]**2 * x[1]**3
+    >>> hessian_forward(f, np.array([2.0, -2.0]))
+    array([[-16.0001093 ,  47.99984347],
+           [ 47.99984347, -47.99979503]])
+    """
+
+    fx = fx if fx is not None else f(x)
+    sclx = sclx if sclx is not None else scalex(x)
+
+    η = eps if ndigit is None else 10**(-ndigit)
+    h0 = np.cbrt(η)
+
+    N = x.size
+    H = np.empty((N, N))
+    fh = np.empty(N)
+    h = np.empty(N)
+    xh = x.copy()
+
+    for i in range(N):
+        h[i] = h0*max(abs(x[i]), abs(1/sclx[i]))
+        xtemp1 = xh[i]
+        xh[i] += h[i]
+        h[i] = xh[i] - xtemp1
+        fh[i] = f(xh)
+        xh[i] = xtemp1
+
+    for i in range(N):
+        xtemp1 = xh[i]
+        xh[i] += 2*h[i]
+        H[i, i] = ((fx - fh[i]) + (f(xh) - fh[i]))/(h[i]**2)
+        xh[i] = xtemp1 + h[i]
+        for j in range(i + 1, N):
+            xtemp2 = xh[j]
+            xh[j] += h[j]
+            H[i, j] = ((fx - fh[i]) + (f(xh) - fh[j]))/(h[i]*h[j])
+            H[j, i] = H[i, j]
+            xh[j] = xtemp2
+        xh[i] = xtemp1
+
+    return H
+
+
 def hessian2_centered(
     f: Callable[[tuple[float, float]], float],
     x: tuple[float, float],
@@ -194,77 +369,6 @@ def hessian2_centered(
     H[1, 0] = H[0, 1]
 
     return H
-
-
-def jacobian_forward(
-    f: Callable[[FloatVector], FloatVector],
-    x: FloatVector,
-    fx: FloatVector | None = None,
-    sclx: FloatVector | None = None,
-    ndigit: int | None = None
-) -> FloatMatrix:
-    r"""Calculate the numerical Jacobian of a vector function 
-    $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
-
-    $$
-    \mathbf{J} = \begin{pmatrix}
-    \frac{\partial f_1}{\partial x_1} & \frac{\partial f_1}{\partial x_2} & \cdots & \frac{\partial f_1}{\partial x_n} \\
-    \frac{\partial f_2}{\partial x_1} & \frac{\partial f_2}{\partial x_2} & \cdots & \frac{\partial f_2}{\partial x_n} \\
-    \vdots & \vdots & \ddots & \vdots \\
-    \frac{\partial f_m}{\partial x_1} & \frac{\partial f_m}{\partial x_2} & \cdots & \frac{\partial f_m}{\partial x_n}
-    \end{pmatrix}
-    $$
-
-    Parameters
-    ----------
-    f : Callable[[FloatVector], FloatVector]
-        Function to be diferentiated.
-    x : FloatVector
-        Differentiation point.
-    fx : FloatVector | None
-        Function values at `x`, if available.
-    sclx : FloatVector | None
-        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
-        default, the factors are set internally based on the magnitudes of `x`.
-    ndigit : int | None
-        Number of reliable base-10 digits in the values returned by `f`. This
-        parameter is optional when the function is evaluated analytically,
-        but is essential when the function involves numerical procedures (such
-        as root finding or ODE integration). If `None`, machine precision is
-        assumed.
-
-    Returns
-    -------
-    FloatMatrix
-        Jacobian matrix.
-
-    Examples
-    --------
-    Evaluate the numerical jacobian of f(x) = x1**2 * x2**3 at (2, -2).
-    >>> from polykin.math import jacobian_forward
-    >>> import numpy as np
-    >>> def f(x): return x[0]**2 * x[1]**3
-    >>> jacobian_forward(f, np.array([2.0, -2.0]))
-    array([[-32.00000024,  47.99999928]])
-    """
-
-    fx = fx if fx is not None else f(x)
-    sclx = sclx if sclx is not None else scalex(x)
-
-    η = eps if ndigit is None else 10**(-ndigit)
-    h0 = np.sqrt(η)
-
-    J = np.empty((fx.size, x.size))
-    xh = x.copy()
-
-    for i in range(x.size):
-        h = h0*max(abs(x[i]), abs(1/sclx[i]))
-        xtemp = xh[i]
-        xh[i] += h
-        J[:, i] = (f(xh) - fx)/h
-        xh[i] = xtemp
-
-    return J
 
 
 def scalex(x: FloatArray) -> FloatArray:

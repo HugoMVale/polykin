@@ -1,6 +1,7 @@
 * [](index.md)
 * [derivative_centered](derivative_centered.md)
 * [derivative_complex](derivative_complex.md)
+* [hessian_forward](hessian_forward.md)
 * [hessian2_centered](hessian2_centered.md)
 * [jacobian_forward](jacobian_forward.md)
 * [ode_rk](ode_rk.md)
