@@ -2,4 +2,5 @@
 * [geometric_interaction_mixing](geometric_interaction_mixing.md)
 * [pseudocritical_properties](pseudocritical_properties.md)
 * [quadratic_mixing](quadratic_mixing.md)
+* [Tait](Tait.md)
 * [VL_Rackett](VL_Rackett.md)

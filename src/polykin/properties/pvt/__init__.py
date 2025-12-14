@@ -8,4 +8,5 @@ and mixtures.
 """
 
 from .mixing_rules import *
+from .tait import *
 from .volume import *

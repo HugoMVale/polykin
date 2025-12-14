@@ -1,20 +1,20 @@
-# polykin.properties.pvt_polymer
+# polykin.properties.pvt
 
-::: polykin.properties.pvt_polymer
+::: polykin.properties.pvt.tait
     options:
         members:
             - Tait
 
 ## Parameter databank
 
-{{ read_csv('src/polykin/properties/pvt_polymer/Tait_parameters.tsv', delim_whitespace=True) }}
+{{ read_csv('src/polykin/properties/pvt/Tait_parameters.tsv', delim_whitespace=True) }}
 
 ## Examples
 
 Estimate the PVT properties of PMMA.
 
 ```python exec="on" source="console"
-from polykin.properties.pvt_polymer import Tait
+from polykin.properties.pvt import Tait
 
 # Parameters from Handbook Polymer Solution Thermodynamics, p.39 
 m = Tait(
@@ -30,18 +30,18 @@ m = Tait(
     name="PMMA"
     )
 
-print(m.V(127., 1500, Tunit='C', Punit='bar'))
+print(m.vs(127., 1500, Tunit='C', Punit='bar'))
 print(m.alpha(400., 1.5e8))
 print(m.beta(400., 1.5e8))
 ```
 
 ```python exec="on" source="console"
-from polykin.properties.pvt_polymer import Tait
+from polykin.properties.pvt import Tait
 
 # Parameters retrieved from internal databank 
 m = Tait.from_database("PMMA")
 
-print(m.V(127., 1500, Tunit='C', Punit='bar'))
+print(m.vs(127., 1500, Tunit='C', Punit='bar'))
 print(m.alpha(400., 1.5e8))
 print(m.beta(400., 1.5e8))
 ```

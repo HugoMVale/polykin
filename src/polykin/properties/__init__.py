@@ -10,7 +10,6 @@ estimate physical properties.
 from .diffusion import *
 from .equations import *
 from .pvt import *
-from .pvt_polymer import *
 from .thermal_conductivity import *
 from .vaporization.dhvl import *
 from .viscosity import *
