@@ -527,7 +527,8 @@ class IndividualDistribution(Distribution):
 
         This implementation is a general low-performance fallback solution.
         Preferably, child classes should implement a specific (e.g., analytic)
-        method delivering the first four moments (0-3) of the number pdf.
+        method delivering at least the first four moments (0-3) of the number
+        pdf.
 
         Parameters
         ----------
