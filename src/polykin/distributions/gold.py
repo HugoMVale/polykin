@@ -41,7 +41,7 @@ def WeibullNycanderGold_pdf(
     regularized lower incomplete gamma function. For $r < 1$:
 
     $$ p(k) = \frac{p_0}{r} \left(\frac{r}{1-r} \right)^k (-1)^k
-              \left[1 - p_0^{r-1} \sum_{j=0}^{k-1} \frac{a^j}{j!} \right] $$
+              \left[1 - e^{-a} \sum_{j=0}^{k-1} \frac{a^j}{j!} \right] $$
 
     This branched analytical solution has an obvious singularity at $r=1$; in
     that case, the solution reduces to the well-known Poisson distribution:
@@ -53,10 +53,10 @@ def WeibullNycanderGold_pdf(
     !!! note
 
         * The solution is numerically unstable in certain domains, namely for
-        $r \to 1^{-}$, and also for $k \gg v$. This is an intrinsic feature of
-        the analytical solution.
-        * For $r < 1$, the calculation is done with a summation, which is not
-        vectorized. Therefore, performance will be worse in this regime.
+        $r \to 1^{-}$ and $r \to 0$, and also for $k \gg v$. This is an intrinsic
+        feature of the analytical solution.
+        * For $r < 1$, the calculation is not vectorized. Therefore, performance
+        will be worse in this regime.
         * For $|r-1| < 10^{-3}$, the algorithm automatically switches to the
         Poisson distribution. Some numerical discontinuity at this boundary is
         to be expected.
@@ -166,8 +166,8 @@ def _gold(
         Number probability density.
     """
 
-    A = (p0/r) * (r/(1 - r))**k * (-1)**k
-    b = p0**(r - 1)
+    A = exp(ln(p0/r) + k*ln(r/(1.0 - r))) * (-1)**k
+    B = exp(-a)
 
     # Try normal sum
     s = 1.0
@@ -176,8 +176,8 @@ def _gold(
         s *= a / j
         S += s
 
-    if abs(b*S - 1) > sqrt(eps) and k < v:
-        return A*(1.0 - b*S)
+    if abs(B*S - 1) > sqrt(eps) and k < v:
+        return A*(1.0 - B*S)
 
     # Tail sum
     s = a**k / factorial(k)
@@ -187,5 +187,4 @@ def _gold(
         S += s
         if abs(s) < eps*100:
             break
-
-    return A*b*S  # A*(1.0 - b*exp(a) + b*S)
+    return A*B*S
