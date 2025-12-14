@@ -8,9 +8,7 @@ import scipy.integrate as integrate
 from numpy import isclose
 
 from polykin.distributions import (DataDistribution, Flory, LogNormal, Poisson,
-                                   SchulzZimm, WeibullNycanderGold_pdf,
-                                   convolve_moments, convolve_moments_self,
-                                   plotdists)
+                                   SchulzZimm, plotdists)
 
 
 @pytest.fixture
@@ -282,64 +280,3 @@ def test_plot_method(dist1):
 
 def test_plotdists(dist1):
     plotdists(dist1, kind='gpc')
-
-
-def test_WeibullNycanderGold_pdf():
-    v = 10.
-    c = 2.
-    s = np.arange(4*int(v))
-    Ps = WeibullNycanderGold_pdf(s, v, c)
-    assert s.shape == Ps.shape
-    assert isclose(Ps.sum(), 1.0)
-    # examples from Gold (1957)
-    r = 2.
-    p0 = 0.3679
-    res = _moments(p0, r)
-    assert np.all(isclose(res, (2.164, 2.849), rtol=1e-3))
-    r = 10.
-    p0 = 0.4594
-    res = _moments(p0, r)
-    assert np.all(isclose(res, (5.388, 7.110), rtol=1e-3))
-
-
-def _moments(p0, r):
-    v = - r*np.log(p0) - (r - 1.)*(1. - p0)
-    s = np.arange(1, 10*int(v))
-    Ps = WeibullNycanderGold_pdf(s, v, r)
-    m0 = Ps.sum()
-    m1 = np.dot(s, Ps)
-    m2 = np.dot(s**2, Ps)
-    xn = m1/m0
-    xw = m2/m1
-    return (xn, xw)
-
-
-def test_convolve_moments():
-
-    # Define inputs
-    q0 = 1.0
-    q1 = q0 * 100.0
-    q2 = q1 * 200.0
-
-    p0, p1, p2 = convolve_moments(q0, q1, q2, q0, q1, q2)
-
-    assert isclose(p0*p2/p1**2, 1.5)
-
-
-def test_convolve_moments_self():
-
-    def convolve_moments_self_iter(q0, q1, q2, order):
-        r0 = q0
-        r1 = q1
-        r2 = q2
-        for _ in range(order):
-            r0, r1, r2 = convolve_moments(q0, q1, q2, r0, r1, r2)
-        return r0, r1, r2
-
-    for order in range(1, 10):
-        q0 = 1.0
-        q1 = q0 * 100.0
-        q2 = q1 * 200.0
-        s0, s1, s2 = convolve_moments_self_iter(q0, q1, q2, order)
-        p0, p1, p2 = convolve_moments_self(q0, q1, q2, order)
-        assert np.all(isclose([s0, s1, s2], [p0, p1, p2]))

@@ -16,6 +16,18 @@ def test_WeibullNycanderGold_pdf():
     assert isinstance(Ps, np.ndarray) and s.shape == Ps.shape
     assert isclose(Ps.sum(), 1.0)
     # examples from Gold (1957)
+    r = 0.1
+    p0 = 0.1174e-1
+    res = _moments(p0, r)
+    assert allclose(res, (1.350, 1.614), rtol=1e-3)
+    r = 0.5
+    p0 = 0.1353
+    res = _moments(p0, r)
+    assert allclose(res, (1.657, 2.094), rtol=1e-3)
+    r = 0.5
+    p0 = 3.355e-4
+    res = _moments(p0, r)
+    assert allclose(res, (4.501, 5.334), rtol=1e-3)
     r = 2.0
     p0 = 0.3679
     res = _moments(p0, r)
@@ -24,6 +36,10 @@ def test_WeibullNycanderGold_pdf():
     p0 = 0.4594
     res = _moments(p0, r)
     assert allclose(res, (5.388, 7.110), rtol=1e-3)
+    r = 100.0
+    p0 = 0.3642
+    res = _moments(p0, r)
+    assert allclose(res, (59.87, 74.36), rtol=1e-3)
 
 
 def _moments(p0, r):
