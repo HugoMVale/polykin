@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Optional
 
 import numpy as np
 from numpy import dot, exp, log
@@ -91,10 +90,10 @@ class UNIQUAC(SmallSpeciesActivityModel):
                  N: int,
                  q: FloatVectorLike,
                  r: FloatVectorLike,
-                 a: Optional[FloatSquareMatrix] = None,
-                 b: Optional[FloatSquareMatrix] = None,
-                 c: Optional[FloatSquareMatrix] = None,
-                 d: Optional[FloatSquareMatrix] = None,
+                 a: FloatSquareMatrix | None = None,
+                 b: FloatSquareMatrix | None = None,
+                 c: FloatSquareMatrix | None = None,
+                 d: FloatSquareMatrix | None = None,
                  name: str = ''
                  ) -> None:
 
