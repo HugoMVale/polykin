@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -73,7 +73,7 @@ class CopoFitResult():
     ci_r2: float
     se_r1: float
     se_r2: float
-    cov: Optional[Float2x2Matrix]
+    cov: Float2x2Matrix | None
     plots: dict[str, tuple[Figure, Axes]]
     M1: str = 'M1'
     M2: str = 'M2'
