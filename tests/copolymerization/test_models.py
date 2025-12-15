@@ -3,7 +3,8 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
-from numpy import all, isclose
+import pytest
+from numpy import all, allclose, isclose
 
 from polykin.copolymerization import (ImplicitPenultimateModel,
                                       PenultimateModel, TerminalModel)
@@ -12,10 +13,9 @@ from polykin.kinetics import Arrhenius
 # %% Terminal
 
 
-def test_CopoModel_input_validation(capsys):
-    _ = TerminalModel(1.2, 1.3)
-    out, _ = capsys.readouterr()
-    assert (out.lower().startswith('warning'))
+def test_CopoModel_input_validation():
+    with pytest.warns(Warning):
+        _ = TerminalModel(1.2, 1.3)
 
 
 def test_CopoModel_repr():
@@ -38,7 +38,7 @@ def test_TerminalModel_F1():
     assert f1azeo is not None
     assert isclose(m.F1(f1azeo), f1azeo)
     m = TerminalModel(1., 1.)
-    assert all(isclose(m.F1([0.3, 0.7]), [0.3, 0.7]))
+    assert allclose(m.F1([0.3, 0.7]), [0.3, 0.7])
     m = TerminalModel(2., 0.6)
     f1 = [0.3, 0.7]
     assert all(m.F1(f1) > np.array(f1))
@@ -62,8 +62,8 @@ def test_TerminalModel_triads():
     triads = np.array(list(m.triads(f1=0.75).values()))
     triads1 = triads[0:3]
     triads2 = triads[3:]
-    assert all(isclose(triads1/F1, [0.348, 0.484, 0.168], rtol=1e-2))
-    assert all(isclose(triads2/(1. - F1), [0.0151, 0.215, 0.769], rtol=1e-2))
+    assert allclose(triads1/F1, [0.348, 0.484, 0.168], rtol=1e-2)
+    assert allclose(triads2/(1. - F1), [0.0151, 0.215, 0.769], rtol=1e-2)
 
 
 def test_TerminalModel_sld():
@@ -78,11 +78,11 @@ def test_TerminalModel_sld():
         Sn = model.sequence(f1, k=None)
         assert isclose(F1/(1 - F1), Sn['1']/Sn['2'])
         Sk = model.sequence(f1, k=k)
-        assert all(isclose(list(Sn.values()),
-                           [np.dot(k, Sk['1']), np.dot(k, Sk['2'])],
-                           rtol=1e-5))
+        assert allclose(list(Sn.values()),
+                        [np.dot(k, Sk['1']), np.dot(k, Sk['2'])],
+                        rtol=1e-5)
     Sk = tm.sequence(f1, k=1)
-    assert all(isclose(list(Sk.values()), [0.668, 0.966], rtol=1e-2))
+    assert allclose(list(Sk.values()), [0.668, 0.966], rtol=1e-2)
 
 
 def test_TerminalModel_drift():
@@ -91,7 +91,7 @@ def test_TerminalModel_drift():
     assert f1azeo is not None
     f10 = [0.1, f1azeo, 0.9]
     f1_x = m.drift(f10, x=0.999)
-    assert all(isclose(f1_x.flatten(), [0.0, f1azeo, 1]))
+    assert allclose(f1_x.flatten(), [0.0, f1azeo, 1])
 
 
 def test_TerminalModel_plot():
@@ -105,7 +105,7 @@ def test_TerminalModel_plot():
 def test_TerminalModel_from_Qe():
     m = TerminalModel.from_Qe((1., -0.8), (0.78, 0.4), M1='STY', M2='MMA')
     assert m.azeotrope and isclose(m.azeotrope, 0.5, atol=0.1)
-    assert all(isclose([m.r1, m.r2], [0.5, 0.5], atol=0.1))
+    assert allclose([m.r1, m.r2], [0.5, 0.5], atol=0.1)
 
 # %% Penultimate
 
@@ -125,7 +125,7 @@ def test_PenultimateModel_F1():
     assert isclose(m.F1(f1azeo), f1azeo)
     m = PenultimateModel(1, 1, 1, 1, 1, 1)
     f1 = [0.3, 0.7]
-    assert all(isclose(m.F1(f1), f1))
+    assert allclose(m.F1(f1), f1)
     m = PenultimateModel(2.3, 2.0, 0.5, 0.6, 1, 1)
     assert all(m.F1(f1) > np.array(f1))
     m = PenultimateModel(0.5, 0.6, 2.3, 2.0, 1, 1)
