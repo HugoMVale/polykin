@@ -5,7 +5,8 @@
 from typing import Literal, Union
 
 import numpy as np
-from numpy import exp, log
+from numpy import exp
+from numpy import log as ln
 
 from polykin.kinetics.coefficients.arrhenius import Arrhenius
 from polykin.kinetics.coefficients.base import KineticCoefficientCLD
@@ -89,8 +90,8 @@ class PropagationHalfLength(KineticCoefficientCLD):
                  ) -> None:
 
         check_type(kp, (Arrhenius, Eyring), 'kp')
-        check_bounds(C, 1., 100., 'C')
-        check_bounds(ihalf, 0.1, 10, 'ihalf')
+        check_bounds(C, 1.0, 100.0, 'C')
+        check_bounds(ihalf, 0.1, 10.0, 'ihalf')
 
         self.kp = kp
         self.C = C
@@ -126,7 +127,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
             Coefficient value.
         """
 
-        return kp*(1 + (C - 1)*exp(-log(2)*(i - 1)/ihalf))
+        return kp*(1 + (C - 1)*exp(-ln(2)*(i - 1)/ihalf))
 
     def __call__(self,
                  T: Union[float, FloatArrayLike],
@@ -139,8 +140,7 @@ class PropagationHalfLength(KineticCoefficientCLD):
         Parameters
         ----------
         T : float | FloatArrayLike
-            Temperature.
-            Unit = `Tunit`.
+            Temperature [`Tunit`].
         i : int | IntArrayLike
             Chain length of radical.
         Tunit : Literal['C', 'K']
@@ -153,5 +153,5 @@ class PropagationHalfLength(KineticCoefficientCLD):
         """
         TK = convert_check_temperature(T, Tunit, self.kp.Trange)
         if isinstance(i, (list, tuple)):
-            i = np.array(i, dtype=np.int32)
+            i = np.array(i, dtype=int)
         return self.equation(i, self.kp(TK), self.C, self.ihalf)

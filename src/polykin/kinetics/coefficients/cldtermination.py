@@ -99,8 +99,8 @@ class TerminationCompositeModel(KineticCoefficientCLD):
 
         check_type(kt11, (Arrhenius, Eyring), 'k11')
         check_bounds(icrit, 1, 200, 'icrit')
-        check_bounds(aS, 0, 1, 'alpha_short')
-        check_bounds(aL, 0, 0.5, 'alpha_long')
+        check_bounds(aS, 0.0, 1.0, 'alpha_short')
+        check_bounds(aL, 0.0, 0.5, 'alpha_long')
 
         self.kt11 = kt11
         self.icrit = icrit
@@ -162,8 +162,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         Parameters
         ----------
         T : float | FloatArrayLike
-            Temperature.
-            Unit = `Tunit`.
+            Temperature [`Tunit`].
         i : int | IntArrayLike
             Chain length of 1st radical.
         j : int | IntArrayLike
@@ -178,7 +177,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         """
         TK = convert_check_temperature(T, Tunit, self.kt11.Trange)
         if isinstance(i, (list, tuple)):
-            i = np.array(i, dtype=np.int32)
+            i = np.array(i, dtype=int)
         if isinstance(j, (list, tuple)):
-            j = np.array(j, dtype=np.int32)
+            j = np.array(j, dtype=int)
         return self.equation(i, j, self.kt11(TK), self.icrit, self.aS, self.aL)
