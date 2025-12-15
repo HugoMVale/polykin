@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from numbers import Number
-from typing import Any, Iterable, Literal, Union
+from typing import Any, Iterable, Literal
 
 import numpy as np
 
@@ -45,7 +45,7 @@ def custom_error(var_name: str,
 
 
 def check_type(var_value: Any,
-               valid_types: Union[type, tuple[type, ...]],
+               valid_types: type | tuple[type, ...],
                var_name: str,
                check_inside: bool = False
                ) -> Any:
@@ -100,7 +100,7 @@ def check_type(var_value: Any,
 
 
 def check_subclass(myobject: Any,
-                   valid_class: Union[type, tuple[type, ...]],
+                   valid_class: type | tuple[type, ...],
                    myobject_name: str,
                    check_inside: bool = False
                    ) -> Any:
@@ -126,11 +126,11 @@ def check_subclass(myobject: Any,
         )
 
 
-def check_bounds(x: Union[float, np.ndarray, Iterable],
+def check_bounds(x: float | np.ndarray | Iterable,
                  xmin: float,
                  xmax: float,
                  xname: str
-                 ) -> Union[float, np.ndarray, Iterable, None]:
+                 ) -> float | np.ndarray | Iterable | None:
     """Check if a numerical value is between given bounds.
 
     Example:
@@ -204,9 +204,9 @@ def check_in_set(var_value: Any,
         )
 
 
-def check_shapes(a: list[Union[float, np.ndarray]],
-                 b: list[Union[float, np.ndarray]] = []
-                 ) -> Union[tuple[int, ...], None]:
+def check_shapes(a: list[float | np.ndarray],
+                 b: list[float | np.ndarray] | None = None
+                 ) -> tuple[int, ...] | None:
     """Check shape homogeneity between objects in lists `a` and `b`.
 
     Rules:
@@ -219,15 +219,17 @@ def check_shapes(a: list[Union[float, np.ndarray]],
     ----------
     a : list
         List of objects which must have the same shape.
-    b : list
+    b : list | None
         List of objects which, if arrays, must have identical shape to the
         objects in `a`.
 
     Returns
     -------
-    Union[tuple[int, ...], None]
+    tuple[int, ...] | None
         Common shape of `a` or None.
     """
+    if b is None:
+        b = []
 
     shapes_a = [elem.shape for elem in a if
                 isinstance(elem, np.ndarray) and elem.shape != ()]
@@ -257,7 +259,7 @@ def check_valid_range(r: tuple[float, float],
                       xmin: float,
                       xmax: float,
                       name: str
-                      ) -> Union[tuple[float, float], None]:
+                      ) -> tuple[float, float] | None:
     "Check if a given input range is a valid range."
     check_type(r, tuple, name)
     if not (len(r) == 2 and r[1] > r[0]):
@@ -372,7 +374,7 @@ def convert_check_pressure(
 
 
 def custom_repr(obj,
-                attr_names: Union[list[str], tuple[str, ...]],
+                attr_names: list[str] | tuple[str, ...],
                 nspaces: int = 3
                 ) -> str:
     """Generate custom repr string.
