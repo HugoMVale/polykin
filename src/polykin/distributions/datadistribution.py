@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import numpy as np
 from numpy import log10
@@ -103,11 +103,10 @@ class DataDistribution(IndividualDistribution):
         return self._length_data[(0, -1), ]
 
     def fit(self,
-            dist_class: Union[type[Flory], type[Poisson], type[LogNormal],
-                              type[SchulzZimm]],
+            dist_class: type[Flory] | type[Poisson] | type[LogNormal] | type[SchulzZimm],
             dim: int = 1,
             display_table: bool = True
-            ) -> Optional[Union[AnalyticalDistribution, MixtureDistribution]]:
+            ) -> AnalyticalDistribution | MixtureDistribution | None:
         """Fit (deconvolute) a `DataDistribution` into a linear combination of
         `AnalyticalDistribution`(s).
 

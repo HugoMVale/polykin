@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -130,9 +130,9 @@ class Tait():
         )
 
     def eval(self,
-             T: Union[float, FloatArray],
-             P: Union[float, FloatArray]
-             ) -> Union[float, FloatArray]:
+             T: float | FloatArray,
+             P: float | FloatArray
+             ) -> float | FloatArray:
         r"""Evaluate the specific volume, $\hat{v}$, at given SI conditions
         without unit conversions or checks.
 
@@ -155,8 +155,8 @@ class Tait():
         return v
 
     def _B(self,
-           T: Union[float, FloatArray]
-           ) -> Union[float, FloatArray]:
+           T: float | FloatArray
+           ) -> float | FloatArray:
         r"""Parameter B(T).
 
         Parameters
@@ -172,9 +172,9 @@ class Tait():
         return self.B0*exp(-self.B1*(T - 273.15))
 
     def alpha(self,
-              T: Union[float, FloatArray],
-              P: Union[float, FloatArray]
-              ) -> Union[float, FloatArray]:
+              T: float | FloatArray,
+              P: float | FloatArray
+              ) -> float | FloatArray:
         r"""Calculate the thermal expansion coefficient, $\alpha$.
 
         $$ \alpha = \frac{1}{\hat{v}} 
@@ -200,9 +200,9 @@ class Tait():
         return alpha0 - P*self.B1*self.beta(T, P)
 
     def beta(self,
-             T: Union[float, FloatArray],
-             P: Union[float, FloatArray]
-             ) -> Union[float, FloatArray]:
+             T: float | FloatArray,
+             P: float | FloatArray
+             ) -> float | FloatArray:
         r"""Calculate the isothermal compressibility coefficient, $\beta$.
 
         $$ \beta = -\frac{1}{\hat{v}}
@@ -224,11 +224,11 @@ class Tait():
         return (self._C/(P + B))/(1 - self._C*ln(1 + P/B))
 
     def vs(self,
-           T: Union[float, FloatVectorLike],
-           P: Union[float, FloatVectorLike],
+           T: float | FloatVectorLike,
+           P: float | FloatVectorLike,
            Tunit: Literal['C', 'K'] = 'K',
            Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
-           ) -> Union[float, FloatArray]:
+           ) -> float | FloatArray:
         r"""Evaluate the specific volume, $\hat{v}$, at given temperature and
         pressure, including unit conversion and range check.
 

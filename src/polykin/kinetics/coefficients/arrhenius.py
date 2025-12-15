@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from typing import Union
-
 import numpy as np
 from numpy import exp
 
@@ -74,11 +72,11 @@ class Arrhenius(KineticCoefficientT):
     _pinfo = {'k0': ('#', True), 'EaR': ('K', True), 'T0': ('K', False)}
 
     def __init__(self,
-                 k0: Union[float, FloatArrayLike],
-                 EaR: Union[float, FloatArrayLike],
-                 T0: Union[float, FloatArrayLike] = np.inf,
-                 Tmin: Union[float, FloatArrayLike] = 0.0,
-                 Tmax: Union[float, FloatArrayLike] = np.inf,
+                 k0: float | FloatArrayLike,
+                 EaR: float | FloatArrayLike,
+                 T0: float | FloatArrayLike = np.inf,
+                 Tmin: float | FloatArrayLike = 0.0,
+                 Tmax: float | FloatArrayLike = np.inf,
                  unit: str = '-',
                  symbol: str = 'k',
                  name: str = ''
@@ -92,19 +90,19 @@ class Arrhenius(KineticCoefficientT):
         self._shape = check_shapes([k0, EaR], [T0, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(k0, 0., np.inf, 'k0')
+        check_bounds(k0, 0.0, np.inf, 'k0')
         check_bounds(EaR, -np.inf, np.inf, 'EaR')
-        check_bounds(T0, 0., np.inf, 'T0')
+        check_bounds(T0, 0.0, np.inf, 'T0')
 
         self.p = {'k0': k0, 'EaR': EaR, 'T0': T0}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
-                 k0: Union[float, FloatArray],
-                 EaR: Union[float, FloatArray],
-                 T0: Union[float, FloatArray],
-                 ) -> Union[float, FloatArray]:
+    def equation(T: float | FloatArray,
+                 k0: float | FloatArray,
+                 EaR: float | FloatArray,
+                 T0: float | FloatArray,
+                 ) -> float | FloatArray:
         r"""Arrhenius equation.
 
         Parameters
@@ -126,12 +124,12 @@ class Arrhenius(KineticCoefficientT):
         return k0 * exp(-EaR*(1/T - 1/T0))
 
     @property
-    def A(self) -> Union[float, FloatArray]:
+    def A(self) -> float | FloatArray:
         r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
         return self.__call__(np.inf)
 
     def __mul__(self,
-                other: Union[int, float, Arrhenius]
+                other: int | float | Arrhenius
                 ) -> Arrhenius:
         """Multipy Arrhenius coefficient(s).
 
@@ -176,12 +174,12 @@ class Arrhenius(KineticCoefficientT):
             return NotImplemented
 
     def __rmul__(self,
-                 other: Union[int, float, Arrhenius]
+                 other: int | float | Arrhenius
                  ) -> Arrhenius:
         return self.__mul__(other)
 
     def __truediv__(self,
-                    other: Union[int, float, Arrhenius]
+                    other: int | float | Arrhenius
                     ) -> Arrhenius:
         """Divide Arrhenius coefficient(s).
 
@@ -226,7 +224,7 @@ class Arrhenius(KineticCoefficientT):
             return NotImplemented
 
     def __rtruediv__(self,
-                     other: Union[int, float]
+                     other: int | float
                      ) -> Arrhenius:
         if isinstance(other, (int, float)):
             return Arrhenius(k0=other/self.p['k0'],
@@ -241,7 +239,7 @@ class Arrhenius(KineticCoefficientT):
             return NotImplemented
 
     def __pow__(self,
-                other: Union[int, float]
+                other: int | float
                 ) -> Arrhenius:
         """Power of an Arrhenius coefficient.
 

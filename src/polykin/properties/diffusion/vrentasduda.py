@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Iterable, Literal, Optional, Union
+from typing import Iterable, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +14,6 @@ from scipy.constants import R as Rgas
 from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
                                  convert_check_temperature)
 from polykin.utils.types import FloatArray, FloatArrayLike
-
 
 __all__ = ['VrentasDudaBinary']
 
@@ -191,11 +190,11 @@ class VrentasDudaBinary():
         )
 
     def __call__(self,
-                 w1: Union[float, FloatArrayLike],
-                 T: Union[float, FloatArrayLike],
+                 w1: float | FloatArrayLike,
+                 T: float | FloatArrayLike,
                  Tunit: Literal['C', 'K'] = 'K',
                  selfd: bool = False
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Evaluate solvent self-diffusion, $D_1$, or mutual diffusion
         coefficient, $D$, at given solvent content and temperature, including
         unit conversion and range check.
@@ -218,7 +217,7 @@ class VrentasDudaBinary():
             Solvent self-diffusion or mutual diffusion coefficient.
         """
         if isinstance(w1, (list, tuple)):
-            w1 = np.array(w1, dtype=np.float64)
+            w1 = np.array(w1, dtype=float)
 
         check_bounds(w1, 0.0, 1.0, 'w1')
 
@@ -229,9 +228,9 @@ class VrentasDudaBinary():
             return self.mutual(w1, TK)
 
     def selfd(self,
-              w1: Union[float, FloatArray],
-              T: Union[float, FloatArray]
-              ) -> Union[float, FloatArray]:
+              w1: float | FloatArray,
+              T: float | FloatArray
+              ) -> float | FloatArray:
         r"""Evaluate solvent self-diffusion coefficient, $D_1$, at given SI
         conditions, without unit conversions or checks.
 
@@ -268,9 +267,9 @@ class VrentasDudaBinary():
         return D1
 
     def mutual(self,
-               w1: Union[float, FloatArray],
-               T: Union[float, FloatArray]
-               ) -> Union[float, FloatArray]:
+               w1: float | FloatArray,
+               T: float | FloatArray
+               ) -> float | FloatArray:
         r"""Evaluate mutual diffusion coefficient, $D$, at given SI conditions,
         without unit conversions or checks.
 
@@ -292,15 +291,15 @@ class VrentasDudaBinary():
         return D
 
     def plot(self,
-             T: Union[float, FloatArrayLike],
-             w1range: tuple[float, float] = (0., 0.5),
+             T: float | FloatArrayLike,
+             w1range: tuple[float, float] = (0.0, 0.5),
              Tunit: Literal['C', 'K'] = 'K',
              selfd: bool = False,
-             title: Optional[str] = None,
-             ylim: Optional[tuple[float, float]] = None,
-             axes: Optional[Axes] = None,
+             title: str | None = None,
+             ylim: tuple[float, float] | None = None,
+             axes: Axes | None = None,
              return_objects: bool = False
-             ) -> Optional[tuple[Optional[Figure], Axes]]:
+             ) -> tuple[Figure | None, Axes] | None:
         """Plot the mutual or self-diffusion coefficient as a function of
         solvent content and temperature.
 
@@ -353,7 +352,7 @@ class VrentasDudaBinary():
         if not isinstance(T, Iterable):
             T = [T]
 
-        w1 = np.linspace(*w1range, 100)
+        w1 = np.linspace(*w1range, num=100)
         for Ti in T:
             y = self.__call__(w1, Ti, Tunit, selfd)
             ax.semilogy(w1, y, label=f"{Ti}{Tsymbol}")

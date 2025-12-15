@@ -7,6 +7,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Literal
 from warnings import warn
+
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
@@ -427,7 +428,7 @@ class CopoModel(ABC):
 
         Parameters
         ----------
-        data : Union[CopoDataset, list[CopoDataset]]
+        data : CopoDataset | list[CopoDataset]
             Experimental dataset(s).
         """
         if not isinstance(data, list):

@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 from numpy import sqrt
@@ -83,14 +83,14 @@ class TerminationCompositeModel(KineticCoefficientCLD):
     129008375.03821689
     """
 
-    kt11: Union[Arrhenius, Eyring]
+    kt11: Arrhenius | Eyring
     icrit: int
     aS: float
     aL: float
     symbol: str = 'k_t (i,j)'
 
     def __init__(self,
-                 kt11: Union[Arrhenius, Eyring],
+                 kt11: Arrhenius | Eyring,
                  icrit: int,
                  aS: float = 0.5,
                  aL: float = 0.2,
@@ -112,13 +112,13 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         return custom_repr(self, ('name', 'icrit', 'aS', 'aL', 'kt11'))
 
     @staticmethod
-    def equation(i: Union[int, IntArray],
-                 j: Union[int, IntArray],
-                 kt11: Union[float, FloatArray],
+    def equation(i: int | IntArray,
+                 j: int | IntArray,
+                 kt11: float | FloatArray,
                  icrit: int,
                  aS: float,
                  aL: float,
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Composite model chain-length dependence equation.
 
         Parameters
@@ -151,11 +151,11 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         return sqrt(ktii(i)*ktii(j))
 
     def __call__(self,
-                 T: Union[float, FloatArrayLike],
-                 i: Union[int, IntArrayLike],
-                 j: Union[int, IntArrayLike],
+                 T: float | FloatArrayLike,
+                 i: int | IntArrayLike,
+                 j: int | IntArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 

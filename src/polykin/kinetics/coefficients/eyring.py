@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-from typing import Union
-
 import numpy as np
 from numpy import exp
 from scipy.constants import Boltzmann as kB
@@ -75,11 +73,11 @@ class Eyring(KineticCoefficientT):
               'DHa': ('J/mol', True), 'kappa': ('', False)}
 
     def __init__(self,
-                 DSa: Union[float, FloatArrayLike],
-                 DHa: Union[float, FloatArrayLike],
-                 kappa: Union[float, FloatArrayLike] = 1.0,
-                 Tmin: Union[float, FloatArrayLike] = 0.0,
-                 Tmax: Union[float, FloatArrayLike] = np.inf,
+                 DSa: float | FloatArrayLike,
+                 DHa: float | FloatArrayLike,
+                 kappa: float | FloatArrayLike = 1.0,
+                 Tmin: float | FloatArrayLike = 0.0,
+                 Tmax: float | FloatArrayLike = np.inf,
                  symbol: str = 'k',
                  name: str = ''
                  ) -> None:
@@ -93,19 +91,19 @@ class Eyring(KineticCoefficientT):
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(DSa, 0., np.inf, 'DSa')
-        check_bounds(DHa, 0., np.inf, 'DHa')
-        check_bounds(kappa, 0., 1., 'kappa')
+        check_bounds(DSa, 0.0, np.inf, 'DSa')
+        check_bounds(DHa, 0.0, np.inf, 'DHa')
+        check_bounds(kappa, 0.0, 1.0, 'kappa')
 
         self.p = {'DSa': DSa, 'DHa': DHa, 'kappa': kappa}
         super().__init__((Tmin, Tmax), '1/s', symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
-                 DSa: Union[float, FloatArray],
-                 DHa: Union[float, FloatArray],
-                 kappa: Union[float, FloatArray],
-                 ) -> Union[float, FloatArray]:
+    def equation(T: float | FloatArray,
+                 DSa: float | FloatArray,
+                 DHa: float | FloatArray,
+                 kappa: float | FloatArray,
+                 ) -> float | FloatArray:
         r"""Eyring equation.
 
         Parameters

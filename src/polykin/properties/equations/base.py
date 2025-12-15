@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 from abc import ABC, abstractmethod
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -41,26 +41,25 @@ class PropertyEquationT(PropertyEquation):
 
     _pinfo: dict[str, tuple[str, bool]]
     p: dict[str, Any]
-    Trange: tuple[Union[float, FloatArray], Union[float, FloatArray]]
+    Trange: tuple[float | FloatArray, float | FloatArray]
 
     def __init__(self,
-                 Trange: tuple[Union[float, FloatArray],
-                               Union[float, FloatArray]],
+                 Trange: tuple[float | FloatArray, float | FloatArray],
                  unit: str,
                  symbol: str,
                  name: str
                  ) -> None:
 
-        check_bounds(Trange[0], 0, np.inf, 'Tmin')
-        check_bounds(Trange[1], 0, np.inf, 'Tmax')
+        check_bounds(Trange[0], 0.0, np.inf, 'Tmin')
+        check_bounds(Trange[1], 0.0, np.inf, 'Tmax')
         check_bounds(Trange[1]-Trange[0], eps, np.inf, 'Tmax-Tmin')
         self.Trange = Trange
         super().__init__(unit, symbol, name)
 
     def __call__(self,
-                 T: Union[float, FloatArrayLike],
+                 T: float | FloatArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Evaluate property equation at given temperature, including unit
         conversion and range check.
 
@@ -81,9 +80,9 @@ class PropertyEquationT(PropertyEquation):
 
     @staticmethod
     @abstractmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  *args
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         """Property equation, $Y(T,p...)$."""
         pass
 
@@ -106,12 +105,12 @@ class PropertyEquationT(PropertyEquation):
 
     def plot(self,
              kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
-             Trange: Optional[tuple[float, float]] = None,
+             Trange: tuple[float, float] | None = None,
              Tunit: Literal['C', 'K'] = 'K',
-             title: Optional[str] = None,
-             axes: Optional[Axes] = None,
+             title: str | None = None,
+             axes: Axes | None = None,
              return_objects: bool = False
-             ) -> Optional[tuple[Optional[Figure], Axes]]:
+             ) -> tuple[Figure | None, Axes] | None:
         """Plot quantity as a function of temperature.
 
         Parameters
@@ -200,7 +199,7 @@ class PropertyEquationT(PropertyEquation):
         if shape is not None:
             print("Plot method not yet implemented for array-like equations.")
         else:
-            TK = np.linspace(*Trange, 100)
+            TK = np.linspace(*Trange, num=100)
             y = self.__call__(TK, 'K')
             T = TK
             if Tunit == 'C':
@@ -221,8 +220,8 @@ class PropertyEquationT(PropertyEquation):
     def fit(self,
             T: FloatVectorLike,
             Y: FloatVectorLike,
-            sigmaY: Optional[FloatVectorLike] = None,
-            fit_only: Optional[list[str]] = None,
+            sigmaY: FloatVectorLike | None = None,
+            fit_only: list[str] | None = None,
             logY: bool = False,
             plot: bool = True,
             ) -> dict:
@@ -307,11 +306,12 @@ class PropertyEquationT(PropertyEquation):
         return result
 
 
-def plotequations(eqs: list[PropertyEquationT],
-                  kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
-                  title: Optional[str] = None,
-                  **kwargs
-                  ) -> Figure:
+def plotequations(
+    eqs: list[PropertyEquationT],
+    kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
+    title: str | None = None,
+    **kwargs
+) -> Figure:
     """Plot a list of temperature-dependent property equations in a combined
     plot.
 

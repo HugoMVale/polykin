@@ -5,7 +5,6 @@
 # This module implements commonly used equations to evaluate the vapor
 # pressure of pure components.
 
-from typing import Union
 
 import numpy as np
 from numpy import exp
@@ -84,12 +83,12 @@ class Antoine(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  base10: bool
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Antoine equation.
 
         Parameters
@@ -192,14 +191,14 @@ class Wagner25(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  a: float,
                  b: float,
                  c: float,
                  d: float,
                  Pc: float,
                  Tc: float,
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Wagner equation.
 
         Parameters
@@ -304,14 +303,14 @@ class Wagner36(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  a: float,
                  b: float,
                  c: float,
                  d: float,
                  Pc: float,
                  Tc: float,
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Wagner equation.
 
         Parameters

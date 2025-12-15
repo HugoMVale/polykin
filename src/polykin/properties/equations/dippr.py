@@ -4,7 +4,6 @@
 
 # This modules implements the most commonly used DIPPR equations.
 
-from typing import Union
 
 import numpy as np
 from numpy import cosh, exp, log, sinh
@@ -123,13 +122,13 @@ class DIPPR100(DIPPRP5):
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  E: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-100 equation."""
         return A + B*T + C*T**2 + D*T**3 + E*T**4
 
@@ -186,13 +185,13 @@ class DIPPR101(DIPPRP5):
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  E: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-101 equation."""
         return exp(A + B/T + C*log(T) + D*T**E)
 
@@ -247,12 +246,12 @@ class DIPPR102(DIPPRP4):
         super().__init__(A, B, C, D, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-102 equation."""
         return (A * T**B) / (1 + C/T + D/T**2)
 
@@ -310,13 +309,13 @@ class DIPPR104(DIPPRP5):
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  E: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-104 equation."""
         return A + B/T + C/T**3 + D/T**8 + E/T**9
 
@@ -371,12 +370,12 @@ class DIPPR105(DIPPRP4):
         super().__init__(A, B, C, D, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-105 equation."""
         return A / B**(1 + (1 - T / C)**D)
 
@@ -439,14 +438,14 @@ class DIPPR106(DIPPR):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  E: float,
                  Tc: float,
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-106 equation."""
         Tr = T/Tc
         return A*(1-Tr)**(B + Tr*(C + Tr*(D + E*Tr)))
@@ -506,12 +505,12 @@ class DIPPR107(DIPPRP5):
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  E: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""DIPPR-107 equation."""
         return A + B*(C/T/sinh(C/T))**2 + D*(E/T/cosh(E/T))**2

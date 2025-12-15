@@ -4,7 +4,7 @@
 
 import functools
 from abc import ABC, abstractmethod
-from typing import Literal, Optional, Union
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import mpmath
@@ -92,10 +92,10 @@ class Distribution(ABC):
         return self.Mn / self.DPn
 
     def pdf(self,
-            size: Union[float, FloatArrayLike],
+            size: float | FloatArrayLike,
             kind: Literal['number', 'mass', 'gpc'] = 'mass',
             sizeasmass: bool = False,
-            ) -> Union[float, FloatArray]:
+            ) -> float | FloatArray:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
@@ -123,10 +123,10 @@ class Distribution(ABC):
         return self._pdf(size, order, sizeasmass)
 
     def cdf(self,
-            size: Union[float, FloatArrayLike],
+            size: float | FloatArrayLike,
             kind: Literal['number', 'mass'] = 'mass',
             sizeasmass: bool = False,
-            ) -> Union[float, FloatArray]:
+            ) -> float | FloatArray:
         r"""Evaluate the cumulative distribution function:
 
         $$
@@ -171,16 +171,16 @@ class Distribution(ABC):
         return self._cdf(size, order, sizeasmass)
 
     def plot(self,
-             kind: Union[Literal['number', 'mass', 'gpc'],
-                         list[Literal['number', 'mass', 'gpc']]] = 'mass',
+             kind: Literal['number', 'mass',
+                           'gpc'] | list[Literal['number', 'mass', 'gpc']] = 'mass',
              sizeasmass: bool = False,
              xscale: Literal['auto', 'linear', 'log'] = 'auto',
-             xrange: Union[tuple[float, float], None] = None,
+             xrange: tuple[float, float] | None = None,
              cdf: Literal[0, 1, 2] = 0,
-             title: Optional[str] = None,
-             axes: Optional[list[Axes]] = None,
+             title: str | None = None,
+             axes: list[Axes] | None = None,
              return_objects: bool = False
-             ) -> Optional[tuple[Optional[Figure], list[Axes]]]:
+             ) -> tuple[Figure | None, list[Axes]] | None:
         """Plot the chain-length distribution.
 
         Parameters
@@ -339,20 +339,20 @@ class Distribution(ABC):
 
     @abstractmethod
     def _pdf(self,
-             size: Union[float, FloatArray],
+             size: float | FloatArray,
              order: int,
              sizeasmass: bool = False
-             ) -> Union[float, FloatArray]:
+             ) -> float | FloatArray:
         """$m$-th order chain-length / molar mass probability density
         function."""
         pass
 
     @abstractmethod
     def _cdf(self,
-             size: Union[float, FloatArray],
+             size: float | FloatArray,
              order: int,
              sizeasmass: bool = False
-             ) -> Union[float, FloatArray]:
+             ) -> float | FloatArray:
         """$m$-th order chain-length / molar mass cumulative distribution
         function."""
         pass
@@ -493,9 +493,9 @@ class IndividualDistribution(Distribution):
         return result
 
     def _cdf_length(self,
-                    x: Union[float, FloatArray],
+                    x: float | FloatArray,
                     order: int
-                    ) -> Union[float, FloatArray]:
+                    ) -> float | FloatArray:
         r"""Cumulative distribution function.
 
         This implementation is a general low-performance fallback solution.
@@ -545,8 +545,8 @@ class IndividualDistribution(Distribution):
 
     @abstractmethod
     def _pdf0_length(self,
-                     k: Union[float, FloatArray]
-                     ) -> Union[float, FloatArray]:
+                     k: float | FloatArray
+                     ) -> float | FloatArray:
         r"""Probability density/mass function.
 
         Each child class must implement a method delivering the _number_
@@ -602,8 +602,8 @@ class AnalyticalDistribution(IndividualDistribution):
         return (self.DPn,)
 
     def random(self,
-               shape: Optional[Union[int, tuple[int, ...]]] = None
-               ) -> Union[int, IntArray]:
+               shape: int | tuple[int, ...] | None = None
+               ) -> int | IntArray:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -623,8 +623,8 @@ class AnalyticalDistribution(IndividualDistribution):
 
     @abstractmethod
     def _random_length(self,
-                       shape: Optional[Union[int, tuple[int, ...]]],
-                       ) -> Union[int, IntArray]:
+                       shape: int | tuple[int, ...] | None,
+                       ) -> int | IntArray:
         r"""Random chain-length generator.
 
         Each child class must implement a method to generate random chain
@@ -847,7 +847,7 @@ class MixtureDistribution(Distribution):
 
 def plotdists(dists: list[Distribution],
               kind: Literal['number', 'mass', 'gpc'],
-              title: Optional[str] = None,
+              title: str | None = None,
               **kwargs
               ) -> Figure:
     """Plot a list of distributions in a joint plot.

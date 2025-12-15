@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 from numpy import exp
@@ -77,13 +77,13 @@ class PropagationHalfLength(KineticCoefficientCLD):
     371.75986615653215
     """
 
-    kp: Union[Arrhenius, Eyring]
+    kp: Arrhenius | Eyring
     C: float
     ihalf: float
     symbol: str = 'k_p(i)'
 
     def __init__(self,
-                 kp: Union[Arrhenius, Eyring],
+                 kp: Arrhenius | Eyring,
                  C: float = 10.0,
                  ihalf: float = 1.0,
                  name: str = ''
@@ -102,11 +102,11 @@ class PropagationHalfLength(KineticCoefficientCLD):
         return custom_repr(self, ('name', 'C', 'ihalf', 'kp'))
 
     @staticmethod
-    def equation(i: Union[int, IntArray],
-                 kp: Union[float, FloatArray],
+    def equation(i: int | IntArray,
+                 kp: float | FloatArray,
                  C: float,
                  ihalf: float
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Half-length model chain-length dependence equation.
 
         Parameters
@@ -130,10 +130,10 @@ class PropagationHalfLength(KineticCoefficientCLD):
         return kp*(1 + (C - 1)*exp(-ln(2)*(i - 1)/ihalf))
 
     def __call__(self,
-                 T: Union[float, FloatArrayLike],
-                 i: Union[int, IntArrayLike],
+                 T: float | FloatArrayLike,
+                 i: int | IntArrayLike,
                  Tunit: Literal['C', 'K'] = 'K'
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 

@@ -5,7 +5,6 @@
 # This module implements commonly used equations to evaluate the viscosity of
 # pure components.
 
-from typing import Union
 
 import numpy as np
 from numpy import exp
@@ -73,13 +72,13 @@ class Yaws(PropertyEquationT):
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: Union[float, FloatArray],
+    def equation(T: float | FloatArray,
                  A: float,
                  B: float,
                  C: float,
                  D: float,
                  base10: bool
-                 ) -> Union[float, FloatArray]:
+                 ) -> float | FloatArray:
         r"""Yaws equation.
 
         Parameters

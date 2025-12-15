@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
 
 from polykin.properties.equations.base import PropertyEquationT
 from polykin.utils.types import FloatArray
@@ -13,10 +12,10 @@ from polykin.utils.types import FloatArray
 
 class KineticCoefficientT(PropertyEquationT):
 
-    _shape: Optional[tuple]
+    _shape: tuple | None
 
     @property
-    def shape(self) -> Optional[tuple[int, ...]]:
+    def shape(self) -> tuple[int, ...] | None:
         """Shape of underlying parameter array."""
         return self._shape
 
@@ -27,10 +26,10 @@ class KineticCoefficientCLD(ABC):
     name: str
 
     @abstractmethod
-    def __call__(self, T, i, *args) -> Union[float, FloatArray]:
+    def __call__(self, T, i, *args) -> float | FloatArray:
         pass
 
     @staticmethod
     @abstractmethod
-    def equation(T, i, *args) -> Union[float, FloatArray]:
+    def equation(T, i, *args) -> float | FloatArray:
         pass
