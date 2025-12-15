@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2023
 
 import functools
-from typing import Any, Iterable, Union
+from typing import Any, Iterable
 
 import numpy as np
 
@@ -18,10 +18,11 @@ huge = float(np.finfo(np.float64).max)
 tiny = float(np.finfo(np.float64).min)
 
 
-def add_dicts(d1: dict[Any, Union[int, float]],
-              d2: dict[Any, Union[int, float]],
-              new: bool = False
-              ) -> dict[Any, Union[int, float]]:
+def add_dicts(
+    d1: dict[Any, int | float],
+        d2: dict[Any, int | float],
+        new: bool = False
+) -> dict[Any, int | float]:
     """Adds two dictionaries by summing the values for the same key.
 
     Parameters
@@ -56,8 +57,9 @@ class vectorize(np.vectorize):
         return functools.partial(self.__call__, obj)
 
 
-def convert_FloatOrArrayLike_to_FloatOrArray(a: list[FloatOrArrayLike]
-                                             ) -> list[FloatOrArray]:
+def convert_FloatOrArrayLike_to_FloatOrArray(
+    a: list[FloatOrArrayLike]
+) -> list[FloatOrArray]:
     "Convert list of `FloatOrArrayLike` to list of `FloatOrArray`."
     result = []
     for item in a:
@@ -67,8 +69,9 @@ def convert_FloatOrArrayLike_to_FloatOrArray(a: list[FloatOrArrayLike]
     return result
 
 
-def convert_FloatOrVectorLike_to_FloatOrVector(a: list[FloatOrVectorLike]
-                                               ) -> list[FloatOrVector]:
+def convert_FloatOrVectorLike_to_FloatOrVector(
+    a: list[FloatOrVectorLike]
+) -> list[FloatOrVector]:
     "Convert list of `FloatOrVectorLike` to list of `FloatOrVector`."
     result = []
     for item in a:
@@ -78,9 +81,10 @@ def convert_FloatOrVectorLike_to_FloatOrVector(a: list[FloatOrVectorLike]
     return result
 
 
-def convert_FloatOrVectorLike_to_FloatVector(a: list[FloatOrVectorLike],
-                                             equal_shapes: bool = True
-                                             ) -> list[FloatVector]:
+def convert_FloatOrVectorLike_to_FloatVector(
+    a: list[FloatOrVectorLike],
+        equal_shapes: bool = True
+) -> list[FloatVector]:
     "Convert list of `FloatOrVectorLike` to list of `FloatVector`."
     result = []
     for item in a:
