@@ -36,20 +36,15 @@ class Arrhenius(KineticCoefficientT):
     Parameters
     ----------
     k0 : float | FloatArrayLike
-        Coefficient value at the reference temperature, $k_0=k(T_0)$.
-        Unit = `unit`.
+        Coefficient value at the reference temperature, $k_0=k(T_0)$ [`unit`].
     EaR : float | FloatArrayLike
-        Energy of activation, $E_a/R$.
-        Unit = K.
+        Energy of activation, $E_a/R$ [K].
     T0 : float | FloatArrayLike
-        Reference temperature, $T_0$.
-        Unit = K.
+        Reference temperature, $T_0$ [K].
     Tmin : float | FloatArrayLike
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float | FloatArrayLike
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     unit : str
         Unit of coefficient.
     symbol : str
@@ -115,22 +110,18 @@ class Arrhenius(KineticCoefficientT):
         Parameters
         ----------
         T : float | FloatArray
-            Temperature.
-            Unit = K.
+            Temperature [K].
         k0 : float | FloatArray
-            Coefficient value at the reference temperature, $k_0=k(T_0)$.
-            Unit = Any.
+            Coefficient value at the reference temperature, $k_0=k(T_0)$ [Any].
         EaR : float | FloatArray
-            Energy of activation, $E_a/R$.
-            Unit = K.
+            Energy of activation, $E_a/R$ [K].
         T0 : float | FloatArray
-            Reference temperature, $T_0$.
-            Unit = K.
+            Reference temperature, $T_0$ [K].
 
         Returns
         -------
         float | FloatArray
-            Coefficient value. Unit = [k0].
+            Coefficient value [=k0].
         """
         return k0 * exp(-EaR*(1/T - 1/T0))
 
