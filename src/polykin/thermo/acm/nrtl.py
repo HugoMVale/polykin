@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Optional
 
 import numpy as np
 from numpy import dot, exp, log
@@ -87,12 +86,12 @@ class NRTL(SmallSpeciesActivityModel):
 
     def __init__(self,
                  N: int,
-                 a: Optional[FloatSquareMatrix] = None,
-                 b: Optional[FloatSquareMatrix] = None,
-                 c: Optional[FloatSquareMatrix] = None,
-                 d: Optional[FloatSquareMatrix] = None,
-                 e: Optional[FloatSquareMatrix] = None,
-                 f: Optional[FloatSquareMatrix] = None,
+                 a: FloatSquareMatrix | None = None,
+                 b: FloatSquareMatrix | None = None,
+                 c: FloatSquareMatrix | None = None,
+                 d: FloatSquareMatrix | None = None,
+                 e: FloatSquareMatrix | None = None,
+                 f: FloatSquareMatrix | None = None,
                  name: str = ''
                  ) -> None:
 
@@ -191,10 +190,11 @@ class NRTL(SmallSpeciesActivityModel):
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 
 
-def NRTL_gamma(x: FloatVector,
-               tau: FloatSquareMatrix,
-               alpha: FloatSquareMatrix
-               ) -> FloatVector:
+def NRTL_gamma(
+    x: FloatVector,
+    tau: FloatSquareMatrix,
+    alpha: FloatSquareMatrix
+) -> FloatVector:
     r"""Calculate the activity coefficients of a multicomponent mixture
     according to the NRTL model.
 

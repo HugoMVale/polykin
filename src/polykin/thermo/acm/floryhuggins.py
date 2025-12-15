@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Optional, Union
 
 import numpy as np
 from numpy import dot, exp, log
@@ -18,9 +17,11 @@ from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector,
 
 # from .base import ActivityCoefficientModel
 
-__all__ = ['FloryHuggins',
-           'FloryHuggins_activity',
-           'FloryHuggins2_activity']
+__all__ = [
+    'FloryHuggins',
+    'FloryHuggins_activity',
+    'FloryHuggins2_activity'
+]
 
 
 class FloryHuggins():
@@ -79,11 +80,11 @@ class FloryHuggins():
 
     def __init__(self,
                  N: int,
-                 a: Optional[FloatSquareMatrix] = None,
-                 b: Optional[FloatSquareMatrix] = None,
-                 c: Optional[FloatSquareMatrix] = None,
-                 d: Optional[FloatSquareMatrix] = None,
-                 e: Optional[FloatSquareMatrix] = None
+                 a: FloatSquareMatrix | None = None,
+                 b: FloatSquareMatrix | None = None,
+                 c: FloatSquareMatrix | None = None,
+                 d: FloatSquareMatrix | None = None,
+                 e: FloatSquareMatrix | None = None
                  ) -> None:
 
         # Set default values
@@ -249,10 +250,11 @@ class FloryHuggins():
         return FloryHuggins_activity(phi, m, self.chi(T))
 
 
-def FloryHuggins_activity(phi: FloatVector,
-                          m: FloatVector,
-                          chi: FloatSquareMatrix
-                          ) -> FloatVector:
+def FloryHuggins_activity(
+    phi: FloatVector,
+    m: FloatVector,
+    chi: FloatSquareMatrix
+) -> FloatVector:
     r"""Calculate the activities of a multicomponent mixture according to the
     Flory-Huggins model.
 
@@ -312,10 +314,11 @@ def FloryHuggins_activity(phi: FloatVector,
     return phi*exp(1 - m*(A - B + C))
 
 
-def FloryHuggins2_activity(phi1: Union[float, FloatArray],
-                           m: Union[float, FloatArray],
-                           chi: Union[float, FloatArray]
-                           ) -> Union[float, FloatArray]:
+def FloryHuggins2_activity(
+    phi1: float | FloatArray,
+    m: float | FloatArray,
+    chi: float | FloatArray
+) -> float | FloatArray:
     r"""Calculate the solvent activity of a binary polymer solution according
     to the Flory-Huggins model.
 
