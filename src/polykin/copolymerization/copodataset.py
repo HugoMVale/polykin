@@ -4,7 +4,7 @@
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatOrVector
 from polykin.utils.tools import check_shapes
@@ -13,12 +13,14 @@ from polykin.utils.types import FloatVector, FloatVectorLike
 # from dataclasses import dataclass
 
 
-__all__ = ['MayoDataset',
-           'DriftDataset',
-           'kpDataset',
-           'CopoDataset_Ff',
-           'CopoDataset_fx',
-           'CopoDataset_Fx']
+__all__ = [
+    'MayoDataset',
+    'DriftDataset',
+    'kpDataset',
+    'CopoDataset_Ff',
+    'CopoDataset_fx',
+    'CopoDataset_Fx'
+]
 
 
 class CopoDataset(ABC):
@@ -30,8 +32,8 @@ class CopoDataset(ABC):
                  M2: str,
                  x: FloatVectorLike,
                  y: FloatVectorLike,
-                 sigma_x: Union[float, FloatVectorLike],
-                 sigma_y: Union[float, FloatVectorLike],
+                 sigma_x: float | FloatVectorLike,
+                 sigma_y: float | FloatVectorLike,
                  weight: float,
                  T: float,
                  Tunit: Literal['C', 'K'],
@@ -119,8 +121,8 @@ class MayoDataset(CopoDataset):
                  M2: str,
                  f1: FloatVectorLike,
                  F1: FloatVectorLike,
-                 sigma_f1: Union[float, FloatVectorLike] = 1e-2,
-                 sigma_F1: Union[float, FloatVectorLike] = 5e-2,
+                 sigma_f1: float | FloatVectorLike = 1e-2,
+                 sigma_F1: float | FloatVectorLike = 5e-2,
                  weight: float = 1,
                  T: float = 298.,
                  Tunit: Literal['C', 'K'] = 'K',
@@ -170,8 +172,8 @@ class DriftDataset(CopoDataset):
                  M2: str,
                  x: FloatVectorLike,
                  f1: FloatVectorLike,
-                 sigma_x: Union[float, FloatVectorLike] = 5e-2,
-                 sigma_f1: Union[float, FloatVectorLike] = 5e-2,
+                 sigma_x: float | FloatVectorLike = 5e-2,
+                 sigma_f1: float | FloatVectorLike = 5e-2,
                  weight: float = 1,
                  T: float = 298.,
                  Tunit: Literal['C', 'K'] = 'K',
@@ -223,8 +225,8 @@ class kpDataset(CopoDataset):
                  M2: str,
                  f1: FloatVectorLike,
                  kp: FloatVectorLike,
-                 sigma_f1: Union[float, FloatVectorLike] = 5e-2,
-                 sigma_kp: Union[float, FloatVectorLike] = 1e2,
+                 sigma_f1: float | FloatVectorLike = 5e-2,
+                 sigma_kp: float | FloatVectorLike = 1e2,
                  weight: float = 1,
                  T: float = 298.,
                  Tunit: Literal['C', 'K'] = 'K',
@@ -242,8 +244,8 @@ class CopoDataset_Ff():
     name: str
     f1: FloatVector
     F1: FloatVector
-    scale_f1: Union[FloatVector, float] = 1.0
-    scale_F1: Union[FloatVector, float] = 1.0
+    scale_f1: FloatVector | float = 1.0
+    scale_F1: FloatVector | float = 1.0
     weight: float = 1.0
 
 
@@ -254,8 +256,8 @@ class CopoDataset_fx():
     f10: float
     x: FloatVector
     f1: FloatVector
-    # scale_x: Union[FloatVector, float] = 1.0
-    scale_f1: Union[FloatVector, float] = 1.0
+    # scale_x: FloatVector | float = 1.0
+    scale_f1: FloatVector | float = 1.0
     weight: float = 1.0
 
 
@@ -266,6 +268,6 @@ class CopoDataset_Fx():
     f10: float
     x: FloatVector
     F1: FloatVector
-    # scale_x: Union[FloatVector, float] = 1.0
-    scale_F1: Union[FloatVector, float] = 1.0
+    # scale_x: FloatVector | float = 1.0
+    scale_F1: FloatVector | float = 1.0
     weight: float = 1.0
