@@ -222,7 +222,7 @@ class Wagner25(PropertyEquationT):
         Returns
         -------
         float | FloatArray
-            Vapor pressure [Pc].
+            Vapor pressure [=Pc].
         """
         Tr = T/Tc
         t = 1 - Tr
@@ -334,7 +334,7 @@ class Wagner36(PropertyEquationT):
         Returns
         -------
         float | FloatArray
-            Vapor pressure [Pc].
+            Vapor pressure [=Pc].
         """
         Tr = T/Tc
         t = 1 - Tr
