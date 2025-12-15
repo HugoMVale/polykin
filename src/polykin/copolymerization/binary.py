@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Literal, Union
+from typing import Literal
 
 import numpy as np
 from numba import jit
@@ -13,16 +13,19 @@ from polykin.utils.math import eps
 from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
                                  FloatVectorLike)
 
-__all__ = ['inst_copolymer_binary',
-           'kp_average_binary',
-           'monomer_drift_binary']
+__all__ = [
+    'inst_copolymer_binary',
+    'kp_average_binary',
+    'monomer_drift_binary'
+]
 
 
 @jit
-def inst_copolymer_binary(f1: Union[float, FloatArrayLike],
-                          r1: Union[float, FloatArray],
-                          r2: Union[float, FloatArray]
-                          ) -> Union[float, FloatArray]:
+def inst_copolymer_binary(
+    f1: float | FloatArrayLike,
+    r1: float | FloatArray,
+    r2: float | FloatArray
+) -> float | FloatArray:
     r"""Calculate the instantaneous copolymer composition using the
     [Mayo-Lewis](https://en.wikipedia.org/wiki/Mayo%E2%80%93Lewis_equation)
      equation.
@@ -76,17 +79,18 @@ def inst_copolymer_binary(f1: Union[float, FloatArrayLike],
     array([0.21487603, 0.45812808, 0.58259325])
 
     """
-    f1 = np.asarray(f1)
+    f1 = np.asarray(f1, dtype=np.float64)
     f2 = 1 - f1
     return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
 
 
-def kp_average_binary(f1: Union[float, FloatArrayLike],
-                      r1: Union[float, FloatArray],
-                      r2: Union[float, FloatArray],
-                      k11: Union[float, FloatArray],
-                      k22: Union[float, FloatArray]
-                      ) -> Union[float, FloatArray]:
+def kp_average_binary(
+    f1: float | FloatArrayLike,
+    r1: float | FloatArray,
+    r2: float | FloatArray,
+    k11: float | FloatArray,
+    k22: float | FloatArray
+) -> float | FloatArray:
     r"""Calculate the average propagation rate coefficient in a
     copolymerization.
 
@@ -112,16 +116,14 @@ def kp_average_binary(f1: Union[float, FloatArrayLike],
     r2 : float | FloatArray
         Reactivity ratio of M2, $r_2$ or $\bar{r}_2$.
     k11 : float | FloatArray
-        Propagation rate coefficient of M1, $k_{11}$ or $\bar{k}_{11}$.
-        Unit = L/(mol·s)
+        Propagation rate coefficient of M1, $k_{11}$ or $\bar{k}_{11}$ [L/(mol·s)].
     k22 : float | FloatArray
-        Propagation rate coefficient of M2, $k_{22}$ or $\bar{k}_{22}$.
-        Unit = L/(mol·s)
+        Propagation rate coefficient of M2, $k_{22}$ or $\bar{k}_{22}$ [L/(mol·s)].
 
     Returns
     -------
     float | FloatArray
-        Average propagation rate coefficient. Unit = L/(mol·s)
+        Average propagation rate coefficient [L/(mol·s)].
 
     Examples
     --------
@@ -138,19 +140,20 @@ def kp_average_binary(f1: Union[float, FloatArrayLike],
     >>> kp
     array([880.        , 523.87096774, 317.18309859])
     """
-    f1 = np.asarray(f1)
+    f1 = np.asarray(f1, dtype=float)
     f2 = 1 - f1
     return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
 
 
-def monomer_drift_binary(f10: Union[float, FloatVectorLike],
-                         x: FloatVectorLike,
-                         r1: float,
-                         r2: float,
-                         atol: float = 1e-4,
-                         rtol: float = 1e-4,
-                         method: Literal['LSODA', 'RK45'] = 'LSODA'
-                         ) -> FloatMatrix:
+def monomer_drift_binary(
+    f10: float | FloatVectorLike,
+    x: FloatVectorLike,
+    r1: float,
+    r2: float,
+    atol: float = 1e-4,
+    rtol: float = 1e-4,
+    method: Literal['LSODA', 'RK45'] = 'LSODA'
+) -> FloatMatrix:
     r"""Compute the monomer composition drift for a binary system.
 
     In a closed binary system, the drift in monomer composition is given by
@@ -210,7 +213,7 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
         f10 = [f10]
 
     sol = solve_ivp(df1dx,
-                    (0., max(x)),
+                    (0.0, max(x)),
                     f10,
                     args=(r1, r2),
                     t_eval=x,
@@ -221,7 +224,7 @@ def monomer_drift_binary(f10: Union[float, FloatVectorLike],
 
     if sol.success:
         result = sol.y
-        result = np.maximum(0., result)
+        result = np.maximum(0.0, result)
         if result.shape[0] == 1:
             result = result[0]
     else:
