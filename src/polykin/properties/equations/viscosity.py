@@ -100,7 +100,7 @@ class Yaws(PropertyEquationT):
         Returns
         -------
         float | FloatArray
-            Viscosity. Unit = Any.
+            Viscosity [Any].
         """
         x = A + B/T + C*T + D*T**2
         if base10:
