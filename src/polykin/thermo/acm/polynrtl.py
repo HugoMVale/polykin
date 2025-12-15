@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Optional
 
 import numpy as np
 from numpy import dot, exp, log
@@ -94,13 +93,13 @@ class PolyNRTL(PolymerActivityModel):
                  Ns: int,
                  Np: int,
                  Nru: int,
-                 a: Optional[FloatSquareMatrix] = None,
-                 b: Optional[FloatSquareMatrix] = None,
-                 c: Optional[FloatSquareMatrix] = None,
-                 d: Optional[FloatSquareMatrix] = None,
-                 e: Optional[FloatSquareMatrix] = None,
-                 f: Optional[FloatSquareMatrix] = None,
-                 s: Optional[FloatVector] = None
+                 a: FloatSquareMatrix | None = None,
+                 b: FloatSquareMatrix | None = None,
+                 c: FloatSquareMatrix | None = None,
+                 d: FloatSquareMatrix | None = None,
+                 e: FloatSquareMatrix | None = None,
+                 f: FloatSquareMatrix | None = None,
+                 s: FloatVector | None = None
                  ) -> None:
         """Construct `NRTL` with the given parameters."""
 
