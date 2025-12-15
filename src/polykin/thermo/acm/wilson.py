@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Optional
 
 import numpy as np
 from numpy import dot, exp, log
@@ -71,10 +70,10 @@ class Wilson(SmallSpeciesActivityModel):
 
     def __init__(self,
                  N: int,
-                 a: Optional[FloatSquareMatrix] = None,
-                 b: Optional[FloatSquareMatrix] = None,
-                 c: Optional[FloatSquareMatrix] = None,
-                 d: Optional[FloatSquareMatrix] = None,
+                 a: FloatSquareMatrix | None = None,
+                 b: FloatSquareMatrix | None = None,
+                 c: FloatSquareMatrix | None = None,
+                 d: FloatSquareMatrix | None = None,
                  name: str = ''
                  ) -> None:
 
@@ -135,9 +134,10 @@ class Wilson(SmallSpeciesActivityModel):
         return Wilson_gamma(x, self.Lambda(T))
 
 
-def Wilson_gamma(x: FloatVector,
-                 Lambda: FloatSquareMatrix
-                 ) -> FloatVector:
+def Wilson_gamma(
+    x: FloatVector,
+        Lambda: FloatSquareMatrix
+) -> FloatVector:
     r"""Calculate the activity coefficients of a multicomponent mixture
     according to the Wilson model.
 
