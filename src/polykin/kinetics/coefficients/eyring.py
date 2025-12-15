@@ -38,19 +38,15 @@ class Eyring(KineticCoefficientT):
     Parameters
     ----------
     DSa : float | FloatArrayLike
-        Entropy of activation, $\Delta S^\ddagger$.
-        Unit = J/(mol·K).
+        Entropy of activation, $\Delta S^\ddagger$ [J/(mol·K)].
     DHa : float | FloatArrayLike
-        Enthalpy of activation, $\Delta H^\ddagger$.
-        Unit = J/mol.
+        Enthalpy of activation, $\Delta H^\ddagger$ [J/mol].
     kappa : float | FloatArrayLike
         Transmission coefficient.
     Tmin : float | FloatArrayLike
-        Lower temperature bound.
-        Unit = K.
+        Lower temperature bound [K].
     Tmax : float | FloatArrayLike
-        Upper temperature bound.
-        Unit = K.
+        Upper temperature bound [K].
     symbol : str
         Symbol of coefficient $k$.
     name : str
@@ -115,20 +111,17 @@ class Eyring(KineticCoefficientT):
         Parameters
         ----------
         T : float | FloatArray
-            Temperature.
-            Unit = K.
+            Temperature [K].
         DSa : float | FloatArray
-            Entropy of activation, $\Delta S^\ddagger$.
-            Unit = J/(mol·K).
+            Entropy of activation, $\Delta S^\ddagger$ [J/(mol·K)].
         DHa : float | FloatArray
-            Enthalpy of activation, $\Delta H^\ddagger$.
-            Unit = J/mol.
+            Enthalpy of activation, $\Delta H^\ddagger$ [J/mol].
         kappa : float | FloatArray
             Transmission coefficient.
 
         Returns
         -------
         float | FloatArray
-            Coefficient value. Unit = 1/s.
+            Coefficient value [s⁻¹].
         """
         return kappa * kB*T/h * exp((DSa - DHa/T)/R)
