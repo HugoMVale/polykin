@@ -3,33 +3,36 @@
 # Copyright Hugo Vale 2023
 
 import functools
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 
 from .tools import check_shapes
-from .types import (FloatOrArray, FloatOrArrayLike, FloatOrVector,
-                    FloatOrVectorLike, FloatSquareMatrix, FloatVector)
+from .types import (
+    FloatOrArray,
+    FloatOrArrayLike,
+    FloatOrVector,
+    FloatOrVectorLike,
+    FloatSquareMatrix,
+    FloatVector,
+)
 
-# %% Maths
-
-eps = float(np.finfo(np.float64).eps)
-huge = float(np.finfo(np.float64).max)
-tiny = float(np.finfo(np.float64).min)
+_finfo = np.finfo(np.float64)
+eps = _finfo.eps
+huge = _finfo.max
+tiny = _finfo.tiny
 
 
 def add_dicts(
-    d1: dict[Any, int | float],
-        d2: dict[Any, int | float],
-        new: bool = False
+    d1: dict[Any, int | float], d2: dict[Any, int | float], *, new: bool = False
 ) -> dict[Any, int | float]:
-    """Adds two dictionaries by summing the values for the same key.
+    r"""Add two dictionaries by summing the values for the same key.
 
     Parameters
     ----------
-    d1 : dict[Any, int  |  float]
+    d1 : dict[Any, int | float]
         first dictionary
-    d2 : dict[Any, int  |  float]
+    d2 : dict[Any, int | float]
         second dictionary
     new : bool
         if True, a new dictionary will be created (`d = d1 + d2`), otherwise,
@@ -46,21 +49,28 @@ def add_dicts(
         dout = d1
 
     for key, value in d2.items():
-        dout[key] = dout.get(key, 0) + value
+        dout[key] = dout.get(key, 0.0) + value
     return dout
 
 
 class vectorize(np.vectorize):
-    "Vectorize decorator for instance methods."
+    """Vectorize decorator for instance methods.
+
+    Notes
+    -----
+    `vectorize` provides convenience, not performance. The wrapped function
+    is still called element by element.
+    """
 
     def __get__(self, obj, objtype):
+        """Bind the vectorized function to an instance method."""
         return functools.partial(self.__call__, obj)
 
 
 def convert_FloatOrArrayLike_to_FloatOrArray(
-    a: list[FloatOrArrayLike]
+    a: list[FloatOrArrayLike],
 ) -> list[FloatOrArray]:
-    "Convert list of `FloatOrArrayLike` to list of `FloatOrArray`."
+    """Convert list of `FloatOrArrayLike` to list of `FloatOrArray`."""
     result = []
     for item in a:
         if isinstance(item, (list, tuple)):
@@ -70,9 +80,9 @@ def convert_FloatOrArrayLike_to_FloatOrArray(
 
 
 def convert_FloatOrVectorLike_to_FloatOrVector(
-    a: list[FloatOrVectorLike]
+    a: list[FloatOrVectorLike],
 ) -> list[FloatOrVector]:
-    "Convert list of `FloatOrVectorLike` to list of `FloatOrVector`."
+    """Convert list of `FloatOrVectorLike` to list of `FloatOrVector`."""
     result = []
     for item in a:
         if isinstance(item, (list, tuple)):
@@ -82,13 +92,12 @@ def convert_FloatOrVectorLike_to_FloatOrVector(
 
 
 def convert_FloatOrVectorLike_to_FloatVector(
-    a: list[FloatOrVectorLike],
-        equal_shapes: bool = True
+    a: list[FloatOrVectorLike], equal_shapes: bool = True
 ) -> list[FloatVector]:
-    "Convert list of `FloatOrVectorLike` to list of `FloatVector`."
+    """Convert list of `FloatOrVectorLike` to list of `FloatVector`."""
     result = []
     for item in a:
-        if not isinstance(item, Iterable):
+        if np.isscalar(item):
             item = (item,)
         if isinstance(item, (list, tuple)):
             item = np.array(item, dtype=np.float64)
@@ -106,7 +115,9 @@ def enforce_symmetry(matrix: FloatSquareMatrix) -> None:
     matrix : FloatSquareMatrix
         Matrix to be transformed in-place.
     """
+    if matrix.ndim != 2 or matrix.shape[0] != matrix.shape[1]:
+        raise ValueError("Matrix must be square.")
+
     N = matrix.shape[0]
     mask = np.tril(np.ones((N, N), dtype=bool), k=-1)
     matrix[mask] = matrix.T[mask]
-    return
