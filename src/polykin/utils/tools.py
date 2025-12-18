@@ -2,24 +2,31 @@
 #
 # Copyright Hugo Vale 2023
 
-from numbers import Number
-from typing import Any, Iterable, Literal
+"""
+Input validation, unit conversion, and formatting utilities for PolyKin.
+
+This module provides a collection of helper functions used throughout
+PolyKin to validate input types, ranges, and shapes; perform basic unit
+conversions for thermodynamic quantities; and generate readable string
+representations for numerical objects. The utilities are designed to
+support both scalar and NumPy array inputs and to raise clear,
+domain-specific exceptions when invalid data is encountered.
+"""
+
+from collections.abc import Iterable
+from numbers import Real
+from typing import Any, Literal
+from warnings import warn
 
 import numpy as np
 
 from .exceptions import RangeError, ShapeError
 from .types import FloatMatrix, FloatOrArray, FloatOrArrayLike
 
-# %% Check tools
 
-
-def custom_error(var_name: str,
-                 var_value: Any,
-                 kind: type,
-                 message: str = ""
-                 ) -> None:
+def custom_error(var_name: str, var_value: Any, kind: type, message: str = "") -> None:
     """
-    Custom error message function.
+    Raise a custom error message.
 
     Parameters
     ----------
@@ -34,8 +41,7 @@ def custom_error(var_name: str,
 
     """
     # Print error message
-    error_message = \
-        f"`{var_name} = {var_value}` is not a valid input."
+    error_message = f"`{var_name} = {var_value}` is not a valid input."
     # sys.tracebacklimit = 1
     if message != "":
         error_message += " " + message
@@ -44,13 +50,13 @@ def custom_error(var_name: str,
     raise kind(error_message)
 
 
-def check_type(var_value: Any,
-               valid_types: type | tuple[type, ...],
-               var_name: str,
-               check_inside: bool = False
-               ) -> Any:
-    """
-    Check if a variable is of a given type.
+def check_type(
+    var_value: Any,
+    valid_types: type | tuple[type, ...],
+    var_name: str,
+    check_inside: bool = False,
+) -> Any:
+    """Check if a variable is of a given type.
 
     Parameters
     ----------
@@ -67,9 +73,7 @@ def check_type(var_value: Any,
     -------
     var_value : type(var_name)
         Value of variable `var_name`.
-
     """
-
     check = False
 
     if check_inside:
@@ -83,7 +87,6 @@ def check_type(var_value: Any,
                 TypeError,
                 f"`Variable {var_name}` should be iterable.",
             )
-
     else:
         if isinstance(var_value, valid_types):
             check = True
@@ -95,20 +98,44 @@ def check_type(var_value: Any,
             var_name,
             var_value,
             TypeError,
-            f"Variable `{var_name}` if of type {type(var_value)}. Valid `{var_name}` types are: {valid_types}."  # noqa: E501
+            f"Variable `{var_name}` is of type {type(var_value)}. Valid `{var_name}` types are: {valid_types}.",  # noqa: E501
         )
 
 
-def check_subclass(myobject: Any,
-                   valid_class: type | tuple[type, ...],
-                   myobject_name: str,
-                   check_inside: bool = False
-                   ) -> Any:
-    """Check if an object is a subclass of given class."""
+def check_subclass(
+    myobject: Any,
+    valid_class: type | tuple[type, ...],
+    myobject_name: str,
+    check_inside: bool = False,
+) -> Any:
+    """Check if an object is a subclass of given class.
 
+    Parameters
+    ----------
+    myobject : Any
+        Object to check.
+    valid_class : type | tuple[type, ...]
+        Valid class or tuple of classes.
+    myobject_name : str
+        Name of the object.
+    check_inside : bool
+        To check the elements of the object, rather than the object itself.
+
+    Returns
+    -------
+        myobject : Any
+            Object.
+    """
     check = False
 
     if check_inside:
+        if not isinstance(myobject, Iterable):
+            custom_error(
+                myobject_name,
+                myobject,
+                TypeError,
+                f"`{myobject_name}` should be iterable.",
+            )
         if all(issubclass(elem, valid_class) for elem in myobject):
             check = True
     else:
@@ -126,22 +153,15 @@ def check_subclass(myobject: Any,
         )
 
 
-def check_bounds(x: float | np.ndarray | Iterable,
-                 xmin: float,
-                 xmax: float,
-                 xname: str
-                 ) -> float | np.ndarray | Iterable | None:
+def check_bounds(
+    x: float | np.ndarray | Iterable, xmin: float, xmax: float, xname: str
+) -> float | np.ndarray | Iterable | None:
     """Check if a numerical value is between given bounds.
-
-    Example:
-    -------
-    >>> check_bounds(1.0, 0.1, 2.0, 'x') -> 1.0
-    >>> check_bounds(-1.0, 0.1, 2.0, 'x') -> RangeError
 
     Parameters
     ----------
-    x : float | ndarray
-        Variable.
+    x : float | ndarray | Iterable
+        Variable whose bounds are to be checked.
     xmin : float
         Lower bound.
     xmax : float
@@ -151,36 +171,56 @@ def check_bounds(x: float | np.ndarray | Iterable,
 
     Returns
     -------
-    x : float | ndarray
+    x : float | ndarray | Iterable
         Variable.
 
+    Examples
+    --------
+    >>> check_bounds(1.0, 0.1, 2.0, 'x')
+    1.0
+    >>> check_bounds(-1.0, 0.1, 2.0, 'x') # RangeError
     """
-    if isinstance(x, (float, Number)) and ((x >= xmin) and (x <= xmax)):
+    if isinstance(x, (int, float, Real)) and ((x >= xmin) and (x <= xmax)):
         return x
-    elif isinstance(x, np.ndarray) and \
-            np.all(np.logical_and.reduce((x >= xmin, x <= xmax))):
+    elif isinstance(x, np.ndarray) and np.all(
+        np.logical_and.reduce((x >= xmin, x <= xmax))
+    ):
         return x
-    elif isinstance(x, Iterable) and \
-            all((xi >= xmin and xi <= xmax for xi in x)):
+    elif isinstance(x, Iterable) and all(xi >= xmin and xi <= xmax for xi in x):
         return x
     else:
-        check_type(x, (float, Number, np.ndarray, Iterable), xname)
+        check_type(x, (int, float, Real, np.ndarray, Iterable), xname)
         custom_error(
             xname, x, RangeError, f"Valid `{xname}` range is [{xmin}, {xmax}]."
         )
 
 
-def check_in_set(var_value: Any,
-                 valid_set: set,
-                 var_name: str = "#"
-                 ) -> Any:
+def check_in_set(var_value: Any, valid_set: set, var_name: str = "#") -> Any:
     """Check if a variable or its elements belong to a set.
 
-    Example:
-    -------
-    >>> check_value_set('A', {'B','A'}) -> 'A'
-    """
+    Notes
+    -----
+    Elements must be hashable.
 
+    Parameters
+    ----------
+    var_value : type(var_name)
+        Value of variable `var_name`.
+    valid_set : set
+        Valid set of values.
+    var_name : str
+        Variable name.
+
+    Returns
+    -------
+    type(var_name)
+        Value of variable `var_name`.
+
+    Examples
+    --------
+    >>> check_value_set('A', {'B','A'})
+    'A'
+    """
     # Check valid_set is a set
     check_type(valid_set, set, "valid_set")
 
@@ -204,9 +244,9 @@ def check_in_set(var_value: Any,
         )
 
 
-def check_shapes(a: list[float | np.ndarray],
-                 b: list[float | np.ndarray] | None = None
-                 ) -> tuple[int, ...] | None:
+def check_shapes(
+    a: list[float | np.ndarray], b: list[float | np.ndarray] | None = None
+) -> tuple[int, ...] | None:
     """Check shape homogeneity between objects in lists `a` and `b`.
 
     Rules:
@@ -231,10 +271,12 @@ def check_shapes(a: list[float | np.ndarray],
     if b is None:
         b = []
 
-    shapes_a = [elem.shape for elem in a if
-                isinstance(elem, np.ndarray) and elem.shape != ()]
-    shapes_b = [elem.shape for elem in b if
-                isinstance(elem, np.ndarray) and elem.shape != ()]
+    shapes_a = [
+        elem.shape for elem in a if isinstance(elem, np.ndarray) and elem.shape != ()
+    ]
+    shapes_b = [
+        elem.shape for elem in b if isinstance(elem, np.ndarray) and elem.shape != ()
+    ]
 
     check_a = True
     shape = None
@@ -252,17 +294,38 @@ def check_shapes(a: list[float | np.ndarray],
 
     if not check_a or not check_b:
         raise ShapeError("Input parameters have inconsistent shapes.")
+
     return shape
 
 
-def check_valid_range(r: tuple[float, float],
-                      xmin: float,
-                      xmax: float,
-                      name: str
-                      ) -> tuple[float, float] | None:
-    "Check if a given input range is a valid range."
-    check_type(r, tuple, name)
-    if not (len(r) == 2 and r[1] > r[0]):
+def check_valid_range(
+    r: tuple[float, float], xmin: float, xmax: float, name: str
+) -> tuple[float, float] | None:
+    """Check if a given input range is a valid range.
+
+    Parameters
+    ----------
+    r : tuple[float, float]
+        Range.
+    xmin : float
+        Lower bound.
+    xmax : float
+        Upper bound.
+    name : str
+        Variable name.
+
+    Returns
+    -------
+    tuple[float, float] | None
+        Range.
+    """
+    if not (
+        isinstance(r, tuple)
+        and len(r) == 2
+        and isinstance(r[0], Real)
+        and isinstance(r[1], Real)
+        and r[1] > r[0]
+    ):
         raise RangeError(f"`{name}` is invalid: {r}")
     check_bounds(r, xmin, xmax, name)
     return r
@@ -281,19 +344,24 @@ def check_range_warn(x: float, xmin: float, xmax: float, xname: str) -> None:
         Upper bound.
     xname : str
         Variable name.
+
+    Returns
+    -------
+    None
     """
     if x < xmin or x > xmax:
         # Intentionally made without f-strings, so it works with Numba
-        print(xname + "=", x,
-              "is outside the valid range [", xmin, ",", xmax, "]")
+        print(xname + "=", x, "is outside the valid range [", xmin, ",", xmax, "]")
+
 
 # %% Unit functions
 
 
 def convert_check_temperature(
-        T: FloatOrArrayLike,
-        Tunit: Literal['C', 'K'],
-        Trange: tuple[FloatOrArray, FloatOrArray] = (0., np.inf)) -> FloatOrArray:
+    T: FloatOrArrayLike,
+    Tunit: Literal["C", "K"],
+    Trange: tuple[FloatOrArray, FloatOrArray] = (0.0, np.inf),
+) -> FloatOrArray:
     r"""Convert temperature input to 'K' and check range.
 
     Parameters
@@ -311,13 +379,12 @@ def convert_check_temperature(
     FloatOrArray
         Temperature in K.
     """
-
     if isinstance(T, (list, tuple)):
         T = np.array(T, dtype=np.float64)
 
-    if Tunit == 'K':
+    if Tunit == "K":
         TK = T
-    elif Tunit == 'C':
+    elif Tunit == "C":
         TK = T + 273.15
     else:
         raise ValueError("Invalid `Tunit` input.")
@@ -325,15 +392,16 @@ def convert_check_temperature(
     if np.any(TK < 0.0):
         raise RangeError("`T` must be > 0 K.")
     if np.any(TK < Trange[0]) or np.any(TK > Trange[1]):
-        print(f"Warning: `T` input is outside validity range {Trange}.")
+        warn(f"`T` input is outside validity range {Trange}.")
 
     return TK
 
 
 def convert_check_pressure(
-        P: FloatOrArrayLike,
-        Punit: Literal['bar', 'MPa', 'Pa'],
-        Prange: tuple[FloatOrArray, FloatOrArray] = (0., np.inf)) -> FloatOrArray:
+    P: FloatOrArrayLike,
+    Punit: Literal["bar", "MPa", "Pa"],
+    Prange: tuple[FloatOrArray, FloatOrArray] = (0.0, np.inf),
+) -> FloatOrArray:
     """Convert pressure input to 'Pa' and check range.
 
     Parameters
@@ -351,32 +419,28 @@ def convert_check_pressure(
     FloatOrArray
         Pressure in Pa.
     """
-
     if isinstance(P, (list, tuple)):
         P = np.array(P, dtype=np.float64)
 
-    if Punit == 'Pa':
+    if Punit == "Pa":
         f = 1
-    elif Punit == 'bar':
+    elif Punit == "bar":
         f = 1e5
-    elif Punit == 'MPa':
+    elif Punit == "MPa":
         f = 1e6
     else:
         raise ValueError("Invalid `Punit` input.")
-    Pa = P*f
+    Pa = P * f
 
-    if np.any(Pa < 0):
+    if np.any(Pa < 0.0):
         raise RangeError("`P` must be > 0 Pa.")
     if np.any(Pa < Prange[0]) or np.any(Pa > Prange[1]):
-        print(f"Warning: `P` input is outside validity range {Prange}.")
+        warn(f"`P` input is outside validity range {Prange}.")
 
     return Pa
 
 
-def custom_repr(obj,
-                attr_names: list[str] | tuple[str, ...],
-                nspaces: int = 3
-                ) -> str:
+def custom_repr(obj, attr_names: list[str] | tuple[str, ...], nspaces: int = 3) -> str:
     """Generate custom repr string.
 
     Parameters
@@ -393,23 +457,27 @@ def custom_repr(obj,
     str
         Formated repr string.
     """
+    if not attr_names:
+        return ""
+
     items = []
     nspaces += max([len(attr) for attr in attr_names])
     for attr_name in attr_names:
         attr_str = str(getattr(obj, attr_name))
         rows = attr_str.split("\n")
         if len(rows) == 1:
-            item = f"{attr_name}:" + " "*(nspaces - len(attr_name)) + attr_str
+            item = f"{attr_name}:" + " " * (nspaces - len(attr_name)) + attr_str
         else:
             item = "\n  ".join([attr_name + ":"] + rows)
         items.append(item)
+
     return "\n".join(items)
 
 
-def pprint_matrix(matrix: FloatMatrix,
-                  format_specifier="{:.2e}",
-                  nspaces: int = 0) -> str:
-    """Pretty print a matrix.
+def pprint_matrix(
+    matrix: FloatMatrix, format_specifier="{:.2e}", nspaces: int = 0
+) -> str:
+    """Pretty print a matrix (2D array).
 
     Parameters
     ----------
@@ -419,19 +487,28 @@ def pprint_matrix(matrix: FloatMatrix,
         Format specifier, e.g "{:.2f}".
     nspaces : int
         Number of white spaces placed before 2nd row and following.
+
+    Returns
+    -------
+    str
+        Formated matrix string.
     """
     nrows = matrix.shape[0]
     result = ""
     for i, row in enumerate(matrix):
-        line = "[[" if i == 0 else (" "*nspaces + " [")
+        line = "[[" if i == 0 else (" " * nspaces + " [")
         line += " ".join(format_specifier.format(element) for element in row)
-        line += "]]\n" if i == nrows-1 else "]\n"
+        line += "]]\n" if i == nrows - 1 else "]\n"
         result += line
     return result
 
 
 def colored_bool(value: bool) -> str:
     """Color boolean as green if `True`, red if `False`.
+
+    Notes
+    -----
+    ANSI escape codes may not render correctly on Windows consoles or in logs
 
     Parameters
     ----------
