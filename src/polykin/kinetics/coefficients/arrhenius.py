@@ -13,7 +13,7 @@ from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
 from polykin.utils.types import FloatArray, FloatArrayLike
 
-__all__ = ['Arrhenius']
+__all__ = ["Arrhenius"]
 
 
 class Arrhenius(KineticCoefficientT):
@@ -50,14 +50,14 @@ class Arrhenius(KineticCoefficientT):
     name : str
         Name.
 
-    See also
+    See Also
     --------
     * [`Eyring`](Eyring.md): alternative method.
 
     Examples
     --------
     Define and evaluate the propagation rate coefficient of styrene.
-    >>> from polykin.kinetics import Arrhenius 
+    >>> from polykin.kinetics import Arrhenius
     >>> kp = Arrhenius(
     ...     10**7.63,       # pre-exponential factor
     ...     32.5e3/8.314,   # Ea/R, K
@@ -65,44 +65,47 @@ class Arrhenius(KineticCoefficientT):
     ...     symbol='k_p',
     ...     unit='L/mol/s',
     ...     name='kp of styrene')
-    >>> kp(25.,'C') 
+    >>> kp(25.,'C')
     86.28385101961442
     """
 
-    _pinfo = {'k0': ('#', True), 'EaR': ('K', True), 'T0': ('K', False)}
+    _pinfo = {"k0": ("#", True), "EaR": ("K", True), "T0": ("K", False)}
 
-    def __init__(self,
-                 k0: float | FloatArrayLike,
-                 EaR: float | FloatArrayLike,
-                 T0: float | FloatArrayLike = np.inf,
-                 Tmin: float | FloatArrayLike = 0.0,
-                 Tmax: float | FloatArrayLike = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'k',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        k0: float | FloatArrayLike,
+        EaR: float | FloatArrayLike,
+        T0: float | FloatArrayLike = np.inf,
+        Tmin: float | FloatArrayLike = 0.0,
+        Tmax: float | FloatArrayLike = np.inf,
+        unit: str = "-",
+        symbol: str = "k",
+        name: str = "",
+    ) -> None:
 
         # Convert lists to arrays
-        k0, EaR, T0, Tmin, Tmax = \
-            convert_FloatOrArrayLike_to_FloatOrArray([k0, EaR, T0, Tmin, Tmax])
+        k0, EaR, T0, Tmin, Tmax = convert_FloatOrArrayLike_to_FloatOrArray(
+            [k0, EaR, T0, Tmin, Tmax]
+        )
 
         # Check shapes
         self._shape = check_shapes([k0, EaR], [T0, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(k0, 0.0, np.inf, 'k0')
-        check_bounds(EaR, -np.inf, np.inf, 'EaR')
-        check_bounds(T0, 0.0, np.inf, 'T0')
+        check_bounds(k0, 0.0, np.inf, "k0")
+        check_bounds(EaR, -np.inf, np.inf, "EaR")
+        check_bounds(T0, 0.0, np.inf, "T0")
 
-        self.p = {'k0': k0, 'EaR': EaR, 'T0': T0}
+        self.p = {"k0": k0, "EaR": EaR, "T0": T0}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 k0: float | FloatArray,
-                 EaR: float | FloatArray,
-                 T0: float | FloatArray,
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        k0: float | FloatArray,
+        EaR: float | FloatArray,
+        T0: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Arrhenius equation.
 
         Parameters
@@ -121,16 +124,14 @@ class Arrhenius(KineticCoefficientT):
         float | FloatArray
             Coefficient value [=k0].
         """
-        return k0 * exp(-EaR*(1/T - 1/T0))
+        return k0 * exp(-EaR * (1 / T - 1 / T0))
 
     @property
     def A(self) -> float | FloatArray:
         r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
         return self.__call__(np.inf)
 
-    def __mul__(self,
-                other: int | float | Arrhenius
-                ) -> Arrhenius:
+    def __mul__(self, other: int | float | Arrhenius) -> Arrhenius:
         """Multipy Arrhenius coefficient(s).
 
         Create a new Arrhenius coefficient from a product of two Arrhenius
@@ -149,38 +150,38 @@ class Arrhenius(KineticCoefficientT):
         """
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
-                return Arrhenius(k0=self.A*other.A,
-                                 EaR=self.p['EaR'] + other.p['EaR'],
-                                 Tmin=np.maximum(
-                                     self.Trange[0], other.Trange[0]),
-                                 Tmax=np.minimum(
-                                     self.Trange[1], other.Trange[1]),
-                                 unit=f"{self.unit}·{other.unit}",
-                                 symbol=f"{self.symbol}·{other.symbol}",
-                                 name=f"{self.name}·{other.name}")
+                return Arrhenius(
+                    k0=self.A * other.A,
+                    EaR=self.p["EaR"] + other.p["EaR"],
+                    Tmin=np.maximum(self.Trange[0], other.Trange[0]),
+                    Tmax=np.minimum(self.Trange[1], other.Trange[1]),
+                    unit=f"{self.unit}·{other.unit}",
+                    symbol=f"{self.symbol}·{other.symbol}",
+                    name=f"{self.name}·{other.name}",
+                )
             else:
                 raise ShapeError(
-                    "Product of array-like coefficients requires identical shapes.")  # noqa: E501
+                    "Product of array-like coefficients requires identical shapes."
+                )  # noqa: E501
         elif isinstance(other, (int, float)):
-            return Arrhenius(k0=self.p['k0']*other,
-                             EaR=self.p['EaR'],
-                             T0=self.p['T0'],
-                             Tmin=self.Trange[0],
-                             Tmax=self.Trange[1],
-                             unit=self.unit,
-                             symbol=f"{str(other)}·{self.symbol}",
-                             name=f"{str(other)}·{self.name}")
+            return Arrhenius(
+                k0=self.p["k0"] * other,
+                EaR=self.p["EaR"],
+                T0=self.p["T0"],
+                Tmin=self.Trange[0],
+                Tmax=self.Trange[1],
+                unit=self.unit,
+                symbol=f"{str(other)}·{self.symbol}",
+                name=f"{str(other)}·{self.name}",
+            )
         else:
             return NotImplemented
 
-    def __rmul__(self,
-                 other: int | float | Arrhenius
-                 ) -> Arrhenius:
+    def __rmul__(self, other: int | float | Arrhenius) -> Arrhenius:
+        """Multiply Arrhenius coefficient(s) (reverse operand)."""
         return self.__mul__(other)
 
-    def __truediv__(self,
-                    other: int | float | Arrhenius
-                    ) -> Arrhenius:
+    def __truediv__(self, other: int | float | Arrhenius) -> Arrhenius:
         """Divide Arrhenius coefficient(s).
 
         Create a new Arrhenius coefficient from a division of two Arrhenius
@@ -199,48 +200,50 @@ class Arrhenius(KineticCoefficientT):
         """
         if isinstance(other, Arrhenius):
             if self._shape == other._shape:
-                return Arrhenius(k0=self.A/other.A,
-                                 EaR=self.p['EaR'] - other.p['EaR'],
-                                 Tmin=np.maximum(
-                                     self.Trange[0], other.Trange[0]),
-                                 Tmax=np.minimum(
-                                     self.Trange[1], other.Trange[1]),
-                                 unit=f"{self.unit}/{other.unit}",
-                                 symbol=f"{self.symbol}/{other.symbol}",
-                                 name=f"{self.name}/{other.name}")
+                return Arrhenius(
+                    k0=self.A / other.A,
+                    EaR=self.p["EaR"] - other.p["EaR"],
+                    Tmin=np.maximum(self.Trange[0], other.Trange[0]),
+                    Tmax=np.minimum(self.Trange[1], other.Trange[1]),
+                    unit=f"{self.unit}/{other.unit}",
+                    symbol=f"{self.symbol}/{other.symbol}",
+                    name=f"{self.name}/{other.name}",
+                )
             else:
                 raise ShapeError(
-                    "Division of array-like coefficients requires identical shapes.")  # noqa: E501
+                    "Division of array-like coefficients requires identical shapes."
+                )  # noqa: E501
         elif isinstance(other, (int, float)):
-            return Arrhenius(k0=self.p['k0']/other,
-                             EaR=self.p['EaR'],
-                             T0=self.p['T0'],
-                             Tmin=self.Trange[0],
-                             Tmax=self.Trange[1],
-                             unit=self.unit,
-                             symbol=f"{self.symbol}/{str(other)}",
-                             name=f"{self.name}/{str(other)}")
+            return Arrhenius(
+                k0=self.p["k0"] / other,
+                EaR=self.p["EaR"],
+                T0=self.p["T0"],
+                Tmin=self.Trange[0],
+                Tmax=self.Trange[1],
+                unit=self.unit,
+                symbol=f"{self.symbol}/{str(other)}",
+                name=f"{self.name}/{str(other)}",
+            )
         else:
             return NotImplemented
 
-    def __rtruediv__(self,
-                     other: int | float
-                     ) -> Arrhenius:
+    def __rtruediv__(self, other: int | float) -> Arrhenius:
+        """Divide by Arrhenius coefficient (reverse operand)."""
         if isinstance(other, (int, float)):
-            return Arrhenius(k0=other/self.p['k0'],
-                             EaR=-self.p['EaR'],
-                             T0=self.p['T0'],
-                             Tmin=self.Trange[0],
-                             Tmax=self.Trange[1],
-                             unit=f"1/{self.unit}",
-                             symbol=f"{str(other)}/{self.symbol}",
-                             name=f"{str(other)}/{self.name}")
+            return Arrhenius(
+                k0=other / self.p["k0"],
+                EaR=-self.p["EaR"],
+                T0=self.p["T0"],
+                Tmin=self.Trange[0],
+                Tmax=self.Trange[1],
+                unit=f"1/{self.unit}",
+                symbol=f"{str(other)}/{self.symbol}",
+                name=f"{str(other)}/{self.name}",
+            )
         else:
             return NotImplemented
 
-    def __pow__(self,
-                other: int | float
-                ) -> Arrhenius:
+    def __pow__(self, other: int | float) -> Arrhenius:
         """Power of an Arrhenius coefficient.
 
         Create a new Arrhenius coefficient from the exponentiation of an
@@ -257,17 +260,19 @@ class Arrhenius(KineticCoefficientT):
             Power coefficient.
         """
         if isinstance(other, (int, float)):
-            return Arrhenius(k0=self.p['k0']**other,
-                             EaR=self.p['EaR']*other,
-                             T0=self.p['T0'],
-                             Tmin=self.Trange[0],
-                             Tmax=self.Trange[1],
-                             unit=f"({self.unit})^{str(other)}",
-                             symbol=f"({self.symbol})^{str(other)}",
-                             name=f"{self.name}^{str(other)}"
-                             )
+            return Arrhenius(
+                k0=self.p["k0"] ** other,
+                EaR=self.p["EaR"] * other,
+                T0=self.p["T0"],
+                Tmin=self.Trange[0],
+                Tmax=self.Trange[1],
+                unit=f"({self.unit})^{str(other)}",
+                symbol=f"({self.symbol})^{str(other)}",
+                name=f"{self.name}^{str(other)}",
+            )
         else:
             return NotImplemented
 
     def __rpow__(self, other):
+        """Power with Arrhenius coefficient as exponent (reverse operand)."""
         return NotImplemented

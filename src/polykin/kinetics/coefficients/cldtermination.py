@@ -10,12 +10,15 @@ from numpy import sqrt
 from polykin.kinetics.coefficients.arrhenius import Arrhenius
 from polykin.kinetics.coefficients.base import KineticCoefficientCLD
 from polykin.kinetics.coefficients.eyring import Eyring
-from polykin.utils.tools import (check_bounds, check_type,
-                                 convert_check_temperature, custom_repr)
-from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
-                                 IntArrayLike)
+from polykin.utils.tools import (
+    check_bounds,
+    check_type,
+    convert_check_temperature,
+    custom_repr,
+)
+from polykin.utils.types import FloatArray, FloatArrayLike, IntArray, IntArrayLike
 
-__all__ = ['TerminationCompositeModel']
+__all__ = ["TerminationCompositeModel"]
 
 
 class TerminationCompositeModel(KineticCoefficientCLD):
@@ -87,20 +90,21 @@ class TerminationCompositeModel(KineticCoefficientCLD):
     icrit: int
     aS: float
     aL: float
-    symbol: str = 'k_t (i,j)'
+    symbol: str = "k_t (i,j)"
 
-    def __init__(self,
-                 kt11: Arrhenius | Eyring,
-                 icrit: int,
-                 aS: float = 0.5,
-                 aL: float = 0.2,
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        kt11: Arrhenius | Eyring,
+        icrit: int,
+        aS: float = 0.5,
+        aL: float = 0.2,
+        name: str = "",
+    ) -> None:
 
-        check_type(kt11, (Arrhenius, Eyring), 'k11')
-        check_bounds(icrit, 1, 200, 'icrit')
-        check_bounds(aS, 0.0, 1.0, 'alpha_short')
-        check_bounds(aL, 0.0, 0.5, 'alpha_long')
+        check_type(kt11, (Arrhenius, Eyring), "k11")
+        check_bounds(icrit, 1, 200, "icrit")
+        check_bounds(aS, 0.0, 1.0, "alpha_short")
+        check_bounds(aL, 0.0, 0.5, "alpha_long")
 
         self.kt11 = kt11
         self.icrit = icrit
@@ -109,16 +113,18 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         self.name = name
 
     def __repr__(self) -> str:
-        return custom_repr(self, ('name', 'icrit', 'aS', 'aL', 'kt11'))
+        """Return the string representation of the coefficient."""
+        return custom_repr(self, ("name", "icrit", "aS", "aL", "kt11"))
 
     @staticmethod
-    def equation(i: int | IntArray,
-                 j: int | IntArray,
-                 kt11: float | FloatArray,
-                 icrit: int,
-                 aS: float,
-                 aL: float,
-                 ) -> float | FloatArray:
+    def equation(
+        i: int | IntArray,
+        j: int | IntArray,
+        kt11: float | FloatArray,
+        icrit: int,
+        aS: float,
+        aL: float,
+    ) -> float | FloatArray:
         r"""Composite model chain-length dependence equation.
 
         Parameters
@@ -144,18 +150,19 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         """
 
         def ktii(i):
-            return np.where(i <= icrit,
-                            kt11*i**(-aS),
-                            kt11*icrit**(-aS+aL)*i**(-aL))
+            return np.where(
+                i <= icrit, kt11 * i ** (-aS), kt11 * icrit ** (-aS + aL) * i ** (-aL)
+            )
 
-        return sqrt(ktii(i)*ktii(j))
+        return sqrt(ktii(i) * ktii(j))
 
-    def __call__(self,
-                 T: float | FloatArrayLike,
-                 i: int | IntArrayLike,
-                 j: int | IntArrayLike,
-                 Tunit: Literal['C', 'K'] = 'K'
-                 ) -> float | FloatArray:
+    def __call__(
+        self,
+        T: float | FloatArrayLike,
+        i: int | IntArrayLike,
+        j: int | IntArrayLike,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> float | FloatArray:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 

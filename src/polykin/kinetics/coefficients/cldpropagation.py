@@ -11,12 +11,15 @@ from numpy import log as ln
 from polykin.kinetics.coefficients.arrhenius import Arrhenius
 from polykin.kinetics.coefficients.base import KineticCoefficientCLD
 from polykin.kinetics.coefficients.eyring import Eyring
-from polykin.utils.tools import (check_bounds, check_type,
-                                 convert_check_temperature, custom_repr)
-from polykin.utils.types import (FloatArray, FloatArrayLike, IntArray,
-                                 IntArrayLike)
+from polykin.utils.tools import (
+    check_bounds,
+    check_type,
+    convert_check_temperature,
+    custom_repr,
+)
+from polykin.utils.types import FloatArray, FloatArrayLike, IntArray, IntArrayLike
 
-__all__ = ['PropagationHalfLength']
+__all__ = ["PropagationHalfLength"]
 
 
 class PropagationHalfLength(KineticCoefficientCLD):
@@ -80,18 +83,19 @@ class PropagationHalfLength(KineticCoefficientCLD):
     kp: Arrhenius | Eyring
     C: float
     ihalf: float
-    symbol: str = 'k_p(i)'
+    symbol: str = "k_p(i)"
 
-    def __init__(self,
-                 kp: Arrhenius | Eyring,
-                 C: float = 10.0,
-                 ihalf: float = 1.0,
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        kp: Arrhenius | Eyring,
+        C: float = 10.0,
+        ihalf: float = 1.0,
+        name: str = "",
+    ) -> None:
 
-        check_type(kp, (Arrhenius, Eyring), 'kp')
-        check_bounds(C, 1.0, 100.0, 'C')
-        check_bounds(ihalf, 0.1, 10.0, 'ihalf')
+        check_type(kp, (Arrhenius, Eyring), "kp")
+        check_bounds(C, 1.0, 100.0, "C")
+        check_bounds(ihalf, 0.1, 10.0, "ihalf")
 
         self.kp = kp
         self.C = C
@@ -99,14 +103,16 @@ class PropagationHalfLength(KineticCoefficientCLD):
         self.name = name
 
     def __repr__(self) -> str:
-        return custom_repr(self, ('name', 'C', 'ihalf', 'kp'))
+        """Return the string representation of the coefficient."""
+        return custom_repr(self, ("name", "C", "ihalf", "kp"))
 
     @staticmethod
-    def equation(i: int | IntArray,
-                 kp: float | FloatArray,
-                 C: float,
-                 ihalf: float
-                 ) -> float | FloatArray:
+    def equation(
+        i: int | IntArray,
+        kp: float | FloatArray,
+        C: float,
+        ihalf: float,
+    ) -> float | FloatArray:
         r"""Half-length model chain-length dependence equation.
 
         Parameters
@@ -126,14 +132,14 @@ class PropagationHalfLength(KineticCoefficientCLD):
         float | FloatArray
             Coefficient value.
         """
+        return kp * (1 + (C - 1) * exp(-ln(2) * (i - 1) / ihalf))
 
-        return kp*(1 + (C - 1)*exp(-ln(2)*(i - 1)/ihalf))
-
-    def __call__(self,
-                 T: float | FloatArrayLike,
-                 i: int | IntArrayLike,
-                 Tunit: Literal['C', 'K'] = 'K'
-                 ) -> float | FloatArray:
+    def __call__(
+        self,
+        T: float | FloatArrayLike,
+        i: int | IntArrayLike,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> float | FloatArray:
         r"""Evaluate kinetic coefficient at given conditions, including unit
         conversion and range check.
 

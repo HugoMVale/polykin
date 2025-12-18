@@ -11,6 +11,7 @@ from polykin.utils.types import FloatArray
 
 
 class KineticCoefficientT(PropertyEquationT):
+    """Abstract temperature-dependent kinetic coefficient."""
 
     _shape: tuple | None
 
@@ -21,15 +22,17 @@ class KineticCoefficientT(PropertyEquationT):
 
 
 class KineticCoefficientCLD(ABC):
-    """_Abstract_ chain-length dependent (CLD) coefficient."""
+    """Abstract chain-length dependent (CLD) coefficient."""
 
     name: str
 
     @abstractmethod
     def __call__(self, T, i, *args) -> float | FloatArray:
+        """Evaluate the coefficient."""
         pass
 
     @staticmethod
     @abstractmethod
     def equation(T, i, *args) -> float | FloatArray:
+        """Equation for the coefficient."""
         pass

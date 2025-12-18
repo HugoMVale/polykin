@@ -14,7 +14,7 @@ from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
 from polykin.utils.types import FloatArray, FloatArrayLike
 
-__all__ = ['Eyring']
+__all__ = ["Eyring"]
 
 
 class Eyring(KineticCoefficientT):
@@ -50,14 +50,14 @@ class Eyring(KineticCoefficientT):
     name : str
         Name.
 
-    See also
+    See Also
     --------
     * [`Arrhenius`](Arrhenius.md): alternative method.
 
     Examples
     --------
     Define and evaluate a rate coefficient from transition state properties.
-    >>> from polykin.kinetics import Eyring 
+    >>> from polykin.kinetics import Eyring
     >>> k = Eyring(
     ...     DSa=20.,
     ...     DHa=5e4,
@@ -69,41 +69,42 @@ class Eyring(KineticCoefficientT):
     95808.36742009166
     """
 
-    _pinfo = {'DSa': ('J/(mol·K)', True),
-              'DHa': ('J/mol', True), 'kappa': ('', False)}
+    _pinfo = {"DSa": ("J/(mol·K)", True), "DHa": ("J/mol", True), "kappa": ("", False)}
 
-    def __init__(self,
-                 DSa: float | FloatArrayLike,
-                 DHa: float | FloatArrayLike,
-                 kappa: float | FloatArrayLike = 1.0,
-                 Tmin: float | FloatArrayLike = 0.0,
-                 Tmax: float | FloatArrayLike = np.inf,
-                 symbol: str = 'k',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        DSa: float | FloatArrayLike,
+        DHa: float | FloatArrayLike,
+        kappa: float | FloatArrayLike = 1.0,
+        Tmin: float | FloatArrayLike = 0.0,
+        Tmax: float | FloatArrayLike = np.inf,
+        symbol: str = "k",
+        name: str = "",
+    ) -> None:
 
         # Convert lists to arrays
-        DSa, DHa, kappa, Tmin, Tmax = \
-            convert_FloatOrArrayLike_to_FloatOrArray(
-                [DSa, DHa, kappa, Tmin, Tmax])
+        DSa, DHa, kappa, Tmin, Tmax = convert_FloatOrArrayLike_to_FloatOrArray(
+            [DSa, DHa, kappa, Tmin, Tmax]
+        )
 
         # Check shapes
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(DSa, 0.0, np.inf, 'DSa')
-        check_bounds(DHa, 0.0, np.inf, 'DHa')
-        check_bounds(kappa, 0.0, 1.0, 'kappa')
+        check_bounds(DSa, 0.0, np.inf, "DSa")
+        check_bounds(DHa, 0.0, np.inf, "DHa")
+        check_bounds(kappa, 0.0, 1.0, "kappa")
 
-        self.p = {'DSa': DSa, 'DHa': DHa, 'kappa': kappa}
-        super().__init__((Tmin, Tmax), '1/s', symbol, name)
+        self.p = {"DSa": DSa, "DHa": DHa, "kappa": kappa}
+        super().__init__((Tmin, Tmax), "1/s", symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 DSa: float | FloatArray,
-                 DHa: float | FloatArray,
-                 kappa: float | FloatArray,
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        DSa: float | FloatArray,
+        DHa: float | FloatArray,
+        kappa: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Eyring equation.
 
         Parameters
@@ -122,4 +123,4 @@ class Eyring(KineticCoefficientT):
         float | FloatArray
             Coefficient value [s⁻¹].
         """
-        return kappa * kB*T/h * exp((DSa - DHa/T)/R)
+        return kappa * kB * T / h * exp((DSa - DHa / T) / R)
