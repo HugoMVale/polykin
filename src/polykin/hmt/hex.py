@@ -2,20 +2,22 @@
 #
 # Copyright Hugo Vale 2025
 
-from numpy import log
+from numpy import log as ln
 
 __all__ = [
-    'U_plane_wall',
-    'U_cylindrical_wall'
+    "U_plane_wall",
+    "U_cylindrical_wall",
 ]
 
 
-def U_plane_wall(h1: float,
-                 h2: float,
-                 L: float,
-                 k: float,
-                 Rf1: float = 0.0,
-                 Rf2: float = 0.0) -> float:
+def U_plane_wall(
+    h1: float,
+    h2: float,
+    L: float,
+    k: float,
+    Rf1: float = 0.0,
+    Rf2: float = 0.0,
+) -> float:
     r"""Calculate the overall heat transfer coefficient through a plane wall
     with convection on both sides.
 
@@ -48,7 +50,7 @@ def U_plane_wall(h1: float,
     float
         Overall heat transfer coefficient [W/(m²·K)].
 
-    See also
+    See Also
     --------
     - [`U_cylindrical_wall`](U_cylindrical_wall.md): related method for a
       cylindrical wall.
@@ -67,16 +69,18 @@ def U_plane_wall(h1: float,
     >>> print(f"U={U:.1e} W/(m²·K)")
     U=6.6e+02 W/(m²·K)
     """
-    return 1/(1/h1 + 1/h2 + L/k + Rf1 + Rf2)
+    return 1 / (1 / h1 + 1 / h2 + L / k + Rf1 + Rf2)
 
 
-def U_cylindrical_wall(hi: float,
-                       ho: float,
-                       di: float,
-                       do: float,
-                       k: float,
-                       Rfi: float = 0.0,
-                       Rfo: float = 0.0) -> float:
+def U_cylindrical_wall(
+    hi: float,
+    ho: float,
+    di: float,
+    do: float,
+    k: float,
+    Rfi: float = 0.0,
+    Rfo: float = 0.0,
+) -> float:
     r"""Calculate the overall heat transfer coefficient through a cylindrical
     wall with convection on both sides.
 
@@ -117,15 +121,15 @@ def U_cylindrical_wall(hi: float,
     float
         Overall heat transfer coefficient based on outer surface [W/(m²·K)].
 
-    See also
+    See Also
     --------
     - [`U_plane_wall`](U_plane_wall.md): related method for a plane wall.
 
     Examples
     --------
-    Calculate the overall heat transfer coefficient for a carbon steel tube 
-    subjected to convection on both sides, with heat transfer coefficients 
-    of 2000 and 1000 W/(m²·K) for the inner and outer surfaces, respectively. 
+    Calculate the overall heat transfer coefficient for a carbon steel tube
+    subjected to convection on both sides, with heat transfer coefficients
+    of 2000 and 1000 W/(m²·K) for the inner and outer surfaces, respectively.
     The tube has inner and outer diameters of 40 mm and 50 mm. Neglect fouling
     effects.
     >>> from polykin.hmt import U_cylindrical_wall
@@ -138,4 +142,6 @@ def U_cylindrical_wall(hi: float,
     >>> print(f"Uo={Uo:.1e} W/(m²·K)")
     Uo=6.1e+02 W/(m²·K)
     """
-    return 1/(do/(hi*di) + 1/ho + Rfi*do/di + Rfo + do/(2*k)*log(do/di))
+    return 1 / (
+        do / (hi * di) + 1 / ho + Rfi * do / di + Rfo + do / (2 * k) * ln(do / di)
+    )

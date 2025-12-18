@@ -11,25 +11,26 @@ from polykin.flow.friction import fD_Haaland
 from polykin.utils.tools import check_range_warn
 
 __all__ = [
-    'Nu_tube',
-    'Nu_cylinder',
-    'Nu_cylinder_bank',
-    'Nu_cylinder_free',
-    'Nu_sphere',
-    'Nu_sphere_free',
-    'Nu_drop',
-    'Nu_plate',
-    'Nu_plate_free',
-    'Nu_tank',
-    'Nu_combined'
+    "Nu_tube",
+    "Nu_cylinder",
+    "Nu_cylinder_bank",
+    "Nu_cylinder_free",
+    "Nu_sphere",
+    "Nu_sphere_free",
+    "Nu_drop",
+    "Nu_plate",
+    "Nu_plate_free",
+    "Nu_tank",
+    "Nu_combined",
 ]
 
 
-def Nu_tube(Re: float,
-            Pr: float,
-            D_L: float = 0.0,
-            er: float = 0.0
-            ) -> float:
+def Nu_tube(
+    Re: float,
+    Pr: float,
+    D_L: float = 0.0,
+    er: float = 0.0,
+) -> float:
     r"""Calculate the internal Nusselt number for flow through a circular tube.
 
     For laminar flow, the average Nusselt number $\overline{Nu}=\bar{h}D/k$ is
@@ -52,7 +53,7 @@ def Nu_tube(Re: float,
     L/D \gtrsim 10
     \end{bmatrix}
 
-    where $f_D$ is the Darcy friction factor. 
+    where $f_D$ is the Darcy friction factor.
 
     In both flow regimes, the properties are to be evaluated at the mean fluid
     temperature.
@@ -81,7 +82,7 @@ def Nu_tube(Re: float,
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     * [`Nu_cylinder`](Nu_cylinder.md): related method for external cross flow.
 
@@ -104,10 +105,12 @@ def Nu_tube(Re: float,
     h=7.8e+03 W/m²·K
     """
     if Re < 2.3e3:
-        return 3.66 + (0.0668*D_L*Re*Pr)/(1 + 0.04*(D_L*Re*Pr)**(2/3))
+        return 3.66 + (0.0668 * D_L * Re * Pr) / (1 + 0.04 * (D_L * Re * Pr) ** (2 / 3))
     else:
         fD = fD_Haaland(Re, er)
-        return (fD/8)*(Re - 1e3)*Pr/(1 + 12.7*sqrt(fD/8)*(Pr**(2/3) - 1))
+        return (
+            (fD / 8) * (Re - 1e3) * Pr / (1 + 12.7 * sqrt(fD / 8) * (Pr ** (2 / 3) - 1))
+        )
 
 
 def Nu_plate(Re: float, Pr: float) -> float:
@@ -115,7 +118,7 @@ def Nu_plate(Re: float, Pr: float) -> float:
     plate.
 
     The average Nusselt number $\overline{Nu}=\bar{h}L/k$ is estimated by the
-    following expressions:    
+    following expressions:
 
     $$ \overline{Nu} =
     \begin{cases}
@@ -144,14 +147,14 @@ def Nu_plate(Re: float, Pr: float) -> float:
     float
         Nusselt number.
     """
-    check_range_warn(Pr, 0.6, 60, 'Pr')
+    check_range_warn(Pr, 0.6, 60, "Pr")
 
     Re_c = 5e5
     if Re < Re_c:
-        return 0.664*Re**(1/2)*Pr**(1/3)
+        return 0.664 * Re ** (1 / 2) * Pr ** (1 / 3)
     else:
-        A = 0.037*Re_c**(4/5) - 0.664*Re_c**(1/2)
-        return (0.037*Re**(4/5) - A)*Pr**(1/3)
+        A = 0.037 * Re_c ** (4 / 5) - 0.664 * Re_c ** (1 / 2)
+        return (0.037 * Re ** (4 / 5) - A) * Pr ** (1 / 3)
 
 
 def Nu_cylinder(Re: float, Pr: float) -> float:
@@ -161,12 +164,12 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     following expression:
 
     $$ \overline{Nu} = 0.3 + \frac{0.62 Re^{1/2} Pr^{1/3}}
-    {\left[1 + (0.4/Pr)^{2/3}\right]^{1/4}} 
+    {\left[1 + (0.4/Pr)^{2/3}\right]^{1/4}}
     \left[1 + \left(\frac{Re}{282 \times 10^3}\right)^{5/8}\right]^{4/5} $$
 
     $$ \left[  Re Pr > 0.2 \right] $$
 
-    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number. The 
+    where $Re$ is the Reynolds number and $Pr$ is the Prandtl number. The
     properties are to be evaluated at the film temperature.
 
     **References**
@@ -189,7 +192,7 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     - [`Nu_cylinder_bank`](Nu_cylinder_bank.md): specific method for a bank of
       tubes.
@@ -214,14 +217,15 @@ def Nu_cylinder(Re: float, Pr: float) -> float:
     >>> print(f"h={h:.1e} W/m²·K")
     h=7.0e+03 W/m²·K
     """
-    check_range_warn(Re*Pr, 0.2, inf, 'Re*Pr')
+    check_range_warn(Re * Pr, 0.2, inf, "Re*Pr")
 
-    return 0.3 + 0.62*Re**(1/2)*Pr**(1/3)/(1 + (0.4/Pr)**(2/3))**(1/4) \
-        * (1 + (Re/282e3)**(5/8))**(4/5)
+    return 0.3 + 0.62 * Re ** (1 / 2) * Pr ** (1 / 3) / (1 + (0.4 / Pr) ** (2 / 3)) ** (
+        1 / 4
+    ) * (1 + (Re / 282e3) ** (5 / 8)) ** (4 / 5)
 
 
 def Nu_cylinder_free(Ra: float, Pr: float) -> float:
-    r"""Calculate the Nusselt number for free convection on a horizontal 
+    r"""Calculate the Nusselt number for free convection on a horizontal
     cylinder.
 
     The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
@@ -232,13 +236,13 @@ def Nu_cylinder_free(Ra: float, Pr: float) -> float:
 
     $$ \left[  Ra \lesssim 10^{12} \right] $$
 
-    where $Ra$ is the Rayleigh number and $Pr$ is the Prandtl number. The 
+    where $Ra$ is the Rayleigh number and $Pr$ is the Prandtl number. The
     properties are to be evaluated at the film temperature.
 
     **References**
 
     * Churchill, Stuart W., and Humbert HS Chu. "Correlating equations for
-      laminar and turbulent free convection from a horizontal cylinder", 
+      laminar and turbulent free convection from a horizontal cylinder",
       International Journal of Heat and Mass Transfer 18, no. 9 (1975): 1049-1053.
     * Incropera, Frank P., and David P. De Witt. "Fundamentals of heat and
       mass transfer", 4th edition, 1996, p. 502.
@@ -255,7 +259,7 @@ def Nu_cylinder_free(Ra: float, Pr: float) -> float:
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     - [`Nu_cylinder`](Nu_cylinder.md): related method for forced convection.
 
@@ -280,12 +284,18 @@ def Nu_cylinder_free(Ra: float, Pr: float) -> float:
     >>> print(f"h={h:.1e} W/m²·K")
     h=1.1e+03 W/m²·K
     """
-    check_range_warn(Ra, 0, 1e12, 'Ra')
+    check_range_warn(Ra, 0, 1e12, "Ra")
 
-    return (0.6 + 0.387*Ra**(1/6) / (1 + (0.559/Pr)**(9/16))**(8/27))**2
+    return (
+        0.6 + 0.387 * Ra ** (1 / 6) / (1 + (0.559 / Pr) ** (9 / 16)) ** (8 / 27)
+    ) ** 2
 
 
-def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
+def Nu_sphere(
+    Re: float,
+    Pr: float,
+    mur: float,
+) -> float:
     r"""Calculate the Nusselt number for flow around an isolated sphere.
 
     The average Nusselt number $\overline{Nu}=\bar{h}D/k$ is estimated by the
@@ -300,8 +310,8 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
     1.0 < (\mu/\mu_s) 3.2
     \end{bmatrix}
 
-    where $Re$ is the sphere Reynolds number, $Pr$ is the Prandtl number, 
-    $\mu$ is the bulk viscosity, and $\mu_s$ is the surface viscosity. All 
+    where $Re$ is the sphere Reynolds number, $Pr$ is the Prandtl number,
+    $\mu$ is the bulk viscosity, and $\mu_s$ is the surface viscosity. All
     properties are to be evaluated at the bulk temperature, except $\mu_s$.
 
     **References**
@@ -326,15 +336,15 @@ def Nu_sphere(Re: float, Pr: float, mur: float) -> float:
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     * [`Nu_drop`](Nu_drop.md): specific method for drops.
     """
-    check_range_warn(Re, 3.5, 7.6e4, 'Re')
-    check_range_warn(Pr, 0.71, 380, 'Pr')
-    check_range_warn(mur, 1.0, 3.2, 'mur')
+    check_range_warn(Re, 3.5, 7.6e4, "Re")
+    check_range_warn(Pr, 0.71, 380, "Pr")
+    check_range_warn(mur, 1.0, 3.2, "mur")
 
-    return 2 + (0.4*Re**(1/2) + 0.06*Re**(2/3))*Pr**0.4*(mur)**(1/4)
+    return 2 + (0.4 * Re ** (1 / 2) + 0.06 * Re ** (2 / 3)) * Pr**0.4 * (mur) ** (1 / 4)
 
 
 def Nu_drop(Re: float, Pr: float) -> float:
@@ -374,7 +384,7 @@ def Nu_drop(Re: float, Pr: float) -> float:
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     * [`Nu_sphere`](Nu_sphere.md): generic method for spheres.
 
@@ -392,28 +402,42 @@ def Nu_drop(Re: float, Pr: float) -> float:
     >>> print(f"Nu={Nu:.1f}")
     Nu=11.0
     """
-    check_range_warn(Re, 0, 1000, 'Re')
-    check_range_warn(Pr, 0.7, 100, 'Pr')
+    check_range_warn(Re, 0, 1000, "Re")
+    check_range_warn(Pr, 0.7, 100, "Pr")
 
-    return 2 + 0.6*Re**(1/2)*Pr**(1/3)
+    return 2 + 0.6 * Re ** (1 / 2) * Pr ** (1 / 3)
 
 
 def Nu_tank(
-    surface: Literal['wall', 'bottom-head', 'helical-coil', 'harp-coil-0', 'harp-coil-45'],
-    impeller: Literal['4BF', '4BP', '6BD', 'HE3', 'PROP', 'anchor', 'helical-ribbon'],
+    surface: Literal[
+        "wall",
+        "bottom-head",
+        "helical-coil",
+        "harp-coil-0",
+        "harp-coil-45",
+    ],
+    impeller: Literal[
+        "4BF",
+        "4BP",
+        "6BD",
+        "HE3",
+        "PROP",
+        "anchor",
+        "helical-ribbon",
+    ],
     Re: float,
     Pr: float,
     mur: float,
-    D_T: float = 1/3,
+    D_T: float = 1 / 3,
     H_T: float = 1.0,
     L_Ls: float = 1.0,
     d_T: float = 0.04,
     P_D: float = 1.0,
-    nb: int = 2
+    nb: int = 2,
 ) -> float:
     r"""Calculate the Nusselt number for a stirred tank.
 
-    This function calculates the Nusselt number based on impeller and surface 
+    This function calculates the Nusselt number based on impeller and surface
     type, and fluid dynamics parameters for a stirred tank, according to
     the correlations in chapter 14.4 of the Handbook of Industrial Mixing.
 
@@ -472,91 +496,90 @@ def Nu_tank(
     >>> print(f"h={h:.1e} W/m²·K")
     h=1.6e+03 W/m²·K
     """
-
     # Default parameters
-    K = 0.
-    a = 2/3
-    b = 1/3
+    K = 0.0
+    a = 2 / 3
+    b = 1 / 3
     c = 0.14
-    Gc = 1.
+    Gc = 1.0
 
     impeller_error = False
-    if surface == 'wall':
-        if impeller == '6BD':
+    if surface == "wall":
+        if impeller == "6BD":
             K = 0.74
             Gc = H_T**-0.15 * L_Ls**0.2
-        elif impeller == '4BF':
+        elif impeller == "4BF":
             K = 0.66
             Gc = H_T**-0.15 * L_Ls**0.2
-        elif impeller == '4BP':
+        elif impeller == "4BP":
             K = 0.45
             Gc = H_T**-0.15 * L_Ls**0.2
-        elif impeller == 'HE3':
+        elif impeller == "HE3":
             K = 0.31
             Gc = H_T**-0.15
-        elif impeller == 'PROP':
+        elif impeller == "PROP":
             K = 0.50
-            Gc = H_T**-0.15 * 1.29*P_D/(0.29 + P_D)
-        elif impeller == 'anchor':
+            Gc = H_T**-0.15 * 1.29 * P_D / (0.29 + P_D)
+        elif impeller == "anchor":
             if Re < 12:
-                K = 0.
+                K = 0.0
             elif Re >= 12 and Re < 100:
                 K = 0.69
-                a = 1/2
+                a = 1 / 2
             elif Re >= 100:
                 K = 0.32
-        elif impeller == 'helical-ribbon':
+        elif impeller == "helical-ribbon":
             if Re < 13:
                 K = 0.94
-                a = 1/3
+                a = 1 / 3
             elif Re >= 13 and Re < 210:
                 K = 0.61
-                a = 1/2
+                a = 1 / 2
             else:
                 K = 0.25
         else:
             impeller_error = True
-    elif surface == 'bottom-head':
-        if impeller == '6BD':
+    elif surface == "bottom-head":
+        if impeller == "6BD":
             K = 0.50
             Gc = H_T**-0.15 * L_Ls**0.2
-        elif impeller == '4BF':
+        elif impeller == "4BF":
             K = 0.40
             Gc = H_T**-0.15 * L_Ls**0.2
-        elif impeller == '4BP':
+        elif impeller == "4BP":
             K = 1.08
             Gc = H_T**-0.15 * L_Ls**0.2
-        elif impeller == 'HE3':
+        elif impeller == "HE3":
             K = 0.90
             Gc = H_T**-0.15
         else:
             impeller_error = True
-    elif surface == 'helical-coil':
-        if impeller == 'PROP':
+    elif surface == "helical-coil":
+        if impeller == "PROP":
             K = 0.016
             a = 0.67
             b = 0.37
-            Gc = (D_T/(1/3))**0.1 * (d_T/0.04)**0.5
-        elif impeller == '6BD':
+            Gc = (D_T / (1 / 3)) ** 0.1 * (d_T / 0.04) ** 0.5
+        elif impeller == "6BD":
             K = 0.03
-            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.1 * (d_T/0.04)**0.5
+            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T / (1 / 3)) ** 0.1 * (d_T / 0.04) ** 0.5
         else:
             impeller_error = True
-    elif surface == 'harp-coil-0':
-        if impeller == '4BF':
+    elif surface == "harp-coil-0":
+        if impeller == "4BF":
             K = 0.06  # the text mentions this value might be overestimated
             a = 0.65
             b = 0.3
-            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.33 * (2/nb)**0.2
+            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T / (1 / 3)) ** 0.33 * (2 / nb) ** 0.2
         else:
             impeller_error = True
-    elif surface == 'harp-coil-45':
-        if impeller == '6BD':
+    elif surface == "harp-coil-45":
+        if impeller == "6BD":
             # quite some doubts regarding this equation
             K = 0.021
             a = 0.67
             b = 0.4
-            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T/(1/3))**0.33 * (2/nb)**0.2
+            Gc = H_T**-0.15 * L_Ls**0.2 * (D_T / (1 / 3)) ** 0.33 * (2 / nb) ** 0.2
         else:
             impeller_error = True
     else:
@@ -564,34 +587,37 @@ def Nu_tank(
 
     if impeller_error:
         raise ValueError(
-            f"Invalid combination of `surface`={surface} and `impeller`={impeller}.")
+            f"Invalid combination of `surface`={surface} and `impeller`={impeller}."
+        )
 
     return K * Re**a * Pr**b * mur**c * Gc
 
 
-def Nu_cylinder_bank(v: float,
-                     rho: float,
-                     mu: float,
-                     Pr: float,
-                     Prs: float,
-                     aligned: bool,
-                     D: float,
-                     ST: float,
-                     SL: float,
-                     NL: int) -> float:
+def Nu_cylinder_bank(
+    v: float,
+    rho: float,
+    mu: float,
+    Pr: float,
+    Prs: float,
+    aligned: bool,
+    D: float,
+    ST: float,
+    SL: float,
+    NL: int,
+) -> float:
     r"""Calculate the Nusselt number for cross flow over a bank of tubes.
 
     For flow across a bank of aligned or staggered tubes, the average Nusselt
     number $\overline{Nu}=\bar{h}D/k$ is estimated by the following
     expression:
 
-    $$ \overline{Nu} = 
+    $$ \overline{Nu} =
         C_2 C Re_{max}^m Pr^{0.36} \left(\frac{Pr}{Pr_s} \right)^{1/4} $$
 
     where $Re_{max}$ is the Reynolds number based on the maximum fluid velocity
     within the bank of tubes, and $Pr$ is the Prandtl number. Additionally,
     $C_2$, $C$ and $m$ are tabulated constants that depend on the tube bundle
-    configuration. 
+    configuration.
 
     **References**
 
@@ -628,7 +654,7 @@ def Nu_cylinder_bank(v: float,
     float
         Average Nusselt number of the tube bank.
 
-    See also
+    See Also
     --------
     * [`Nu_cylinder`](Nu_cylinder.md): specific method for a single cylinder.
 
@@ -655,18 +681,17 @@ def Nu_cylinder_bank(v: float,
     >>> print(f"h={h:.1e} W/m²·K")
     h=1.4e+02 W/m²·K
     """
-
     # Maximum fluid velocity
-    vmax = v * ST/(ST - D)
+    vmax = v * ST / (ST - D)
     if not aligned:
-        SD = sqrt(SL**2 + (ST/2)**2)
-        if SD < (ST + D)/2:
-            vmax = v*ST/(2*(SD - D))
+        SD = sqrt(SL**2 + (ST / 2) ** 2)
+        if SD < (ST + D) / 2:
+            vmax = v * ST / (2 * (SD - D))
 
-    Re_max = rho*vmax*D/mu
+    Re_max = rho * vmax * D / mu
 
-    check_range_warn(Re_max, 1e1, 2e6, 'Re_max')
-    check_range_warn(Pr, 0.7, 500, 'Pr')
+    check_range_warn(Re_max, 1e1, 2e6, "Re_max")
+    check_range_warn(Pr, 0.7, 500, "Pr")
 
     # Nu for NL>=20
     if aligned:
@@ -691,15 +716,15 @@ def Nu_cylinder_bank(v: float,
             m = 0.50
         elif Re_max >= 1e3 and Re_max < 2e5:
             m = 0.60
-            if ST/SL < 2:
-                C = 0.35*(ST/SL)**0.2
+            if ST / SL < 2:
+                C = 0.35 * (ST / SL) ** 0.2
             else:
                 C = 0.40
         else:
             C = 0.022
             m = 0.84
 
-    Nu = C * Re_max**m * Pr**0.36 * (Pr/Prs)**(1/4)
+    Nu = C * Re_max**m * Pr**0.36 * (Pr / Prs) ** (1 / 4)
 
     # Correction for NL<20
     if NL < 20:
@@ -707,16 +732,18 @@ def Nu_cylinder_bank(v: float,
             C2 = np.interp(
                 NL,
                 [1, 2, 3, 4, 5, 7, 10, 13, 16, 20],
-                [0.70, 0.80, 0.86, 0.90, 0.92, 0.95, 0.97, 0.98, 0.99, 1.00])
+                [0.70, 0.80, 0.86, 0.90, 0.92, 0.95, 0.97, 0.98, 0.99, 1.00],
+            )
         else:
             C2 = np.interp(
                 NL,
                 [1, 2, 3, 4, 5, 7, 10, 13, 16, 20],
-                [0.64, 0.76, 0.84, 0.89, 0.92, 0.95, 0.97, 0.98, 0.99, 1.00])
+                [0.64, 0.76, 0.84, 0.89, 0.92, 0.95, 0.97, 0.98, 0.99, 1.00],
+            )
     else:
-        C2 = 1.
+        C2 = 1.0
 
-    return C2*Nu
+    return C2 * Nu
 
 
 def Nu_sphere_free(Ra: float, Pr: float) -> float:
@@ -732,7 +759,7 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     Pr \ge  0.7 \\
     \end{bmatrix}
 
-    where $Ra$ is the Rayleigh number and $Pr$ is the Prandtl number. The 
+    where $Ra$ is the Rayleigh number and $Pr$ is the Prandtl number. The
     properties are to be evaluated at the film temperature.
 
     **References**
@@ -754,7 +781,7 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     - [`Nu_sphere`](Nu_sphere.md): related method for forced convection.
 
@@ -779,22 +806,25 @@ def Nu_sphere_free(Ra: float, Pr: float) -> float:
     >>> print(f"h={h:.1e} W/m²·K")
     h=7.8e+02 W/m²·K
     """
-    check_range_warn(Ra, 0, 1e11, 'Ra')
-    check_range_warn(Pr, 0.7, inf, 'Pr')
+    check_range_warn(Ra, 0, 1e11, "Ra")
+    check_range_warn(Pr, 0.7, inf, "Pr")
 
-    return 2 + 0.589*Ra**(1/4) / (1 + (0.469/Pr)**(9/16))**(4/9)
+    return 2 + 0.589 * Ra ** (1 / 4) / (1 + (0.469 / Pr) ** (9 / 16)) ** (4 / 9)
 
 
-def Nu_plate_free(orientation: Literal['vertical',
-                                       'horizontal-upper-heated',
-                                       'horizontal-lower-heated'],
-                  Ra: float,
-                  Pr: float | None = None
-                  ) -> float:
+def Nu_plate_free(
+    orientation: Literal[
+        "vertical",
+        "horizontal-upper-heated",
+        "horizontal-lower-heated",
+    ],
+    Ra: float,
+    Pr: float | None = None,
+) -> float:
     r"""Calculate the Nusselt number for free convection on a vertical or
     horizontal plate.
 
-    For a vertical plate of height $L$, the average Nusselt number 
+    For a vertical plate of height $L$, the average Nusselt number
     $\overline{Nu}=\bar{h}L/k$ is estimated by the following expression:
 
     $$  \overline{Nu} = \left(0.825 + \frac{0.387 Ra^{1/6}}
@@ -826,11 +856,11 @@ def Nu_plate_free(orientation: Literal['vertical',
 
     !!! tip
 
-        * The correlation for vertical plates can also be applied to vertical 
+        * The correlation for vertical plates can also be applied to vertical
         cylinders of height $L$ and diameter $D$ if $D/L \gtrsim 35/Gr_L^{1/4}$.
         * The correlation for vertical plates can also be applied to the top and
-        bottom surfaces of heated and cooled _inclined_ plates, respectively, 
-        if $g$ is replaced by $g \cos \theta$ in the calculaton of $Ra$. 
+        bottom surfaces of heated and cooled _inclined_ plates, respectively,
+        if $g$ is replaced by $g \cos \theta$ in the calculaton of $Ra$.
 
     **References**
 
@@ -854,7 +884,7 @@ def Nu_plate_free(orientation: Literal['vertical',
     float
         Nusselt number.
 
-    See also
+    See Also
     --------
     - [`Nu_plate`](Nu_plate.md): related method for forced convection.
 
@@ -879,27 +909,32 @@ def Nu_plate_free(orientation: Literal['vertical',
     >>> print(f"h={h:.1e} W/m²·K")
     h=3.7e+00 W/m²·K
     """
-    if orientation == 'vertical':
+    if orientation == "vertical":
         if Pr:
-            return (0.825 + 0.387*Ra**(1/6) / (1 + (0.492/Pr)**(9/16))**(8/27))**2
+            return (
+                0.825
+                + 0.387 * Ra ** (1 / 6) / (1 + (0.492 / Pr) ** (9 / 16)) ** (8 / 27)
+            ) ** 2
         else:
             raise ValueError("`Pr` is required for vertical plates.")
-    elif orientation == 'horizontal-upper-heated':
-        check_range_warn(Ra, 1e4, 1e11, 'Ra')
+    elif orientation == "horizontal-upper-heated":
+        check_range_warn(Ra, 1e4, 1e11, "Ra")
         if Ra < 1e7:
-            return 0.54*Ra**(1/4)
+            return 0.54 * Ra ** (1 / 4)
         else:
-            return 0.15*Ra**(1/3)
-    elif orientation == 'horizontal-lower-heated':
-        check_range_warn(Ra, 1e5, 1e10, 'Ra')
-        return 0.27*Ra**(1/4)
+            return 0.15 * Ra ** (1 / 3)
+    elif orientation == "horizontal-lower-heated":
+        check_range_warn(Ra, 1e5, 1e10, "Ra")
+        return 0.27 * Ra ** (1 / 4)
     else:
         raise ValueError(f"Unknown `orientation`: {orientation}.")
 
 
-def Nu_combined(Nu_forced: float,
-                Nu_free: float,
-                assisted: bool) -> float:
+def Nu_combined(
+    Nu_forced: float,
+    Nu_free: float,
+    assisted: bool,
+) -> float:
     r"""Calculate the combined Nusselt number for forced and free convection.
 
     The combined Nusselt number is given by the following expression:
@@ -928,7 +963,7 @@ def Nu_combined(Nu_forced: float,
         Nusselt number for free convection.
     assisted : bool
         Flag to indicate the relative motion of the forced and free flows. Set
-        `True` for assisted or transverse flow and `False` for opposing flows.  
+        `True` for assisted or transverse flow and `False` for opposing flows.
 
     Returns
     -------

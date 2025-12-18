@@ -8,22 +8,24 @@ from scipy.special import erfc
 from polykin.math.special import ierfc, roots_xcotx, roots_xtanx
 from polykin.utils.math import eps
 
-__all__ = ['profile_constc_semiinf',
-           'profile_constc_sheet',
-           'profile_constc_sphere',
-           'uptake_constc_sheet',
-           'uptake_constc_sphere',
-           'uptake_convection_sheet',
-           'uptake_convection_sphere',
-           'diffusivity_composite',
-           ]
+__all__ = [
+    "profile_constc_semiinf",
+    "profile_constc_sheet",
+    "profile_constc_sphere",
+    "uptake_constc_sheet",
+    "uptake_constc_sphere",
+    "uptake_convection_sheet",
+    "uptake_convection_sphere",
+    "diffusivity_composite",
+]
 
 
-def profile_constc_semiinf(t: float,
-                           x: float,
-                           D: float
-                           ) -> float:
-    r"""Concentration profile for transient diffusion in semi-infinite medium. 
+def profile_constc_semiinf(
+    t: float,
+    x: float,
+    D: float,
+) -> float:
+    r"""Concentration profile for transient diffusion in semi-infinite medium.
 
     For a semi-infinite medium, where the concentration is initially $C_0$
     everywhere, and the surface concentration is maintained at $C_s$, the
@@ -62,7 +64,7 @@ def profile_constc_semiinf(t: float,
     >>> profile_constc_semiinf(t=1e2, x=0.1e-3, D=1e-10)
     0.4795001221869535
     """
-    return erfc(x/(2*sqrt(D*t)))
+    return erfc(x / (2 * sqrt(D * t)))
 
 
 def profile_constc_sheet(Fo: float, xstar: float) -> float:
@@ -73,9 +75,9 @@ def profile_constc_sheet(Fo: float, xstar: float) -> float:
     the concentration is initially $C_0$ everywhere, and the concentration at
     both surfaces is maintained at $C_s$, the normalized concentration is:
 
-    $$ \frac{C - C_0}{C_s - C_0} = 
+    $$ \frac{C - C_0}{C_s - C_0} =
         1-\frac{4}{\pi}\sum_{n=0}^{\infty}\frac{(-1)^n}{2n+1}
-        \exp\left[-\frac{\pi^2 Fo}{4} (2n+1)^2 \right] 
+        \exp\left[-\frac{\pi^2 Fo}{4} (2n+1)^2 \right]
         \cos\left[ \frac{\pi x^*}{2} (2n+1) \right] $$
 
     where $Fo = D t/a^2$ is the Fourier number, and $x^*=x/a$ is the normalized
@@ -103,7 +105,7 @@ def profile_constc_sheet(Fo: float, xstar: float) -> float:
     float
         Fractional accomplished concentration change.
 
-    See also
+    See Also
     --------
     * [`uptake_constc_sheet`](uptake_constc_sheet.md): related method to
       determine the mass uptake.
@@ -126,33 +128,41 @@ def profile_constc_sheet(Fo: float, xstar: float) -> float:
 
     if Fo == 0:
         result = 0
-    elif Fo < 1/4:
+    elif Fo < 1 / 4:
         # Solution for small times
-        A = 2*sqrt(Fo)
-        S = sum((-1 if n % 2 else 1) * (erfc(((2*n + 1) - xstar)/A) + erfc(((2*n + 1) + xstar)/A))
-                for n in range(0, N))
+        A = 2 * sqrt(Fo)
+        S = sum(
+            (-1 if n % 2 else 1)
+            * (erfc(((2 * n + 1) - xstar) / A) + erfc(((2 * n + 1) + xstar) / A))
+            for n in range(0, N)
+        )
         result = S
     else:
         # Solution for normal times
-        B = -(pi**2 / 4)*Fo
-        C = (pi/2)*xstar
-        S = sum((-1 if n % 2 else 1) / (2*n + 1) * exp(B*(2*n + 1)**2) * cos(C*(2*n + 1))
-                for n in range(0, N))
-        result = 1 - (4/pi)*S
+        B = -(pi**2 / 4) * Fo
+        C = (pi / 2) * xstar
+        S = sum(
+            (-1 if n % 2 else 1)
+            / (2 * n + 1)
+            * exp(B * (2 * n + 1) ** 2)
+            * cos(C * (2 * n + 1))
+            for n in range(0, N)
+        )
+        result = 1 - (4 / pi) * S
 
     return result
 
 
 def profile_constc_sphere(Fo: float, rstar: float) -> float:
     r"""Concentration profile for transient diffusion in a sphere subjected
-    to a constant surface concentration boundary condition. 
+    to a constant surface concentration boundary condition.
 
     For a sphere of radius $a$, where the concentration is initially $C_0$
     everywhere, and the surface concentration is maintained at $C_s$, the
     normalized concentration is:
 
     $$ \frac{C - C_0}{C_s - C_0} =
-        1 + \frac{2}{\pi r^*} \sum_{n=1}^\infty \frac{(-1)^n}{n} 
+        1 + \frac{2}{\pi r^*} \sum_{n=1}^\infty \frac{(-1)^n}{n}
         \exp(- n^2 \pi^2 Fo) \sin (n \pi r^*) $$
 
     where $Fo = D t/a^2$ is the Fourier number, and $r^*=r/a$ is the normalized
@@ -175,7 +185,7 @@ def profile_constc_sphere(Fo: float, rstar: float) -> float:
     float
         Normalized concentration.
 
-    See also
+    See Also
     --------
     * [`uptake_constc_sphere`](uptake_constc_sphere.md): related method to
       determine the mass uptake.
@@ -198,37 +208,41 @@ def profile_constc_sphere(Fo: float, rstar: float) -> float:
 
     if abs(rstar) < eps:
         # Solution for particular case r->0
-        B = -(pi**2)*Fo
-        S = sum((-1 if n % 2 else 1) * exp(B*n**2) for n in range(1, N))
-        result = 1 + 2*S
+        B = -(pi**2) * Fo
+        S = sum((-1 if n % 2 else 1) * exp(B * n**2) for n in range(1, N))
+        result = 1 + 2 * S
     else:
         if Fo == 0:
             result = 0
-        elif Fo < 1/4:
+        elif Fo < 1 / 4:
             # Solution for small times
-            A = 2*sqrt(Fo)
-            S = sum(erfc(((2*n + 1) - rstar)/A) - erfc(((2*n + 1) + rstar)/A)
-                    for n in range(0, N))
-            result = S/rstar
+            A = 2 * sqrt(Fo)
+            S = sum(
+                erfc(((2 * n + 1) - rstar) / A) - erfc(((2 * n + 1) + rstar) / A)
+                for n in range(0, N)
+            )
+            result = S / rstar
         else:
             # Solution for normal times
-            B = -(pi**2)*Fo
-            S = sum((-1 if n % 2 else 1) / n * exp(B*n**2) * sin(rstar*pi*n)
-                    for n in range(1, N))
-            result = 1 + (2/(pi*rstar))*S
+            B = -(pi**2) * Fo
+            S = sum(
+                (-1 if n % 2 else 1) / n * exp(B * n**2) * sin(rstar * pi * n)
+                for n in range(1, N)
+            )
+            result = 1 + (2 / (pi * rstar)) * S
 
     return result
 
 
 def uptake_constc_sheet(Fo: float) -> float:
     r"""Fractional mass uptake for transient diffusion in a plane sheet
-    subjected to a constant surface concentration boundary condition. 
+    subjected to a constant surface concentration boundary condition.
 
     For a plane sheet of thickness $2a$, with diffusion from _both_ faces, where
     the concentration is initially $C_0$ everywhere, and the concentration at
     both surfaces is maintained at $C_s$, the fractional mass uptake is:
 
-    $$ \frac{\bar{C}-C_0}{C_s -C_0} = 
+    $$ \frac{\bar{C}-C_0}{C_s -C_0} =
         1 - \frac{8}{\pi^2} \sum_{n=0}^{\infty}\frac{1}{(2n+1)^2}
         \exp\left[-\frac{(2n+1)^2 \pi^2}{4}Fo\right] $$
 
@@ -254,7 +268,7 @@ def uptake_constc_sheet(Fo: float) -> float:
     float
         Fractional mass uptake.
 
-    See also
+    See Also
     --------
     * [`profile_constc_sheet`](profile_constc_sheet.md): related method to
       determine the concentration profile.
@@ -277,23 +291,25 @@ def uptake_constc_sheet(Fo: float) -> float:
 
     if Fo == 0:
         result = 0
-    elif Fo < 1/4:
+    elif Fo < 1 / 4:
         # Solution for small times
         A = sqrt(Fo)
-        S = sum((-1 if n % 2 else 1) * ierfc(n/A) for n in range(1, N))
-        result = 2*A * (1/sqrt(pi) + 2*S)
+        S = sum((-1 if n % 2 else 1) * ierfc(n / A) for n in range(1, N))
+        result = 2 * A * (1 / sqrt(pi) + 2 * S)
     else:
         # Solution for normal times
-        B = -(Fo*pi**2)/4
-        S = sum(1/(2*n + 1)**2 * exp(B*(2*n + 1)**2) for n in range(0, N-1))
-        result = 1 - (8/pi**2)*S
+        B = -(Fo * pi**2) / 4
+        S = sum(
+            1 / (2 * n + 1) ** 2 * exp(B * (2 * n + 1) ** 2) for n in range(0, N - 1)
+        )
+        result = 1 - (8 / pi**2) * S
 
     return result
 
 
 def uptake_constc_sphere(Fo: float) -> float:
     r"""Fractional mass uptake for transient diffusion in a sphere subjected
-    to a constant surface concentration boundary condition. 
+    to a constant surface concentration boundary condition.
 
     For a sphere of radius $a$, where the concentration is initially $C_0$
     everywhere, and the surface concentration is maintained at $C_s$, the
@@ -319,7 +335,7 @@ def uptake_constc_sphere(Fo: float) -> float:
     float
         Fractional mass uptake.
 
-    See also
+    See Also
     --------
     * [`profile_constc_sphere`](profile_constc_sphere.md): related method to
       determine the concentration profile.
@@ -342,23 +358,23 @@ def uptake_constc_sphere(Fo: float) -> float:
 
     if Fo == 0:
         result = 0
-    elif Fo < 1/4:
+    elif Fo < 1 / 4:
         # Solution for small times
         A = sqrt(Fo)
-        S = sum(ierfc(n/A) for n in range(1, N))
-        result = 6*A * (1/sqrt(pi) + 2*S) - 3*Fo
+        S = sum(ierfc(n / A) for n in range(1, N))
+        result = 6 * A * (1 / sqrt(pi) + 2 * S) - 3 * Fo
     else:
         # Solution for normal times
-        B = -Fo*pi**2
-        S = sum(1/n**2 * exp(B*n**2) for n in range(1, N))
-        result = 1 - (6/pi**2)*S
+        B = -Fo * pi**2
+        S = sum(1 / n**2 * exp(B * n**2) for n in range(1, N))
+        result = 1 - (6 / pi**2) * S
 
     return result
 
 
 def uptake_convection_sheet(Fo: float, Bi: float) -> float:
     r"""Fractional mass uptake for transient diffusion in a plane sheet
-    subjected to a surface convection boundary condition. 
+    subjected to a surface convection boundary condition.
 
     For a plane sheet of thickness $2a$, with diffusion from _both_ faces,
     where the concentration is initially $C_0$ everywhere, and the flux at the
@@ -373,7 +389,7 @@ def uptake_convection_sheet(Fo: float, Bi: float) -> float:
         \exp (-\beta_n^2 Fo) $$
 
     where $Fo = D t/a^2$ is the Fourier number, $Bi = k a/D$ is the Biot
-    number, and $\beta_n$ are the positive roots of the transcendental equation 
+    number, and $\beta_n$ are the positive roots of the transcendental equation
     $\beta \tan(\beta) = Bi$.
 
     **References**
@@ -393,7 +409,7 @@ def uptake_convection_sheet(Fo: float, Bi: float) -> float:
     float
         Fractional mass uptake.
 
-    See also
+    See Also
     --------
     * [`uptake_constc_sheet`](uptake_constc_sheet.md): related method for
       constant surface concentration boundary condition.
@@ -417,16 +433,17 @@ def uptake_convection_sheet(Fo: float, Bi: float) -> float:
         N = 4  # Number of terms in series expansion (optimal value)
         x = roots_xtanx(Bi, N)
         b2 = x**2
-        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n] + Bi*(Bi + 1)))
-                for n in range(0, N))
-        return 1 - (2*Bi**2)*S
+        S = sum(
+            exp(-b2[n] * Fo) / (b2[n] * (b2[n] + Bi * (Bi + 1))) for n in range(0, N)
+        )
+        return 1 - (2 * Bi**2) * S
     else:
         return 0
 
 
 def uptake_convection_sphere(Fo: float, Bi: float) -> float:
     r"""Fractional mass uptake for transient diffusion in a sphere subjected
-    to a surface convection boundary condition. 
+    to a surface convection boundary condition.
 
     For a sphere of radius $a$, where the concentration is initially $C_0$
     everywhere, and the flux at the surface is:
@@ -435,12 +452,12 @@ def uptake_convection_sphere(Fo: float, Bi: float) -> float:
 
     the fractional mass uptake is:
 
-    $$ \frac{\bar{C}-C_0}{C_{\infty} -C_0} = 
+    $$ \frac{\bar{C}-C_0}{C_{\infty} -C_0} =
         1 - 6 Bi^2 \sum_{n=1}^{\infty}\frac{1}{\beta_n^2[\beta_n^2+Bi(Bi-1)]}
         \exp (-\beta_n^2 Fo) $$
 
     where $Fo = D t/a^2$ is the Fourier number, $Bi = k a/D$ is the Biot
-    number, and $\beta_n$ are the positive roots of the transcendental equation 
+    number, and $\beta_n$ are the positive roots of the transcendental equation
     $1 - \beta \cot(\beta) = Bi$.
 
     **References**
@@ -460,7 +477,7 @@ def uptake_convection_sphere(Fo: float, Bi: float) -> float:
     float
         Fractional mass uptake.
 
-    See also
+    See Also
     --------
     * [`uptake_constc_sphere`](uptake_constc_sphere.md): related method for
       constant surface concentration boundary condition.
@@ -484,18 +501,21 @@ def uptake_convection_sphere(Fo: float, Bi: float) -> float:
         N = 4  # Number of terms in series expansion (optimal value)
         x = roots_xcotx(Bi, N)
         b2 = x**2
-        S = sum(exp(-b2[n]*Fo)/(b2[n]*(b2[n] + Bi*(Bi - 1)))
-                for n in range(0, N))
-        return 1 - (6*Bi**2)*S
+        S = sum(
+            exp(-b2[n] * Fo) / (b2[n] * (b2[n] + Bi * (Bi - 1))) for n in range(0, N)
+        )
+        return 1 - (6 * Bi**2) * S
     else:
         return 0
 
 
-def diffusivity_composite(Dd: float,
-                          Dc: float,
-                          fd: float,
-                          sphericity: float = 1) -> float:
-    r"""Calculate the effective diffusivity of a composite medium containing a 
+def diffusivity_composite(
+    Dd: float,
+    Dc: float,
+    fd: float,
+    sphericity: float = 1,
+) -> float:
+    r"""Calculate the effective diffusivity of a composite medium containing a
     dispersed particle phase.
 
     The effective diffusivity $D$ is calculated using a generalization of
@@ -503,7 +523,7 @@ def diffusivity_composite(Dd: float,
 
     $$ \frac{D - D_c}{D + x D_c} = \phi_d \frac{D_d - D_c}{D_d + x D_c} $$
 
-    with $x = 3/s - 1$. Here, $D_d$ is the diffusivity of the dispersed phase, 
+    with $x = 3/s - 1$. Here, $D_d$ is the diffusivity of the dispersed phase,
     $D_c$ is the diffusivity of the continuous phase, $\phi_d$ is the volume
     fraction of the dispersed phase, and $s$ is the sphericity of the dispersed
     particles.
@@ -522,7 +542,7 @@ def diffusivity_composite(Dd: float,
     fd : float
         Volume fraction of the dispersed phase.
     sphericity : float
-        Sphericity of the particles. Ratio of the surface area of a sphere of 
+        Sphericity of the particles. Ratio of the surface area of a sphere of
         volume equal to that of the particle, to the surface area of the
         particle.
 
@@ -540,6 +560,6 @@ def diffusivity_composite(Dd: float,
     >>> diffusivity_composite(Dd=1e-10, Dc=1e-11, fd=0.05)
     1.1168831168831167e-11
     """
-    x = 3/sphericity - 1
-    Y = (Dd - Dc)/(Dd + x*Dc)
-    return Dc*(1 + fd*Y*x)/(1 - fd*Y)
+    x = 3 / sphericity - 1
+    Y = (Dd - Dc) / (Dd + x * Dc)
+    return Dc * (1 + fd * Y * x) / (1 - fd * Y)

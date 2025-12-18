@@ -9,25 +9,26 @@ from polykin.math import root_newton
 from polykin.utils.exceptions import RootSolverError
 from polykin.utils.tools import check_range_warn
 
-__all__ = ['fD_Colebrook',
-           'fD_Haaland',
-           'DP_Hagen_Poiseuille',
-           'DP_Darcy_Weisbach',
-           'DP_tube',
-           'DP_packed_bed',
-           'Cd_sphere',
-           'vt_sphere',
-           'vt_Stokes',
-           'DP_GL_Lockhart_Martinelli',
-           'DP_GL_Mueller_Bonn'
-           ]
+__all__ = [
+    "fD_Colebrook",
+    "fD_Haaland",
+    "DP_Hagen_Poiseuille",
+    "DP_Darcy_Weisbach",
+    "DP_tube",
+    "DP_packed_bed",
+    "Cd_sphere",
+    "vt_sphere",
+    "vt_Stokes",
+    "DP_GL_Lockhart_Martinelli",
+    "DP_GL_Mueller_Bonn",
+]
 
 
 def DP_Hagen_Poiseuille(
     Q: float,
     D: float,
     L: float,
-    mu: float
+    mu: float,
 ) -> float:
     r"""Calculate the pressure drop in a circular pipe using the
     Hagen-Poiseuille equation.
@@ -59,14 +60,14 @@ def DP_Hagen_Poiseuille(
     Examples
     --------
     Calculate the pressure drop for a polymer solution (viscosity: 10 Pa·s)
-    flowing at 1 L/s through 5 m of smooth pipe with a 50 mm internal diameter. 
+    flowing at 1 L/s through 5 m of smooth pipe with a 50 mm internal diameter.
     >>> from polykin.flow import DP_Hagen_Poiseuille
     >>> from math import pi
     >>> Q = 1e-3  # m³/s
     >>> D = 50e-3 # m
     >>> L = 5.    # m
     >>> mu = 10.  # Pa·s
-    >>> rho = 1e3 # kg/m³ 
+    >>> rho = 1e3 # kg/m³
     >>> v = 4*Q/(pi*D**2)
     >>> Re = rho*v*D/mu
     >>> print(f"Re = {Re:.1e}")
@@ -75,7 +76,7 @@ def DP_Hagen_Poiseuille(
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 3.3e+05 Pa
     """
-    return 128*mu*Q*L/(pi*D**4)
+    return 128 * mu * Q * L / (pi * D**4)
 
 
 def DP_Darcy_Weisbach(
@@ -94,7 +95,7 @@ def DP_Darcy_Weisbach(
     $$ \Delta P = f_D \frac{\rho}{2} \frac{v^2}{D} L $$
 
     where $f_D$ is the Darcy friction factor, $v$ is the velocity, $D$ is the
-    pipe diameter, $L$ is the pipe length, and $\rho$ is the fluid density. 
+    pipe diameter, $L$ is the pipe length, and $\rho$ is the fluid density.
     This equation is valid for both laminar and turbulent flow. In laminar
     flow, $f_D=64/Re$. For turbulent flow, $f_D$ can be estimated
     using either Colebrook's or Haaland's equation.
@@ -118,7 +119,7 @@ def DP_Darcy_Weisbach(
     float
         Pressure drop [Pa].
 
-    See also
+    See Also
     --------
     * [`fD_Colebrook`](fD_Colebrook.md): associated method to estimate the
       friction factor.
@@ -155,7 +156,7 @@ def DP_tube(
     L: float,
     rho: float,
     mu: float,
-    er: float = 0.0
+    er: float = 0.0,
 ) -> float:
     r"""Calculate the pressure drop due to friction for flow through a circular
     pipe.
@@ -165,11 +166,11 @@ def DP_tube(
     and estimates the Darcy friction factor using the appropriate equation. For
     laminar flow, it applies $f_D=64/Re$. For turbulent flow, it uses
     [`fD_Haaland`](fD_Haaland.md). Finally, the method calls
-    [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md) with the correct parameters. 
+    [`DP_Darcy_Weisbach`](DP_Darcy_Weisbach.md) with the correct parameters.
 
     !!! tip
 
-        In laminar flow, $\Delta P \propto Q/D^4$, while in turbulent flow, 
+        In laminar flow, $\Delta P \propto Q/D^4$, while in turbulent flow,
         $\Delta P \propto Q^2/D^5$.
 
     Parameters
@@ -207,11 +208,10 @@ def DP_tube(
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 6.2e+05 Pa
     """
-
-    v = 4*Q/(pi*D**2)
-    Re = rho*v*D/mu
+    v = 4 * Q / (pi * D**2)
+    Re = rho * v * D / mu
     if Re < 2.3e3:
-        fD = 64/Re
+        fD = 64 / Re
     else:
         fD = fD_Haaland(Re, er)
 
@@ -224,7 +224,7 @@ def DP_packed_bed(
     Dp: float,
     eps: float,
     rho: float,
-    mu: float
+    mu: float,
 ) -> float:
     r"""Calculate the pressure drop in a packed bed.
 
@@ -276,9 +276,9 @@ def DP_packed_bed(
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 1.4e+04 Pa
     """
-    Rep = Dp*G/(mu*(1 - eps))
-    fp = 150/Rep + 4.2/Rep**(1/6)
-    return G**2*(1 - eps)*fp*L/(rho*Dp*eps**3)
+    Rep = Dp * G / (mu * (1 - eps))
+    fp = 150 / Rep + 4.2 / Rep ** (1 / 6)
+    return G**2 * (1 - eps) * fp * L / (rho * Dp * eps**3)
 
 
 def fD_Colebrook(Re: float, er: float) -> float:
@@ -311,7 +311,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     float
         Darcy friction factor.
 
-    See also
+    See Also
     --------
     * [`fD_Haaland`](fD_Haaland.md): alternative method.
 
@@ -330,11 +330,10 @@ def fD_Colebrook(Re: float, er: float) -> float:
     >>> print(f"fD = {fD:.3f}")
     fD = 0.021
     """
-
-    check_range_warn(Re, 2.3e3, inf, 'Re')
+    check_range_warn(Re, 2.3e3, inf, "Re")
 
     def fnc(f):
-        return 2*log10(er/3.7 + 2.51/(Re*sqrt(f))) + 1/sqrt(f)
+        return 2 * log10(er / 3.7 + 2.51 / (Re * sqrt(f))) + 1 / sqrt(f)
 
     sol = root_newton(fnc, fD_Haaland(Re, er), 1e-5)
 
@@ -352,7 +351,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     For turbulent flow, i.e., $Re \gtrsim 2300$, the friction factor
     is given by the following explicit expression:
 
-    $$ \frac{1}{\sqrt{f}}= -1.8 \log \left[\left(\frac{\epsilon/D}{3.7}\right)^{1.11} 
+    $$ \frac{1}{\sqrt{f}}= -1.8 \log \left[\left(\frac{\epsilon/D}{3.7}\right)^{1.11}
        + \frac{6.9}{Re} \right] $$
 
     This equation is as accurate as Colebrook's but has the advantage of
@@ -375,7 +374,7 @@ def fD_Haaland(Re: float, er: float) -> float:
     float
         Darcy friction factor.
 
-    See also
+    See Also
     --------
     * [`fD_Colebrook`](fD_Colebrook.md): alternative method.
 
@@ -394,9 +393,9 @@ def fD_Haaland(Re: float, er: float) -> float:
     >>> print(f"fD = {fD:.3f}")
     fD = 0.021
     """
-    check_range_warn(Re, 2.3e3, inf, 'Re')
+    check_range_warn(Re, 2.3e3, inf, "Re")
 
-    return (1/(1.8*log10((er/3.7)**1.11 + 6.9/Re)))**2
+    return (1 / (1.8 * log10((er / 3.7) ** 1.11 + 6.9 / Re))) ** 2
 
 
 def Cd_sphere(Rep: float) -> float:
@@ -405,7 +404,7 @@ def Cd_sphere(Rep: float) -> float:
     For laminar as well as for turbulent flow, the drag coefficient is given
     by:
 
-    $$ C_{d} = \frac{24}{Re_p} \left(1 + 0.173 Re_p^{0.657}\right) 
+    $$ C_{d} = \frac{24}{Re_p} \left(1 + 0.173 Re_p^{0.657}\right)
              + \frac{0.413}{1 + 16300 Re_p^{-1.09}} $$
 
     where $Re_p = \rho v D_p / \mu$ is the particle Reynolds number.
@@ -423,9 +422,9 @@ def Cd_sphere(Rep: float) -> float:
     Returns
     -------
     float
-        Drag coefficient for an isolated sphere. 
+        Drag coefficient for an isolated sphere.
 
-    See also
+    See Also
     --------
     * [`vt_sphere`](vt_sphere.md): related method to estimate the terminal
       velocity.
@@ -443,14 +442,14 @@ def Cd_sphere(Rep: float) -> float:
     >>> print(f"Cd = {Cd:.2f}")
     Cd = 0.47
     """
-    return 24/Rep*(1 + 0.173*Rep**0.657) + 0.413/(1 + 16300*Rep**(-1.09))
+    return 24 / Rep * (1 + 0.173 * Rep**0.657) + 0.413 / (1 + 16300 * Rep ** (-1.09))
 
 
 def vt_Stokes(
     Dp: float,
     rhop: float,
     rho: float,
-    mu: float
+    mu: float,
 ) -> float:
     r"""Calculate the terminal velocity of an isolated sphere using Stokes' law.
 
@@ -479,7 +478,7 @@ def vt_Stokes(
     float
         Terminal velocity [m/s].
 
-    See also
+    See Also
     --------
     * [`vt_sphere`](vt_sphere.md): generic method for laminar and turbulent flow.
 
@@ -491,10 +490,10 @@ def vt_Stokes(
     >>> print(f"vt = {vt:.1e} m/s")
     vt = 5.4e-08 m/s
     """
-    vt = Dp**2*g*(rhop - rho)/(18*mu)
+    vt = Dp**2 * g * (rhop - rho) / (18 * mu)
 
-    Rep = rho*vt*Dp/mu
-    check_range_warn(Rep, 0.0, 0.1, 'Re')
+    Rep = rho * vt * Dp / mu
+    check_range_warn(Rep, 0.0, 0.1, "Re")
 
     return vt
 
@@ -503,7 +502,7 @@ def vt_sphere(
     Dp: float,
     rhop: float,
     rho: float,
-    mu: float
+    mu: float,
 ) -> float:
     r"""Calculate the terminal velocity of an isolated sphere in laminar or
     turbulent flow.
@@ -518,7 +517,7 @@ def vt_sphere(
 
     !!! tip
 
-        In laminar flow, $v_t \propto D_p^2$, while in turbulent flow, 
+        In laminar flow, $v_t \propto D_p^2$, while in turbulent flow,
         $v_t \propto D_p^{1/2}$.
 
     **References**
@@ -542,7 +541,7 @@ def vt_sphere(
     float
         Terminal velocity [m/s].
 
-    See also
+    See Also
     --------
     * [`vt_Stokes`](vt_Stokes.md): specific method for laminar flow.
     * [`Cd_sphere`](Cd_sphere.md): related method to estimate the drag
@@ -558,9 +557,9 @@ def vt_sphere(
     """
 
     def fnc(vt):
-        Rep = rho*vt*Dp/mu
+        Rep = rho * vt * Dp / mu
         Cd = Cd_sphere(Rep)
-        return vt - sqrt(4*Dp*g*(rhop - rho)/(3*Cd*rho))
+        return vt - sqrt(4 * Dp * g * (rhop - rho) / (3 * Cd * rho))
 
     sol = root_newton(fnc, x0=1.0)
 
@@ -581,7 +580,7 @@ def DP_GL_Lockhart_Martinelli(
     rhoG: float,
     muL: float,
     muG: float,
-    er: float
+    er: float,
 ) -> float:
     r"""Calculate the pressure drop due to friction in two-phase liquid-gas
     flow through a horizontal pipe using the Lockhart-Martinelli correlation.
@@ -630,7 +629,7 @@ def DP_GL_Lockhart_Martinelli(
     float
         Pressure drop [Pa].
 
-    See also
+    See Also
     --------
     * [`DP_GL_Mueller_Bonn`](DP_GL_Mueller_Bonn.md): alternative method.
 
@@ -639,37 +638,36 @@ def DP_GL_Lockhart_Martinelli(
     Calculate the pressure gradient due to friction in a 80 mm inner diameter
     pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
     densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
-    2e-5 Pa·s, respectively. 
+    2e-5 Pa·s, respectively.
     >>> from polykin.flow import DP_GL_Lockhart_Martinelli
     >>> mdotL = 2.0 # kg/s
-    >>> mdotG = 1.0 # kg/s 
+    >>> mdotG = 1.0 # kg/s
     >>> D = 80e-3   # m
     >>> L = 1.0     # m
     >>> rhoL = 1e3  # kg/m³
     >>> rhoG = 1e0  # kg/m³
     >>> muL = 1e-3  # Pa·s
     >>> muG = 2e-5  # Pa·s
-    >>> er = 0.0    
+    >>> er = 0.0
     >>> DP = DP_GL_Lockhart_Martinelli(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG, er)
     >>> print(f"DP = {DP:.1e} Pa/m")
     DP = 8.2e+03 Pa/m
     """
-
     # Pressure gradient if liquid were alone
-    A = (pi/4)*D**2
+    A = (pi / 4) * D**2
     if mdotL > 0.0:
-        vL = mdotL/(A*rhoL)
-        ReL = rhoL*vL*D/muL
-        fL = 64/ReL if ReL < 2.3e3 else fD_Haaland(ReL, er)
+        vL = mdotL / (A * rhoL)
+        ReL = rhoL * vL * D / muL
+        fL = 64 / ReL if ReL < 2.3e3 else fD_Haaland(ReL, er)
         dPL = DP_Darcy_Weisbach(vL, D, 1.0, rhoL, fL)
     else:
         dPL = 0.0
 
     # Pressure gradient if gas were alone
     if mdotG > 0.0:
-        vG = mdotG/(A*rhoG)
-        ReG = rhoG*vG*D/muG
-        fG = 64/ReG if ReG < 2.3e3 else fD_Haaland(ReG, er)
+        vG = mdotG / (A * rhoG)
+        ReG = rhoG * vG * D / muG
+        fG = 64 / ReG if ReG < 2.3e3 else fD_Haaland(ReG, er)
         dPG = DP_Darcy_Weisbach(vG, D, 1.0, rhoG, fG)
     else:
         dPG = 0.0
@@ -680,14 +678,14 @@ def DP_GL_Lockhart_Martinelli(
     elif not dPL:
         dP = dPG
     else:
-        X = sqrt(dPL/dPG)
+        X = sqrt(dPL / dPG)
         if ReL > 1e3:
             C = 20.0 if ReG > 1e3 else 10.0
         else:
             C = 12.0 if ReG > 1e3 else 5.0
-        YL = 1 + C/X + 1/X**2
-        dP = YL*dPL
-    DP = dP*L
+        YL = 1 + C / X + 1 / X**2
+        dP = YL * dPL
+    DP = dP * L
 
     return DP
 
@@ -700,7 +698,7 @@ def DP_GL_Mueller_Bonn(
     rhoL: float,
     rhoG: float,
     muL: float,
-    muG: float
+    muG: float,
 ) -> float:
     r"""Calculate the pressure drop due to friction in two-phase liquid-gas
     flow through a horizontal pipe using the Mueller-Bonn correlation.
@@ -739,7 +737,7 @@ def DP_GL_Mueller_Bonn(
     float
         Pressure drop [Pa].
 
-    See also
+    See Also
     --------
     * [`DP_GL_Lockhart_Martinelli`](DP_GL_Lockhart_Martinelli.md): alternative
       method.
@@ -749,38 +747,37 @@ def DP_GL_Mueller_Bonn(
     Calculate the pressure gradient due to friction in a 80 mm inner diameter
     pipe with 2 kg/s of liquid and 1 kg/s of gas. The liquid and gas have
     densities of 1000 and 1 kg/m³, respectively, and viscosities of 1e-3 and
-    2e-5 Pa·s, respectively. 
+    2e-5 Pa·s, respectively.
     >>> from polykin.flow import DP_GL_Mueller_Bonn
     >>> mdotL = 2.0 # kg/s
-    >>> mdotG = 1.0 # kg/s 
+    >>> mdotG = 1.0 # kg/s
     >>> D = 80e-3   # m
     >>> L = 1.0     # m
     >>> rhoL = 1e3  # kg/m³
     >>> rhoG = 1e0  # kg/m³
     >>> muL = 1e-3  # Pa·s
-    >>> muG = 2e-5  # Pa·s 
+    >>> muG = 2e-5  # Pa·s
     >>> DP = DP_GL_Mueller_Bonn(mdotL, mdotG, D, L, rhoL, rhoG, muL, muG)
     >>> print(f"DP = {DP:.1e} Pa/m")
     DP = 1.1e+04 Pa/m
     """
-
     # Flow quality and mass flux
     mdot = mdotL + mdotG
-    x = mdotG/mdot
-    vm = mdot/((pi/4)*D**2)
+    x = mdotG / mdot
+    vm = mdot / ((pi / 4) * D**2)
 
     # Pressure gradient if total flow had liquid properties
-    ReL = vm*D/muL
-    fL = 64/ReL if ReL <= 1187.0 else 0.3164/ReL**0.25
-    dPL0 = fL*vm**2/(2*rhoL*D)
+    ReL = vm * D / muL
+    fL = 64 / ReL if ReL <= 1187.0 else 0.3164 / ReL**0.25
+    dPL0 = fL * vm**2 / (2 * rhoL * D)
 
     # Pressure gradient if total flow had gas properties
-    ReG = vm*D/muG
-    fG = 64/ReG if ReG <= 1187.0 else 0.3164/ReG**0.25
-    dPG0 = fG*vm**2/(2*rhoG*D)
+    ReG = vm * D / muG
+    fG = 64 / ReG if ReG <= 1187.0 else 0.3164 / ReG**0.25
+    dPG0 = fG * vm**2 / (2 * rhoG * D)
 
     # Two-phase pressure gradient
-    dP = (dPL0 + 2*(dPG0 - dPL0)*x)*(1 - x)**(1/3) + dPG0*x**3
-    DP = dP*L
+    dP = (dPL0 + 2 * (dPG0 - dPL0) * x) * (1 - x) ** (1 / 3) + dPG0 * x**3
+    DP = dP * L
 
     return DP
