@@ -2,28 +2,33 @@
 #
 # Copyright Hugo Vale 2024
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 from numpy import cbrt
 
 from polykin.utils.math import eps
-from polykin.utils.types import (Float2x2Matrix, FloatArray, FloatMatrix,
-                                 FloatSquareMatrix, FloatVector)
+from polykin.utils.types import (
+    Float2x2Matrix,
+    FloatArray,
+    FloatMatrix,
+    FloatSquareMatrix,
+    FloatVector,
+)
 
 __all__ = [
-    'derivative_complex',
-    'derivative_centered',
-    'jacobian_forward',
-    'hessian_forward',
-    'hessian2_centered',
-    'scalex'
+    "derivative_complex",
+    "derivative_centered",
+    "jacobian_forward",
+    "hessian_forward",
+    "hessian2_centered",
+    "scalex",
 ]
 
 
 def derivative_complex(
     f: Callable[[complex], complex],
-    x: float
+    x: float,
 ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     complex differentiation method.
@@ -64,13 +69,13 @@ def derivative_complex(
     (3.0, 1.0)
     """
     fz = f(complex(x, eps))
-    return (fz.imag/eps, fz.real)
+    return (fz.imag / eps, fz.real)  # type: ignore
 
 
 def derivative_centered(
     f: Callable[[float], float],
     x: float,
-    h: float = 0.0
+    h: float = 0.0,
 ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
     centered finite-difference scheme.
@@ -106,16 +111,15 @@ def derivative_centered(
     >>> derivative_centered(f, 1.0)
     (np.float64(3.0000000003141882), np.float64(1.0000000009152836))
     """
-
     if h == 0:
-        h = cbrt(3*eps)    # ~ 1e-5
+        h = cbrt(3 * eps)  # ~ 1e-5
 
-    h *= (1 + abs(x))
+    h *= 1 + abs(x)
 
     fp = f(x + h)
     fm = f(x - h)
-    df = (fp - fm)/(2*h)
-    fx = (fp + fm)/2
+    df = (fp - fm) / (2 * h)
+    fx = (fp + fm) / 2
 
     return (df, fx)
 
@@ -125,12 +129,12 @@ def jacobian_forward(
     x: FloatVector,
     fx: FloatVector | None = None,
     sclx: FloatVector | None = None,
-    ndigit: int | None = None
+    ndigit: int | None = None,
 ) -> FloatMatrix:
-    r"""Calculate the numerical Jacobian of a vector function 
+    r"""Calculate the numerical Jacobian of a vector function
     $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
 
-    $$ J_{ij} = \frac{\partial f_i}{\partial x_j} 
+    $$ J_{ij} = \frac{\partial f_i}{\partial x_j}
               = \frac{f_i(\mathbf{x} + \mathbf{e}_j h_j) - f_i(\mathbf{x})}{h_j} $$
 
     The step size $h_j$ is optimally determined according to the number of
@@ -176,22 +180,21 @@ def jacobian_forward(
     >>> jacobian_forward(f, np.array([2.0, -2.0]))
     array([[-32.00000024,  47.99999928]])
     """
-
     fx = fx if fx is not None else f(x)
     sclx = sclx if sclx is not None else scalex(x)
 
-    η = eps if ndigit is None else 10**(-ndigit)
+    η = eps if ndigit is None else 10 ** (-ndigit)
     h0 = np.sqrt(η)
 
     J = np.empty((fx.size, x.size))
     xh = x.copy()
 
     for i in range(x.size):
-        h = h0*max(abs(x[i]), abs(1/sclx[i]))
+        h = h0 * max(abs(x[i]), abs(1 / sclx[i]))
         xtemp = xh[i]
         xh[i] += h
         h = xh[i] - xtemp
-        J[:, i] = (f(xh) - fx)/h
+        J[:, i] = (f(xh) - fx) / h
         xh[i] = xtemp
 
     return J
@@ -202,14 +205,14 @@ def hessian_forward(
     x: FloatVector,
     fx: float | None = None,
     sclx: FloatVector | None = None,
-    ndigit: int | None = None
+    ndigit: int | None = None,
 ) -> FloatSquareMatrix:
     r"""Calculate the numerical Hessian of a scalar function $f(\mathbf{x})$
     using the forward finite-difference scheme.
 
-    $$ H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j} 
+    $$ H_{ij} = \frac{\partial^2 f}{\partial x_i \partial x_j}
         = \frac{
-          f(\mathbf{x} + \mathbf{e}_i h_i + \mathbf{e}_j h_j) 
+          f(\mathbf{x} + \mathbf{e}_i h_i + \mathbf{e}_j h_j)
         - f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x} + \mathbf{e}_j h_j)
         + f(\mathbf{x})}{h_i h_j} $$
 
@@ -257,11 +260,10 @@ def hessian_forward(
     array([[-16.0001093 ,  47.99984347],
            [ 47.99984347, -47.99979503]])
     """
-
     fx = fx if fx is not None else f(x)
     sclx = sclx if sclx is not None else scalex(x)
 
-    η = eps if ndigit is None else 10**(-ndigit)
+    η = eps if ndigit is None else 10 ** (-ndigit)
     h0 = np.cbrt(η)
 
     N = x.size
@@ -271,7 +273,7 @@ def hessian_forward(
     xh = x.copy()
 
     for i in range(N):
-        h[i] = h0*max(abs(x[i]), abs(1/sclx[i]))
+        h[i] = h0 * max(abs(x[i]), abs(1 / sclx[i]))
         xtemp1 = xh[i]
         xh[i] += h[i]
         h[i] = xh[i] - xtemp1
@@ -280,13 +282,13 @@ def hessian_forward(
 
     for i in range(N):
         xtemp1 = xh[i]
-        xh[i] += 2*h[i]
-        H[i, i] = ((fx - fh[i]) + (f(xh) - fh[i]))/(h[i]**2)
+        xh[i] += 2 * h[i]
+        H[i, i] = ((fx - fh[i]) + (f(xh) - fh[i])) / (h[i] ** 2)
         xh[i] = xtemp1 + h[i]
         for j in range(i + 1, N):
             xtemp2 = xh[j]
             xh[j] += h[j]
-            H[i, j] = ((fx - fh[i]) + (f(xh) - fh[j]))/(h[i]*h[j])
+            H[i, j] = ((fx - fh[i]) + (f(xh) - fh[j])) / (h[i] * h[j])
             H[j, i] = H[i, j]
             xh[j] = xtemp2
         xh[i] = xtemp1
@@ -297,7 +299,7 @@ def hessian_forward(
 def hessian2_centered(
     f: Callable[[tuple[float, float]], float],
     x: tuple[float, float],
-    h: float = 0.0
+    h: float = 0.0,
 ) -> Float2x2Matrix:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
@@ -351,21 +353,24 @@ def hessian2_centered(
     array([[-15.99999951,  47.99999983],
            [ 47.99999983, -47.99999983]])
     """
-
     x0, x1 = x
 
     if h == 0:
-        h = cbrt(3*eps)  # ~ 1e-5
+        h = cbrt(3 * eps)  # ~ 1e-5
 
-    h0 = h*(1 + abs(x0))
-    h1 = h*(1 + abs(x1))
+    h0 = h * (1 + abs(x0))
+    h1 = h * (1 + abs(x1))
 
     H = np.empty((2, 2))
     f0 = f(x)
-    H[0, 0] = (f((x0 + 2*h0, x1)) - 2*f0 + f((x0 - 2*h0, x1)))/(4*h0**2)
-    H[1, 1] = (f((x0, x1 + 2*h1)) - 2*f0 + f((x0, x1 - 2*h1)))/(4*h1**2)
-    H[0, 1] = (f((x0 + h0, x1 + h1)) - f((x0 + h0, x1 - h1)) - f((x0 - h0, x1 + h1))
-               + f((x0 - h0, x1 - h1)))/(4*h0*h1)
+    H[0, 0] = (f((x0 + 2 * h0, x1)) - 2 * f0 + f((x0 - 2 * h0, x1))) / (4 * h0**2)
+    H[1, 1] = (f((x0, x1 + 2 * h1)) - 2 * f0 + f((x0, x1 - 2 * h1))) / (4 * h1**2)
+    H[0, 1] = (
+        f((x0 + h0, x1 + h1))
+        - f((x0 + h0, x1 - h1))
+        - f((x0 - h0, x1 + h1))
+        + f((x0 - h0, x1 - h1))
+    ) / (4 * h0 * h1)
     H[1, 0] = H[0, 1]
 
     return H
@@ -374,7 +379,7 @@ def hessian2_centered(
 def scalex(x: FloatArray) -> FloatArray:
     r"""Calculate scaling factors for a given array.
 
-    The scaling factors are computed according to the heuristic procedure 
+    The scaling factors are computed according to the heuristic procedure
     implemented in ODRPACK95.
 
     Parameters
@@ -395,7 +400,6 @@ def scalex(x: FloatArray) -> FloatArray:
     >>> scalex(np.array([1e-2, 0.0, 1.0, 1e3]))
     array([1.e+02, 1.e+03, 1.e+00, 1.e-03])
     """
-
     sclx = np.ones_like(x)
 
     iszero = x == 0.0
@@ -406,11 +410,11 @@ def scalex(x: FloatArray) -> FloatArray:
     xmax = np.max(np.abs(x))
     xmin = np.min(np.abs(x[~iszero]))
 
-    sclx[iszero] = 1e1/xmin
+    sclx[iszero] = 1e1 / xmin
 
-    if np.log10(xmax/xmin) >= 1.0:
-        sclx[~iszero] = 1/np.abs(x[~iszero])
+    if np.log10(xmax / xmin) >= 1.0:
+        sclx[~iszero] = 1 / np.abs(x[~iszero])
     else:
-        sclx[~iszero] = 1/xmax
+        sclx[~iszero] = 1 / xmax
 
     return sclx

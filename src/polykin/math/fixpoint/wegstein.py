@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2025
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 
@@ -11,9 +11,7 @@ from polykin.math.roots import VectorRootResult
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
 
-__all__ = [
-    'fixpoint_wegstein'
-]
+__all__ = ["fixpoint_wegstein"]
 
 
 def fixpoint_wegstein(
@@ -26,7 +24,7 @@ def fixpoint_wegstein(
     qmax: float = 0.0,
     maxiter: int = 50,
 ) -> VectorRootResult:
-    r"""Find the solution of a N-dimensional fixed-point problem using the 
+    r"""Find the solution of a N-dimensional fixed-point problem using the
     bounded Wegstein acceleration method.
 
     The bounded Wegstein acceleration method is an extrapolation technique to
@@ -36,21 +34,21 @@ def fixpoint_wegstein(
 
     $$ x_{k+1} = q_k x_k + (1 - q_k) g(x_k) $$
 
-    where $q_{min} \leq q_k \leq q_{max}$ is the acceleration parameter 
+    where $q_{min} \leq q_k \leq q_{max}$ is the acceleration parameter
     determined by:
 
     \begin{aligned}
-    q_k &= \frac{s_k}{s_k - 1} \\  
+    q_k &= \frac{s_k}{s_k - 1} \\
     s_k &= \frac{g(x_k) - g(x_{k-1})}{x_k - x_{k-1}}
     \end{aligned}
 
     When $q=0$, the Wegstein method is equivalent to the standard fixed-point
     iteration. When $q<0$, the convergence is accelerated, and when $0<q<1$ the
-    convergence is dampened. 
+    convergence is dampened.
 
     **References**
 
-    * J.H. Wegstein, "Accelerating convergence of iterative processes", 
+    * J.H. Wegstein, "Accelerating convergence of iterative processes",
       Communications of the ACM, 1(6): 9-13, 1958.
 
     Parameters
@@ -81,7 +79,7 @@ def fixpoint_wegstein(
     VectorRootResult
         Dataclass with root solution results.
 
-    See also
+    See Also
     --------
     * [`fixpoint_anderson`](fixpoint_anderson.md): alternative method better
       suited for problems with coupling between components.
@@ -102,7 +100,6 @@ def fixpoint_wegstein(
     >>> print(f"g(x) = {g(sol.x)}")
     g(x) = [0.97458605 1.93830731]
     """
-
     method = "Wegstein fixed-point"
     success = False
     message = ""
@@ -124,7 +121,7 @@ def fixpoint_wegstein(
         nfeval += 1
         fx = gx - x
 
-        if np.linalg.norm(sclx*fx, np.inf) <= tolx:
+        if np.linalg.norm(sclx * fx, np.inf) <= tolx:
             message = "||sclx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
@@ -142,9 +139,9 @@ def fixpoint_wegstein(
                 q = s / (s - 1)
                 q = np.clip(q, qmin, qmax)
                 xm = x
-                x = q*x + (1 - q)*gx
+                x = q * x + (1 - q) * gx
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(method, success, message, nfeval, None, k+1, x, fx, None)
+    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)

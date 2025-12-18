@@ -7,18 +7,16 @@ from numba import njit
 
 from polykin.utils.types import FloatMatrix, FloatVector
 
-__all__ = ['simplify_polyline']
+__all__ = ["simplify_polyline"]
 
 
-def simplify_polyline(points: FloatMatrix,
-                      tol: float
-                      ) -> FloatMatrix:
+def simplify_polyline(points: FloatMatrix, tol: float) -> FloatMatrix:
     r"""Simplify an N-dimensional polyline using the Ramer-Douglas-Peucker
     algorithm.
 
     The Ramer-Douglas-Peucker algorithm is considered the best global polyline
     simplification algorithm. This particular implementation is based on the
-    recursive version of the method. 
+    recursive version of the method.
 
     **References**
 
@@ -62,7 +60,6 @@ def simplify_polyline(points: FloatMatrix,
            [ 7. ,  9. ],
            [ 9. ,  9. ]])
     """
-
     nvert, ndims = points.shape
 
     if ndims < 2:
@@ -78,11 +75,12 @@ def simplify_polyline(points: FloatMatrix,
 
 
 @njit
-def _ramer_douglas_peucker(points: FloatMatrix,
-                           istart: int,
-                           iend: int,
-                           tol: float
-                           ) -> list[int]:
+def _ramer_douglas_peucker(
+    points: FloatMatrix,
+    istart: int,
+    iend: int,
+    tol: float,
+) -> list[int]:
     """Recursively find indexes of points that should be kept.
 
     Parameters
@@ -116,10 +114,11 @@ def _ramer_douglas_peucker(points: FloatMatrix,
 
 
 @njit
-def _farthest_point(points: FloatVector,
-                    istart: int,
-                    iend: int
-                    ) -> tuple[int, float]:
+def _farthest_point(
+    points: FloatVector,
+    istart: int,
+    iend: int,
+) -> tuple[int, float]:
     """Farthest point from a line segment.
 
     Parameters
@@ -137,10 +136,9 @@ def _farthest_point(points: FloatVector,
         Index and distance of farthest point.
     """
     imax = 0
-    dmax = 0.
+    dmax = 0.0
     for i in range(istart + 1, iend):
-        d = _perpendicular_distance(
-            points[i, :], points[istart, :], points[iend, :])
+        d = _perpendicular_distance(points[i, :], points[istart, :], points[iend, :])
         if d > dmax:
             imax = i
             dmax = d
@@ -149,10 +147,11 @@ def _farthest_point(points: FloatVector,
 
 
 @njit
-def _perpendicular_distance(point: FloatVector,
-                            line_start: FloatVector,
-                            line_end: FloatVector
-                            ) -> float:
+def _perpendicular_distance(
+    point: FloatVector,
+    line_start: FloatVector,
+    line_end: FloatVector,
+) -> float:
     """Perpendicular distance between a point and a line in hyperspace.
 
     Parameters

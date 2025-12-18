@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2025
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 import scipy
@@ -12,39 +12,39 @@ from polykin.math.roots import VectorRootResult
 from polykin.utils.types import FloatVector
 
 __all__ = [
-    'fixpoint_anderson',
+    "fixpoint_anderson",
 ]
 
 
 def fixpoint_anderson(
-        g: Callable[[FloatVector], FloatVector],
-        x0: FloatVector,
-        m: int = 3,
-        tolx: float = 1e-6,
-        sclx: FloatVector | None = None,
-        maxiter: int = 50
+    g: Callable[[FloatVector], FloatVector],
+    x0: FloatVector,
+    m: int = 3,
+    tolx: float = 1e-6,
+    sclx: FloatVector | None = None,
+    maxiter: int = 50,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
     Anderson acceleration method.
 
     The Anderson acceleration method is an extrapolation technique to
-    accelerate the convergence of multidimentional fixed-point iterations. 
-    It uses information from $m$ previous iterations to construct a better 
+    accelerate the convergence of multidimentional fixed-point iterations.
+    It uses information from $m$ previous iterations to construct a better
     approximation of the fixed point according to the formula:
 
-    $$ \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k) - \sum_{i=0}^{m_k-1} 
-       \gamma_i^{(k)} \left[ \mathbf{g}(\mathbf{x}_{k-m_k+i+1}) - 
+    $$ \mathbf{x}_{k+1} = \mathbf{g}(\mathbf{x}_k) - \sum_{i=0}^{m_k-1}
+       \gamma_i^{(k)} \left[ \mathbf{g}(\mathbf{x}_{k-m_k+i+1}) -
        \mathbf{g}(\mathbf{x}_{k-m_k+i}) \right] $$
 
     where $m_k=\min(m,k)$, and the coefficients $\gamma_i^{(k)}$ are determined
-    at each step by solving a least-squares problem.    
+    at each step by solving a least-squares problem.
 
     **References**
 
     * D.G. Anderson, "Iterative Procedures for Nonlinear Integral Equations",
       Journal of the ACM, 12(4), 1965, pp. 547-560.
     * H.F. Walker, "Anderson Acceleration: Algorithms and Implementations",
-      Worcester Polytechnic Institute, Report MS-6-15-50, 2011.     
+      Worcester Polytechnic Institute, Report MS-6-15-50, 2011.
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ def fixpoint_anderson(
     VectorRootResult
         Dataclass with root solution results.
 
-    See also
+    See Also
     --------
     * [`fixpoint_wegstein`](fixpoint_wegstein.md): alternative (simpler) method
       for problems with weak coupling between components.
@@ -90,7 +90,6 @@ def fixpoint_anderson(
     >>> print(f"g(x)={g(sol.x)}")
     g(x) = [0.97458605 1.93830731]
     """
-
     method = "Anderson fix-point"
     success = False
     message = ""
@@ -108,7 +107,7 @@ def fixpoint_anderson(
     nfeval += 1
     f0 = g0 - x0
 
-    if np.linalg.norm(sclx*f0, np.inf) <= 1e-2*tolx:
+    if np.linalg.norm(sclx * f0, np.inf) <= 1e-2 * tolx:
         message = "||sclx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
         return VectorRootResult(method, True, message, nfeval, None, 0, x0, f0, None)
 
@@ -133,7 +132,7 @@ def fixpoint_anderson(
         ΔG[-1, :] += gx
         ΔF[:, -1] += fx
 
-        if np.linalg.norm(sclx*fx, np.inf) <= tolx:
+        if np.linalg.norm(sclx * fx, np.inf) <= tolx:
             message = "||sclx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
@@ -141,12 +140,11 @@ def fixpoint_anderson(
         try:
 
             if k == 1:
-                Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode='economic')
+                Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
             if k > m:
-                Q, R = scipy.linalg.qr_delete(Q, R, 0, which='col')
+                Q, R = scipy.linalg.qr_delete(Q, R, 0, which="col")
             if k > 1:
-                Q, R = scipy.linalg.qr_insert(
-                    Q, R, ΔF[:, -1], mk-1, which='col')
+                Q, R = scipy.linalg.qr_insert(Q, R, ΔF[:, -1], mk - 1, which="col")
 
         except scipy.linalg.LinAlgError:
             message = "Error in QR factorization/update."
@@ -164,4 +162,4 @@ def fixpoint_anderson(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(method, success, message, nfeval, None, k+1, x, fx, None)
+    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)

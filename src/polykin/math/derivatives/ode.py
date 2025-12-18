@@ -3,23 +3,23 @@
 # Copyright Hugo Vale 2024
 
 import math
-from typing import Callable, Literal
+from collections.abc import Callable
+from typing import Literal
 
 from numba import njit
 
-__all__ = [
-    'ode_rk'
-]
+__all__ = ["ode_rk"]
 
 
 @njit
-def ode_rk(f: Callable[[float, float], float],
-           t0: float,
-           tf: float,
-           y0: float,
-           h: float,
-           order: Literal[1, 2, 4] = 1
-           ) -> float:
+def ode_rk(
+    f: Callable[[float, float], float],
+    t0: float,
+    tf: float,
+    y0: float,
+    h: float,
+    order: Literal[1, 2, 4] = 1,
+) -> float:
     r"""Integrate an ODE using a fixed-step Runge-Kutta scheme.
 
     This method is intentionally simple, so that it can be used inside a
@@ -68,17 +68,17 @@ def ode_rk(f: Callable[[float, float], float],
     """
 
     def step_rk1(f, t, y, h):
-        "Explicit 1st-order (Euler) step."
+        """Explicit 1st-order (Euler) step."""
         y += f(t, y) * h
         return y
 
     def step_rk2(f, t, y, h):
-        "Explicit 2nd-order mid-point step."
+        """Explicit 2nd-order mid-point step."""
         y += f(t + h / 2, y + f(t, y) * h / 2) * h
         return y
 
     def step_rk4(f, t, y, h):
-        "Explicit 4th-order Runge-Kutta step."
+        """Explicit 4th-order Runge-Kutta step."""
         k1 = f(t, y)
         k2 = f(t + h / 2, y + k1 * h / 2)
         k3 = f(t + h / 2, y + k2 * h / 2)
@@ -87,9 +87,9 @@ def ode_rk(f: Callable[[float, float], float],
         return y
 
     def integrate(step, f, t0, tf, y0, h):
-        "Integrate using the given step function."
-        nsteps = math.floor((tf - t0)/h)
-        hf = (tf - t0) - nsteps*h
+        """Integrate using the given step function."""
+        nsteps = math.floor((tf - t0) / h)
+        hf = (tf - t0) - nsteps * h
         t = t0
         y = y0
         for _ in range(nsteps):

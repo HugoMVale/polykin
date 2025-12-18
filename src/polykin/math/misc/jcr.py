@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 from matplotlib.axes._axes import Axes
@@ -18,19 +18,19 @@ from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import Float2x2Matrix, FloatVector
 
-__all__ = ['confidence_ellipse',
-           'confidence_region']
+__all__ = ["confidence_ellipse", "confidence_region"]
 
 
-def confidence_ellipse(ax: Axes,
-                       center: tuple[float, float],
-                       cov: Float2x2Matrix,
-                       ndata: int,
-                       alpha: float = 0.05,
-                       color: str = 'black',
-                       label: str | None = None,
-                       confint: bool = True
-                       ) -> None:
+def confidence_ellipse(
+    ax: Axes,
+    center: tuple[float, float],
+    cov: Float2x2Matrix,
+    ndata: int,
+    alpha: float = 0.05,
+    color: str = "black",
+    label: str | None = None,
+    confint: bool = True,
+) -> None:
     r"""Generate a confidence ellipse for 2 jointly estimated parameters
     using a linear approximation method.
 
@@ -88,7 +88,7 @@ def confidence_ellipse(ax: Axes,
         If `True` the _individual_ confidence intervals of the parameters are
         represented as lines.
 
-    See also
+    See Also
     --------
     * [`confidence_region`](confidence_region.md): alternative method based on
     a rigorous approach for non-linear models.
@@ -102,7 +102,6 @@ def confidence_ellipse(ax: Axes,
     >>> confidence_ellipse(ax=ax, center=(0.3,0.8),
     ...     cov=np.array([[2e-4, 3e-4], [3e-4, 2e-3]]), ndata=9)
     """
-
     # Method implementation is specific for 2D
     npar = 2
     if len(center) != npar:
@@ -112,8 +111,8 @@ def confidence_ellipse(ax: Axes,
         raise ShapeError(f"`cov` must be a {npar}x{npar} matrix.")
 
     # Check inputs
-    check_bounds(alpha, 0.001, 0.90, 'alpha')
-    check_bounds(ndata, npar + 1, np.inf, 'ndata')
+    check_bounds(alpha, 0.001, 0.90, "alpha")
+    check_bounds(ndata, npar + 1, np.inf, "ndata")
 
     # Eigenvalues and (orthogonal) eigenvectors of cov
     eigen = np.linalg.eigh(cov)
@@ -121,42 +120,45 @@ def confidence_ellipse(ax: Axes,
     eigenvalues = eigen.eigenvalues
 
     # Angle of ellipse wrt to x-axis
-    angle = np.degrees(arctan(eigenvector[1]/eigenvector[0]))
+    angle = np.degrees(arctan(eigenvector[1] / eigenvector[0]))
 
     # "Scale" of ellipse
-    scale = npar*Fdist.ppf(1. - alpha, npar, ndata - npar)
+    scale = npar * Fdist.ppf(1.0 - alpha, npar, ndata - npar)
 
     # Lengths of ellipse axes
-    width, height = 2*sqrt(scale*eigenvalues)
+    width, height = 2 * sqrt(scale * eigenvalues)
 
     # Ellipse
-    ellipse = Ellipse(center,
-                      width=width,
-                      height=height,
-                      angle=angle,
-                      facecolor='none',
-                      edgecolor=color,
-                      label=label)
+    ellipse = Ellipse(
+        center,
+        width=width,
+        height=height,
+        angle=angle,
+        facecolor="none",
+        edgecolor=color,
+        label=label,
+    )
 
     ax.add_patch(ellipse)
     ax.scatter(*center, c=color, s=5)
 
     # Individual confidence intervals
     if confint:
-        ci = sqrt(np.diag(cov))*tdist.ppf(1. - alpha/2, ndata - npar)
+        ci = sqrt(np.diag(cov)) * tdist.ppf(1.0 - alpha / 2, ndata - npar)
         ax.errorbar(*center, xerr=ci[0], yerr=ci[1], color=color)
 
     return None
 
 
-def confidence_region(center: tuple[float, float],
-                      sse: Callable[[tuple[float, float]], float],
-                      ndata: int,
-                      alpha: float = 0.05,
-                      width: float = 0.,
-                      npoints: int = 200,
-                      rtol: float = 1e-2
-                      ) -> tuple[FloatVector, FloatVector]:
+def confidence_region(
+    center: tuple[float, float],
+    sse: Callable[[tuple[float, float]], float],
+    ndata: int,
+    alpha: float = 0.05,
+    width: float = 0.0,
+    npoints: int = 200,
+    rtol: float = 1e-2,
+) -> tuple[FloatVector, FloatVector]:
     r"""Generate a confidence region for 2 jointly estimated parameters
     using a rigorous method.
 
@@ -209,14 +211,14 @@ def confidence_region(center: tuple[float, float],
     rtol : float
         Relative tolerance for the determination of the JCR. The default value
         (1e-2) should be adequate in most cases, as it implies a 1% accuracy in
-        the JCR coordinates. 
+        the JCR coordinates.
 
     Returns
     -------
     tuple[FloatVector, FloatVector]
         Coordinates (x, y) of the confidence region.
 
-    See also
+    See Also
     --------
     * [`confidence_ellipse`](confidence_ellipse.md): alternative method based
       on a linear approximation.
@@ -232,51 +234,52 @@ def confidence_region(center: tuple[float, float],
     >>> fig, ax = plt.subplots()
     >>> ax.plot(x,y)
     """
-
     # Method implementation is specific for 2D
     npar = 2
     if len(center) != npar:
         raise ShapeError(f"`center` must be a vector of length {npar}.")
 
     # Check inputs
-    check_bounds(alpha, 0.001, 0.99, 'alpha')
-    check_bounds(ndata, npar + 1, np.inf, 'ndata')
-    check_bounds(npoints, 1, 500, 'npoints')
-    check_bounds(rtol, 1e-4, 1e-1, 'rtol')
+    check_bounds(alpha, 0.001, 0.99, "alpha")
+    check_bounds(ndata, npar + 1, np.inf, "ndata")
+    check_bounds(npoints, 1, 500, "npoints")
+    check_bounds(rtol, 1e-4, 1e-1, "rtol")
 
     # Get 'sse' at center
     sse_center = sse(center)
     if abs(sse_center) < eps:
         raise ValueError(
-            "`sse(center)` is close to zero. Without residual error, there is no JCR.")
+            "`sse(center)` is close to zero. Without residual error, there is no JCR."
+        )
 
     @functools.cache
     def nsse(lnr: float, θ: float) -> float:
-        "Normalized 'sse' in log-radial coordinates"
+        """Compute normalized 'sse' in log-radial coordinates."""
         r = exp(lnr)
-        x = center[0] + r*cos(θ)
-        y = center[1] + r*sin(θ)
-        return sse((x, y))/sse_center
+        x = center[0] + r * cos(θ)
+        y = center[1] + r * sin(θ)
+        return sse((x, y)) / sse_center
 
     # Boundary value
-    Fval = float(Fdist.ppf(1. - alpha, npar, ndata - npar))
-    nsse_boundary = (1. + npar/(ndata - npar)*Fval)
+    Fval = float(Fdist.ppf(1.0 - alpha, npar, ndata - npar))
+    nsse_boundary = 1.0 + npar / (ndata - npar) * Fval
 
     def find_radius(θ: float, r0: float) -> RootResult:
-        "Find boundary ln(radius) at given angle θ."
+        """Find boundary ln(radius) at given angle θ."""
         solution = root_secant(
-            f=lambda x: nsse(x, θ)/nsse_boundary - 1.0,
-            x0=log(r0*1.02),
+            f=lambda x: nsse(x, θ) / nsse_boundary - 1.0,
+            x0=log(r0 * 1.02),
             x1=log(r0),
             tolx=abs(log(1 + rtol)),
             tolf=1e-4,
-            maxiter=100)
+            maxiter=100,
+        )
         return solution
 
     # Find radius at each angle using previous solution as initial guess
-    angles = np.linspace(0.0, 2*np.pi, npoints)
+    angles = np.linspace(0.0, 2 * np.pi, npoints)
     r = np.zeros_like(angles)
-    r_guess_0 = abs(width/2) if width > 0 else 0.25*center[0]
+    r_guess_0 = abs(width / 2) if width > 0 else 0.25 * center[0]
     r_guess = r_guess_0
     for i, θ in enumerate(angles):
         sol = find_radius(θ, r_guess)
@@ -288,7 +291,7 @@ def confidence_region(center: tuple[float, float],
             r_guess = r_guess_0
 
     # Convert to cartesian coordinates
-    x = center[0] + r*cos(angles)
-    y = center[1] + r*sin(angles)
+    x = center[0] + r * cos(angles)
+    y = center[1] + r * sin(angles)
 
     return (x, y)
