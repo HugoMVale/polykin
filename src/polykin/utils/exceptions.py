@@ -4,44 +4,62 @@
 
 
 class ConvergenceError(ValueError):
-    pass
+    """Raised when an iterative algorithm fails to converge to a solution."""
 
 
 class ConvergenceWarning(Warning):
-    pass
+    """
+    Raised when an iterative algorithm is approaching non-convergence,
+    indicating potential instability or slow convergence.
+    """
 
 
 class FitError(ValueError):
-    pass
+    """Raised when a fitting procedure fails to find a valid solution."""
 
 
 class FitWarning(Warning):
-    pass
+    """
+    Raised when a fitting procedure produces results that may be unreliable
+    or near failure.
+    """
 
 
 class ODESolverError(ValueError):
-    pass
+    """
+    Raised when an ordinary differential equation (ODE) solver fails to
+    produce a solution.
+    """
 
 
 class ODESolverWarning(Warning):
-    pass
+    """
+    Raised when an ODE solver produces results that may be unreliable
+    or indicate potential failure.
+    """
 
 
 class RangeError(ValueError):
-    pass
+    """Raised when a value lies outside the allowed or expected range."""
 
 
 class RangeWarning(Warning):
-    pass
-
-
-class RootSolverWarning(Warning):
-    pass
+    """
+    Raised when a value is near or slightly outside the recommended range,
+    but not critically so.
+    """
 
 
 class RootSolverError(ValueError):
-    pass
+    """Raised when a root-finding solver fails to locate a valid root."""
+
+
+class RootSolverWarning(Warning):
+    """
+    Raised when a root-finding solver encounters potential numerical issues
+    or uncertain results.
+    """
 
 
 class ShapeError(ValueError):
-    pass
+    """Raised when an array or tensor has an invalid or unexpected shape."""
