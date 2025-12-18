@@ -26,7 +26,13 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest>=8.3.3", "pytest-cov>=6.0.0", "pytest-xdist>=3.6.1"]
+dev = [
+    "black>=25.11.0",
+    "pytest>=8.3.3",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.14.9",
+]
 docs = [
     "black>=24.10.0",
     "griffe-inherited-docstrings>=1.1.1",
@@ -48,13 +54,20 @@ Documentation = "https://hugomvale.github.io/polykin/"
 [tool.pytest.ini_options]
 addopts = ["-v", "-s", "-n=2"]
 
+[tool.ruff]
+line-length = 90
+target-version = "py310"
+
 [tool.ruff.lint]
-select = ["NPY201"]
+select = ["E", "F", "W", "I", "UP", "D", "NPY201"]
+ignore = ["D100", "D104", "D205"]
 pydocstyle = { convention = 'numpy' }
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["D103"]
 
-[tool.ruff.format]
-quote-style = 'single'
+[tool.back]
+line-length = 90
 
 [build-system]
 requires = ["hatchling"]
