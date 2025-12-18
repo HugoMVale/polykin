@@ -5,29 +5,31 @@
 import numpy as np
 from numpy import dot, sqrt
 
-from polykin.utils.types import (FloatArray, FloatArrayLike, FloatVectorLike,
-                                 IntVectorLike)
+from polykin.utils.types import FloatVectorLike, IntVectorLike
 
-__all__ = ['Case_1',
-           'Case_3',
-           'Case_5',
-           'Case_6',
-           'Case_7',
-           'Case_8',
-           'Case_9',
-           'Case_10',
-           'Case_11',
-           'Flory_Af',
-           'Stockmayer',
-           'Miller_1',
-           'Miller_2']
+__all__ = [
+    "Case_1",
+    "Case_3",
+    "Case_5",
+    "Case_6",
+    "Case_7",
+    "Case_8",
+    "Case_9",
+    "Case_10",
+    "Case_11",
+    "Flory_Af",
+    "Stockmayer",
+    "Miller_1",
+    "Miller_2",
+]
 
 
-def Case_1(pB: float,
-           r_BB_AA: float,
-           MAA: float,
-           MBB: float
-           ) -> tuple[float, float]:
+def Case_1(
+    pB: float,
+    r_BB_AA: float,
+    MAA: float,
+    MBB: float,
+) -> tuple[float, float]:
     r"""Case's analytical solution for AA reacting with BB (A₂ + B₂).
 
     The expressions for the number- and mass-average molar masses are:
@@ -75,22 +77,24 @@ def Case_1(pB: float,
     Mn=6367; Mw=12645
     """
     b = pB
-    a = b*r_BB_AA
+    a = b * r_BB_AA
 
-    Mn = (b*MAA + a*MBB)/(a + b - 2*a*b)
+    Mn = (b * MAA + a * MBB) / (a + b - 2 * a * b)
 
-    Mw = (1 + a*b)/(1 - a*b)*(b*MAA**2 + a*MBB**2) / \
-        (b*MAA + a*MBB) + (4*a*b*MAA*MBB)/((1 - a*b)*(b*MAA + a*MBB))
+    Mw = (1 + a * b) / (1 - a * b) * (b * MAA**2 + a * MBB**2) / (
+        b * MAA + a * MBB
+    ) + (4 * a * b * MAA * MBB) / ((1 - a * b) * (b * MAA + a * MBB))
 
     return (Mn, Mw)
 
 
-def Case_3(pB: float,
-           pC: float,
-           r_BC_AA: float,
-           MAA: float,
-           MBC: float
-           ) -> tuple[float, float]:
+def Case_3(
+    pB: float,
+    pC: float,
+    r_BC_AA: float,
+    MAA: float,
+    MBC: float,
+) -> tuple[float, float]:
     r"""Case's analytical solution for AA reacting with BC, where BC is
     an unsymmetric species (A₂ + BB').
 
@@ -152,28 +156,30 @@ def Case_3(pB: float,
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}")
     Mn=2729; Mw=5332
     """
-
     b = pB
     c = pC
-    a = r_BC_AA*(b + c)/2
+    a = r_BC_AA * (b + c) / 2
 
-    Mn = ((b + c)*MAA + 2*a*MBC)/(2*a + b + c - 2*a*(b + c))
+    Mn = ((b + c) * MAA + 2 * a * MBC) / (2 * a + b + c - 2 * a * (b + c))
 
-    Mw = ((1 + 2*a*b*c/(b + c))*MAA**2 + 4*a*MAA*MBC +
-          (2*a*(b + c + a*b**2 + a*c**2)/(b + c)**2)*MBC**2) \
-        / ((1 - 2*a*b*c/(b + c))*(MAA + 2*a/(b + c)*MBC))
+    Mw = (
+        (1 + 2 * a * b * c / (b + c)) * MAA**2
+        + 4 * a * MAA * MBC
+        + (2 * a * (b + c + a * b**2 + a * c**2) / (b + c) ** 2) * MBC**2
+    ) / ((1 - 2 * a * b * c / (b + c)) * (MAA + 2 * a / (b + c) * MBC))
 
     return (Mn, Mw)
 
 
-def Case_5(pB: float,
-           pC: float,
-           r_BC_A: float,
-           r_C_B: float,
-           MAA: float,
-           MBB: float,
-           MC: float
-           ) -> float:
+def Case_5(
+    pB: float,
+    pC: float,
+    r_BC_A: float,
+    r_C_B: float,
+    MAA: float,
+    MBB: float,
+    MC: float,
+) -> float:
     r"""Case's analytical solution for AA reacting with BB and C, where
     B does not react with C (A₂ + B₂ + B').
 
@@ -232,23 +238,24 @@ def Case_5(pB: float,
     >>> print(f"Mn={Mn:.0f}")
     Mn=6860
     """
-
     b = pB
     c = pC
     v = r_C_B
-    a = r_BC_A*(b + v*c)/(1 + v)
+    a = r_BC_A * (b + v * c) / (1 + v)
 
-    Mn = (MAA + 2*a/(2*b + v*c)*MBB + 2*a*v/(2*b + v*c)*MC) / \
-         (1 - 2*a + 2*a*(1 + v)/(2*b + v*c))
+    Mn = (MAA + 2 * a / (2 * b + v * c) * MBB + 2 * a * v / (2 * b + v * c) * MC) / (
+        1 - 2 * a + 2 * a * (1 + v) / (2 * b + v * c)
+    )
 
     return Mn
 
 
-def Case_6(pC: float,
-           r_BC_AA: float,
-           MAA: float,
-           MBC: float
-           ) -> float:
+def Case_6(
+    pC: float,
+    r_BC_AA: float,
+    MAA: float,
+    MBC: float,
+) -> float:
     r"""Case's analytical solution for AA reacting with BC, where A and
     B react with C (A₂ + A'B).
 
@@ -309,7 +316,7 @@ def Case_6(pC: float,
     c = pC
     v = r_BC_AA
 
-    Mn = (MAA + v*MBC)/(1 + v*(1 - c))
+    Mn = (MAA + v * MBC) / (1 + v * (1 - c))
 
     # Mw formula is inconsistent for v->inf
     # Mw = (MAA**2 + 4*a*MAA*MBC/(1 - b) +
@@ -318,12 +325,13 @@ def Case_6(pC: float,
     return Mn
 
 
-def Case_7(pA: float,
-           pC: float,
-           r_CD_AB: float,
-           MAB: float,
-           MCD: float
-           ) -> float:
+def Case_7(
+    pA: float,
+    pC: float,
+    r_CD_AB: float,
+    MAB: float,
+    MCD: float,
+) -> float:
     r"""Case's analytical solution for AB reacting with CD (AB + A'B').
 
     Alternative notation:
@@ -375,24 +383,24 @@ def Case_7(pA: float,
     >>> print(f"Mn={Mn:.0f}")
     Mn=5200
     """
-
     a = pA
     c = pC
     v = r_CD_AB
 
-    Mn = (MAB + v*MCD)/(1 + v - (a + v*c))
+    Mn = (MAB + v * MCD) / (1 + v - (a + v * c))
 
     return Mn
 
 
-def Case_8(pB: float,
-           pC: float,
-           r_BC_A: float,
-           r_CC_BB: float,
-           MAA: float,
-           MBB: float,
-           MCC: float
-           ) -> float:
+def Case_8(
+    pB: float,
+    pC: float,
+    r_BC_A: float,
+    r_CC_BB: float,
+    MAA: float,
+    MBB: float,
+    MCC: float,
+) -> float:
     r"""Case's analytical solution for AA reacting with BB and CC, where B does
     not react with C (A₂ + B₂ + B₂').
 
@@ -451,28 +459,30 @@ def Case_8(pB: float,
     >>> print(f"Mn={Mn:.0f}")
     Mn=2823
     """
-
     b = pB
     c = pC
     v = r_CC_BB
-    a = r_BC_A*(b + v*c)/(1 + v)
+    a = r_BC_A * (b + v * c) / (1 + v)
 
-    Mn = (MAA + a*(MBB + v*MCC)/(b + v*c))/(1 - 2*a + a*(1 + v)/(b + v*c))
+    Mn = (MAA + a * (MBB + v * MCC) / (b + v * c)) / (
+        1 - 2 * a + a * (1 + v) / (b + v * c)
+    )
 
     return Mn
 
 
-def Case_9(pB: float,
-           pC: float,
-           pD: float,
-           r_CD_AB: float,
-           r_BB_AA: float,
-           r_DD_CC: float,
-           MAA: float,
-           MBB: float,
-           MCC: float,
-           MDD: float
-           ) -> float:
+def Case_9(
+    pB: float,
+    pC: float,
+    pD: float,
+    r_CD_AB: float,
+    r_BB_AA: float,
+    r_DD_CC: float,
+    MAA: float,
+    MBB: float,
+    MCC: float,
+    MDD: float,
+) -> float:
     r"""Case's analytical solution for AA and BB reacting with CC and DD, where
     A and B react only with C and D (A₂ + A₂' + B₂ + B₂').
 
@@ -541,29 +551,30 @@ def Case_9(pB: float,
     >>> print(f"Mn={Mn:.0f}")
     Mn=9961
     """
-
     b = pB
     c = pC
     d = pD
     v = r_BB_AA
     r = r_DD_CC
-    a = r_CD_AB*(1 + v)/(1 + r)*(c + r*d) - v*b
+    a = r_CD_AB * (1 + v) / (1 + r) * (c + r * d) - v * b
 
-    Mn = (MAA + v*MBB + (a + v*b)/(c + r*d)*(MCC + r*MDD)) / \
-        (1 - a + v*(1 - b) + (a + v*b)/(c + r*d)*(1 - c + r*(1 - d)))
+    Mn = (MAA + v * MBB + (a + v * b) / (c + r * d) * (MCC + r * MDD)) / (
+        1 - a + v * (1 - b) + (a + v * b) / (c + r * d) * (1 - c + r * (1 - d))
+    )
 
     return Mn
 
 
-def Case_10(pB: float,
-            pC: float,
-            pD: float,
-            r_BCD_A: float,
-            r_BC_DD: float,
-            MAA: float,
-            MBC: float,
-            MDD: float
-            ) -> float:
+def Case_10(
+    pB: float,
+    pC: float,
+    pD: float,
+    r_BCD_A: float,
+    r_BC_DD: float,
+    MAA: float,
+    MBC: float,
+    MDD: float,
+) -> float:
     r"""Case's analytical solution for AA reacting with BC and DD, where A
     reacts only with B, C or D (A₂ + BB' + B₂'').
 
@@ -601,7 +612,7 @@ def Case_10(pB: float,
     pD : float
         Conversion of D groups.
     r_BCD_A : float
-        Initial molar ratio of (B + C + D)/A groups.
+        Initial molar ratio of (B + C + D)/A _groups_.
     r_BC_DD : float
         Initial molar ratio of BC/DD molecules.
     MAA : float
@@ -626,28 +637,29 @@ def Case_10(pB: float,
     >>> print(f"Mn={Mn:.0f}")
     Mn=6076
     """
-
     b = pB
     c = pC
     d = pD
-    v = r_BC_DD/2
-    a = r_BCD_A*(v*(b + c) + d)/(2*v + 1)
+    v = r_BC_DD / 2
+    a = r_BCD_A * (v * (b + c) + d) / (2 * v + 1)
 
-    Mn = (MAA + a*(MDD + 2*v*MBC)/(v*(b + c) + d)) / \
-        (1 - a + a/(v*(b + c) + d)*((1 - d) + v*(2 - b - c)))
+    Mn = (MAA + a * (MDD + 2 * v * MBC) / (v * (b + c) + d)) / (
+        1 - a + a / (v * (b + c) + d) * ((1 - d) + v * (2 - b - c))
+    )
 
     return Mn
 
 
-def Case_11(pB: float,
-            pC: float,
-            pD: float,
-            r_BC_AA: float,
-            r_DD_AA: float,
-            MAA: float,
-            MBC: float,
-            MDD: float
-            ) -> float:
+def Case_11(
+    pB: float,
+    pC: float,
+    pD: float,
+    r_BC_AA: float,
+    r_DD_AA: float,
+    MAA: float,
+    MBC: float,
+    MDD: float,
+) -> float:
     r"""Case's analytical solution for AA and DD reacting with BC, where A
     and B react only with C and D (A₂ + A'B' + B₂).
 
@@ -709,29 +721,30 @@ def Case_11(pB: float,
     >>> print(f"Mn={Mn:.0f}")
     Mn=5553
     """
-
     b = pB
     c = pC
     d = pD
-    v = r_BC_AA/2
-    a = v*(c - b) + r_DD_AA*d
+    v = r_BC_AA / 2
+    a = v * (c - b) + r_DD_AA * d
 
-    Mn = (MAA + 2*v*MBC + (a + v*(b - c))/d*MDD) / \
-        (1 - 2*a + 2*v*(1 - b) + (a + v*(b - c))/d)
+    Mn = (MAA + 2 * v * MBC + (a + v * (b - c)) / d * MDD) / (
+        1 - 2 * a + 2 * v * (1 - b) + (a + v * (b - c)) / d
+    )
 
     return Mn
 
 
-def Stockmayer(nA: FloatVectorLike,
-               nB: FloatVectorLike,
-               f: IntVectorLike,
-               g: IntVectorLike,
-               MA: FloatVectorLike,
-               MB: FloatVectorLike,
-               pB: float
-               ) -> tuple[float, float]:
+def Stockmayer(
+    nA: FloatVectorLike,
+    nB: FloatVectorLike,
+    f: IntVectorLike,
+    g: IntVectorLike,
+    MA: FloatVectorLike,
+    MB: FloatVectorLike,
+    pB: float,
+) -> tuple[float, float]:
     r"""Stockmayer's analytical solution for an arbitrary mixture of A-type
-    monomers reacting with an arbitry mixture of B-type monomers.
+    monomers reacting with an arbitrary mixture of B-type monomers.
 
     The expressions for the number- and mass-average molar masses are:
 
@@ -793,7 +806,6 @@ def Stockmayer(nA: FloatVectorLike,
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}")
     Mn=8951; Mw=34722
     """
-
     nA = np.asarray(nA)
     nB = np.asarray(nB)
     f = np.asarray(f)
@@ -810,31 +822,37 @@ def Stockmayer(nA: FloatVectorLike,
     sgB = dot(g, nB)
     sg2B = dot(g**2, nB)
 
-    fe = sf2A/sfA
-    ge = sg2B/sgB
-    Ma = np.sum(MA*f*nA)/sfA
-    Mb = np.sum(MB*g*nB)/sgB
+    fe = sf2A / sfA
+    ge = sg2B / sgB
+    Ma = np.sum(MA * f * nA) / sfA
+    Mb = np.sum(MB * g * nB) / sgB
 
-    pA = pB*sgB/sfA
+    pA = pB * sgB / sfA
 
-    pB_gel = sqrt(sfA/(sgB*(fe - 1)*(ge - 1)))
+    pB_gel = sqrt(sfA / (sgB * (fe - 1) * (ge - 1)))
     if pB >= pB_gel:
         return (np.nan, np.nan)
 
-    Mn = (sMA + sMB)/(nA.sum() + nB.sum() - pA*sfA)
+    Mn = (sMA + sMB) / (nA.sum() + nB.sum() - pA * sfA)
 
-    Mw = (pB*(sM2A/sfA) + pA*(sM2B/sgB) + pA*pB *
-          (pA*(fe - 1)*Mb**2 + pB*(ge - 1)*Ma**2 + 2*Ma*Mb) /
-          (1 - pA*pB*(fe - 1)*(ge - 1)))/(pB*(sMA/sfA) + pA*(sMB/sgB))
+    Mw = (
+        pB * (sM2A / sfA)
+        + pA * (sM2B / sgB)
+        + pA
+        * pB
+        * (pA * (fe - 1) * Mb**2 + pB * (ge - 1) * Ma**2 + 2 * Ma * Mb)
+        / (1 - pA * pB * (fe - 1) * (ge - 1))
+    ) / (pB * (sMA / sfA) + pA * (sMB / sgB))
 
     return (Mn, Mw)
 
 
-def Flory_Af(f: int,
-             MAf: float,
-             p: float
-             ) -> tuple[float, float, float]:
-    r"""Flory's analytical solution for the hopolymerization of an $A_f$
+def Flory_Af(
+    f: int,
+    MAf: float,
+    p: float,
+) -> tuple[float, float, float]:
+    r"""Flory's analytical solution for the homopolymerization of an $A_f$
     monomer.
 
     The expressions for the number-, mass-, and z-average molar masses are:
@@ -876,28 +894,28 @@ def Flory_Af(f: int,
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}; Mz={Mz:.0f}")
     Mn=250; Mw=1300; Mz=7762
     """
-
-    p_gel = 1/(f - 1)
+    p_gel = 1 / (f - 1)
     if p >= p_gel:
         return (np.nan, np.nan, np.nan)
 
-    Mn = MAf/(1 - (f/2)*p)
-    Mw = MAf*(1 + p)/(1 - p*(f - 1))
-    Mz = MAf*((1 + p)**3 - (3 + p)*f*p**2)/((1 + p)*(1 - p*(f - 1))**2)
+    Mn = MAf / (1 - (f / 2) * p)
+    Mw = MAf * (1 + p) / (1 - p * (f - 1))
+    Mz = MAf * ((1 + p) ** 3 - (3 + p) * f * p**2) / ((1 + p) * (1 - p * (f - 1)) ** 2)
 
     return (Mn, Mw, Mz)
 
 
-def Miller_1(nAf: float,
-             nA2: float,
-             nB2: float,
-             f: int,
-             MAf: float,
-             MA2: float,
-             MB2: float,
-             pB1: float,
-             pB2: float
-             ) -> tuple[float, float]:
+def Miller_1(
+    nAf: float,
+    nA2: float,
+    nB2: float,
+    f: int,
+    MAf: float,
+    MA2: float,
+    MB2: float,
+    pB1: float,
+    pB2: float,
+) -> tuple[float, float]:
     r"""Miller and Macosko's analytical solution for Af and A₂ reacting with
     B₂, where the two B groups comprising the B₂ monomer react at different
     rates.
@@ -954,35 +972,37 @@ def Miller_1(nAf: float,
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}")
     Mn=1233; Mw=5024
     """
+    r = (f * nAf + 2 * nA2) / (2 * nB2)
+    pA = 0.5 * (pB1 + pB2) / r
+    af = f * nAf / (f * nAf + 2 * nA2)
 
-    r = (f*nAf + 2*nA2)/(2*nB2)
-    pA = 0.5*(pB1 + pB2)/r
-    af = f*nAf/(f*nAf + 2*nA2)
+    EAout = (pA * MB2 + pB1 * pB2 / r * ((1 - af) * MA2 + af * MAf)) / (
+        1 - pB1 * pB2 / r * (1 + (f - 2) * af)
+    )
+    EBout = (1 - af) * MA2 + af * MAf + (1 + (f - 2) * af) * EAout
+    EB1out = pB1 * EBout
+    EB2out = pB2 * EBout
 
-    EAout = (pA*MB2 + pB1*pB2/r*((1 - af)*MA2 + af*MAf)) / \
-        (1 - pB1*pB2/r*(1 + (f - 2)*af))
-    EBout = (1 - af)*MA2 + af*MAf + (1 + (f - 2)*af)*EAout
-    EB1out = pB1*EBout
-    EB2out = pB2*EBout
-
-    EAf = MAf + f*EAout
-    EA2 = MA2 + 2*EAout
+    EAf = MAf + f * EAout
+    EA2 = MA2 + 2 * EAout
     EBB = MB2 + EB1out + EB2out
 
-    Mn = (MAf*nAf + MA2*nA2 + MB2*nB2)/(nAf + nA2 + nB2 - nB2*(pB1 + pB2))
-    Mw = (MAf*nAf*EAf + MA2*nA2*EA2 + MB2*nB2*EBB) / \
-        (MAf*nAf + MA2*nA2 + MB2*nB2)
+    Mn = (MAf * nAf + MA2 * nA2 + MB2 * nB2) / (nAf + nA2 + nB2 - nB2 * (pB1 + pB2))
+    Mw = (MAf * nAf * EAf + MA2 * nA2 * EA2 + MB2 * nB2 * EBB) / (
+        MAf * nAf + MA2 * nA2 + MB2 * nB2
+    )
 
     return (Mn, Mw)
 
 
-def Miller_2(nAf: float,
-             nB2: float,
-             f: int,
-             MAf: float,
-             MB2: float,
-             p: FloatVectorLike,
-             ) -> tuple[float, float]:
+def Miller_2(
+    nAf: float,
+    nB2: float,
+    f: int,
+    MAf: float,
+    MB2: float,
+    p: FloatVectorLike,
+) -> tuple[float, float]:
     r"""Miller and Macosko's analytical solution for Af reacting with B₂,
     with first-shell substitution effect on the A's and independent reaction
     for B's.
@@ -1001,7 +1021,7 @@ def Miller_2(nAf: float,
     $$ \mu = \frac{\sum_{i=1}^f i^2 p_i}{\sum_{i=1}^f i p_i} $$
 
     where $r$ is the molar ratio of A to B groups, $p_i$ is the fraction of
-    $A_f$ units wich have exactly $i$ reacted sites, and 
+    $A_f$ units wich have exactly $i$ reacted sites, and
     $p_A=\sum_{i=1}^f (i/f)p_i$ is the total conversion of A groups. The latter
     must respect the limit imposed by the gelation condition
     $p_A < [r(\mu-1)]^{-1}$.
@@ -1041,23 +1061,24 @@ def Miller_2(nAf: float,
     >>> Mn, Mw = Miller_2(1., 1.5, 3, 100., 80., [0.1, 0.2, 0.4])
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}")
     Mn=275; Mw=3822
-
     """
-
     p = np.asarray(p)
 
-    i = np.arange(1, f + 1, dtype=np.int32)
+    i = np.arange(1, f + 1, dtype=np.int_)
     sip = dot(i, p)
     m = dot(i**2, p) / sip
 
-    pA = sip/f
-    r = (f*nAf)/(2*nB2)
+    pA = sip / f
+    r = (f * nAf) / (2 * nB2)
 
-    if r*pA*(m - 1) < 1.:
-        Mn = (MAf*nAf + MB2*nB2)/(nAf + nB2 - f*nAf*pA)
+    if r * pA * (m - 1) < 1.0:
+        Mn = (MAf * nAf + MB2 * nB2) / (nAf + nB2 - f * nAf * pA)
 
-        Mw = ((2*r/f)*(1 + r*pA*(f*pA - m + 1))*MAf**2 + (1 + r*pA*(m - 1))
-              * MB2**2 + 4*r*pA*MAf*MB2)/(((2*r/f)*MAf + MB2)*(1 - r*pA*(m - 1)))
+        Mw = (
+            (2 * r / f) * (1 + r * pA * (f * pA - m + 1)) * MAf**2
+            + (1 + r * pA * (m - 1)) * MB2**2
+            + 4 * r * pA * MAf * MB2
+        ) / (((2 * r / f) * MAf + MB2) * (1 - r * pA * (m - 1)))
     else:
         Mn = np.nan
         Mw = np.nan
