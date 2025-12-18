@@ -11,8 +11,6 @@ from polykin.utils.exceptions import RangeError
 ATOL = 0e0
 RTOL = 1e-4
 
-# %% Tait
-
 
 @pytest.fixture
 def tait_instance():
@@ -26,13 +24,13 @@ def tait_instance():
         Tmax=432.15,
         Pmin=0.1e6,
         Pmax=200e6,
-        name="Example Handbook Polymer Solution Thermodynamics, p.39"
+        name="Example Handbook Polymer Solution Thermodynamics, p.39",
     )
 
 
-def test_Tait_input_validation(tait_instance, capsys):
+def test_Tait_input_validation(tait_instance):
     with pytest.raises(ValueError):
-        _ = Tait(1., 3e-7, 7e-10, 2e8, 4e-3)
+        _ = Tait(1.0, 3e-7, 7e-10, 2e8, 4e-3)
     with pytest.raises(ValueError):
         _ = Tait(8e-4, 6e4, 7e-10, 2e8, 4e-3)
     with pytest.raises(ValueError):
@@ -42,26 +40,24 @@ def test_Tait_input_validation(tait_instance, capsys):
     with pytest.raises(ValueError):
         _ = Tait(8e-4, 3e-7, 7e-10, 2e8, 1)
     with pytest.raises(RangeError):
-        _ = tait_instance.vs(-1, 1, Tunit='K')
+        _ = tait_instance.vs(-1, 1, Tunit="K")
     with pytest.raises(RangeError):
-        _ = tait_instance.vs(1, -1, Tunit='K')
+        _ = tait_instance.vs(1, -1, Tunit="K")
 
 
-def test_Tait_Trange_warning(tait_instance, capsys):
-    _ = tait_instance.vs(450, 10, Tunit='K')
-    out, _ = capsys.readouterr()
-    assert (out.lower().startswith('warning'))
+def test_Tait_Trange_warning(tait_instance):
+    with pytest.warns(Warning):
+        _ = tait_instance.vs(450, 10, Tunit="K")
 
 
-def test_Tait_Prange_warning(tait_instance, capsys):
-    _ = tait_instance.vs(400, 2010, Tunit='K', Punit='bar')
-    out, _ = capsys.readouterr()
-    assert (out.lower().startswith('warning'))
+def test_Tait_Prange_warning(tait_instance):
+    with pytest.warns(Warning):
+        _ = tait_instance.vs(400, 2010, Tunit="K", Punit="bar")
 
 
 def test_Tait_repr(tait_instance):
     out = tait_instance.__repr__()
-    assert out.startswith('name')
+    assert out.startswith("name")
 
 
 def test_Tait_V0(tait_instance):
@@ -80,7 +76,7 @@ def test_Tait_eval(tait_instance):
 
 
 def test_Tait_V(tait_instance):
-    vs = tait_instance.vs(159., 2000, Tunit='C', Punit='bar')
+    vs = tait_instance.vs(159.0, 2000, Tunit="C", Punit="bar")
     assert np.isclose(vs, 8.2232e-4, atol=ATOL, rtol=RTOL)
 
 
@@ -100,5 +96,5 @@ def testTait__databank():
     for polymer in polymers:
         m = Tait.from_database(polymer)
         assert m is not None
-        rhoP = 1/m.eval(298.0, 1e5)
-        assert (rhoP > 750.0 and rhoP < 2.3e3)
+        rhoP = 1 / m.eval(298.0, 1e5)
+        assert rhoP > 750.0 and rhoP < 2.3e3
