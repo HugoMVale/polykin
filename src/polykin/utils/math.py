@@ -35,7 +35,10 @@ tiny = _finfo.tiny
 
 
 def add_dicts(
-    d1: dict[Any, int | float], d2: dict[Any, int | float], *, new: bool = False
+    d1: dict[Any, int | float],
+    d2: dict[Any, int | float],
+    *,
+    new: bool = False,
 ) -> dict[Any, int | float]:
     r"""Add two dictionaries by summing the values for the same key.
 
@@ -103,7 +106,8 @@ def convert_FloatOrVectorLike_to_FloatOrVector(
 
 
 def convert_FloatOrVectorLike_to_FloatVector(
-    a: list[FloatOrVectorLike], equal_shapes: bool = True
+    a: list[FloatOrVectorLike],
+    equal_shapes: bool = True,
 ) -> list[FloatVector]:
     """Convert list of `FloatOrVectorLike` to list of `FloatVector`."""
     result = []

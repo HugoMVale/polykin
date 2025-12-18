@@ -24,7 +24,12 @@ from .exceptions import RangeError, ShapeError
 from .types import FloatMatrix, FloatOrArray, FloatOrArrayLike
 
 
-def custom_error(var_name: str, var_value: Any, kind: type, message: str = "") -> None:
+def custom_error(
+    var_name: str,
+    var_value: Any,
+    kind: type,
+    message: str = "",
+) -> None:
     """
     Raise a custom error message.
 
@@ -154,7 +159,10 @@ def check_subclass(
 
 
 def check_bounds(
-    x: float | np.ndarray | Iterable, xmin: float, xmax: float, xname: str
+    x: float | np.ndarray | Iterable,
+    xmin: float,
+    xmax: float,
+    xname: str,
 ) -> float | np.ndarray | Iterable | None:
     """Check if a numerical value is between given bounds.
 
@@ -195,7 +203,11 @@ def check_bounds(
         )
 
 
-def check_in_set(var_value: Any, valid_set: set, var_name: str = "#") -> Any:
+def check_in_set(
+    var_value: Any,
+    valid_set: set,
+    var_name: str = "#",
+) -> Any:
     """Check if a variable or its elements belong to a set.
 
     Notes
@@ -245,7 +257,8 @@ def check_in_set(var_value: Any, valid_set: set, var_name: str = "#") -> Any:
 
 
 def check_shapes(
-    a: list[float | np.ndarray], b: list[float | np.ndarray] | None = None
+    a: list[float | np.ndarray],
+    b: list[float | np.ndarray] | None = None,
 ) -> tuple[int, ...] | None:
     """Check shape homogeneity between objects in lists `a` and `b`.
 
@@ -299,7 +312,10 @@ def check_shapes(
 
 
 def check_valid_range(
-    r: tuple[float, float], xmin: float, xmax: float, name: str
+    r: tuple[float, float],
+    xmin: float,
+    xmax: float,
+    name: str,
 ) -> tuple[float, float] | None:
     """Check if a given input range is a valid range.
 
@@ -331,7 +347,12 @@ def check_valid_range(
     return r
 
 
-def check_range_warn(x: float, xmin: float, xmax: float, xname: str) -> None:
+def check_range_warn(
+    x: float,
+    xmin: float,
+    xmax: float,
+    xname: str,
+) -> None:
     """Check if a given input is in a valid range and warn if not.
 
     Parameters
@@ -440,7 +461,11 @@ def convert_check_pressure(
     return Pa
 
 
-def custom_repr(obj, attr_names: list[str] | tuple[str, ...], nspaces: int = 3) -> str:
+def custom_repr(
+    obj,
+    attr_names: list[str] | tuple[str, ...],
+    nspaces: int = 3,
+) -> str:
     """Generate custom repr string.
 
     Parameters
@@ -475,7 +500,9 @@ def custom_repr(obj, attr_names: list[str] | tuple[str, ...], nspaces: int = 3) 
 
 
 def pprint_matrix(
-    matrix: FloatMatrix, format_specifier="{:.2e}", nspaces: int = 0
+    matrix: FloatMatrix,
+    format_specifier="{:.2e}",
+    nspaces: int = 0,
 ) -> str:
     """Pretty print a matrix (2D array).
 
