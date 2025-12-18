@@ -4,19 +4,21 @@
 
 from math import erf, gamma
 
+import numpy as np
 from numpy import exp, inf, pi, sqrt
 from scipy import integrate
 
-__all__ = ['E_cstr',
-           'F_cstr',
-           'E_tanks_series',
-           'F_tanks_series',
-           'E_laminar_flow',
-           'F_laminar_flow',
-           'E_dispersion_model',
-           'F_dispersion_model',
-           'Pe_tube',
-           ]
+__all__ = [
+    "E_cstr",
+    "F_cstr",
+    "E_tanks_series",
+    "F_tanks_series",
+    "E_laminar_flow",
+    "F_laminar_flow",
+    "E_dispersion_model",
+    "F_dispersion_model",
+    "Pe_tube",
+]
 
 
 def E_cstr(t: float, tavg: float) -> float:
@@ -41,12 +43,12 @@ def E_cstr(t: float, tavg: float) -> float:
     float
         Differential residence time distribution.
 
-    See also
+    See Also
     --------
     * [`F_cstr`](F_cstr.md): related method to determine the cumulative
       distribution.
     """
-    return (1/tavg)*exp(-t/tavg)
+    return (1 / tavg) * exp(-t / tavg)
 
 
 def F_cstr(t: float, tavg: float) -> float:
@@ -71,12 +73,12 @@ def F_cstr(t: float, tavg: float) -> float:
     float
         Cumulative residence time distribution.
 
-    See also
+    See Also
     --------
     * [`E_cstr`](E_cstr.md): related method to determine the differential
       distribution.
     """
-    return 1 - exp(-t/tavg)
+    return 1 - exp(-t / tavg)
 
 
 def E_tanks_series(t: float, tavg: float, N: int) -> float:
@@ -104,16 +106,16 @@ def E_tanks_series(t: float, tavg: float, N: int) -> float:
     float
         Differential residence time distribution.
 
-    See also
+    See Also
     --------
     * [`F_tanks_series`](F_tanks_series.md): related method to determine the
       cumulative distribution.
     """
-    q = t/tavg
-    if q == inf:
+    q = t / tavg
+    if np.isinf(q):
         return 0
     else:
-        return q**(N-1) * (N**N / gamma(N)) * exp(-N*q) / tavg
+        return q ** (N - 1) * (N**N / gamma(N)) * exp(-N * q) / tavg
 
 
 def F_tanks_series(t: float, tavg: float, N: int) -> float:
@@ -141,19 +143,19 @@ def F_tanks_series(t: float, tavg: float, N: int) -> float:
     float
         Cumulative residence time distribution.
 
-    See also
+    See Also
     --------
     * [`E_tanks_series`](E_tanks_series.md): related method to determine the
       differential distribution.
     """
-    q = t/tavg
+    q = t / tavg
     if q == 0:
         return 0
-    elif q == inf:
+    elif np.isinf(q):
         return 1
     else:
-        S = sum((N*q)**i / gamma(i+1) for i in range(1, N))
-        return 1 - exp(-N*q) * (1 + S)
+        S = sum((N * q) ** i / gamma(i + 1) for i in range(0, N))
+        return 1 - exp(-N * q) * S
 
 
 def E_laminar_flow(t: float, tavg: float) -> float:
@@ -183,13 +185,13 @@ def E_laminar_flow(t: float, tavg: float) -> float:
     float
         Differential residence time distribution.
 
-    See also
+    See Also
     --------
     * [`F_laminar_flow`](F_laminar_flow.md): related method to determine the
       cumulative distribution.
     """
-    q = t/tavg
-    if q < 1/2:
+    q = t / tavg
+    if q < 1 / 2:
         return 0
     else:
         return 0.5 * tavg**2 / t**3
@@ -222,16 +224,16 @@ def F_laminar_flow(t: float, tavg: float) -> float:
     float
         Cumulative residence time distribution.
 
-    See also
+    See Also
     --------
     * [`E_laminar_flow`](E_laminar_flow.md): related method to determine the
       differential distribution.
     """
-    q = t/tavg
-    if q <= 1/2:
+    q = t / tavg
+    if q <= 1 / 2:
         return 0
     else:
-        return 1 - 1/(4*q**2)
+        return 1 - 1 / (4 * q**2)
 
 
 def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
@@ -251,7 +253,7 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     $$ E(t) = \frac{1}{\bar{t}} \sqrt{\frac{Pe}{4\pi\theta}}
               \exp\left[-\frac{Pe}{4}\frac{(1-\theta)^2}{\theta}\right]  $$
 
-    where $\theta = t/\bar{t}$, and $Pe = (v L)/D$. 
+    where $\theta = t/\bar{t}$, and $Pe = (v L)/D$.
 
     **References**
 
@@ -272,20 +274,20 @@ def E_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     float
         Differential residence time distribution.
 
-    See also
+    See Also
     --------
     * [`F_dispersion_model`](F_dispersion_model.md): related method to determine
       the cumulative distribution.
     * [`Pe_tube`](Pe_tube.md): method to estimate the Péclet number.
     """
-    q = t/tavg
-    if q == 0 or q == inf:
+    q = t / tavg
+    if q == 0 or np.isinf(q):
         return 0
     else:
         if Pe > 1e2:
-            return sqrt(Pe/pi)/(2*tavg) * exp(-Pe/4*(1 - q)**2)
+            return sqrt(Pe / pi) / (2 * tavg) * exp(-Pe / 4 * (1 - q) ** 2)
         else:
-            return sqrt(Pe/(pi*q))/(2*tavg) * exp(-Pe/(4*q)*(1 - q)**2)
+            return sqrt(Pe / (pi * q)) / (2 * tavg) * exp(-Pe / (4 * q) * (1 - q) ** 2)
 
 
 def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
@@ -322,27 +324,24 @@ def F_dispersion_model(t: float, tavg: float, Pe: float) -> float:
     float
         Cumulative residence time distribution.
 
-    See also
+    See Also
     --------
     * [`E_dispersion_model`](E_dispersion_model.md): related method to determine
       the differential distribution.
     * [`Pe_tube`](Pe_tube.md): method to estimate the Péclet number.
     """
-    q = t/tavg
+    q = t / tavg
     if q == 0:
         return 0
     elif q == inf:
         return 1
     else:
         if Pe > 1e2:
-            return 0.5*(1 + erf(sqrt(Pe)/2*(q - 1)))
+            return 0.5 * (1 + erf(sqrt(Pe) / 2 * (q - 1)))
         else:
             result, _ = integrate.quad(
-                E_dispersion_model,
-                a=0.,
-                b=t,
-                args=(tavg, Pe),
-                epsabs=1e-5)
+                E_dispersion_model, a=0.0, b=t, args=(tavg, Pe), epsabs=1e-5
+            )
             return result
 
 
@@ -359,13 +358,14 @@ def Pe_tube(Re: float, Sc: float | None = None) -> float:
     For turbulent flow, the tube Péclet number is estimated by the following
     expression:
 
-    $$ Pe = \left( \frac{3\times10^{7}}{Re^{2.1}} + \frac{1.35}{Re^{0.125}} \right)^{-1} $$  
+    $$ Pe = \left( \frac{3\times10^{7}}{Re^{2.1}}
+            + \frac{1.35}{Re^{0.125}} \right)^{-1} $$
 
     !!! note
 
-        The equation gives the Péclet number based on tube diameter. To obtain
-        the Péclet number based on tube length, the Péclet number must be
-        multiplied by the length-to-diameter ratio.
+        The function returns the Péclet number based on tube diameter. To
+        obtain the Péclet number based on tube length, the Péclet number must
+        be multiplied by the length-to-diameter ratio.
 
     **References**
 
@@ -387,7 +387,7 @@ def Pe_tube(Re: float, Sc: float | None = None) -> float:
     if Re < 2300:
         if Sc is None:
             raise ValueError("`Sc` must be specified for laminar flow.")
-        return 1/(1/(Re*Sc) + (Re*Sc)/192)
+        return 1 / (1 / (Re * Sc) + (Re * Sc) / 192)
     else:
         # to be checked / improved
-        return 1/(3e7/Re**2.1 + 1.35/Re**0.125)
+        return 1 / (3e7 / Re**2.1 + 1.35 / Re**0.125)
