@@ -2,6 +2,19 @@
 #
 # Copyright Hugo Vale 2023
 
+"""
+Type aliases for numeric scalars and NumPy arrays used throughout the package.
+
+This module defines common scalar, array-like, vector, and matrix type aliases
+based on ``numpy.typing.NDArray``. The aliases primarily constrain data types
+(e.g., ``float64`` or integer) and provide consistent terminology across the
+codebase.
+
+Array shapes (such as vectors or matrices) are documented by convention and
+validated at runtime where required, as NumPy's static typing currently does
+not enforce shape information.
+"""
+
 from typing import TypeVar
 
 import numpy as np

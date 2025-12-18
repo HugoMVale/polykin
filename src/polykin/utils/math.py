@@ -2,6 +2,17 @@
 #
 # Copyright Hugo Vale 2023
 
+"""
+Mathematical and data-handling utilities used throughout PolyKin.
+
+This module provides small helper functions and constants for numerical work,
+including dictionary arithmetic, NumPy-based vectorization of instance methods,
+conversion of scalar- and array-like inputs to standardized NumPy formats, and
+basic linear-algebra utilities. The functionality is primarily intended to
+support polymerization kinetics calculations while keeping type handling and
+array shapes consistent across the library.
+"""
+
 import functools
 from typing import Any
 

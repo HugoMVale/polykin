@@ -2,6 +2,16 @@
 #
 # Copyright Hugo Vale 2023
 
+"""
+Custom exceptions and warnings used throughout PolyKin.
+
+This module defines a consistent set of error and warning types for common
+failure modes in polymerization kinetics workflows, including convergence
+issues, fitting failures, ODE solver problems, root-finding errors, and
+invalid ranges or shapes. These classes are intended to improve clarity,
+error handling, and diagnostics across the library.
+"""
+
 
 class ConvergenceError(ValueError):
     """Raised when an iterative algorithm fails to converge to a solution."""
