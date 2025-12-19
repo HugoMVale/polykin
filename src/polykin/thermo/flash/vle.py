@@ -93,6 +93,8 @@ def flash2_PT(
     T: float,
     Kcalc: Callable[[float, float, FloatVector, FloatVector], FloatVector],
     *,
+    x0: FloatVector | None = None,
+    y0: FloatVector | None = None,
     beta0: float | None = None,
     maxiter: int = 50,
     atol_inner: float = 1e-9,
@@ -118,6 +120,10 @@ def flash2_PT(
         Pressure [Pa].
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
+    x0 : FloatVector | None
+        Initial guess for liquid mole fractions [mol/mol].
+    y0 : FloatVector | None
+        Initial guess for vapor mole fractions [mol/mol].
     beta0 : float | None
         Initial guess for vapor phase fraction [mol/mol].
     maxiter : int
@@ -140,15 +146,15 @@ def flash2_PT(
 
     # Initial guesses
     z = z / z.sum()
-    x = z
-    y = z
-    beta = np.nan
-    K = Kcalc(T, P, z, z)
+    x = x0 / x0.sum() if x0 is not None else z
+    y = y0 / y0.sum() if y0 is not None else z
+    K = Kcalc(T, P, x, y)
+    beta = np.clip(beta0, 0.0, 1.0) if beta0 is not None else np.nan
 
     for _ in range(maxiter):
 
         # Find beta
-        sol = solve_Rachford_Rice(K, z, beta0, maxiter=maxiter, atol_res=atol_inner)
+        sol = solve_Rachford_Rice(K, z, beta, maxiter=maxiter, atol_res=atol_inner)
         beta = sol.beta
         if not sol.success:
             message = f"Inner Rachford-Rice loop did not converge after {maxiter} iterations. Solution: {sol}."
@@ -172,7 +178,6 @@ def flash2_PT(
             break
         else:
             K = exp(alpha_outer * log(K_new) + (1 - alpha_outer) * log(K_old))
-            beta0 = beta
 
     else:
         message = f"Outer loop did not converge after {maxiter} iterations."
@@ -191,6 +196,8 @@ def flash2_PV(
     beta: float,
     Kcalc: Callable[[float, float, FloatVector, FloatVector], FloatVector],
     *,
+    x0: FloatVector | None = None,
+    y0: FloatVector | None = None,
     T0: float = 300.0,
     maxiter: int = 50,
     atol_inner: float = 1e-9,
@@ -216,6 +223,10 @@ def flash2_PV(
         Vapor phase fraction [mol/mol].
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
+    x0 : FloatVector | None
+        Initial guess for liquid mole fractions [mol/mol].
+    y0 : FloatVector | None
+        Initial guess for vapor mole fractions [mol/mol].
     T0 : float
         Initial guess for temperature [K].
     maxiter : int
@@ -236,8 +247,10 @@ def flash2_PV(
 
     # Initial guesses
     z = z / z.sum()
+    x = x0 / x0.sum() if x0 is not None else z
+    y = y0 / y0.sum() if y0 is not None else z
     T = T0
-    K = Kcalc(T, P, z, z)
+    K = Kcalc(T, P, x, y)
     x = z / (1 + beta * (K - 1))
     y = K * x
     x /= x.sum()
@@ -310,6 +323,8 @@ def flash2_TV(
     beta: float,
     Kcalc: Callable[[float, float, FloatVector, FloatVector], FloatVector],
     *,
+    x0: FloatVector | None = None,
+    y0: FloatVector | None = None,
     P0: float = 1e5,
     maxiter: int = 50,
     atol_inner: float = 1e-9,
@@ -335,6 +350,10 @@ def flash2_TV(
         Vapor phase fraction [mol/mol].
     Kcalc : Callable[[float, float, FloatVector, FloatVector], FloatVector]
         Function to calculate K-values, with signature `Kcalc(T, P, x, y)`.
+    x0 : FloatVector | None
+        Initial guess for liquid mole fractions [mol/mol].
+    y0 : FloatVector | None
+        Initial guess for vapor mole fractions [mol/mol].
     P0 : float
         Initial guess for pressure [Pa].
     maxiter : int
@@ -355,8 +374,10 @@ def flash2_TV(
 
     # Initial guesses
     z = z / z.sum()
+    x = x0 / x0.sum() if x0 is not None else z
+    y = y0 / y0.sum() if y0 is not None else z
     P = P0
-    K = Kcalc(T, P, z, z)
+    K = Kcalc(T, P, x, y)
     x = z / (1 + beta * (K - 1))
     y = K * x
     x /= x.sum()
@@ -447,7 +468,7 @@ class RachfordRiceResult:
 def solve_Rachford_Rice(
     K: FloatVector,
     z: FloatVector,
-    beta0: float | None = None,
+    beta0: float,
     *,
     maxiter: int = 50,
     atol_res: float = 1e-9,
@@ -469,8 +490,9 @@ def solve_Rachford_Rice(
         K-values.
     z : FloatVector(N)
         Feed mole fractions [mol/mol].
-    beta0 : float | None
-        Initial guess for vapor phase fraction [mol/mol].
+    beta0 : float
+        Initial guess for vapor phase fraction [mol/mol]. If `NaN`, an initial
+        guess is automatically computed.
     maxiter : int
         Maximum number of iterations.
     atol_res : float
@@ -498,13 +520,12 @@ def solve_Rachford_Rice(
     beta_min = np.where(K > 1.0, (K * z - 1) / (K - 1), 0.0)
     beta_min = beta_min[(beta_min > 0.0) & (beta_min < 1.0)]
     beta_min = max(beta_min) if len(beta_min) > 0 else 0.0
-
     beta_max = np.where(K < 1.0, (1 - z) / (1 - K), 1.0)
     beta_max = beta_max[(beta_max > 0.0) & (beta_max < 1.0)]
     beta_max = min(beta_max) if len(beta_max) > 0 else 1.0
 
     # Initial guess
-    if beta0 is not None:
+    if not np.isnan(beta0):
         beta = np.clip(beta0, beta_min, beta_max)
     else:
         beta = (beta_min + beta_max) / 2
@@ -537,7 +558,10 @@ def solve_Rachford_Rice(
 
 
 def residual_Rachford_Rice(
-    beta: float, K: FloatVector, z: FloatVector, derivative: bool = False
+    beta: float,
+    K: FloatVector,
+    z: FloatVector,
+    derivative: bool = False,
 ) -> tuple[float, ...]:
     r"""Rachford-Rice flash residual function and its derivative.
 
@@ -589,7 +613,13 @@ def residual_Rachford_Rice(
         return (F, dF)
 
 
-def _Rloop(R: float, u: FloatVector, Kb0: float, beta: float, z: FloatVector) -> float:
+def _Rloop(
+    R: float,
+    u: FloatVector,
+    Kb0: float,
+    beta: float,
+    z: FloatVector,
+) -> float:
     """Inner R-loop objective function.
 
     **References**

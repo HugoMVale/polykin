@@ -72,18 +72,18 @@ def test_solve_flash_residual():
     # Subcooled feed
     z = np.array([0.5, 0.25, 0.25])
     K = np.array([0.2, 0.75, 0.99])
-    sol = solve_Rachford_Rice(K, z)
+    sol = solve_Rachford_Rice(K, z, np.nan)
     assert sol.success
     assert isclose(sol.beta, 0.0)
     # Superheated feed
     K = np.array([1.5, 2.0, 5.0])
-    sol = solve_Rachford_Rice(K, z)
+    sol = solve_Rachford_Rice(K, z, 0.5)
     assert sol.success
     assert isclose(sol.beta, 1.0)
     # Saturated feed: Seader, Example 4.1
     z = np.array([0.1, 0.2, 0.3, 0.4])
     K = np.array([4.2, 1.75, 0.74, 0.34])
-    for beta0 in [None, 0.4]:
+    for beta0 in [np.nan, 0.4]:
         sol = solve_Rachford_Rice(K, z, beta0=beta0)
         assert sol.success
         assert isclose(sol.beta, 0.1219, atol=1e-4)
