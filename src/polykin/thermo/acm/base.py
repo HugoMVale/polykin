@@ -18,22 +18,16 @@ class ActivityModel(ABC):
     _N: int
     name: str
 
-    def __init__(self,
-                 N: int,
-                 name: str
-                 ) -> None:
+    def __init__(self, N: int, name: str) -> None:
         self._N = N
         self.name = name
 
     @property
     def N(self) -> int:
-        "Number of components."
+        """Number of components."""
         return self._N
 
-    def _Dsmix_ideal(self,
-                     T: float,
-                     x: FloatVector
-                     ) -> float:
+    def _Dsmix_ideal(self, T: float, x: FloatVector) -> float:
         r"""Molar entropy of mixing of ideal solution, $\Delta s_{mix}^{ideal}$.
 
         $$ \Delta s_{mix}^{ideal} = - R \sum_i {x_i \ln{x_i}} $$
@@ -51,15 +45,13 @@ class ActivityModel(ABC):
             Molar entropy of mixing [J/(mol·K)].
         """
         p = x > 0
-        return -R*dot(x[p], log(x[p]))
+        return -R * dot(x[p], log(x[p]))
 
 
 class SmallSpeciesActivityModel(ActivityModel):
+    """Base class for activity coefficient models for small species."""
 
-    def Dgmix(self,
-              T: float,
-              x: FloatVector
-              ) -> float:
+    def Dgmix(self, T: float, x: FloatVector) -> float:
         r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.
 
         $$ \Delta g_{mix} = \Delta h_{mix} -T \Delta s_{mix} $$
@@ -76,12 +68,9 @@ class SmallSpeciesActivityModel(ActivityModel):
         float
             Molar Gibbs energy of mixing [J/mol].
         """
-        return self.gE(T, x) - T*self._Dsmix_ideal(T, x)
+        return self.gE(T, x) - T * self._Dsmix_ideal(T, x)
 
-    def Dhmix(self,
-              T: float,
-              x: FloatVector
-              ) -> float:
+    def Dhmix(self, T: float, x: FloatVector) -> float:
         r"""Molar enthalpy of mixing, $\Delta h_{mix}$.
 
         $$ \Delta h_{mix} = h^{E} $$
@@ -100,10 +89,7 @@ class SmallSpeciesActivityModel(ActivityModel):
         """
         return self.hE(T, x)
 
-    def Dsmix(self,
-              T: float,
-              x: FloatVector
-              ) -> float:
+    def Dsmix(self, T: float, x: FloatVector) -> float:
         r"""Molar entropy of mixing, $\Delta s_{mix}$.
 
         $$ \Delta s_{mix} = s^{E} - R \sum_i {x_i \ln{x_i}} $$
@@ -122,10 +108,7 @@ class SmallSpeciesActivityModel(ActivityModel):
         """
         return self.sE(T, x) + self._Dsmix_ideal(T, x)
 
-    def hE(self,
-           T: float,
-           x: FloatVector
-           ) -> float:
+    def hE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess enthalpy, $h^{E}$.
 
         $$ h^{E} = g^{E} + T s^{E} $$
@@ -142,12 +125,9 @@ class SmallSpeciesActivityModel(ActivityModel):
         float
             Molar excess enthalpy [J/mol].
         """
-        return self.gE(T, x) + T*self.sE(T, x)
+        return self.gE(T, x) + T * self.sE(T, x)
 
-    def sE(self,
-           T: float,
-           x: FloatVector
-           ) -> float:
+    def sE(self, T: float, x: FloatVector) -> float:
         r"""Molar excess entropy, $s^{E}$.
 
         $$ s^{E} = -\left(\frac{\partial g^{E}}{\partial T}\right)_{P,x_i} $$
@@ -164,12 +144,9 @@ class SmallSpeciesActivityModel(ActivityModel):
         float
             Molar excess entropy [J/(mol·K)].
         """
-        return -1*derivative_complex(lambda t: self.gE(t, x), T)[0]
+        return -1 * derivative_complex(lambda t: self.gE(t, x), T)[0]
 
-    def activity(self,
-                 T: float,
-                 x: FloatVector
-                 ) -> FloatVector:
+    def activity(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activities, $a_i$.
 
         $$ a_i = x_i \gamma_i $$
@@ -186,13 +163,10 @@ class SmallSpeciesActivityModel(ActivityModel):
         FloatVector (N)
             Activities of all components.
         """
-        return x*self.gamma(T, x)
+        return x * self.gamma(T, x)
 
     @abstractmethod
-    def gE(self,
-           T: Number,
-           x: FloatVector
-           ) -> Number:
+    def gE(self, T: Number, x: FloatVector) -> Number:
         r"""Molar excess Gibbs energy, $g^{E}$.
 
         Parameters
@@ -210,10 +184,7 @@ class SmallSpeciesActivityModel(ActivityModel):
         pass
 
     @abstractmethod
-    def gamma(self,
-              T: float,
-              x: FloatVector
-              ) -> FloatVector:
+    def gamma(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activity coefficients based on mole fraction, $\gamma_i$.
 
         Parameters
@@ -232,13 +203,15 @@ class SmallSpeciesActivityModel(ActivityModel):
 
 
 class PolymerActivityModel(ActivityModel):
+    """Base class for activity coefficient models for polymer systems."""
 
-    def Dgmix(self,
-              T: float,
-              xs: FloatVector,
-              DP: FloatVector,
-              F: FloatMatrix
-              ) -> float:
+    def Dgmix(
+        self,
+        T: float,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> float:
         r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.
 
         $$ \Delta g_{mix} = \Delta h_{mix} -T \Delta s_{mix} $$
@@ -250,7 +223,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
@@ -260,14 +233,15 @@ class PolymerActivityModel(ActivityModel):
             Gibbs energy of mixing per mole of segments [J/mol].
         """
         x = 0  # !!! to be done
-        return self.gE(T, xs, DP, F) - T*self._Dsmix_ideal(T, x)
+        return self.gE(T, xs, DP, F) - T * self._Dsmix_ideal(T, x)
 
-    def Dhmix(self,
-              T: float,
-              xs: FloatVector,
-              DP: FloatVector,
-              F: FloatMatrix
-              ) -> float:
+    def Dhmix(
+        self,
+        T: float,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> float:
         r"""Molar enthalpy of mixing, $\Delta h_{mix}$.
 
         $$ \Delta h_{mix} = h^{E} $$
@@ -279,7 +253,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
@@ -290,12 +264,13 @@ class PolymerActivityModel(ActivityModel):
         """
         return self.hE(T, xs, DP, F)
 
-    def Dsmix(self,
-              T: float,
-              xs: FloatVector,
-              DP: FloatVector,
-              F: FloatMatrix
-              ) -> float:
+    def Dsmix(
+        self,
+        T: float,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> float:
         r"""Molar entropy of mixing, $\Delta s_{mix}$.
 
         $$ \Delta s_{mix} = s^{E} - R \sum_i {x_i \ln{x_i}} $$
@@ -307,7 +282,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
@@ -319,12 +294,13 @@ class PolymerActivityModel(ActivityModel):
         x = 0  # !!! fix
         return self.sE(T, xs, DP, F) + self._Dsmix_ideal(T, x)
 
-    def hE(self,
-           T: float,
-           xs: FloatVector,
-           DP: FloatVector,
-           F: FloatMatrix
-           ) -> float:
+    def hE(
+        self,
+        T: float,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> float:
         r"""Molar excess enthalpy, $h^{E}$.
 
         $$ h^{E} = g^{E} + T s^{E} $$
@@ -336,7 +312,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
@@ -345,14 +321,15 @@ class PolymerActivityModel(ActivityModel):
         float
             Excess enthalpy per mole of segments [J/mol].
         """
-        return self.gE(T, xs, DP, F) + T*self.sE(T, xs, DP, F)
+        return self.gE(T, xs, DP, F) + T * self.sE(T, xs, DP, F)
 
-    def sE(self,
-           T: float,
-           xs: FloatVector,
-           DP: FloatVector,
-           F: FloatMatrix
-           ) -> float:
+    def sE(
+        self,
+        T: float,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> float:
         r"""Molar excess entropy, $s^{E}$.
 
         $$ s^{E} = -\left(\frac{\partial g^{E}}{\partial T}\right)_{P,x_i} $$
@@ -364,7 +341,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
@@ -373,12 +350,10 @@ class PolymerActivityModel(ActivityModel):
         float
             Excess entropy per mole of segments [J/(mol·K)].
         """
-        return -1*derivative_complex(lambda t: self.gE(t, xs, DP, F), T)[0]
+        return -1 * derivative_complex(lambda t: self.gE(t, xs, DP, F), T)[0]
 
     @staticmethod
-    def _convert_xs_to_x(xs: FloatVector,
-                         DP: FloatVector
-                         ) -> FloatVector:
+    def _convert_xs_to_x(xs: FloatVector, DP: FloatVector) -> FloatVector:
         """Convert segment-based mole fractions to mole fractions.
 
         Parameters
@@ -386,21 +361,22 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
 
         Returns
         -------
         FloatVector (N)
             Mole fractions of all components [mol/mol].
         """
-        x = xs/DP
+        x = xs / DP
         x /= x.sum()
         return x
 
     @staticmethod
-    def _convert_xs_to_X(xs: FloatVector,
-                         F: FloatMatrix,
-                         ) -> FloatVector:
+    def _convert_xs_to_X(
+        xs: FloatVector,
+        F: FloatMatrix,
+    ) -> FloatVector:
         """Convert segment-based component mole fractions to segment mole
         fractions.
 
@@ -427,12 +403,13 @@ class PolymerActivityModel(ActivityModel):
         return X
 
     @abstractmethod
-    def gE(self,
-           T: Number,
-           xs: FloatVector,
-           DP: FloatVector,
-           F: FloatMatrix
-           ) -> Number:
+    def gE(
+        self,
+        T: Number,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> Number:
         r"""Molar excess Gibbs energy, $g^{E}$.
 
         Parameters
@@ -442,7 +419,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 
@@ -454,12 +431,13 @@ class PolymerActivityModel(ActivityModel):
         pass
 
     @abstractmethod
-    def activity(self,
-                 T: float,
-                 xs: FloatVector,
-                 DP: FloatVector,
-                 F: FloatMatrix
-                 ) -> FloatVector:
+    def activity(
+        self,
+        T: float,
+        xs: FloatVector,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> FloatVector:
         r"""Activities, $\a_i$.
 
         Parameters
@@ -469,7 +447,7 @@ class PolymerActivityModel(ActivityModel):
         xs : FloatVector (N)
             Segment-based mole fractions of all components [mol/mol].
         DP : FloatVector (Np)
-            Degree of polymerization of all polymer components. 
+            Degree of polymerization of all polymer components.
         F : FloatMatrix (Np, Nru)
             Composition all polymer components.
 

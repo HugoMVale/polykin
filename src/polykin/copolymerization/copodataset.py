@@ -10,16 +10,13 @@ from polykin.utils.math import convert_FloatOrVectorLike_to_FloatOrVector
 from polykin.utils.tools import check_shapes
 from polykin.utils.types import FloatVector, FloatVectorLike
 
-# from dataclasses import dataclass
-
-
 __all__ = [
-    'MayoDataset',
-    'DriftDataset',
-    'kpDataset',
-    'CopoDataset_Ff',
-    'CopoDataset_fx',
-    'CopoDataset_Fx'
+    "MayoDataset",
+    "DriftDataset",
+    "kpDataset",
+    "CopoDataset_Ff",
+    "CopoDataset_fx",
+    "CopoDataset_Fx",
 ]
 
 
@@ -27,31 +24,30 @@ class CopoDataset(ABC):
 
     varmap: dict[str, str]
 
-    def __init__(self,
-                 M1: str,
-                 M2: str,
-                 x: FloatVectorLike,
-                 y: FloatVectorLike,
-                 sigma_x: float | FloatVectorLike,
-                 sigma_y: float | FloatVectorLike,
-                 weight: float,
-                 T: float,
-                 Tunit: Literal['C', 'K'],
-                 name: str,
-                 source: str,
-                 ) -> None:
+    def __init__(
+        self,
+        M1: str,
+        M2: str,
+        x: FloatVectorLike,
+        y: FloatVectorLike,
+        sigma_x: float | FloatVectorLike,
+        sigma_y: float | FloatVectorLike,
+        weight: float,
+        T: float,
+        Tunit: Literal["C", "K"],
+        name: str,
+        source: str,
+    ) -> None:
         """Construct `CopoDataset` with the given parameters."""
-
         if not M1 or not M2 or M1.lower() == M2.lower():
-            raise ValueError(
-                "`M1` and `M2` must be non-empty and different.")
+            raise ValueError("`M1` and `M2` must be non-empty and different.")
         else:
             self.M1 = M1
             self.M2 = M2
 
-        _x, _y, _sigma_x, _sigma_y = \
-            convert_FloatOrVectorLike_to_FloatOrVector(
-                [x, y, sigma_x, sigma_y])
+        _x, _y, _sigma_x, _sigma_y = convert_FloatOrVectorLike_to_FloatOrVector(
+            [x, y, sigma_x, sigma_y]
+        )
 
         check_shapes([_x, _y], [_sigma_x, _sigma_y])
 
@@ -65,10 +61,7 @@ class CopoDataset(ABC):
         self.name = name
         self.source = source
 
-    def getvar(self,
-               varname: str,
-               M: str = ''
-               ) -> Any:
+    def getvar(self, varname: str, M: str = "") -> Any:
         x = getattr(self, self.varmap[varname])
 
         if M:
@@ -114,24 +107,27 @@ class MayoDataset(CopoDataset):
     source: str
         Source of dataset.
     """
-    varmap = {'f': 'x', 'F': 'y'}
 
-    def __init__(self,
-                 M1: str,
-                 M2: str,
-                 f1: FloatVectorLike,
-                 F1: FloatVectorLike,
-                 sigma_f1: float | FloatVectorLike = 1e-2,
-                 sigma_F1: float | FloatVectorLike = 5e-2,
-                 weight: float = 1,
-                 T: float = 298.,
-                 Tunit: Literal['C', 'K'] = 'K',
-                 name: str = '',
-                 source: str = '',
-                 ) -> None:
+    varmap = {"f": "x", "F": "y"}
+
+    def __init__(
+        self,
+        M1: str,
+        M2: str,
+        f1: FloatVectorLike,
+        F1: FloatVectorLike,
+        sigma_f1: float | FloatVectorLike = 1e-2,
+        sigma_F1: float | FloatVectorLike = 5e-2,
+        weight: float = 1,
+        T: float = 298.0,
+        Tunit: Literal["C", "K"] = "K",
+        name: str = "",
+        source: str = "",
+    ) -> None:
         """Construct `MayoDataset` with the given parameters."""
-        super().__init__(M1, M2, f1, F1, sigma_f1, sigma_F1, weight, T, Tunit,
-                         name, source)
+        super().__init__(
+            M1, M2, f1, F1, sigma_f1, sigma_F1, weight, T, Tunit, name, source
+        )
 
 
 class DriftDataset(CopoDataset):
@@ -165,24 +161,26 @@ class DriftDataset(CopoDataset):
         Source of dataset.
     """
 
-    varmap = {'x': 'x', 'f': 'y'}
+    varmap = {"x": "x", "f": "y"}
 
-    def __init__(self,
-                 M1: str,
-                 M2: str,
-                 x: FloatVectorLike,
-                 f1: FloatVectorLike,
-                 sigma_x: float | FloatVectorLike = 5e-2,
-                 sigma_f1: float | FloatVectorLike = 5e-2,
-                 weight: float = 1,
-                 T: float = 298.,
-                 Tunit: Literal['C', 'K'] = 'K',
-                 name: str = '',
-                 source: str = '',
-                 ) -> None:
+    def __init__(
+        self,
+        M1: str,
+        M2: str,
+        x: FloatVectorLike,
+        f1: FloatVectorLike,
+        sigma_x: float | FloatVectorLike = 5e-2,
+        sigma_f1: float | FloatVectorLike = 5e-2,
+        weight: float = 1,
+        T: float = 298.0,
+        Tunit: Literal["C", "K"] = "K",
+        name: str = "",
+        source: str = "",
+    ) -> None:
         """Construct `DriftDataset` with the given parameters."""
-        super().__init__(M1, M2, x, f1, sigma_x, sigma_f1, weight, T, Tunit,
-                         name, source)
+        super().__init__(
+            M1, M2, x, f1, sigma_x, sigma_f1, weight, T, Tunit, name, source
+        )
 
 
 class kpDataset(CopoDataset):
@@ -218,29 +216,32 @@ class kpDataset(CopoDataset):
         Source of dataset.
     """
 
-    varmap = {'f': 'x', 'kp': 'y'}
+    varmap = {"f": "x", "kp": "y"}
 
-    def __init__(self,
-                 M1: str,
-                 M2: str,
-                 f1: FloatVectorLike,
-                 kp: FloatVectorLike,
-                 sigma_f1: float | FloatVectorLike = 5e-2,
-                 sigma_kp: float | FloatVectorLike = 1e2,
-                 weight: float = 1,
-                 T: float = 298.,
-                 Tunit: Literal['C', 'K'] = 'K',
-                 name: str = '',
-                 source: str = '',
-                 ) -> None:
+    def __init__(
+        self,
+        M1: str,
+        M2: str,
+        f1: FloatVectorLike,
+        kp: FloatVectorLike,
+        sigma_f1: float | FloatVectorLike = 5e-2,
+        sigma_kp: float | FloatVectorLike = 1e2,
+        weight: float = 1,
+        T: float = 298.0,
+        Tunit: Literal["C", "K"] = "K",
+        name: str = "",
+        source: str = "",
+    ) -> None:
         """Construct `DriftDataset` with the given parameters."""
-        super().__init__(M1, M2, f1, kp, sigma_f1, sigma_kp, weight, T, Tunit,
-                         name, source)
+        super().__init__(
+            M1, M2, f1, kp, sigma_f1, sigma_kp, weight, T, Tunit, name, source
+        )
 
 
 @dataclass(frozen=True)
-class CopoDataset_Ff():
+class CopoDataset_Ff:
     """Dataclass for instantaneous copolymerization data of the form F(f)."""
+
     name: str
     f1: FloatVector
     F1: FloatVector
@@ -250,8 +251,9 @@ class CopoDataset_Ff():
 
 
 @dataclass(frozen=True)
-class CopoDataset_fx():
+class CopoDataset_fx:
     """Dataclass for drift copolymerization data of the form f1(x)."""
+
     name: str
     f10: float
     x: FloatVector
@@ -262,8 +264,9 @@ class CopoDataset_fx():
 
 
 @dataclass(frozen=True)
-class CopoDataset_Fx():
+class CopoDataset_Fx:
     """Dataclass for drift copolymerization data of the form F1(x)."""
+
     name: str
     f10: float
     x: FloatVector

@@ -16,13 +16,9 @@ from polykin.utils.types import FloatArray, FloatArrayLike, IntArrayLike
 from .terminal import CopoModel, TerminalModel
 
 __all__ = [
-    'PenultimateModel',
-    'ImplicitPenultimateModel'
+    "PenultimateModel",
+    "ImplicitPenultimateModel",
 ]
-
-# %% Models
-
-# %% Penultimate model
 
 
 class PenultimateModel(CopoModel):
@@ -86,28 +82,29 @@ class PenultimateModel(CopoModel):
     s1: float
     s2: float
 
-    _pnames = ('r11', 'r12', 'r21', 'r22', 's1', 's2')
+    _pnames = ("r11", "r12", "r21", "r22", "s1", "s2")
 
-    def __init__(self,
-                 r11: float,
-                 r12: float,
-                 r21: float,
-                 r22: float,
-                 s1: float,
-                 s2: float,
-                 k1: Arrhenius | None = None,
-                 k2: Arrhenius | None = None,
-                 M1: str = 'M1',
-                 M2: str = 'M2',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        r11: float,
+        r12: float,
+        r21: float,
+        r22: float,
+        s1: float,
+        s2: float,
+        k1: Arrhenius | None = None,
+        k2: Arrhenius | None = None,
+        M1: str = "M1",
+        M2: str = "M2",
+        name: str = "",
+    ) -> None:
 
-        check_bounds(r11, 0.0, np.inf, 'r11')
-        check_bounds(r12, 0.0, np.inf, 'r12')
-        check_bounds(r21, 0.0, np.inf, 'r21')
-        check_bounds(r22, 0.0, np.inf, 'r22')
-        check_bounds(s1, 0.0, np.inf, 's1')
-        check_bounds(s2, 0.0, np.inf, 's2')
+        check_bounds(r11, 0.0, np.inf, "r11")
+        check_bounds(r12, 0.0, np.inf, "r12")
+        check_bounds(r21, 0.0, np.inf, "r21")
+        check_bounds(r22, 0.0, np.inf, "r22")
+        check_bounds(s1, 0.0, np.inf, "s1")
+        check_bounds(s2, 0.0, np.inf, "s2")
 
         self.r11 = r11
         self.r12 = r12
@@ -117,9 +114,10 @@ class PenultimateModel(CopoModel):
         self.s2 = s2
         super().__init__(k1, k2, M1, M2, name)
 
-    def ri(self,
-            f1: float | FloatArray
-           ) -> tuple[float | FloatArray, float | FloatArray]:
+    def ri(
+        self,
+        f1: float | FloatArray,
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         r"""Pseudoreactivity ratios.
 
         In the penultimate model, the pseudoreactivity ratios depend on the
@@ -147,15 +145,16 @@ class PenultimateModel(CopoModel):
         r12 = self.r12
         r21 = self.r21
         r22 = self.r22
-        r1 = r21*(f1*r11 + f2)/(f1*r21 + f2)
-        r2 = r12*(f2*r22 + f1)/(f2*r12 + f1)
+        r1 = r21 * (f1 * r11 + f2) / (f1 * r21 + f2)
+        r2 = r12 * (f2 * r22 + f1) / (f2 * r12 + f1)
         return (r1, r2)
 
-    def kii(self,
-            f1: float | FloatArray,
-            T: float,
-            Tunit: Literal['C', 'K'] = 'K',
-            ) -> tuple[float | FloatArray, float | FloatArray]:
+    def kii(
+        self,
+        f1: float | FloatArray,
+        T: float,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         r"""Pseudohomopropagation rate coefficients.
 
         In the penultimate model, the pseudohomopropagation rate coefficients
@@ -186,8 +185,7 @@ class PenultimateModel(CopoModel):
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
         if self.k1 is None or self.k2 is None:
-            raise ValueError(
-                "To use this feature, `k1` and `k2` cannot be `None`.")
+            raise ValueError("To use this feature, `k1` and `k2` cannot be `None`.")
 
         f2 = 1.0 - f1
         r11 = self.r11
@@ -196,14 +194,12 @@ class PenultimateModel(CopoModel):
         s2 = self.s2
         k1 = self.k1(T, Tunit)
         k2 = self.k2(T, Tunit)
-        k11 = k1*(f1*r11 + f2)/(f1*r11 + f2/s1)
-        k22 = k2*(f2*r22 + f1)/(f2*r22 + f1/s2)
+        k11 = k1 * (f1 * r11 + f2) / (f1 * r11 + f2 / s1)
+        k22 = k2 * (f2 * r22 + f1) / (f2 * r22 + f1 / s2)
 
         return (k11, k22)
 
-    def transitions(self,
-                    f1: float | FloatArrayLike
-                    ) -> dict[str, float | FloatArray]:
+    def transitions(self, f1: float | FloatArrayLike) -> dict[str, float | FloatArray]:
         r"""Calculate the instantaneous transition probabilities.
 
         For a binary system, the transition probabilities are given by:
@@ -233,10 +229,9 @@ class PenultimateModel(CopoModel):
             Transition probabilities,
             {'111': $P_{111}$, '211': $P_{211}$, '121': $P_{121}$, ... }.
         """
-
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=float)
-        check_bounds(f1, 0.0, 1.0, 'f1')
+        check_bounds(f1, 0.0, 1.0, "f1")
 
         f2 = 1.0 - f1
         r11 = self.r11
@@ -244,30 +239,33 @@ class PenultimateModel(CopoModel):
         r21 = self.r21
         r22 = self.r22
 
-        P111 = r11*f1/(r11*f1 + f2)
-        P211 = r21*f1/(r21*f1 + f2)
+        P111 = r11 * f1 / (r11 * f1 + f2)
+        P211 = r21 * f1 / (r21 * f1 + f2)
         P112 = 1.0 - P111
         P212 = 1.0 - P211
 
-        P222 = r22*f2/(r22*f2 + f1)
-        P122 = r12*f2/(r12*f2 + f1)
+        P222 = r22 * f2 / (r22 * f2 + f1)
+        P122 = r12 * f2 / (r12 * f2 + f1)
         P221 = 1.0 - P222
         P121 = 1.0 - P122
 
-        result = {'111': P111,
-                  '211': P211,
-                  '112': P112,
-                  '212': P212,
-                  '222': P222,
-                  '122': P122,
-                  '221': P221,
-                  '121': P121}
+        result = {
+            "111": P111,
+            "211": P211,
+            "112": P112,
+            "212": P212,
+            "222": P222,
+            "122": P122,
+            "221": P221,
+            "121": P121,
+        }
 
         return result
 
-    def triads(self,
-               f1: float | FloatArrayLike,
-               ) -> dict[str, float | FloatArray]:
+    def triads(
+        self,
+        f1: float | FloatArrayLike,
+    ) -> dict[str, float | FloatArray]:
         r"""Calculate the instantaneous triad fractions.
 
         For a binary system, the triad fractions are given by:
@@ -298,42 +296,44 @@ class PenultimateModel(CopoModel):
             Triad fractions,
             {'111': $F_{111}$, '112': $F_{112}$, '212': $F_{212}$, ... }.
         """
-
         P = self.transitions(f1)
-        P111 = P['111']
-        P211 = P['211']
-        P222 = P['222']
-        P122 = P['122']
+        P111 = P["111"]
+        P211 = P["211"]
+        P222 = P["222"]
+        P122 = P["122"]
 
-        F111 = P211*P111/(1.0 - P111 + eps)
-        F112 = 2*P211
+        F111 = P211 * P111 / (1.0 - P111 + eps)
+        F112 = 2 * P211
         F212 = 1.0 - P211
         Fsum = F111 + F112 + F212
         F111 /= Fsum
         F112 /= Fsum
         F212 /= Fsum
 
-        F222 = P122*P222/(1.0 - P222 + eps)
-        F221 = 2*P122
+        F222 = P122 * P222 / (1.0 - P222 + eps)
+        F221 = 2 * P122
         F121 = 1.0 - P122
         Fsum = F222 + F221 + F121
         F222 /= Fsum
         F221 /= Fsum
         F121 /= Fsum
 
-        result = {'111': F111,
-                  '112': F112,
-                  '212': F212,
-                  '222': F222,
-                  '221': F221,
-                  '121': F121}
+        result = {
+            "111": F111,
+            "112": F112,
+            "212": F212,
+            "222": F222,
+            "221": F221,
+            "121": F121,
+        }
 
         return result
 
-    def sequence(self,
-                 f1: float | FloatArrayLike,
-                 k: int | IntArrayLike | None = None,
-                 ) -> dict[str, float | FloatArray]:
+    def sequence(
+        self,
+        f1: float | FloatArrayLike,
+        k: int | IntArrayLike | None = None,
+    ) -> dict[str, float | FloatArray]:
         r"""Calculate the instantaneous sequence length probability or the
         number-average sequence length.
 
@@ -373,24 +373,22 @@ class PenultimateModel(CopoModel):
             {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
             sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
         """
-
         P = self.transitions(f1)
-        P111 = P['111']
-        P211 = P['211']
-        P222 = P['222']
-        P122 = P['122']
+        P111 = P["111"]
+        P211 = P["211"]
+        P222 = P["222"]
+        P122 = P["122"]
 
         if k is None:
-            S1 = 1.0 + P211/(1.0 - P111 + eps)
-            S2 = 1.0 + P122/(1.0 - P222 + eps)
+            S1 = 1.0 + P211 / (1.0 - P111 + eps)
+            S2 = 1.0 + P122 / (1.0 - P222 + eps)
         else:
             if isinstance(k, (list, tuple)):
                 k = np.array(k, dtype=int)
-            S1 = np.where(k == 1, 1.0 - P211, P211*(1.0 - P111)*P111**(k - 2))
-            S2 = np.where(k == 1, 1.0 - P122, P122*(1.0 - P222)*P222**(k - 2))
+            S1 = np.where(k == 1, 1.0 - P211, P211 * (1.0 - P111) * P111 ** (k - 2))
+            S2 = np.where(k == 1, 1.0 - P122, P122 * (1.0 - P222) * P222 ** (k - 2))
 
-        return {'1': S1, '2': S2}
-# %% Implicit penultimate model
+        return {"1": S1, "2": S2}
 
 
 class ImplicitPenultimateModel(TerminalModel):
@@ -450,32 +448,34 @@ class ImplicitPenultimateModel(TerminalModel):
     s1: float
     s2: float
 
-    _pnames = ('r1', 'r2', 's1', 's2')
+    _pnames = ("r1", "r2", "s1", "s2")
 
-    def __init__(self,
-                 r1: float,
-                 r2: float,
-                 s1: float,
-                 s2: float,
-                 k1: Arrhenius | None = None,
-                 k2: Arrhenius | None = None,
-                 M1: str = 'M1',
-                 M2: str = 'M2',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        r1: float,
+        r2: float,
+        s1: float,
+        s2: float,
+        k1: Arrhenius | None = None,
+        k2: Arrhenius | None = None,
+        M1: str = "M1",
+        M2: str = "M2",
+        name: str = "",
+    ) -> None:
 
-        check_bounds(s1, 0.0, np.inf, 's1')
-        check_bounds(s2, 0.0, np.inf, 's2')
+        check_bounds(s1, 0.0, np.inf, "s1")
+        check_bounds(s2, 0.0, np.inf, "s2")
 
         self.s1 = s1
         self.s2 = s2
         super().__init__(r1, r2, k1, k2, M1, M2, name)
 
-    def kii(self,
-            f1: float | FloatArray,
-            T: float,
-            Tunit: Literal['C', 'K'] = 'K',
-            ) -> tuple[float | FloatArray, float | FloatArray]:
+    def kii(
+        self,
+        f1: float | FloatArray,
+        T: float,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         r"""Pseudo-homopropagation rate coefficients.
 
         In the implicit penultimate model, the pseudohomopropagation rate
@@ -506,10 +506,8 @@ class ImplicitPenultimateModel(TerminalModel):
             Tuple of pseudohomopropagation rate coefficients,
             ($\bar{k}_{11}$, $\bar{k}_{22}$).
         """
-
         if self.k1 is None or self.k2 is None:
-            raise ValueError(
-                "To use this feature, `k1` and `k2` cannot be `None`.")
+            raise ValueError("To use this feature, `k1` and `k2` cannot be `None`.")
 
         f2 = 1.0 - f1
         r1 = self.r1
@@ -518,7 +516,7 @@ class ImplicitPenultimateModel(TerminalModel):
         s2 = self.s2
         k1 = self.k1(T, Tunit)
         k2 = self.k2(T, Tunit)
-        k11 = k1*(f1*r1 + f2)/(f1*r1 + f2/s1)
-        k22 = k2*(f2*r2 + f1)/(f2*r2 + f1/s2)
+        k11 = k1 * (f1 * r1 + f2) / (f1 * r1 + f2 / s1)
+        k22 = k2 * (f2 * r2 + f1) / (f2 * r2 + f1 / s2)
 
         return (k11, k22)

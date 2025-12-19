@@ -13,7 +13,7 @@ from polykin.utils.types import FloatArray
 
 from .base import PropertyEquationT
 
-__all__ = ['Yaws']
+__all__ = ["Yaws"]
 
 
 class Yaws(PropertyEquationT):
@@ -51,34 +51,40 @@ class Yaws(PropertyEquationT):
         Name.
     """
 
-    _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K⁻¹', True),
-              'D': ('K⁻²', True), 'base10': ('', False)}
+    _pinfo = {
+        "A": ("", True),
+        "B": ("K", True),
+        "C": ("K⁻¹", True),
+        "D": ("K⁻²", True),
+        "base10": ("", False),
+    }
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float = 0.,
-                 D: float = 0.,
-                 base10: bool = True,
-                 Tmin: float = 0.,
-                 Tmax: float = np.inf,
-                 unit: str = 'Pa·s',
-                 symbol: str = r'\mu',
-                 name: str = ''
-                 ) -> None:
-        """Construct `Yaws` with the given parameters."""
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float = 0.0,
+        D: float = 0.0,
+        base10: bool = True,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "Pa·s",
+        symbol: str = r"\mu",
+        name: str = "",
+    ) -> None:
 
-        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'base10': base10}
+        self.p = {"A": A, "B": B, "C": C, "D": D, "base10": base10}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 base10: bool
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        base10: bool,
+    ) -> float | FloatArray:
         r"""Yaws equation.
 
         Parameters
@@ -101,7 +107,7 @@ class Yaws(PropertyEquationT):
         float | FloatArray
             Viscosity [Any].
         """
-        x = A + B/T + C*T + D*T**2
+        x = A + B / T + C * T + D * T**2
         if base10:
             return 10**x
         else:

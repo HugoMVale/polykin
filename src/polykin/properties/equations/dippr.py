@@ -13,59 +13,61 @@ from polykin.utils.types import FloatArray
 from .base import PropertyEquationT
 
 __all__ = [
-    'DIPPR100',
-    'DIPPR101',
-    'DIPPR102',
-    'DIPPR104',
-    'DIPPR105',
-    'DIPPR106',
-    'DIPPR107'
+    "DIPPR100",
+    "DIPPR101",
+    "DIPPR102",
+    "DIPPR104",
+    "DIPPR105",
+    "DIPPR106",
+    "DIPPR107",
 ]
 
 
 class DIPPR(PropertyEquationT):
     """Abstract class for all
     [DIPPR](https://de.wikipedia.org/wiki/DIPPR-Gleichungen)
-    temperature-dependent equations."""
-    pass
+    temperature-dependent equations.
+    """
 
 
 class DIPPRP4(DIPPR):
     """Abstract class for DIPPR equations with 4 parameters (A-D)."""
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 Tmin: float,
-                 Tmax: float,
-                 unit,
-                 symbol,
-                 name
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        Tmin: float,
+        Tmax: float,
+        unit,
+        symbol,
+        name,
+    ) -> None:
 
-        self.p = {'A': A, 'B': B, 'C': C, 'D': D}
+        self.p = {"A": A, "B": B, "C": C, "D": D}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
 
 class DIPPRP5(DIPPR):
     """Abstract class for DIPPR equations with 5 parameters (A-E)."""
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float,
-                 Tmin: float,
-                 Tmax: float,
-                 unit,
-                 symbol,
-                 name
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+        Tmin: float,
+        Tmax: float,
+        unit,
+        symbol,
+        name,
+    ) -> None:
 
-        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'E': E}
+        self.p = {"A": A, "B": B, "C": C, "D": D, "E": E}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
 
@@ -103,34 +105,41 @@ class DIPPR100(DIPPRP5):
         Name.
     """
 
-    _pinfo = {'A': ('#', True), 'B': ('#/K', True), 'C': ('#/K²', True),
-              'D': ('#/K³', True), 'E': ('#/K⁴', True)}
+    _pinfo = {
+        "A": ("#", True),
+        "B": ("#/K", True),
+        "C": ("#/K²", True),
+        "D": ("#/K³", True),
+        "E": ("#/K⁴", True),
+    }
 
-    def __init__(self,
-                 A: float = 0.0,
-                 B: float = 0.0,
-                 C: float = 0.0,
-                 D: float = 0.0,
-                 E: float = 0.0,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A: float = 0.0,
+        B: float = 0.0,
+        C: float = 0.0,
+        D: float = 0.0,
+        E: float = 0.0,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+    ) -> float | FloatArray:
         r"""DIPPR-100 equation."""
-        return A + B*T + C*T**2 + D*T**3 + E*T**4
+        return A + B * T + C * T**2 + D * T**3 + E * T**4
 
 
 class DIPPR101(DIPPRP5):
@@ -166,34 +175,42 @@ class DIPPR101(DIPPRP5):
     name : str
         Name.
     """
-    _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('', True),
-              'D': ('', True), 'E': ('', True)}
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float = 0.0,
-                 D: float = 0.0,
-                 E: float = 0.0,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    _pinfo = {
+        "A": ("", True),
+        "B": ("K", True),
+        "C": ("", True),
+        "D": ("", True),
+        "E": ("", True),
+    }
+
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float = 0.0,
+        D: float = 0.0,
+        E: float = 0.0,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+    ) -> float | FloatArray:
         r"""DIPPR-101 equation."""
-        return exp(A + B/T + C*log(T) + D*T**E)
+        return exp(A + B / T + C * log(T) + D * T**E)
 
 
 class DIPPR102(DIPPRP4):
@@ -228,32 +245,33 @@ class DIPPR102(DIPPRP4):
         Name.
     """
 
-    _pinfo = {'A': ('#', True), 'B': ('', True), 'C': ('K', True),
-              'D': ('K²', True)}
+    _pinfo = {"A": ("#", True), "B": ("", True), "C": ("K", True), "D": ("K²", True)}
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float = 0.0,
-                 D: float = 0.0,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float = 0.0,
+        D: float = 0.0,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
         super().__init__(A, B, C, D, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+    ) -> float | FloatArray:
         r"""DIPPR-102 equation."""
-        return (A * T**B) / (1 + C/T + D/T**2)
+        return (A * T**B) / (1 + C / T + D / T**2)
 
 
 class DIPPR104(DIPPRP5):
@@ -290,34 +308,41 @@ class DIPPR104(DIPPRP5):
         Name.
     """
 
-    _pinfo = {'A': ('#', True), 'B': ('#·K', True), 'C': ('#·K³', True),
-              'D': ('#·K⁸', True), 'E': ('#·K⁹', True)}
+    _pinfo = {
+        "A": ("#", True),
+        "B": ("#·K", True),
+        "C": ("#·K³", True),
+        "D": ("#·K⁸", True),
+        "E": ("#·K⁹", True),
+    }
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float = 0.0,
-                 D: float = 0.0,
-                 E: float = 0.0,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float = 0.0,
+        D: float = 0.0,
+        E: float = 0.0,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+    ) -> float | FloatArray:
         r"""DIPPR-104 equation."""
-        return A + B/T + C/T**3 + D/T**8 + E/T**9
+        return A + B / T + C / T**3 + D / T**8 + E / T**9
 
 
 class DIPPR105(DIPPRP4):
@@ -352,32 +377,33 @@ class DIPPR105(DIPPRP4):
         Name.
     """
 
-    _pinfo = {'A': ('#', True), 'B': ('', True), 'C': ('K', True),
-              'D': ('', True)}
+    _pinfo = {"A": ("#", True), "B": ("", True), "C": ("K", True), "D": ("", True)}
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
         super().__init__(A, B, C, D, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+    ) -> float | FloatArray:
         r"""DIPPR-105 equation."""
-        return A / B**(1 + (1 - T / C)**D)
+        return A / B ** (1 + (1 - T / C) ** D)
 
 
 class DIPPR106(DIPPR):
@@ -417,38 +443,46 @@ class DIPPR106(DIPPR):
         Name.
     """
 
-    _pinfo = {'A': ('#', True), 'B': ('', True), 'C': ('', True),
-              'D': ('', True), 'E': ('', True), 'Tc': ('K', False)}
+    _pinfo = {
+        "A": ("#", True),
+        "B": ("", True),
+        "C": ("", True),
+        "D": ("", True),
+        "E": ("", True),
+        "Tc": ("K", False),
+    }
 
-    def __init__(self,
-                 Tc: float,
-                 A: float,
-                 B: float,
-                 C: float = 0.0,
-                 D: float = 0.0,
-                 E: float = 0.0,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        Tc: float,
+        A: float,
+        B: float,
+        C: float = 0.0,
+        D: float = 0.0,
+        E: float = 0.0,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
-        self.p = {'A': A, 'B': B, 'C': C, 'D': D, 'E': E, 'Tc': Tc}
+        self.p = {"A": A, "B": B, "C": C, "D": D, "E": E, "Tc": Tc}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float,
-                 Tc: float,
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+        Tc: float,
+    ) -> float | FloatArray:
         r"""DIPPR-106 equation."""
-        Tr = T/Tc
-        return A*(1-Tr)**(B + Tr*(C + Tr*(D + E*Tr)))
+        Tr = T / Tc
+        return A * (1 - Tr) ** (B + Tr * (C + Tr * (D + E * Tr)))
 
 
 class DIPPR107(DIPPRP5):
@@ -486,31 +520,38 @@ class DIPPR107(DIPPRP5):
         Name.
     """
 
-    _pinfo = {'A': ('#', True), 'B': ('#', True), 'C': ('K', True),
-              'D': ('#', True), 'E': ('K', True)}
+    _pinfo = {
+        "A": ("#", True),
+        "B": ("#", True),
+        "C": ("K", True),
+        "D": ("#", True),
+        "E": ("K", True),
+    }
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = '-',
-                 symbol: str = 'Y',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "-",
+        symbol: str = "Y",
+        name: str = "",
+    ) -> None:
 
         super().__init__(A, B, C, D, E, Tmin, Tmax, unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 D: float,
-                 E: float
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        D: float,
+        E: float,
+    ) -> float | FloatArray:
         r"""DIPPR-107 equation."""
-        return A + B*(C/T/sinh(C/T))**2 + D*(E/T/cosh(E/T))**2
+        return A + B * (C / T / sinh(C / T)) ** 2 + D * (E / T / cosh(E / T)) ** 2

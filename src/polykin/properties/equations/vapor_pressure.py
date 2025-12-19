@@ -12,7 +12,11 @@ from numpy import exp
 from polykin.properties.equations.base import PropertyEquationT
 from polykin.utils.types import FloatArray
 
-__all__ = ['Antoine', 'Wagner25', 'Wagner36']
+__all__ = [
+    "Antoine",
+    "Wagner25",
+    "Wagner36",
+]
 
 
 class Antoine(PropertyEquationT):
@@ -54,7 +58,7 @@ class Antoine(PropertyEquationT):
     name : str
         Name.
 
-    See also
+    See Also
     --------
     * [`DIPPR101`](./#polykin.properties.equations.dippr.DIPPR101):
       alternative method, applicable to wider temperature ranges.
@@ -64,31 +68,37 @@ class Antoine(PropertyEquationT):
       alternative method, applicable to wider temperature ranges.
     """
 
-    _pinfo = {'A': ('', True), 'B': ('K', True), 'C': ('K', True),
-              'base10': ('', False)}
+    _pinfo = {
+        "A": ("", True),
+        "B": ("K", True),
+        "C": ("K", True),
+        "base10": ("", False),
+    }
 
-    def __init__(self,
-                 A: float,
-                 B: float,
-                 C: float = 0.0,
-                 base10: bool = True,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = 'Pa',
-                 symbol: str = 'P^*',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A: float,
+        B: float,
+        C: float = 0.0,
+        base10: bool = True,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "Pa",
+        symbol: str = "P^*",
+        name: str = "",
+    ) -> None:
 
-        self.p = {'A': A, 'B': B, 'C': C, 'base10': base10}
+        self.p = {"A": A, "B": B, "C": C, "base10": base10}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 A: float,
-                 B: float,
-                 C: float,
-                 base10: bool
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        A: float,
+        B: float,
+        C: float,
+        base10: bool,
+    ) -> float | FloatArray:
         r"""Antoine equation.
 
         Parameters
@@ -109,7 +119,7 @@ class Antoine(PropertyEquationT):
         float | FloatArray
             Vapor pressure [Any].
         """
-        x = A - B/(T + C)
+        x = A - B / (T + C)
         if base10:
             return 10**x
         else:
@@ -164,41 +174,49 @@ class Wagner25(PropertyEquationT):
     name : str
         Name.
 
-    See also
+    See Also
     --------
     * [`Wagner36`](./#polykin.properties.equations.vapor_pressure.Wagner36):
       similar method, with different exponents.
     """
 
-    _pinfo = {'a': ('', True), 'b': ('', True), 'c': ('', True),
-              'd': ('', True), 'Pc': ('#', False), 'Tc': ('K', False)}
+    _pinfo = {
+        "a": ("", True),
+        "b": ("", True),
+        "c": ("", True),
+        "d": ("", True),
+        "Pc": ("#", False),
+        "Tc": ("K", False),
+    }
 
-    def __init__(self,
-                 a: float,
-                 b: float,
-                 c: float,
-                 d: float,
-                 Pc: float,
-                 Tc: float,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = 'Pa',
-                 symbol: str = 'P^*',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        a: float,
+        b: float,
+        c: float,
+        d: float,
+        Pc: float,
+        Tc: float,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "Pa",
+        symbol: str = "P^*",
+        name: str = "",
+    ) -> None:
 
-        self.p = {'a': a, 'b': b, 'c': c, 'd': d, 'Pc': Pc, 'Tc': Tc}
+        self.p = {"a": a, "b": b, "c": c, "d": d, "Pc": Pc, "Tc": Tc}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 a: float,
-                 b: float,
-                 c: float,
-                 d: float,
-                 Pc: float,
-                 Tc: float,
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        a: float,
+        b: float,
+        c: float,
+        d: float,
+        Pc: float,
+        Tc: float,
+    ) -> float | FloatArray:
         r"""Wagner equation.
 
         Parameters
@@ -223,9 +241,9 @@ class Wagner25(PropertyEquationT):
         float | FloatArray
             Vapor pressure [=Pc].
         """
-        Tr = T/Tc
+        Tr = T / Tc
         t = 1 - Tr
-        return Pc*exp((a*t + b*t**1.5 + c*t**2.5 + d*t**5)/Tr)
+        return Pc * exp((a * t + b * t**1.5 + c * t**2.5 + d * t**5) / Tr)
 
 
 class Wagner36(PropertyEquationT):
@@ -276,41 +294,49 @@ class Wagner36(PropertyEquationT):
     name : str
         Name.
 
-    See also
+    See Also
     --------
     * [`Wagner25`](./#polykin.properties.equations.vapor_pressure.Wagner25):
       similar method, with different exponents.
     """
 
-    _pinfo = {'a': ('', True), 'b': ('', True), 'c': ('', True),
-              'd': ('', True), 'Pc': ('#', False), 'Tc': ('K', False)}
+    _pinfo = {
+        "a": ("", True),
+        "b": ("", True),
+        "c": ("", True),
+        "d": ("", True),
+        "Pc": ("#", False),
+        "Tc": ("K", False),
+    }
 
-    def __init__(self,
-                 a: float,
-                 b: float,
-                 c: float,
-                 d: float,
-                 Pc: float,
-                 Tc: float,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 unit: str = 'Pa',
-                 symbol: str = 'P^*',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        a: float,
+        b: float,
+        c: float,
+        d: float,
+        Pc: float,
+        Tc: float,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        unit: str = "Pa",
+        symbol: str = "P^*",
+        name: str = "",
+    ) -> None:
 
-        self.p = {'a': a, 'b': b, 'c': c, 'd': d, 'Pc': Pc, 'Tc': Tc}
+        self.p = {"a": a, "b": b, "c": c, "d": d, "Pc": Pc, "Tc": Tc}
         super().__init__((Tmin, Tmax), unit, symbol, name)
 
     @staticmethod
-    def equation(T: float | FloatArray,
-                 a: float,
-                 b: float,
-                 c: float,
-                 d: float,
-                 Pc: float,
-                 Tc: float,
-                 ) -> float | FloatArray:
+    def equation(
+        T: float | FloatArray,
+        a: float,
+        b: float,
+        c: float,
+        d: float,
+        Pc: float,
+        Tc: float,
+    ) -> float | FloatArray:
         r"""Wagner equation.
 
         Parameters
@@ -335,6 +361,6 @@ class Wagner36(PropertyEquationT):
         float | FloatArray
             Vapor pressure [=Pc].
         """
-        Tr = T/Tc
+        Tr = T / Tc
         t = 1 - Tr
-        return Pc*exp((a*t + b*t**1.5 + c*t**3 + d*t**6)/Tr)
+        return Pc * exp((a * t + b * t**1.5 + c * t**3 + d * t**6) / Tr)

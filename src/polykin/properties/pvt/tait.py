@@ -13,19 +13,22 @@ from numpy import log as ln
 
 from polykin.properties.pvt.io import load_PVT_parameters
 from polykin.utils.math import eps
-from polykin.utils.tools import (check_bounds, convert_check_pressure,
-                                 convert_check_temperature)
+from polykin.utils.tools import (
+    check_bounds,
+    convert_check_pressure,
+    convert_check_temperature,
+)
 from polykin.utils.types import FloatArray, FloatVectorLike
 
-__all__ = ['Tait']
+__all__ = ["Tait"]
 
 
-class Tait():
+class Tait:
     r"""Tait equation of state for the specific volume of a liquid.
 
     This EoS implements the following explicit PVT dependence:
 
-    $$ \hat{v}(T,P) = \hat{v}(T,0) 
+    $$ \hat{v}(T,P) = \hat{v}(T,0)
        \left[1 - C \ln \left( 1 + \frac{P}{B(T)} \right) \right] $$
 
     with:
@@ -80,31 +83,32 @@ class Tait():
 
     _C = 0.0894
 
-    def __init__(self,
-                 A0: float,
-                 A1: float,
-                 A2: float,
-                 B0: float,
-                 B1: float,
-                 Tmin: float = 0.0,
-                 Tmax: float = np.inf,
-                 Pmin: float = 0.0,
-                 Pmax: float = np.inf,
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        A0: float,
+        A1: float,
+        A2: float,
+        B0: float,
+        B1: float,
+        Tmin: float = 0.0,
+        Tmax: float = np.inf,
+        Pmin: float = 0.0,
+        Pmax: float = np.inf,
+        name: str = "",
+    ) -> None:
 
         # Check bounds
-        check_bounds(A0, 1e-4, 2e-3, 'A0')
-        check_bounds(A1, 1e-7, 2e-6, 'A1')
-        check_bounds(A2, -2e-9, 1e-8, 'A2')
-        check_bounds(B0, 1e7, 1e9, 'B0')
-        check_bounds(B1, 1e-3, 2e-2, 'B1')
-        check_bounds(Tmin, 0, np.inf, 'Tmin')
-        check_bounds(Tmax, 0, np.inf, 'Tmax')
-        check_bounds(Tmax-Tmin, eps, np.inf, 'Tmax-Tmin')
-        check_bounds(Pmin, 0, np.inf, 'Pmin')
-        check_bounds(Pmax, 0, np.inf, 'Pmax')
-        check_bounds(Pmax-Pmin, eps, np.inf, 'Pmax-Pmin')
+        check_bounds(A0, 1e-4, 2e-3, "A0")
+        check_bounds(A1, 1e-7, 2e-6, "A1")
+        check_bounds(A2, -2e-9, 1e-8, "A2")
+        check_bounds(B0, 1e7, 1e9, "B0")
+        check_bounds(B1, 1e-3, 2e-2, "B1")
+        check_bounds(Tmin, 0, np.inf, "Tmin")
+        check_bounds(Tmax, 0, np.inf, "Tmax")
+        check_bounds(Tmax - Tmin, eps, np.inf, "Tmax-Tmin")
+        check_bounds(Pmin, 0, np.inf, "Pmin")
+        check_bounds(Pmax, 0, np.inf, "Pmax")
+        check_bounds(Pmax - Pmin, eps, np.inf, "Pmax-Pmin")
 
         self.A0 = A0
         self.A1 = A1
@@ -116,6 +120,7 @@ class Tait():
         self.name = name
 
     def __repr__(self) -> str:
+        """Return a string representation of the Tait equation object."""
         return (
             f"name         : {self.name}\n"
             f"symbol       : {self.symbol}\n"
@@ -129,10 +134,11 @@ class Tait():
             f"B1 [K⁻¹]     : {self.B1}"
         )
 
-    def eval(self,
-             T: float | FloatArray,
-             P: float | FloatArray
-             ) -> float | FloatArray:
+    def eval(
+        self,
+        T: float | FloatArray,
+        P: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Evaluate the specific volume, $\hat{v}$, at given SI conditions
         without unit conversions or checks.
 
@@ -149,14 +155,12 @@ class Tait():
             Specific volume [m³/kg].
         """
         TC = T - 273.15
-        v0 = self.A0 + self.A1*TC + self.A2*TC**2
+        v0 = self.A0 + self.A1 * TC + self.A2 * TC**2
         B = self._B(T)
-        v = v0*(1 - self._C*ln(1 + P/B))
+        v = v0 * (1 - self._C * ln(1 + P / B))
         return v
 
-    def _B(self,
-           T: float | FloatArray
-           ) -> float | FloatArray:
+    def _B(self, T: float | FloatArray) -> float | FloatArray:
         r"""Parameter B(T).
 
         Parameters
@@ -169,15 +173,16 @@ class Tait():
         float | FloatArray
             B(T) [Pa].
         """
-        return self.B0*exp(-self.B1*(T - 273.15))
+        return self.B0 * exp(-self.B1 * (T - 273.15))
 
-    def alpha(self,
-              T: float | FloatArray,
-              P: float | FloatArray
-              ) -> float | FloatArray:
+    def alpha(
+        self,
+        T: float | FloatArray,
+        P: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Calculate the thermal expansion coefficient, $\alpha$.
 
-        $$ \alpha = \frac{1}{\hat{v}} 
+        $$ \alpha = \frac{1}{\hat{v}}
                     \left( \frac{\partial \hat{v}}{\partial T} \right)_{P} $$
 
         Parameters
@@ -196,13 +201,14 @@ class Tait():
         A1 = self.A1
         A2 = self.A2
         TC = T - 273.15
-        alpha0 = (A1 + 2*A2*TC)/(A0 + A1*TC + A2*TC**2)
-        return alpha0 - P*self.B1*self.beta(T, P)
+        alpha0 = (A1 + 2 * A2 * TC) / (A0 + A1 * TC + A2 * TC**2)
+        return alpha0 - P * self.B1 * self.beta(T, P)
 
-    def beta(self,
-             T: float | FloatArray,
-             P: float | FloatArray
-             ) -> float | FloatArray:
+    def beta(
+        self,
+        T: float | FloatArray,
+        P: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Calculate the isothermal compressibility coefficient, $\beta$.
 
         $$ \beta = -\frac{1}{\hat{v}}
@@ -221,14 +227,15 @@ class Tait():
             Isothermal compressibility coefficient, $\beta$ [Pa⁻¹].
         """
         B = self._B(T)
-        return (self._C/(P + B))/(1 - self._C*ln(1 + P/B))
+        return (self._C / (P + B)) / (1 - self._C * ln(1 + P / B))
 
-    def vs(self,
-           T: float | FloatVectorLike,
-           P: float | FloatVectorLike,
-           Tunit: Literal['C', 'K'] = 'K',
-           Punit: Literal['bar', 'MPa', 'Pa'] = 'Pa'
-           ) -> float | FloatArray:
+    def vs(
+        self,
+        T: float | FloatVectorLike,
+        P: float | FloatVectorLike,
+        Tunit: Literal["C", "K"] = "K",
+        Punit: Literal["bar", "MPa", "Pa"] = "Pa",
+    ) -> float | FloatArray:
         r"""Evaluate the specific volume, $\hat{v}$, at given temperature and
         pressure, including unit conversion and range check.
 
@@ -253,9 +260,7 @@ class Tait():
         return self.eval(TK, Pa)
 
     @classmethod
-    def from_database(cls,
-                      name: str
-                      ) -> Tait | None:
+    def from_database(cls, name: str) -> Tait | None:
         r"""Construct `Tait` with parameters from the database.
 
         Parameters
@@ -271,7 +276,8 @@ class Tait():
         except IndexError:
             print(
                 f"Error: '{name}' does not exist in polymer database.\n"
-                f"Valid names are: {table.index.to_list()}")
+                f"Valid names are: {table.index.to_list()}"
+            )
 
     @classmethod
     def get_database(cls) -> pd.DataFrame:

@@ -10,20 +10,26 @@ from scipy.integrate import solve_ivp
 
 from polykin.utils.exceptions import ODESolverError, ShapeError
 from polykin.utils.math import eps
-from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
-                                 FloatSquareMatrix, FloatVector,
-                                 FloatVectorLike, IntArrayLike)
+from polykin.utils.types import (
+    FloatArray,
+    FloatArrayLike,
+    FloatMatrix,
+    FloatSquareMatrix,
+    FloatVector,
+    FloatVectorLike,
+    IntArrayLike,
+)
 
 __all__ = [
-    'convert_Qe_to_r',
-    'inst_copolymer_ternary',
-    'inst_copolymer_multi',
-    'radical_fractions_ternary',
-    'radical_fractions_multi',
-    'monomer_drift_multi',
-    'sequence_multi',
-    'transitions_multi',
-    'tuples_multi'
+    "convert_Qe_to_r",
+    "inst_copolymer_ternary",
+    "inst_copolymer_multi",
+    "radical_fractions_ternary",
+    "radical_fractions_multi",
+    "monomer_drift_multi",
+    "sequence_multi",
+    "transitions_multi",
+    "tuples_multi",
 ]
 
 
@@ -89,7 +95,7 @@ def inst_copolymer_ternary(
     tuple[float | FloatArray, ...]
         Instantaneous terpolymer composition, $(F_1, F_2, F_3)$.
 
-    See also
+    See Also
     --------
     * [`inst_copolymer_binary`](inst_copolymer_binary.md):
       specific method for binary systems.
@@ -104,23 +110,22 @@ def inst_copolymer_ternary(
     >>> print(f"F1 = {F1:.2f}; F2 = {F2:.2f}; F3 = {F3:.2f}")
     F1 = 0.32; F2 = 0.41; F3 = 0.27
     """
-
     f1 = np.asarray(f1, dtype=float)
     f2 = np.asarray(f2, dtype=float)
 
     f3 = 1.0 - (f1 + f2)
 
-    a = f1/(r21*r31) + f2/(r21*r32) + f3/(r31*r23)
-    b = f1 + f2/r12 + f3/r13
-    c = f1/(r12*r31) + f2/(r12*r32) + f3/(r13*r32)
-    d = f2 + f1/r21 + f3/r23
-    e = f1/(r13*r21) + f2/(r23*r12) + f3/(r13*r23)
-    g = f3 + f1/r31 + f2/r32
+    a = f1 / (r21 * r31) + f2 / (r21 * r32) + f3 / (r31 * r23)
+    b = f1 + f2 / r12 + f3 / r13
+    c = f1 / (r12 * r31) + f2 / (r12 * r32) + f3 / (r13 * r32)
+    d = f2 + f1 / r21 + f3 / r23
+    e = f1 / (r13 * r21) + f2 / (r23 * r12) + f3 / (r13 * r23)
+    g = f3 + f1 / r31 + f2 / r32
 
-    denominator = f1*a*b + f2*c*d + f3*e*g
+    denominator = f1 * a * b + f2 * c * d + f3 * e * g
 
-    F1 = f1*a*b/denominator
-    F2 = f2*c*d/denominator
+    F1 = f1 * a * b / denominator
+    F2 = f2 * c * d / denominator
     F3 = 1.0 - (F1 + F2)
 
     return (F1, F2, F3)
@@ -129,7 +134,7 @@ def inst_copolymer_ternary(
 def inst_copolymer_multi(
     f: FloatVectorLike | None,
     r: FloatSquareMatrix | None,
-    P: FloatSquareMatrix | None = None
+    P: FloatSquareMatrix | None = None,
 ) -> FloatVector:
     r"""Calculate the instantaneous copolymer composition for a multicomponent
     system.
@@ -182,7 +187,7 @@ def inst_copolymer_multi(
     FloatVector (N)
         Vector of instantaneous copolymer compositions, $F_i$.
 
-    See also
+    See Also
     --------
     * [`inst_copolymer_binary`](inst_copolymer_binary.md):
       specific method for binary systems.
@@ -213,7 +218,6 @@ def inst_copolymer_multi(
     >>> F
     array([0.32138111, 0.41041608, 0.26820282])
     """
-
     if P is not None and (f is None and r is None):
         pass
     elif P is None and (f is not None and r is not None):
@@ -290,7 +294,7 @@ def radical_fractions_ternary(
     tuple[float | FloatArray, ...]
         Radical fractions, $(p_1, p_2, p_3)$.
 
-    See also
+    See Also
     --------
     * [`radical_fractions_multi`](radical_fractions_multi.md):
       generic method for multicomponent systems.
@@ -304,14 +308,13 @@ def radical_fractions_ternary(
     >>> print(f"p1 = {p1:.2f}; p2 = {p2:.2f}; p3 = {p3:.2f}")
     p1 = 0.25; p2 = 0.48; p3 = 0.27
     """
-
     f1 = np.asarray(f1, dtype=float)
     f2 = np.asarray(f2, dtype=float)
     f3 = 1.0 - (f1 + f2)
 
-    p1 = k21*k31*f1**2 + k21*k32*f1*f2 + k23*k31*f1*f3
-    p2 = k12*k31*f1*f2 + k12*k32*f2**2 + k13*k32*f2*f3
-    p3 = k12*k23*f2*f3 + k13*k21*f1*f3 + k13*k23*f3**2
+    p1 = k21 * k31 * f1**2 + k21 * k32 * f1 * f2 + k23 * k31 * f1 * f3
+    p2 = k12 * k31 * f1 * f2 + k12 * k32 * f2**2 + k13 * k32 * f2 * f3
+    p3 = k12 * k23 * f2 * f3 + k13 * k21 * f1 * f3 + k13 * k23 * f3**2
 
     denominator = p1 + p2 + p3
 
@@ -351,7 +354,7 @@ def radical_fractions_multi(
     FloatVector (N)
         Vector of radical fractions, $p_i$.
 
-    See also
+    See Also
     --------
     * [`radical_fractions_ternary`](radical_fractions_ternary.md):
       specific method for terpolymer systems.
@@ -394,7 +397,7 @@ def monomer_drift_multi(
     x: FloatVectorLike,
     r: FloatSquareMatrix,
     atol: float = 1e-4,
-    rtol: float = 1e-4
+    rtol: float = 1e-4,
 ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a multicomponent system.
 
@@ -427,9 +430,9 @@ def monomer_drift_multi(
         Matrix of monomer fraction of monomer $i$ at the specified total
         monomer conversions, $f_i(x_j)$.
 
-    See also
+    See Also
     --------
-    * [`inst_copolymer_multi`](inst_copolymer_multi.md): 
+    * [`inst_copolymer_multi`](inst_copolymer_multi.md):
       instantaneous copolymer composition.
     * [`monomer_drift_multi`](monomer_drift_multi.md):
       specific method for binary systems.
@@ -459,7 +462,6 @@ def monomer_drift_multi(
            [4.98294381e-01, 1.22646553e-07, 5.01705497e-01]])
 
     """
-
     N = len(f0)
     if r.shape != (N, N):
         raise ShapeError("Shape mismatch between `f0` and `r`.")
@@ -468,13 +470,15 @@ def monomer_drift_multi(
         F = inst_copolymer_multi(f=np.append(f, 1.0 - f.sum()), r=r)
         return (f - F[:-1]) / (1.0 - x + eps)
 
-    sol = solve_ivp(dfdx,
-                    t_span=(0.0, max(x)),
-                    y0=f0[:-1],
-                    t_eval=x,
-                    atol=atol,
-                    rtol=rtol,
-                    method='LSODA')
+    sol = solve_ivp(
+        dfdx,
+        t_span=(0.0, max(x)),
+        y0=f0[:-1],
+        t_eval=x,
+        atol=atol,
+        rtol=rtol,
+        method="LSODA",
+    )
 
     if sol.success:
         f = np.empty((len(x), N))
@@ -488,7 +492,7 @@ def monomer_drift_multi(
 
 def transitions_multi(
     f: FloatVectorLike,
-    r: FloatSquareMatrix
+    r: FloatSquareMatrix,
 ) -> FloatSquareMatrix:
     r"""Calculate the instantaneous transition probabilities for a
     multicomponent system.
@@ -519,7 +523,7 @@ def transitions_multi(
     FloatSquareMatrix (N, N)
         Matrix of transition probabilities, $P_{ij}$.
 
-    See also
+    See Also
     --------
     * [`inst_copolymer_multi`](inst_copolymer_multi.md):
       instantaneous copolymer composition.
@@ -558,7 +562,7 @@ def transitions_multi(
     # for i in range(N):
     #     for j in range(N):
     #         P[i, j] = f[j]/r[i, j] / np.sum(f/r[i, :])
-    P = (f/r) / np.sum(f/r, axis=1)[:, np.newaxis]
+    P = (f / r) / np.sum(f / r, axis=1)[:, np.newaxis]
 
     return P
 
@@ -602,7 +606,7 @@ def sequence_multi(
         If `k is None`, the number-average sequence lengths, $\bar{S}_i$.
         Otherwise, the sequence probabilities, $S_{i,k}$.
 
-    See also
+    See Also
     --------
     * [`transitions_multi`](transitions_multi.md):
       instantaneous transition probabilities.
@@ -643,17 +647,16 @@ def sequence_multi(
            [0.79069767, 0.00151742]])
 
     """
-
     Pself = np.asarray(Pself, dtype=float)
 
     if k is None:
-        S = 1/(1.0 - Pself + eps)
+        S = 1 / (1.0 - Pself + eps)
     else:
         if isinstance(k, (list, tuple)):
             k = np.array(k, dtype=int)
         if isinstance(k, np.ndarray):
             Pself = Pself.reshape(-1, 1)
-        S = (1.0 - Pself)*Pself**(k - 1)
+        S = (1.0 - Pself) * Pself ** (k - 1)
 
     return S
 
@@ -661,7 +664,7 @@ def sequence_multi(
 def tuples_multi(
     P: FloatSquareMatrix,
     n: int,
-    F: FloatVectorLike | None = None
+    F: FloatVectorLike | None = None,
 ) -> dict[tuple[int, ...], float]:
     r"""Calculate the instantaneous n-tuple fractions.
 
@@ -697,7 +700,7 @@ def tuples_multi(
     dict[tuple[int, ...], float]
         Tuple of molar fractions.
 
-    See also
+    See Also
     --------
     * [`sequence_multi`](sequence_multi.md):
       instantaneous sequence lengths.
@@ -731,7 +734,6 @@ def tuples_multi(
     0.06365013630778116
 
     """
-
     # Compute F if not given
     if F is None:
         F = inst_copolymer_multi(f=None, r=None, P=P)
@@ -744,9 +746,9 @@ def tuples_multi(
     for idx in indexes:
         # Compute tuple probability
         P_product = 1.0
-        for j in range(n-1):
-            P_product *= P[idx[j], idx[j+1]]
-        A = F[idx[0]]*P_product
+        for j in range(n - 1):
+            P_product *= P[idx[j], idx[j + 1]]
+        A = F[idx[0]] * P_product
         # Add probability to dict, but combine symmetric tuples: 12 <- 12 + 21
         reversed_idx = idx[::-1]
         if reversed_idx in result.keys():
@@ -758,7 +760,7 @@ def tuples_multi(
 
 
 def convert_Qe_to_r(
-    Qe_values: list[tuple[float, float]]
+    Qe_values: list[tuple[float, float]],
 ) -> FloatSquareMatrix:
     r"""Convert Q-e values to reactivity ratios.
 
@@ -802,7 +804,6 @@ def convert_Qe_to_r(
            [2.42325444e-02, 1.08066091e-02, 1.00000000e+00]])
 
     """
-
     Q = [x[0] for x in Qe_values]
     e = [x[1] for x in Qe_values]
     N = len(Q)
@@ -810,6 +811,6 @@ def convert_Qe_to_r(
     r = np.empty((N, N))
     for i in range(N):
         for j in range(N):
-            r[i, j] = Q[i]/Q[j]*exp(-e[i]*(e[i] - e[j]))
+            r[i, j] = Q[i] / Q[j] * exp(-e[i] * (e[i] - e[j]))
 
     return r

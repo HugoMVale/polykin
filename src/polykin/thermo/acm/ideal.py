@@ -8,7 +8,7 @@ from polykin.utils.types import FloatVector
 
 from .base import SmallSpeciesActivityModel
 
-__all__ = ['IdealSolution']
+__all__ = ["IdealSolution"]
 
 
 class IdealSolution(SmallSpeciesActivityModel):
@@ -27,10 +27,7 @@ class IdealSolution(SmallSpeciesActivityModel):
         Name.
     """
 
-    def __init__(self,
-                 N: int,
-                 name: str = ''
-                 ) -> None:
+    def __init__(self, N: int, name: str = "") -> None:
 
         super().__init__(N, name)
 

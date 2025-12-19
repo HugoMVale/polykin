@@ -2,8 +2,6 @@
 #
 # Copyright Hugo Vale 2024
 
-"""
-This module implements methods for emulsion polymerization systems.
-"""
+"""Implement methods for emulsion polymerization systems."""
 
 from .nbar import *

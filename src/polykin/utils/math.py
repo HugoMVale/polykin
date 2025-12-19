@@ -29,9 +29,9 @@ from .types import (
 )
 
 _finfo = np.finfo(np.float64)
-eps = _finfo.eps
-huge = _finfo.max
-tiny = _finfo.tiny
+eps = float(_finfo.eps)
+huge = float(_finfo.max)
+tiny = float(_finfo.tiny)
 
 
 def add_dicts(

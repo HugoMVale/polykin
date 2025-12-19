@@ -18,6 +18,7 @@ def ode_rk(
     tf: float,
     y0: float,
     h: float,
+    *,
     order: Literal[1, 2, 4] = 1,
 ) -> float:
     r"""Integrate an ODE using a fixed-step Runge-Kutta scheme.

@@ -2,7 +2,8 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import Iterable, Literal
+from collections.abc import Iterable
+from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,14 +12,18 @@ from matplotlib.figure import Figure
 from numpy import exp
 from scipy.constants import R as Rgas
 
-from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
-                                 convert_check_temperature)
+from polykin.utils.tools import (
+    check_bounds,
+    check_in_set,
+    check_valid_range,
+    convert_check_temperature,
+)
 from polykin.utils.types import FloatArray, FloatArrayLike
 
-__all__ = ['VrentasDudaBinary']
+__all__ = ["VrentasDudaBinary"]
 
 
-class VrentasDudaBinary():
+class VrentasDudaBinary:
     r"""Vrentas-Duda free volume model for the diffusivity of binary polymer
     solutions.
 
@@ -122,37 +127,38 @@ class VrentasDudaBinary():
     X: float
     unit: str
 
-    def __init__(self,
-                 D0: float,
-                 E: float,
-                 v1star: float,
-                 v2star: float,
-                 z: float,
-                 K11: float,
-                 K12: float,
-                 K21: float,
-                 K22: float,
-                 Tg1: float = 0.0,
-                 Tg2: float = 0.0,
-                 y: float = 1.0,
-                 X: float = 0.5,
-                 unit: str = 'm²/s',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        D0: float,
+        E: float,
+        v1star: float,
+        v2star: float,
+        z: float,
+        K11: float,
+        K12: float,
+        K21: float,
+        K22: float,
+        Tg1: float = 0.0,
+        Tg2: float = 0.0,
+        y: float = 1.0,
+        X: float = 0.5,
+        unit: str = "m²/s",
+        name: str = "",
+    ) -> None:
 
-        check_bounds(D0, 0.0, np.inf, 'D0')
-        check_bounds(E, 0.0, np.inf, 'E')
-        check_bounds(v1star, 0.0, np.inf, 'v1star')
-        check_bounds(v2star, 0.0, np.inf, 'v2star')
-        check_bounds(z, 0.0, np.inf, 'z')
-        check_bounds(K11, 0.0, np.inf, 'K11')
-        check_bounds(K12, 0.0, np.inf, 'K12')
-        check_bounds(K21, -np.inf, np.inf, 'K21')
-        check_bounds(K22, -np.inf, np.inf, 'K22')
-        check_bounds(Tg1, 0.0, np.inf, 'Tg1')
-        check_bounds(Tg2, 0.0, np.inf, 'Tg2')
-        check_bounds(y, 0.5, 1.0, 'y')
-        check_bounds(X, -10, 10, 'X')
+        check_bounds(D0, 0.0, np.inf, "D0")
+        check_bounds(E, 0.0, np.inf, "E")
+        check_bounds(v1star, 0.0, np.inf, "v1star")
+        check_bounds(v2star, 0.0, np.inf, "v2star")
+        check_bounds(z, 0.0, np.inf, "z")
+        check_bounds(K11, 0.0, np.inf, "K11")
+        check_bounds(K12, 0.0, np.inf, "K12")
+        check_bounds(K21, -np.inf, np.inf, "K21")
+        check_bounds(K22, -np.inf, np.inf, "K22")
+        check_bounds(Tg1, 0.0, np.inf, "Tg1")
+        check_bounds(Tg2, 0.0, np.inf, "Tg2")
+        check_bounds(y, 0.5, 1.0, "y")
+        check_bounds(X, -10, 10, "X")
 
         self.D0 = D0
         self.E = E
@@ -171,6 +177,7 @@ class VrentasDudaBinary():
         self.name = name
 
     def __repr__(self) -> str:
+        """Return a string representation of the model parameters."""
         return (
             f"name: {self.name}\n"
             f"unit: {self.unit}\n"
@@ -189,12 +196,13 @@ class VrentasDudaBinary():
             f"𝜒:    {self.X}"
         )
 
-    def __call__(self,
-                 w1: float | FloatArrayLike,
-                 T: float | FloatArrayLike,
-                 Tunit: Literal['C', 'K'] = 'K',
-                 selfd: bool = False
-                 ) -> float | FloatArray:
+    def __call__(
+        self,
+        w1: float | FloatArrayLike,
+        T: float | FloatArrayLike,
+        Tunit: Literal["C", "K"] = "K",
+        selfd: bool = False,
+    ) -> float | FloatArray:
         r"""Evaluate solvent self-diffusion, $D_1$, or mutual diffusion
         coefficient, $D$, at given solvent content and temperature, including
         unit conversion and range check.
@@ -219,7 +227,7 @@ class VrentasDudaBinary():
         if isinstance(w1, (list, tuple)):
             w1 = np.array(w1, dtype=float)
 
-        check_bounds(w1, 0.0, 1.0, 'w1')
+        check_bounds(w1, 0.0, 1.0, "w1")
 
         TK = convert_check_temperature(T, Tunit)
         if selfd:
@@ -227,10 +235,11 @@ class VrentasDudaBinary():
         else:
             return self.mutual(w1, TK)
 
-    def selfd(self,
-              w1: float | FloatArray,
-              T: float | FloatArray
-              ) -> float | FloatArray:
+    def selfd(
+        self,
+        w1: float | FloatArray,
+        T: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Evaluate solvent self-diffusion coefficient, $D_1$, at given SI
         conditions, without unit conversions or checks.
 
@@ -246,7 +255,6 @@ class VrentasDudaBinary():
         float | FloatArray
             Solvent self-diffusion coefficient, $D_1$.
         """
-
         D0 = self.D0
         E = self.E
         V1star = self.v1star
@@ -261,15 +269,21 @@ class VrentasDudaBinary():
         y = self.y
 
         w2 = 1 - w1
-        D1 = D0*exp(-E/(Rgas*T)) * \
-            exp(-(w1*V1star + w2*z*V2star) /
-                (w1*(K11/y)*(K21 - Tg1 + T) + w2*(K12/y)*(K22 - Tg2 + T)))
+        D1 = (
+            D0
+            * exp(-E / (Rgas * T))
+            * exp(
+                -(w1 * V1star + w2 * z * V2star)
+                / (w1 * (K11 / y) * (K21 - Tg1 + T) + w2 * (K12 / y) * (K22 - Tg2 + T))
+            )
+        )
         return D1
 
-    def mutual(self,
-               w1: float | FloatArray,
-               T: float | FloatArray
-               ) -> float | FloatArray:
+    def mutual(
+        self,
+        w1: float | FloatArray,
+        T: float | FloatArray,
+    ) -> float | FloatArray:
         r"""Evaluate mutual diffusion coefficient, $D$, at given SI conditions,
         without unit conversions or checks.
 
@@ -287,19 +301,20 @@ class VrentasDudaBinary():
         """
         D1 = self.selfd(w1, T)
         X = self.X
-        D = D1 * (1 - w1)**2 * (1 - 2*X*w1)
+        D = D1 * (1 - w1) ** 2 * (1 - 2 * X * w1)
         return D
 
-    def plot(self,
-             T: float | FloatArrayLike,
-             w1range: tuple[float, float] = (0.0, 0.5),
-             Tunit: Literal['C', 'K'] = 'K',
-             selfd: bool = False,
-             title: str | None = None,
-             ylim: tuple[float, float] | None = None,
-             axes: Axes | None = None,
-             return_objects: bool = False
-             ) -> tuple[Figure | None, Axes] | None:
+    def plot(
+        self,
+        T: float | FloatArrayLike,
+        w1range: tuple[float, float] = (0.0, 0.5),
+        Tunit: Literal["C", "K"] = "K",
+        selfd: bool = False,
+        title: str | None = None,
+        ylim: tuple[float, float] | None = None,
+        axes: Axes | None = None,
+        return_objects: bool = False,
+    ) -> tuple[Figure | None, Axes] | None:
         """Plot the mutual or self-diffusion coefficient as a function of
         solvent content and temperature.
 
@@ -330,10 +345,9 @@ class VrentasDudaBinary():
         tuple[Figure | None, Axes] | None
             Figure and Axes objects if return_objects is `True`.
         """
-
         # Check inputs
-        check_in_set(Tunit, {'K', 'C'}, 'Tunit')
-        check_valid_range(w1range, 0.0, 1.0, 'w1range')
+        check_in_set(Tunit, {"K", "C"}, "Tunit")
+        check_valid_range(w1range, 0.0, 1.0, "w1range")
 
         # Plot objects
         if axes is None:
@@ -347,8 +361,8 @@ class VrentasDudaBinary():
             ax = axes
 
         Tsymbol = Tunit
-        if Tunit == 'C':
-            Tsymbol = '°C'
+        if Tunit == "C":
+            Tsymbol = "°C"
         if not isinstance(T, Iterable):
             T = [T]
 
@@ -374,5 +388,5 @@ class VrentasDudaBinary():
         return NotImplemented
 
 
-class VrentasDudaMulticomponent():
+class VrentasDudaMulticomponent:
     pass

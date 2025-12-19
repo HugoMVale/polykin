@@ -513,7 +513,7 @@ def diffusivity_composite(
     Dd: float,
     Dc: float,
     fd: float,
-    sphericity: float = 1,
+    sphericity: float = 1.0,
 ) -> float:
     r"""Calculate the effective diffusivity of a composite medium containing a
     dispersed particle phase.

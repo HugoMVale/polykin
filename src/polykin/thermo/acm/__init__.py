@@ -2,9 +2,7 @@
 #
 # Copyright Hugo Vale 2024
 
-"""
-This module implements activity models often used in polymer reactor models.
-"""
+"""Implement activity models often used in polymer reactor models."""
 
 from .floryhuggins import *
 from .ideal import *

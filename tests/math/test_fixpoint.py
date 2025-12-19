@@ -9,9 +9,9 @@ from polykin.math.fixpoint import fixpoint_anderson, fixpoint_wegstein
 
 
 def g(x):
-    "Test for vector fixed-point solution methods."
+    """Test for vector fixed-point solution methods."""
     x1, x2 = x
-    return np.array([0.5*np.cos(x1) + 0.1*x2 + 0.5, np.sin(x2) - 0.2*x1 + 1.2])
+    return np.array([0.5 * np.cos(x1) + 0.1 * x2 + 0.5, np.sin(x2) - 0.2 * x1 + 1.2])
 
 
 g.xs = np.array([0.97458605, 1.93830731])

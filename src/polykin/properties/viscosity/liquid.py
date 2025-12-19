@@ -7,15 +7,14 @@ from numpy import cbrt, dot, exp, log
 
 from polykin.utils.types import FloatVectorLike
 
-__all__ = ['MULMX2_Perry']
-
-# %% Mixing rules
+__all__ = ["MULMX2_Perry"]
 
 
-def MULMX2_Perry(x: FloatVectorLike,
-                 mu: FloatVectorLike,
-                 hydrocarbons: bool = False,
-                 ) -> float:
+def MULMX2_Perry(
+    x: FloatVectorLike,
+    mu: FloatVectorLike,
+    hydrocarbons: bool = False,
+) -> float:
     r"""Calculate the viscosity of a liquid mixture from the viscosities of the
     pure components using the mixing rules recommended in Perry's.
 
@@ -57,11 +56,11 @@ def MULMX2_Perry(x: FloatVectorLike,
     >>> print(f"{mu_mix:.2f} cP")
     0.67 cP
     """
-    x = np.asarray(x)
-    mu = np.asarray(mu)
+    x = np.asarray(x, dtype=np.float64)
+    mu = np.asarray(mu, dtype=np.float64)
 
     if hydrocarbons:
-        result = dot(x, cbrt(mu))**3
+        result = dot(x, cbrt(mu)) ** 3
     else:
         result = exp(dot(x, log(mu)))
     return result

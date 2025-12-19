@@ -7,15 +7,14 @@ import numpy as np
 from polykin.properties import quadratic_mixing
 from polykin.utils.types import FloatVectorLike
 
-__all__ = ['KLMX2_Li']
-
-# %% Mixing rules
+__all__ = ["KLMX2_Li"]
 
 
-def KLMX2_Li(w: FloatVectorLike,
-             k: FloatVectorLike,
-             rho: FloatVectorLike,
-             ) -> float:
+def KLMX2_Li(
+    w: FloatVectorLike,
+    k: FloatVectorLike,
+    rho: FloatVectorLike,
+) -> float:
     r"""Calculate the thermal conductivity of a liquid mixture from the
     thermal conductivities of the pure components using the Li mixing rule.
 
@@ -64,13 +63,12 @@ def KLMX2_Li(w: FloatVectorLike,
     >>> print(f"{k_mix:.2e} W/(m·K)")
     1.43e-01 W/(m·K)
     """
+    w = np.asarray(w, dtype=np.float64)
+    k = np.asarray(k, dtype=np.float64)
+    rho = np.asarray(rho, dtype=np.float64)
 
-    w = np.asarray(w)
-    k = np.asarray(k)
-    rho = np.asarray(rho)
-
-    phi = w/rho
+    phi = w / rho
     phi /= phi.sum()
-    K = 2 / (1/k + 1/k[:, np.newaxis])
+    K = 2 / (1 / k + 1 / k[:, np.newaxis])
 
     return quadratic_mixing(phi, K)

@@ -15,7 +15,7 @@ from polykin.utils.types import FloatMatrix, FloatSquareMatrix, FloatVector
 
 from .base import PolymerActivityModel
 
-__all__ = ['PolyNRTL', 'PolyNRTL_a']
+__all__ = ["PolyNRTL", "PolyNRTL_a"]
 
 
 class PolyNRTL(PolymerActivityModel):
@@ -25,13 +25,13 @@ class PolyNRTL(PolymerActivityModel):
     This model is based on the following molar excess Gibbs energy
     expression:
 
-    $$ \frac{g^{E}}{RT} = 
+    $$ \frac{g^{E}}{RT} =
         \sum_i x_i \frac{\displaystyle\sum_j x_j \tau_{ji} G_{ji}}
         {\displaystyle\sum_j x_j G_{ji}} $$
 
     where $x_i$ are the mole fractions, $\tau_{ij}$ are the dimensionless
     interaction parameters, $\alpha_{ij}$ are the non-randomness parameters,
-    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$. 
+    and $G_{ij}=\exp(-\alpha_{ij} \tau_{ij})$.
 
     In this particular implementation, the model parameters are allowed to
     depend on temperature according to the following empirical relationship
@@ -89,20 +89,20 @@ class PolyNRTL(PolymerActivityModel):
     _f: FloatSquareMatrix
     _s: FloatVector
 
-    def __init__(self,
-                 Ns: int,
-                 Np: int,
-                 Nru: int,
-                 a: FloatSquareMatrix | None = None,
-                 b: FloatSquareMatrix | None = None,
-                 c: FloatSquareMatrix | None = None,
-                 d: FloatSquareMatrix | None = None,
-                 e: FloatSquareMatrix | None = None,
-                 f: FloatSquareMatrix | None = None,
-                 s: FloatVector | None = None
-                 ) -> None:
+    def __init__(
+        self,
+        Ns: int,
+        Np: int,
+        Nru: int,
+        a: FloatSquareMatrix | None = None,
+        b: FloatSquareMatrix | None = None,
+        c: FloatSquareMatrix | None = None,
+        d: FloatSquareMatrix | None = None,
+        e: FloatSquareMatrix | None = None,
+        f: FloatSquareMatrix | None = None,
+        s: FloatVector | None = None,
+    ) -> None:
         """Construct `NRTL` with the given parameters."""
-
         # Set default values
         Nseg = Ns + Nru
         if a is None:
@@ -124,21 +124,22 @@ class PolyNRTL(PolymerActivityModel):
         for array in [a, b, c, d, e, f]:
             if array.shape != (Nseg, Nseg):
                 raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}.")
+                    f"The shape of matrix {array} is invalid: {array.shape}."
+                )
 
         # Check bounds (same as Aspen Plus)
-        check_bounds(a, -1e2, 1e2, 'a')
-        check_bounds(b, -3e4, 3e4, 'b')
-        check_bounds(c, 0., 1., 'c')
-        check_bounds(d, -0.02, 0.02, 'd')
+        check_bounds(a, -1e2, 1e2, "a")
+        check_bounds(b, -3e4, 3e4, "b")
+        check_bounds(c, 0.0, 1.0, "c")
+        check_bounds(d, -0.02, 0.02, "d")
 
         # Ensure tau_ii=0
         for array in [a, b, e, f]:
-            np.fill_diagonal(array, 0.)
+            np.fill_diagonal(array, 0.0)
 
         # Ensure alpha_ij=alpha_ji
         for array in [c, d]:
-            np.fill_diagonal(array, 0.)
+            np.fill_diagonal(array, 0.0)
             enforce_symmetry(array)
 
         self._N = Ns + Np
@@ -155,9 +156,7 @@ class PolyNRTL(PolymerActivityModel):
         self._s = s
 
     @functools.cache
-    def alpha(self,
-              T: float
-              ) -> FloatSquareMatrix:
+    def alpha(self, T: float) -> FloatSquareMatrix:
         r"""Compute matrix of non-randomness parameters.
 
         $$ \alpha_{ij} = c_{ij} + d_{ij}(T - 273.15) $$
@@ -172,12 +171,10 @@ class PolyNRTL(PolymerActivityModel):
         FloatSquareMatrix (Nseg,Nseg)
             Non-randomness parameters.
         """
-        return self._c + self._d*(T - 273.15)
+        return self._c + self._d * (T - 273.15)
 
     @functools.cache
-    def tau(self,
-            T: float
-            ) -> FloatSquareMatrix:
+    def tau(self, T: float) -> FloatSquareMatrix:
         r"""Compute the matrix of dimensionless interaction parameters.
 
         $$ \tau_{ij} = a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T $$
@@ -192,12 +189,13 @@ class PolyNRTL(PolymerActivityModel):
         FloatSquareMatrix (Nseg,Nseg)
             Dimensionless interaction parameters.
         """
-        return self._a + self._b/T + self._e*log(T) + self._f*T
+        return self._a + self._b / T + self._e * log(T) + self._f * T
 
-    def _m(self,
-           DP: FloatVector,
-           F: FloatMatrix,
-           ) -> FloatVector:
+    def _m(
+        self,
+        DP: FloatVector,
+        F: FloatMatrix,
+    ) -> FloatVector:
         r"""Compute characteristic component sizes.
 
         Parameters
@@ -214,54 +212,43 @@ class PolyNRTL(PolymerActivityModel):
         s = self._s
         Ns = self._Ns
         m[:Ns] = s[:Ns]
-        m[Ns:] = dot(F, s[Ns:])*DP
+        m[Ns:] = dot(F, s[Ns:]) * DP
         return m
 
-    def gE(self,
-           T: float,
-           xs: FloatVector,
-           DP: FloatVector,
-           F: FloatMatrix
-           ) -> float:
+    def gE(self, T: float, xs: FloatVector, DP: FloatVector, F: FloatMatrix) -> float:
         # Residual NRTL term
         X = self._convert_xs_to_X(xs, F)
         tau = self.tau(T)
         alpha = self.alpha(T)
-        G = exp(-alpha*tau)
-        A = dot(X, G*tau)
+        G = exp(-alpha * tau)
+        A = dot(X, G * tau)
         B = dot(X, G)
-        gR = dot(X, A/B)  # per mole segs
+        gR = dot(X, A / B)  # per mole segs
 
         # Combinatorial FH term
         x = self._convert_xs_to_x(xs, DP)
         m = self._m(DP, F)
-        gC = dot(x, log(m/dot(x, m)))
+        gC = dot(x, log(m / dot(x, m)))
         gC /= dot(x, DP)
 
-        return R*T*(gR + gC)
+        return R * T * (gR + gC)
 
-    def gamma(self,
-              T: float,
-              x: FloatVector
-              ) -> FloatVector:
+    def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 
 
-def PolyNRTL_a(phi: FloatVector,
-               m: FloatVector,
-               chi: FloatSquareMatrix
-               ) -> FloatVector:
+def PolyNRTL_a(phi: FloatVector, m: FloatVector, chi: FloatSquareMatrix) -> FloatVector:
     r"""Calculate the activities of a multicomponent mixture according to the
     Flory-Huggins model.
 
-    $$ 
-    \ln{a_i} = \ln{\phi_i} + 1 - m_i \left(\sum_j \frac{\phi_j}{m_j} - 
+    $$
+    \ln{a_i} = \ln{\phi_i} + 1 - m_i \left(\sum_j \frac{\phi_j}{m_j} -
     \sum_j \phi_j \chi_{ij} + \sum_j \sum_{k>j} \phi_j \phi_k \chi_{jk} \right)
     $$
 
     where $\phi_i$ are the volume, mass or segment fractions of the
     components, $\chi_{ij}$ are the interaction parameters, and $m_i$ is the
-    characteristic size of the components. 
+    characteristic size of the components.
 
     !!! note
 
@@ -299,12 +286,12 @@ def PolyNRTL_a(phi: FloatVector,
     FloatVector
         Activities of all components.
 
-    See also
+    See Also
     --------
     * [`FloryHuggins2_a`](FloryHuggins2_a.md): equivalent method for binary
       solvent-polymer systems.
     """
-    A = dot(phi, 1/m)
+    A = dot(phi, 1 / m)
     B = dot(chi, phi)
-    C = 0.5*dot(phi, dot(phi, chi))
-    return phi*exp(1 - m*(A - B + C))
+    C = 0.5 * dot(phi, dot(phi, chi))
+    return phi * exp(1 - m * (A - B + C))

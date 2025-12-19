@@ -7,18 +7,19 @@ from numpy import exp, sqrt
 
 from polykin.utils.types import FloatVectorLike
 
-__all__ = ['DV_Wilke_Lee', 'DVMX']
+__all__ = ["DV_Wilke_Lee", "DVMX"]
 
 
-def DV_Wilke_Lee(T: float,
-                 P: float,
-                 MA: float,
-                 MB: float,
-                 rhoA: float,
-                 rhoB: float | None,
-                 TA: float,
-                 TB: float | None
-                 ) -> float:
+def DV_Wilke_Lee(
+    T: float,
+    P: float,
+    MA: float,
+    MB: float,
+    rhoA: float,
+    rhoB: float | None,
+    TA: float,
+    TB: float | None,
+) -> float:
     r"""Estimate the mutual diffusion coefficient of a binary gas mixture,
     $D_{AB}$, using the Wilke-Lee method.
 
@@ -91,28 +92,26 @@ def DV_Wilke_Lee(T: float,
     >>> print(f"{D:.2e} m²/s")
     1.37e-05 m²/s
     """
-
-    MAB = 1e3*2/(1/MA + 1/MB)
+    MAB = 1e3 * 2 / (1 / MA + 1 / MB)
 
     # ϵ_AB and σ_AB
-    eA = 1.15*TA
-    sA = 1.18*(1e6*MA/rhoA)**(1/3)
+    eA = 1.15 * TA
+    sA = 1.18 * (1e6 * MA / rhoA) ** (1 / 3)
     if rhoB is None and TB is None:
         # values for air
         sB = 3.62
-        eB = 97.
+        eB = 97.0
     elif rhoB is not None and TB is not None:
-        sB = 1.18*(1e6*MB/rhoB)**(1/3)
-        eB = 1.15*TB
+        sB = 1.18 * (1e6 * MB / rhoB) ** (1 / 3)
+        eB = 1.15 * TB
     else:
-        raise ValueError(
-            "Invalid input. `rhoB` and `TB` must both be None or floats.")
+        raise ValueError("Invalid input. `rhoB` and `TB` must both be None or floats.")
 
-    eAB = sqrt(eA*eB)
-    sAB = (sA + sB)/2
+    eAB = sqrt(eA * eB)
+    sAB = (sA + sB) / 2
 
     # Ω_D
-    Ts = T/eAB
+    Ts = T / eAB
     A = 1.06036
     B = 0.15610
     C = 0.19300
@@ -121,9 +120,9 @@ def DV_Wilke_Lee(T: float,
     F = 1.52996
     G = 1.76474
     H = 3.89411
-    omegaD = A/Ts**B + C/exp(D*Ts) + E/exp(F*Ts) + G/exp(H*Ts)
+    omegaD = A / Ts**B + C / exp(D * Ts) + E / exp(F * Ts) + G / exp(H * Ts)
 
-    return 1e-2*(3.03 - 0.98/sqrt(MAB))*T**1.5 / (P*sqrt(MAB)*sAB**2*omegaD)
+    return 1e-2 * (3.03 - 0.98 / sqrt(MAB)) * T**1.5 / (P * sqrt(MAB) * sAB**2 * omegaD)
 
 
 def DVMX(x: FloatVectorLike, D: FloatVectorLike) -> float:
@@ -145,6 +144,6 @@ def DVMX(x: FloatVectorLike, D: FloatVectorLike) -> float:
     float
         Pseudo-binary diffusion coefficient [m²/s].
     """
-    x = np.asarray(x)
-    D = np.asarray(D)
-    return np.sum(x)/np.sum(x/D)
+    x = np.asarray(x, dtype=np.float64)
+    D = np.asarray(D, dtype=np.float64)
+    return np.sum(x) / np.sum(x / D)

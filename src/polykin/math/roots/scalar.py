@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2024
 
-from typing import Callable
+from collections.abc import Callable
 
 import numpy as np
 
@@ -12,25 +12,27 @@ from polykin.utils.math import eps
 from .results import RootResult
 
 __all__ = [
-    'root_newton',
-    'root_secant',
-    'root_brent',
+    "root_newton",
+    "root_secant",
+    "root_brent",
 ]
 
 
-def root_newton(f: Callable[[complex], complex],
-                x0: float,
-                tolx: float = 1e-6,
-                tolf: float = 1e-6,
-                maxiter: int = 50,
-                verbose: bool = False
-                ) -> RootResult:
+def root_newton(
+    f: Callable[[complex], complex],
+    x0: float,
+    *,
+    tolx: float = 1e-6,
+    tolf: float = 1e-6,
+    maxiter: int = 50,
+    verbose: bool = False,
+) -> RootResult:
     r"""Find the root of a scalar function using the Newton-Raphson method.
 
     The Newton-Raphson method uses the first derivative of the function to
     iteratively find the root according to the formula:
 
-    $$ x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)} $$   
+    $$ x_{k+1} = x_k - \frac{f(x_k)}{f'(x_k)} $$
 
     Unlike the equivalent method in [scipy](https://docs.scipy.org/doc/scipy/reference/optimize.root_scalar-newton.html),
     this method uses complex step differentiation to estimate the derivative of
@@ -77,7 +79,6 @@ def root_newton(f: Callable[[complex], complex],
     >>> print(f"x = {sol.x:.3f}")
     x = 0.213
     """
-
     method = "Newton-Raphson (complex step)"
     success = False
     message = ""
@@ -91,8 +92,7 @@ def root_newton(f: Callable[[complex], complex],
         nfeval += 1
 
         if verbose:
-            print(f"Iteration {k+1}: x = {x}, f(x) = {fx}, df/dx = {dfdx}",
-                  flush=True)
+            print(f"Iteration {k+1}: x = {x}, f(x) = {fx}, df/dx = {dfdx}", flush=True)
 
         if abs(fx) <= tolf:
             message = "|f(x)| ≤ tolf"
@@ -103,9 +103,9 @@ def root_newton(f: Callable[[complex], complex],
             message = f"Nearly zero derivative at x={x} (df/dx={dfdx})."
             break
 
-        Δx = - fx / dfdx
+        Δx = -fx / dfdx
 
-        if (abs(Δx) <= tolx):
+        if abs(Δx) <= tolx:
             message = "|Δx| ≤ tolx"
             success = True
             break
@@ -116,17 +116,19 @@ def root_newton(f: Callable[[complex], complex],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k+1, x, fx)
+    return RootResult(method, success, message, nfeval, k + 1, x, fx)
 
 
-def root_secant(f: Callable[[float], float],
-                x0: float,
-                x1: float,
-                tolx: float = 1e-6,
-                tolf: float = 1e-6,
-                maxiter: int = 50,
-                verbose: bool = False
-                ) -> RootResult:
+def root_secant(
+    f: Callable[[float], float],
+    x0: float,
+    x1: float,
+    *,
+    tolx: float = 1e-6,
+    tolf: float = 1e-6,
+    maxiter: int = 50,
+    verbose: bool = False,
+) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
     The secant method uses two initial guesses and approximates the derivative
@@ -173,7 +175,6 @@ def root_secant(f: Callable[[float], float],
     >>> print(f"x = {sol.x:.3f}")
     x = 0.213
     """
-
     method = "Secant"
     success = False
     message = ""
@@ -200,7 +201,7 @@ def root_secant(f: Callable[[float], float],
             message = f"Nearly zero slope between x[k-1]={x0} and x[k]={x1} (Δf={Δf})."
             break
 
-        x2 = x1 - f1*(x1 - x0) / Δf
+        x2 = x1 - f1 * (x1 - x0) / Δf
 
         f2 = f(x2)
         nfeval += 1
@@ -208,12 +209,12 @@ def root_secant(f: Callable[[float], float],
         if verbose:
             print(f"Iteration {k+1}: x = {x2}, f(x) = {f2}", flush=True)
 
-        if (abs(x2 - x1) <= tolx):
+        if abs(x2 - x1) <= tolx:
             message = "|Δx| ≤ tolx"
             success = True
             break
 
-        if (abs(f2) <= tolf):
+        if abs(f2) <= tolf:
             message = "|f(x)| ≤ tolf"
             success = True
             break
@@ -224,17 +225,19 @@ def root_secant(f: Callable[[float], float],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k+1, x2, f2)
+    return RootResult(method, success, message, nfeval, k + 1, x2, f2)
 
 
-def root_brent(f: Callable[[float], float],
-               xa: float,
-               xb: float,
-               tolx: float = 1e-6,
-               tolf: float = 1e-6,
-               maxiter: int = 50,
-               verbose: bool = False
-               ) -> RootResult:
+def root_brent(
+    f: Callable[[float], float],
+    xa: float,
+    xb: float,
+    *,
+    tolx: float = 1e-6,
+    tolf: float = 1e-6,
+    maxiter: int = 50,
+    verbose: bool = False,
+) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
 
     Brent's method is a root-finding algorithm combining bisection, secant,
@@ -247,8 +250,8 @@ def root_brent(f: Callable[[float], float],
 
     **References**
 
-    * William H. Press, Saul A. Teukolsky, William T. Vetterling, and 
-      Brian P. Flannery. 2007. "Numerical Recipes 3rd Edition: The Art of 
+    * William H. Press, Saul A. Teukolsky, William T. Vetterling, and
+      Brian P. Flannery. 2007. "Numerical Recipes 3rd Edition: The Art of
       Scientific Computing" (3rd. ed.). Cambridge University Press, USA.
 
     Parameters
@@ -286,7 +289,6 @@ def root_brent(f: Callable[[float], float],
     >>> print(f"x = {sol.x:.3f}")
     x = 0.213
     """
-
     method = "Brent"
     success = False
     message = ""
@@ -304,14 +306,14 @@ def root_brent(f: Callable[[float], float],
         message = "|f(xb)| ≤ tolf"
         return RootResult(method, True, message, nfeval, 0, xb, fb)
 
-    if (fa*fb) > 0.0:
+    if (fa * fb) > 0.0:
         raise ValueError("Root is not bracketed.")
 
     xc, fc = xb, fb
 
     for k in range(maxiter):
 
-        if (fb*fc > 0.0):
+        if fb * fc > 0.0:
             xc, fc = xa, fa
             d = xb - xa
             e = d
@@ -324,8 +326,8 @@ def root_brent(f: Callable[[float], float],
         if verbose:
             print(f"Iteration {k+1}: x = {xb}, f(x) = {fb}", flush=True)
 
-        tol1 = 2*eps*abs(xb) + 0.5*tolx
-        m = 0.5*(xc - xb)
+        tol1 = 2 * eps * abs(xb) + 0.5 * tolx
+        m = 0.5 * (xc - xb)
 
         if abs(m) <= tol1:
             message = "|Δx| ≤ tolx"
@@ -338,23 +340,23 @@ def root_brent(f: Callable[[float], float],
             break
 
         if (abs(e) >= tol1) and (abs(fa) > abs(fb)):
-            s = fb/fa
+            s = fb / fa
             if xa == xc:
-                p = 2*m*s
+                p = 2 * m * s
                 q = 1 - s
             else:
-                q = fa/fc
-                r = fb/fc
-                p = s*(2*m*q*(q - r) - (xb - xa)*(r - 1))
-                q = (q - 1)*(r - 1)*(s - 1)
+                q = fa / fc
+                r = fb / fc
+                p = s * (2 * m * q * (q - r) - (xb - xa) * (r - 1))
+                q = (q - 1) * (r - 1) * (s - 1)
             if p > 0:
                 q = -q
             p = abs(p)
-            min1 = 3*m*q - abs(tol1*q)
-            min2 = abs(e*q)
-            if 2*p < min(min1, min2):
+            min1 = 3 * m * q - abs(tol1 * q)
+            min2 = abs(e * q)
+            if 2 * p < min(min1, min2):
                 e = d
-                d = p/q
+                d = p / q
             else:
                 d = m
                 e = d
@@ -374,4 +376,4 @@ def root_brent(f: Callable[[float], float],
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k+1, xb, fb)
+    return RootResult(method, success, message, nfeval, k + 1, xb, fb)

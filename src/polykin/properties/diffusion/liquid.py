@@ -8,9 +8,9 @@ from numpy import pi, sqrt
 from scipy.constants import Boltzmann as kB
 
 __all__ = [
-    'DL_Wilke_Chang',
-    'DL_Hayduk_Minhas',
-    'DL_Stokes_Einstein'
+    "DL_Wilke_Chang",
+    "DL_Hayduk_Minhas",
+    "DL_Stokes_Einstein",
 ]
 
 
@@ -20,7 +20,7 @@ def DL_Wilke_Chang(
     MB: float,
     rhoA: float,
     viscB: float,
-    phi: float = 1.0
+    phi: float = 1.0,
 ) -> float:
     r"""Estimate the infinite-dilution coefficient of a solute A in a liquid
     solvent B, $D^0_{AB}$, using the Wilke-Chang method.
@@ -68,7 +68,7 @@ def DL_Wilke_Chang(
     float
         Diffusion coefficient of A in B at infinite dilution [m²/s].
 
-    See also
+    See Also
     --------
     * [`DL_Hayduk_Minhas`](DL_Hayduk_Minhas.md): alternative method.
 
@@ -88,12 +88,14 @@ def DL_Wilke_Chang(
     >>> print(f"{D:.1e} m²/s")
     1.3e-09 m²/s
     """
-    return 7.4e-12*sqrt(phi*MB*1e3)*T/((viscB*1e3)*(1e6*MA/rhoA)**0.6)
+    return (
+        7.4e-12 * sqrt(phi * MB * 1e3) * T / ((viscB * 1e3) * (1e6 * MA / rhoA) ** 0.6)
+    )
 
 
 def DL_Hayduk_Minhas(
     T: float,
-    method: Literal['paraffin', 'aqueous'],
+    method: Literal["paraffin", "aqueous"],
     MA: float,
     rhoA: float,
     viscB: float,
@@ -125,7 +127,7 @@ def DL_Hayduk_Minhas(
     float
         Diffusion coefficient of A in B at infinite dilution [m²/s].
 
-    See also
+    See Also
     --------
     * [`DL_Wilke_Chang`](DL_Wilke_Chang.md): alternative method.
 
@@ -144,14 +146,14 @@ def DL_Hayduk_Minhas(
     >>> print(f"{D:.1e} m²/s")
     1.3e-09 m²/s
     """
-    VA = 1e6*MA/rhoA
+    VA = 1e6 * MA / rhoA
 
-    if method == 'paraffin':
-        epsilon = 10.2/VA - 0.791
-        DAB0 = 13.3e-12*T**1.47*(viscB*1e3)**epsilon/VA**0.71
-    elif method == 'aqueous':
-        epsilon = 9.58/VA - 1.12
-        DAB0 = 1.25e-12*(VA**-0.19 - 0.292)*T**1.52*(viscB*1e3)**epsilon
+    if method == "paraffin":
+        epsilon = 10.2 / VA - 0.791
+        DAB0 = 13.3e-12 * T**1.47 * (viscB * 1e3) ** epsilon / VA**0.71
+    elif method == "aqueous":
+        epsilon = 9.58 / VA - 1.12
+        DAB0 = 1.25e-12 * (VA**-0.19 - 0.292) * T**1.52 * (viscB * 1e3) ** epsilon
     else:
         raise ValueError(f"Invalid `method` input: {method}")
 
@@ -176,7 +178,7 @@ def DL_Stokes_Einstein(
 
     !!! note
 
-        The Stokes-Einstein equation is only valid for systems where the 
+        The Stokes-Einstein equation is only valid for systems where the
         particle radius $R$ is significantly larger than the radius of the
         fluid molecules. When the particle sizes are comparable, the actual
         diffusion coefficient is typically larger than predicted.
@@ -204,4 +206,4 @@ def DL_Stokes_Einstein(
     >>> print(f"{D:.1e} m²/s")
     2.2e-12 m²/s
     """
-    return kB*T/(6*pi*mu*R)
+    return kB * T / (6 * pi * mu * R)

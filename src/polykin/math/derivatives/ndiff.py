@@ -75,6 +75,7 @@ def derivative_complex(
 def derivative_centered(
     f: Callable[[float], float],
     x: float,
+    *,
     h: float = 0.0,
 ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
@@ -127,6 +128,7 @@ def derivative_centered(
 def jacobian_forward(
     f: Callable[[FloatVector], FloatVector],
     x: FloatVector,
+    *,
     fx: FloatVector | None = None,
     sclx: FloatVector | None = None,
     ndigit: int | None = None,
@@ -203,6 +205,7 @@ def jacobian_forward(
 def hessian_forward(
     f: Callable[[FloatVector], float],
     x: FloatVector,
+    *,
     fx: float | None = None,
     sclx: FloatVector | None = None,
     ndigit: int | None = None,
@@ -306,8 +309,8 @@ def hessian2_centered(
 
     $$
     H(x,y)=\begin{bmatrix}
-    \frac{\partial^2f}{\partial x^2} & \frac{\partial^2f}{\partial x \partial y} \\ 
-    \frac{\partial^2f}{\partial y \partial x} & \frac{\partial^2f}{\partial y^2} 
+    \frac{\partial^2f}{\partial x^2} & \frac{\partial^2f}{\partial x \partial y} \\
+    \frac{\partial^2f}{\partial y \partial x} & \frac{\partial^2f}{\partial y^2}
     \end{bmatrix}
     $$
 
@@ -315,7 +318,7 @@ def hessian2_centered(
     finite-difference schemes:
 
     \begin{aligned}
-    \frac{\partial^2f(x,y)}{\partial x^2} &= 
+    \frac{\partial^2f(x,y)}{\partial x^2} &=
             \frac{f(x+2h,y)-f(x,y)+f(x-2h,y)}{4 h^2} + O(h^2) \\
     \frac{\partial^2f(x,y)}{\partial x \partial y} &=
             \frac{f(x+h,y+h)-f(x+h,y-h)-f(x-h,y+h)+f(x-h,y-h)}{4 h^2} + O(h^2)

@@ -1,5 +1,5 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 import numpy as np
 from numpy import dot, exp, log
@@ -10,23 +10,23 @@ from polykin.utils.tools import colored_bool
 from polykin.utils.types import FloatVector
 
 __all__ = [
-    'FlashResult',
-    'flash2_PV',
-    'flash2_PT',
-    'flash2_TV',
-    'residual_Rachford_Rice',
-    'solve_Rachford_Rice'
+    "FlashResult",
+    "flash2_PV",
+    "flash2_PT",
+    "flash2_TV",
+    "residual_Rachford_Rice",
+    "solve_Rachford_Rice",
 ]
 
 
 @dataclass(frozen=True)
-class FlashResult():
+class FlashResult:
     """Flash result dataclass.
 
     Attributes
     ----------
     method: str
-        Method used to perform the flash calculation.    
+        Method used to perform the flash calculation.
     success : bool
         Flag indicating if the solver converged.
     message: str
@@ -42,16 +42,17 @@ class FlashResult():
     V : float
         Vapor mole flowrate [mol/s].
     beta : float
-        Vapor phase fraction [mol/mol]. 
+        Vapor phase fraction [mol/mol].
     z : FloatVector
         Feed mole fractions [mol/mol].
     x : FloatVector
-        Liquid mole fractions [mol/mol].    
+        Liquid mole fractions [mol/mol].
     y : FloatVector
         Vapor mole fractions [mol/mol].
     K : FloatVector
         K-values.
     """
+
     method: str
     success: bool
     message: str
@@ -67,19 +68,22 @@ class FlashResult():
     K: FloatVector
 
     def __repr__(self) -> str:
-        return (f" method: {self.method}\n"
-                f"success: {colored_bool(self.success)}\n"
-                f"message: {self.message}\n"
-                f"      T: {self.T}\n"
-                f"      P: {self.P}\n"
-                f"      F: {self.F}\n"
-                f"      L: {self.L}\n"
-                f"      V: {self.V}\n"
-                f"   beta: {self.beta}\n"
-                f"      z: {self.z}\n"
-                f"      x: {self.x}\n"
-                f"      y: {self.y}\n"
-                f"      K: {self.K}")
+        """Return a string representation of the flash result."""
+        return (
+            f" method: {self.method}\n"
+            f"success: {colored_bool(self.success)}\n"
+            f"message: {self.message}\n"
+            f"      T: {self.T}\n"
+            f"      P: {self.P}\n"
+            f"      F: {self.F}\n"
+            f"      L: {self.L}\n"
+            f"      V: {self.V}\n"
+            f"   beta: {self.beta}\n"
+            f"      z: {self.z}\n"
+            f"      x: {self.x}\n"
+            f"      y: {self.y}\n"
+            f"      K: {self.K}"
+        )
 
 
 def flash2_PT(
@@ -117,7 +121,7 @@ def flash2_PT(
     beta0 : float | None
         Initial guess for vapor phase fraction [mol/mol].
     maxiter : int
-        Maximum number of iterations.    
+        Maximum number of iterations.
     atol_inner : float
         Absolute tolerance for the inner beta-loop.
     rtol_outer : float
@@ -130,13 +134,12 @@ def flash2_PT(
     FlashResult
         Flash result.
     """
-
     method = "2-Phase PT Flash"
     message = ""
     success = False
 
     # Initial guesses
-    z = z/z.sum()
+    z = z / z.sum()
     x = z
     y = z
     beta = np.nan
@@ -145,15 +148,15 @@ def flash2_PT(
     for _ in range(maxiter):
 
         # Find beta
-        sol = solve_Rachford_Rice(K, z, beta0, maxiter, atol_inner)
+        sol = solve_Rachford_Rice(K, z, beta0, maxiter=maxiter, atol_res=atol_inner)
         beta = sol.beta
         if not sol.success:
             message = f"Inner Rachford-Rice loop did not converge after {maxiter} iterations. Solution: {sol}."
             break
 
         # Compute x, y
-        x = z/(1 + beta*(K - 1))
-        y = K*x
+        x = z / (1 + beta * (K - 1))
+        y = K * x
         x /= x.sum()
         y /= y.sum()
 
@@ -163,19 +166,19 @@ def flash2_PT(
 
         # Check convergence
         k0 = min(k for k in K_new if k > 0)
-        if np.allclose(K_new, K_old, atol=k0*rtol_outer):
+        if np.allclose(K_new, K_old, atol=k0 * rtol_outer):
             success = True
             message = "Outer loop converged within specified tolerance."
             break
         else:
-            K = exp(alpha_outer*log(K_new) + (1 - alpha_outer)*log(K_old))
+            K = exp(alpha_outer * log(K_new) + (1 - alpha_outer) * log(K_old))
             beta0 = beta
 
     else:
         message = f"Outer loop did not converge after {maxiter} iterations."
 
     # Overall balance
-    V = F*beta
+    V = F * beta
     L = F - V
 
     return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
@@ -216,7 +219,7 @@ def flash2_PV(
     T0 : float
         Initial guess for temperature [K].
     maxiter : int
-        Maximum number of iterations.   
+        Maximum number of iterations.
     atol_inner : float
         Absolute tolerance for the inner R-loop.
     rtol_outer : float
@@ -227,17 +230,16 @@ def flash2_PV(
     FlashResult
         Flash result.
     """
-
     method = "2-Phase PV Flash"
     message = ""
     success = False
 
     # Initial guesses
-    z = z/z.sum()
+    z = z / z.sum()
     T = T0
     K = Kcalc(T, P, z, z)
-    x = z/(1 + beta*(K - 1))
-    y = K*x
+    x = z / (1 + beta * (K - 1))
+    y = K * x
     x /= x.sum()
     y /= y.sum()
 
@@ -257,25 +259,28 @@ def flash2_PV(
         elif abs(beta - 1) <= eps:
             R = 1.0
         else:
-            sol = root_brent(lambda R: _Rloop(R, u, Kb0, beta, z),
-                             0.0, 1.0,
-                             maxiter=maxiter,
-                             tolx=atol_inner,
-                             tolf=atol_inner)
+            sol = root_brent(
+                lambda R: _Rloop(R, u, Kb0, beta, z),
+                0.0,
+                1.0,
+                maxiter=maxiter,
+                tolx=atol_inner,
+                tolf=atol_inner,
+            )
             R = sol.x
             if not sol.success:
                 message = f"Inner R-loop did not converge after {maxiter} iterations. Solution: {sol}."
                 break
 
         # Compute x, y, T
-        p = z/(1 - R + Kb0*R*exp(u))
-        eup = exp(u)*p
+        p = z / (1 - R + Kb0 * R * exp(u))
+        eup = exp(u) * p
         sum_p = p.sum()
         sum_eup = eup.sum()
-        x = p/sum_p
-        y = eup/sum_eup
-        Kb = sum_p/sum_eup
-        T = 1/(1/Tref + (log(Kb) - A)/B)
+        x = p / sum_p
+        y = eup / sum_eup
+        Kb = sum_p / sum_eup
+        T = 1 / (1 / Tref + (log(Kb) - A) / B)
 
         # Update u, A, K
         u, A, K = _parameters_PV(T, P, x, y, beta, Kcalc, Tref, all=False, B=B)
@@ -283,7 +288,7 @@ def flash2_PV(
 
         # Check convergence
         v0 = min(vi for vi in v_new if vi > 0.0)
-        if np.allclose(v_new, v_old, atol=v0*rtol_outer):
+        if np.allclose(v_new, v_old, atol=v0 * rtol_outer):
             success = True
             message = "Outer loop converged within specified tolerance."
             break
@@ -292,7 +297,7 @@ def flash2_PV(
         message = f"Outer loop did not converge after {maxiter} iterations."
 
     # Overall balances
-    V = F*beta
+    V = F * beta
     L = F - V
 
     return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
@@ -333,7 +338,7 @@ def flash2_TV(
     P0 : float
         Initial guess for pressure [Pa].
     maxiter : int
-        Maximum number of iterations.   
+        Maximum number of iterations.
     atol_inner : float
         Absolute tolerance for the inner R-loop.
     rtol_outer : float
@@ -344,17 +349,16 @@ def flash2_TV(
     FlashResult
         Flash result.
     """
-
     method = "2-Phase TV Flash"
     message = ""
     success = False
 
     # Initial guesses
-    z = z/z.sum()
+    z = z / z.sum()
     P = P0
     K = Kcalc(T, P, z, z)
-    x = z/(1 + beta*(K - 1))
-    y = K*x
+    x = z / (1 + beta * (K - 1))
+    y = K * x
     x /= x.sum()
     y /= y.sum()
 
@@ -374,28 +378,35 @@ def flash2_TV(
         elif abs(beta - 1) <= eps:
             R = 1.0
         else:
-            sol = root_brent(lambda R: _Rloop(R, u, Kb0, beta, z),
-                             0.0, 1.0,
-                             maxiter=maxiter,
-                             tolx=atol_inner,
-                             tolf=atol_inner)
+            sol = root_brent(
+                lambda R: _Rloop(R, u, Kb0, beta, z),
+                0.0,
+                1.0,
+                maxiter=maxiter,
+                tolx=atol_inner,
+                tolf=atol_inner,
+            )
             R = sol.x
             if not sol.success:
                 message = f"Inner R-loop did not converge after {maxiter} iterations. Solution: {sol}."
                 break
 
         # Compute x, y
-        p = z/(1 - R + Kb0*R*exp(u))
-        eup = exp(u)*p
+        p = z / (1 - R + Kb0 * R * exp(u))
+        eup = exp(u) * p
         sum_p = p.sum()
         sum_eup = eup.sum()
-        x = p/sum_p
-        y = eup/sum_eup
+        x = p / sum_p
+        y = eup / sum_eup
 
         # Compute P
-        Kb = sum_p/sum_eup
-        sol = root_newton(lambda P: log(Kb*P) - A - B*(P/Pref),
-                          x0=exp(A)/Kb, tolx=0.0, tolf=1e-10)
+        Kb = sum_p / sum_eup
+        sol = root_newton(
+            lambda P: log(Kb * P) - A - B * (P / Pref),
+            x0=exp(A) / Kb,
+            tolx=0.0,
+            tolf=1e-10,
+        )
         if sol.success:
             P = sol.x
         else:
@@ -408,7 +419,7 @@ def flash2_TV(
 
         # Check convergence
         v0 = min(vi for vi in v_new if vi > 0.0)
-        if np.allclose(v_new, v_old, atol=v0*rtol_outer):
+        if np.allclose(v_new, v_old, atol=v0 * rtol_outer):
             success = True
             message = "Outer loop converged within specified tolerance."
             break
@@ -417,7 +428,7 @@ def flash2_TV(
             message = f"Outer loop did not converge after {maxiter} iterations."
 
     # Overall balances
-    V = F*beta
+    V = F * beta
     L = F - V
 
     return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
@@ -426,6 +437,7 @@ def flash2_TV(
 @dataclass(frozen=True)
 class RachfordRiceResult:
     """Rachford-Rice result dataclass."""
+
     success: bool
     niter: int
     beta: float
@@ -436,8 +448,9 @@ def solve_Rachford_Rice(
     K: FloatVector,
     z: FloatVector,
     beta0: float | None = None,
+    *,
     maxiter: int = 50,
-    atol_res: float = 1e-9
+    atol_res: float = 1e-9,
 ) -> RachfordRiceResult:
     r"""Solve the Rachford-Rice flash residual equation.
 
@@ -468,12 +481,11 @@ def solve_Rachford_Rice(
     RachfordRiceResult
         Result.
 
-    See also
+    See Also
     --------
-    * [`residual_Rachford_Rice`](residual_Rachford_Rice.md): related method to 
+    * [`residual_Rachford_Rice`](residual_Rachford_Rice.md): related method to
       determine the residual and its derivative.
     """
-
     # Trivial subcooled and superheated cases
     F0 = residual_Rachford_Rice(0.0, K, z)[0]
     if F0 < 0.0:
@@ -483,11 +495,11 @@ def solve_Rachford_Rice(
         return RachfordRiceResult(True, 0, 1.0, F1)
 
     # Bounds on beta
-    beta_min = np.where(K > 1.0, (K*z - 1)/(K - 1), 0.0)
+    beta_min = np.where(K > 1.0, (K * z - 1) / (K - 1), 0.0)
     beta_min = beta_min[(beta_min > 0.0) & (beta_min < 1.0)]
     beta_min = max(beta_min) if len(beta_min) > 0 else 0.0
 
-    beta_max = np.where(K < 1.0, (1 - z)/(1 - K), 1.0)
+    beta_max = np.where(K < 1.0, (1 - z) / (1 - K), 1.0)
     beta_max = beta_max[(beta_max > 0.0) & (beta_max < 1.0)]
     beta_max = min(beta_max) if len(beta_max) > 0 else 1.0
 
@@ -495,7 +507,7 @@ def solve_Rachford_Rice(
     if beta0 is not None:
         beta = np.clip(beta0, beta_min, beta_max)
     else:
-        beta = (beta_min + beta_max)/2
+        beta = (beta_min + beta_max) / 2
 
     # Iteration loop
     success = False
@@ -515,20 +527,17 @@ def solve_Rachford_Rice(
             beta_max = beta
 
         # Update beta (Newton or bisection)
-        beta_new = beta - F/dF
+        beta_new = beta - F / dF
         if (beta_new > beta_min) and (beta_new < beta_max):
             beta = beta_new
         else:
-            beta = (beta_min + beta_max)/2
+            beta = (beta_min + beta_max) / 2
 
-    return RachfordRiceResult(success, iter+1, beta, F)
+    return RachfordRiceResult(success, iter + 1, beta, F)
 
 
 def residual_Rachford_Rice(
-    beta: float,
-    K: FloatVector,
-    z: FloatVector,
-    derivative: bool = False
+    beta: float, K: FloatVector, z: FloatVector, derivative: bool = False
 ) -> tuple[float, ...]:
     r"""Rachford-Rice flash residual function and its derivative.
 
@@ -547,7 +556,7 @@ def residual_Rachford_Rice(
     **References**
 
     *  Rachford, H.H., and J.D. Rice. "Procedure for Use of Electronic Digital
-       Computers in Calculating Flash Vaporization Hydrocarbon Equilibrium", 
+       Computers in Calculating Flash Vaporization Hydrocarbon Equilibrium",
        J. Pet. Technol. 4 (1952): 19-3.
 
     Parameters
@@ -566,28 +575,21 @@ def residual_Rachford_Rice(
     tuple[float, ...]
         Tuple with residual and derivative, `(F, dF)`.
 
-    See also
+    See Also
     --------
     * [`solve_Rachford_Rice`](solve_Rachford_Rice.md): related method to solve
-      the equation. 
+      the equation.
     """
-
-    F = np.sum(z*(K - 1)/(1 + beta*(K - 1)))
+    F = np.sum(z * (K - 1) / (1 + beta * (K - 1)))
 
     if not derivative:
         return (F,)
     else:
-        dF = -np.sum(z*(K - 1)**2/(1 + beta*(K - 1))**2)
+        dF = -np.sum(z * (K - 1) ** 2 / (1 + beta * (K - 1)) ** 2)
         return (F, dF)
 
 
-def _Rloop(
-    R: float,
-    u: FloatVector,
-    Kb0: float,
-    beta: float,
-    z: FloatVector
-) -> float:
+def _Rloop(R: float, u: FloatVector, Kb0: float, beta: float, z: FloatVector) -> float:
     """Inner R-loop objective function.
 
     **References**
@@ -596,8 +598,8 @@ def _Rloop(
        of the single-stage flash problem", Computers & Chemical Engineering,
        Volume 2, Issues 2-3, 1978, p. 109-122,
     """
-    p = z/(1 - R + Kb0*R*exp(u))
-    return 1 - beta - (1 - R)*p.sum()
+    p = z / (1 - R + Kb0 * R * exp(u))
+    return 1 - beta - (1 - R) * p.sum()
 
 
 def _parameters_PV(
@@ -610,7 +612,7 @@ def _parameters_PV(
     Tref: float,
     dT: float = 1.0,
     all: bool = False,
-    B: float = 0.0
+    B: float = 0.0,
 ) -> tuple:
     r"""Calculate volatility parameters for PV flash.
 
@@ -626,8 +628,8 @@ def _parameters_PV(
     K = Kcalc(T, P, x, y)
     ln_K = log(K)
 
-    t = y/(1 + beta*(K - 1))
-    w = t/t.sum()
+    t = y / (1 + beta * (K - 1))
+    w = t / t.sum()
 
     ln_Kb = dot(w, ln_K)
     Kb = exp(ln_Kb)
@@ -640,9 +642,9 @@ def _parameters_PV(
         ln_Kp = log(Kp)
 
         ln_Kbp = dot(w, ln_Kp)
-        B = (ln_Kbp - ln_Kb)/(1/Tp - 1/T)
+        B = (ln_Kbp - ln_Kb) / (1 / Tp - 1 / T)
 
-    A = ln_Kb - B*(1/T - 1/Tref)
+    A = ln_Kb - B * (1 / T - 1 / Tref)
 
     if all:
         return u, Kb, A, B
@@ -660,7 +662,7 @@ def _parameters_TV(
     Pref: float,
     dP: float = 1e3,
     all: bool = False,
-    B: float = 0.0
+    B: float = 0.0,
 ) -> tuple:
     r"""Calculate volatility parameters for TV flash.
 
@@ -676,8 +678,8 @@ def _parameters_TV(
     K = Kcalc(T, P, x, y)
     ln_K = log(K)
 
-    t = y/(1 + beta*(K - 1))
-    w = t/t.sum()
+    t = y / (1 + beta * (K - 1))
+    w = t / t.sum()
 
     ln_Kb = dot(w, ln_K)
     Kb = exp(ln_Kb)
@@ -690,9 +692,9 @@ def _parameters_TV(
         ln_Kp = log(Kp)
 
         ln_Kbp = dot(w, ln_Kp)
-        B = (ln_Kbp - ln_Kb + log(Pp/P))*Pref/dP
+        B = (ln_Kbp - ln_Kb + log(Pp / P)) * Pref / dP
 
-    A = ln_Kb + log(P) - B*(P/Pref)
+    A = ln_Kb + log(P) - B * (P / Pref)
 
     if all:
         return u, Kb, A, B

@@ -10,14 +10,16 @@ import scipy.stats as st
 from mpmath import polylog
 from numpy import exp, log, pi, sqrt
 
-from polykin.distributions.base import (AnalyticalDistributionP1,
-                                        AnalyticalDistributionP2)
+from polykin.distributions.base import (
+    AnalyticalDistributionP1,
+    AnalyticalDistributionP2,
+)
 
 __all__ = [
-    'Flory',
-    'Poisson',
-    'LogNormal',
-    'SchulzZimm'
+    "Flory",
+    "Poisson",
+    "LogNormal",
+    "SchulzZimm",
 ]
 
 
@@ -69,19 +71,16 @@ class Flory(AnalyticalDistributionP1):
     array([0.26793532, 0.59535432, 0.80159978])
 
     """
+
     _continuous = False
 
-    def __init__(self,
-                 DPn: float,
-                 M0: float = 0.1,
-                 name: str = ''
-                 ) -> None:
+    def __init__(self, DPn: float, M0: float = 0.1, name: str = "") -> None:
 
         super().__init__(DPn, M0, name)
 
     def _update_internal_parameters(self):
         super()._update_internal_parameters()
-        self._a = 1 - 1/self.DPn
+        self._a = 1 - 1 / self.DPn
 
     def _pdf0_length(self, k):
         a = self._a
@@ -94,15 +93,15 @@ class Flory(AnalyticalDistributionP1):
         if order == 0:
             result = 1.0
         elif order == 1:
-            result = 1/p
+            result = 1 / p
         elif order == 2:
-            result = 2/p**2 - 1/p
+            result = 2 / p**2 - 1 / p
         elif order == 3:
-            result = 6/p**3 - 6/p**2 + 1/p
+            result = 6 / p**3 - 6 / p**2 + 1 / p
         elif order == 4:
-            result = 24/p**4 - 36/p**3 + 14/p**2 - 1/p
+            result = 24 / p**4 - 36 / p**3 + 14 / p**2 - 1 / p
         else:
-            result = float(p/a*polylog(-order, a))
+            result = float(p / a * polylog(-order, a))
         return result
 
     def _cdf_length(self, k, order):
@@ -110,7 +109,7 @@ class Flory(AnalyticalDistributionP1):
         if order == 0:
             result = 1 - a**k
         elif order == 1:
-            result = (a**k*(-a*k + k + 1) - 1)/(a - 1)
+            result = (a**k * (-a * k + k + 1) - 1) / (a - 1)
         else:
             raise ValueError
         return result / self._moment_length(order)
@@ -172,11 +171,7 @@ class Poisson(AnalyticalDistributionP1):
 
     _continuous = False
 
-    def __init__(self,
-                 DPn: float,
-                 M0: float = 0.1,
-                 name: str = ''
-                 ) -> None:
+    def __init__(self, DPn: float, M0: float = 0.1, name: str = "") -> None:
 
         super().__init__(DPn, M0, name)
 
@@ -196,13 +191,14 @@ class Poisson(AnalyticalDistributionP1):
         elif order == 1:
             result = a + 1
         elif order == 2:
-            result = a**2 + 3*a + 1
+            result = a**2 + 3 * a + 1
         elif order == 3:
-            result = a**3 + 6*a**2 + 7*a + 1
+            result = a**3 + 6 * a**2 + 7 * a + 1
         else:
             # https://arxiv.org/pdf/2312.00704
-            result = sum(sp.stirling2(order + 1, j)*a**(j - 1)
-                         for j in range(1, order + 2))
+            result = sum(
+                sp.stirling2(order + 1, j) * a ** (j - 1) for j in range(1, order + 2)
+            )
         return result
 
     def _cdf_length(self, k, order):
@@ -210,11 +206,10 @@ class Poisson(AnalyticalDistributionP1):
         if order == 0:
             result = sp.gammaincc(k, a)
         elif order == 1:
-            result = (a + 1)*sp.gammaincc(k, a) - \
-                exp(k*log(a) - a - sp.gammaln(k))
+            result = (a + 1) * sp.gammaincc(k, a) - exp(k * log(a) - a - sp.gammaln(k))
         else:
             raise ValueError
-        return result/self._moment_length(order)
+        return result / self._moment_length(order)
 
     def _random_length(self, size):
         return self._rng.poisson(self._a, size) + 1  # type: ignore
@@ -273,17 +268,13 @@ class LogNormal(AnalyticalDistributionP2):
     array([0.3001137, 0.6998863, 0.9420503])
 
     """
+
     # https://reference.wolfram.com/language/ref/LogNormalDistribution.html
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.lognorm.html
 
     _continuous = True
 
-    def __init__(self,
-                 DPn: float,
-                 PDI: float,
-                 M0: float = 0.1,
-                 name: str = ''
-                 ) -> None:
+    def __init__(self, DPn: float, PDI: float, M0: float = 0.1, name: str = "") -> None:
 
         super().__init__(DPn, PDI, M0, name)
 
@@ -293,28 +284,28 @@ class LogNormal(AnalyticalDistributionP2):
             PDI = self.PDI
             DPn = self.DPn
             self._sigma = sqrt(log(PDI))
-            self._mu = log(DPn/sqrt(PDI))
+            self._mu = log(DPn / sqrt(PDI))
         except AttributeError:
             pass
 
     def _pdf0_length(self, x):
         mu = self._mu
         sigma = self._sigma
-        return exp(-(log(x) - mu)**2/(2*sigma**2))/(x*sigma*sqrt(2*pi))
+        return exp(-((log(x) - mu) ** 2) / (2 * sigma**2)) / (x * sigma * sqrt(2 * pi))
 
     @functools.cache
     def _moment_length(self, order):
         mu = self._mu
         sigma = self._sigma
-        return exp(order*mu + 0.5*order**2*sigma**2)
+        return exp(order * mu + 0.5 * order**2 * sigma**2)
 
     def _cdf_length(self, x, order):
         mu = self._mu
         sigma = self._sigma
         if order == 0:
-            result = (1 + sp.erf((log(x) - mu)/(sigma*sqrt(2))))/2
+            result = (1 + sp.erf((log(x) - mu) / (sigma * sqrt(2)))) / 2
         elif order == 1:
-            result = sp.erfc((mu + sigma**2 - log(x))/(sigma*sqrt(2)))/2
+            result = sp.erfc((mu + sigma**2 - log(x)) / (sigma * sqrt(2))) / 2
         else:
             raise ValueError
         return result
@@ -381,17 +372,13 @@ class SchulzZimm(AnalyticalDistributionP2):
     array([0.19874804, 0.60837482, 0.82820286])
 
     """
+
     # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.gamma.html
     # https://goldbook.iupac.org/terms/view/S05502
 
     _continuous = True
 
-    def __init__(self,
-                 DPn: float,
-                 PDI: float,
-                 M0: float = 0.1,
-                 name: str = ''
-                 ) -> None:
+    def __init__(self, DPn: float, PDI: float, M0: float = 0.1, name: str = "") -> None:
 
         super().__init__(DPn, PDI, M0, name)
 
@@ -400,29 +387,29 @@ class SchulzZimm(AnalyticalDistributionP2):
         try:
             PDI = self.PDI
             DPn = self.DPn
-            self._k = 1/(PDI - 1)
-            self._theta = DPn*(PDI - 1)
+            self._k = 1 / (PDI - 1)
+            self._theta = DPn * (PDI - 1)
         except AttributeError:
             pass
 
     def _pdf0_length(self, x):
         k = self._k
         theta = self._theta
-        return x**(k-1)*exp(-x/theta)/(theta**k*sp.gamma(k))
+        return x ** (k - 1) * exp(-x / theta) / (theta**k * sp.gamma(k))
 
     @functools.cache
     def _moment_length(self, order):
         k = self._k
         theta = self._theta
-        return sp.poch(k, order)*theta**order
+        return sp.poch(k, order) * theta**order
 
     def _cdf_length(self, x, order):
         k = self._k
         theta = self._theta
         if order == 0:
-            result = sp.gammainc(k, x/theta)
+            result = sp.gammainc(k, x / theta)
         elif order == 1:
-            result = 1 - sp.gammaincc(1+k, x/theta)
+            result = 1 - sp.gammaincc(1 + k, x / theta)
         else:
             raise ValueError
         return result
@@ -444,4 +431,4 @@ def poisson(k, a: float, k0: bool):
     shift = 0
     if not k0:
         shift = -1
-    return exp((k + shift)*log(a) - a - sp.gammaln(k + 1 + shift))
+    return exp((k + shift) * log(a) - a - sp.gammaln(k + 1 + shift))

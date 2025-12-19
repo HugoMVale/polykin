@@ -10,20 +10,19 @@ from polykin.properties.pvt.mixing_rules import pseudocritical_properties
 from polykin.utils.types import FloatArray, FloatVectorLike
 
 __all__ = [
-    'MUVMX2_Herning_Zipperer',
-    'MUVPC_Jossi',
-    'MUVMXPC_Dean_Stiel',
-    'MUV_Lucas',
-    'MUVMX_Lucas'
+    "MUVMX2_Herning_Zipperer",
+    "MUVPC_Jossi",
+    "MUVMXPC_Dean_Stiel",
+    "MUV_Lucas",
+    "MUVMX_Lucas",
 ]
 
-# %% Mixing rules
 
-
-def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
-                            mu: FloatVectorLike,
-                            M: FloatVectorLike
-                            ) -> float:
+def MUVMX2_Herning_Zipperer(
+    y: FloatVectorLike,
+    mu: FloatVectorLike,
+    M: FloatVectorLike,
+) -> float:
     r"""Calculate the viscosity of a gas mixture from the viscosities of the
     pure components using the mixing rule of Wilke with the approximation of
     Herning and Zipperer.
@@ -68,22 +67,21 @@ def MUVMX2_Herning_Zipperer(y: FloatVectorLike,
     >>> print(f"{mu_mix:.2e} Pa·s")
     1.12e-05 Pa·s
     """
-    y = np.asarray(y)
-    mu = np.asarray(mu)
-    M = np.asarray(M)
+    y = np.asarray(y, dtype=np.float64)
+    mu = np.asarray(mu, dtype=np.float64)
+    M = np.asarray(M, dtype=np.float64)
 
-    a = y*sqrt(M)
+    a = y * sqrt(M)
     a /= a.sum()
     return dot(a, mu)
 
-# %% Pressure correction
 
-
-def MUVPC_Jossi(rhor: float,
-                M: float,
-                Tc: float,
-                Pc: float
-                ) -> float:
+def MUVPC_Jossi(
+    rhor: float,
+    M: float,
+    Tc: float,
+    Pc: float,
+) -> float:
     r"""Calculate the effect of pressure (or density) on gas viscosity using
     the method of Jossi, Stiel and Thodos for nonpolar gases.
 
@@ -127,20 +125,26 @@ def MUVPC_Jossi(rhor: float,
     >>> print(f"{mu_residual:.2e} Pa·s")
     6.76e-06 Pa·s
     """
-    a = 1.0230 + 0.23364*rhor + 0.58533*rhor**2 - 0.40758*rhor**3 \
-        + 0.093324*rhor**4
+    a = (
+        1.0230
+        + 0.23364 * rhor
+        + 0.58533 * rhor**2
+        - 0.40758 * rhor**3
+        + 0.093324 * rhor**4
+    )
     # 1e7*(1/((1e3)**3 * (1/101325)**4))**(1/6)
-    xi = 6.872969367e8*(Tc/(M**3 * Pc**4))**(1/6)
-    return (a**4 - 1.)/xi
+    xi = 6.872969367e8 * (Tc / (M**3 * Pc**4)) ** (1 / 6)
+    return (a**4 - 1.0) / xi
 
 
-def MUVMXPC_Dean_Stiel(v: float,
-                       y: FloatVectorLike,
-                       M: FloatVectorLike,
-                       Tc: FloatVectorLike,
-                       Pc: FloatVectorLike,
-                       Zc: FloatVectorLike,
-                       ) -> float:
+def MUVMXPC_Dean_Stiel(
+    v: float,
+    y: FloatVectorLike,
+    M: FloatVectorLike,
+    Tc: FloatVectorLike,
+    Pc: FloatVectorLike,
+    Zc: FloatVectorLike,
+) -> float:
     r"""Calculate the effect of pressure (or density) on the viscosity of
     gas mixtures using the method of Dean and Stiel for nonpolar components.
 
@@ -192,35 +196,33 @@ def MUVMXPC_Dean_Stiel(v: float,
     >>> print(f"{mu_residual:.2e} Pa·s")
     2.32e-05 Pa·s
     """
-
-    y = np.asarray(y)
-    M = np.asarray(M)
-    Tc = np.asarray(Tc)
-    Pc = np.asarray(Pc)
-    Zc = np.asarray(Zc)
+    y = np.asarray(y, dtype=np.float64)
+    M = np.asarray(M, dtype=np.float64)
+    Tc = np.asarray(Tc, dtype=np.float64)
+    Pc = np.asarray(Pc, dtype=np.float64)
+    Zc = np.asarray(Zc, dtype=np.float64)
 
     # Mixing rules recommended in paper
     M_mix = dot(y, M)
     Tc_mix, Pc_mix, vc_mix, _, _ = pseudocritical_properties(y, Tc, Pc, Zc)
 
-    rhor = vc_mix/v
+    rhor = vc_mix / v
     # xi = 1e3*Tc_mix**(1/6)/(sqrt(M_mix*1e3)*(Pc_mix/101325)**(2/3))
-    xi = 6.87e4*Tc_mix**(1/6)/(sqrt(M_mix)*(Pc_mix)**(2/3))
-    a = 10.8e-5*(exp(1.439*rhor) - exp(-1.111*rhor**1.858))
+    xi = 6.87e4 * Tc_mix ** (1 / 6) / (sqrt(M_mix) * (Pc_mix) ** (2 / 3))
+    a = 10.8e-5 * (exp(1.439 * rhor) - exp(-1.111 * rhor**1.858))
 
-    return a/xi
+    return a / xi
 
 
-# %% Estimation methods
-
-def MUV_Lucas(T: float,
-              P: float,
-              M: float,
-              Tc: float,
-              Pc: float,
-              Zc: float,
-              dm: float
-              ) -> float:
+def MUV_Lucas(
+    T: float,
+    P: float,
+    M: float,
+    Tc: float,
+    Pc: float,
+    Zc: float,
+    dm: float,
+) -> float:
     r"""Calculate the viscosity of a pure gas at a given temperature and
     pressure using the method of Lucas.
 
@@ -261,22 +263,23 @@ def MUV_Lucas(T: float,
     >>> print(f"{mu:.2e} Pa·s")
     1.20e-05 Pa·s
     """
-    Tr = T/Tc
-    Pr = P/Pc
+    Tr = T / Tc
+    Pr = P / Pc
     FP0 = _MUV_Lucas_FP0(Tr, Tc, Pc, Zc, dm)
     mu = _MUV_Lucas_mu(Tr, Pr, M, Tc, Pc, FP0)  # type: ignore
     return mu
 
 
-def MUVMX_Lucas(T: float,
-                P: float,
-                y: FloatVectorLike,
-                M: FloatVectorLike,
-                Tc: FloatVectorLike,
-                Pc: FloatVectorLike,
-                Zc: FloatVectorLike,
-                dm: FloatVectorLike
-                ) -> float:
+def MUVMX_Lucas(
+    T: float,
+    P: float,
+    y: FloatVectorLike,
+    M: FloatVectorLike,
+    Tc: FloatVectorLike,
+    Pc: FloatVectorLike,
+    Zc: FloatVectorLike,
+    dm: FloatVectorLike,
+) -> float:
     r"""Calculate the viscosity of a gas mixture at a given temperature and
     pressure using the method of Lucas.
 
@@ -326,42 +329,43 @@ def MUVMX_Lucas(T: float,
     >>> print(f"{mu_mix:.2e} Pa·s")
     1.45e-05 Pa·s
     """
-    y = np.asarray(y)
-    M = np.asarray(M)
-    Tc = np.asarray(Tc)
-    Pc = np.asarray(Pc)
-    Zc = np.asarray(Zc)
-    dm = np.asarray(dm)
+    y = np.asarray(y, dtype=np.float64)
+    M = np.asarray(M, dtype=np.float64)
+    Tc = np.asarray(Tc, dtype=np.float64)
+    Pc = np.asarray(Pc, dtype=np.float64)
+    Zc = np.asarray(Zc, dtype=np.float64)
+    dm = np.asarray(dm, dtype=np.float64)
 
     Tc_mix = dot(y, Tc)
     M_mix = dot(y, M)
-    Pc_mix = R*Tc_mix*dot(y, Zc)/dot(y, R*Tc*Zc/Pc)
-    FP0_mix = dot(y, _MUV_Lucas_FP0(T/Tc, Tc, Pc, Zc, dm))
-    mu = _MUV_Lucas_mu(
-        T/Tc_mix, P/Pc_mix, M_mix, Tc_mix, Pc_mix, FP0_mix)
+    Pc_mix = R * Tc_mix * dot(y, Zc) / dot(y, R * Tc * Zc / Pc)
+    FP0_mix = dot(y, _MUV_Lucas_FP0(T / Tc, Tc, Pc, Zc, dm))
+    mu = _MUV_Lucas_mu(T / Tc_mix, P / Pc_mix, M_mix, Tc_mix, Pc_mix, FP0_mix)
 
     return mu
 
 
-def _MUV_Lucas_mu(Tr: float,
-                  Pr: float,
-                  M: float,
-                  Tc: float,
-                  Pc: float,
-                  FP0: float
-                  ) -> float:
+def _MUV_Lucas_mu(
+    Tr: float,
+    Pr: float,
+    M: float,
+    Tc: float,
+    Pc: float,
+    FP0: float,
+) -> float:
     """Calculate the viscosity of a pure gas or gas mixture at a given
     temperature and pressure using the method of Lucas.
     """
     # Z1
-    Z1 = (0.807*Tr**0.618 - 0.357*exp(-0.449*Tr) +
-          0.340*exp(-4.058*Tr) + 0.018)*FP0
+    Z1 = (
+        0.807 * Tr**0.618 - 0.357 * exp(-0.449 * Tr) + 0.340 * exp(-4.058 * Tr) + 0.018
+    ) * FP0
 
     # Z2
-    if Tr <= 1. and Pr < 1.:
-        alpha = 3.262 + 14.98*Pr**5.508
-        beta = 1.390 + 5.746*Pr
-        Z2 = 0.600 + 0.760*Pr**alpha + (6.990*Pr**beta - 0.6)*(1 - Tr)
+    if Tr <= 1.0 and Pr < 1.0:
+        alpha = 3.262 + 14.98 * Pr**5.508
+        beta = 1.390 + 5.746 * Pr
+        Z2 = 0.600 + 0.760 * Pr**alpha + (6.990 * Pr**beta - 0.6) * (1 - Tr)
     else:
         a1 = 1.245e-3
         a2 = 5.1726
@@ -377,34 +381,35 @@ def _MUV_Lucas_mu(Tr: float,
         f1 = 0.9425
         f2 = -0.1853
         zeta = 0.4489
-        a = a1/Tr*exp(a2*Tr**gamma)
-        b = a*(b1*Tr - b2)
-        c = c1/Tr*exp(c2*Tr**delta)
-        d = d1/Tr*exp(d2*Tr**epsilon)
+        a = a1 / Tr * exp(a2 * Tr**gamma)
+        b = a * (b1 * Tr - b2)
+        c = c1 / Tr * exp(c2 * Tr**delta)
+        d = d1 / Tr * exp(d2 * Tr**epsilon)
         e = 1.3088
-        f = f1*exp(f2*Tr**zeta)
-        Z2 = Z1*(1 + a*Pr**e/(b*Pr**f + 1/(1. + c*Pr**d)))
+        f = f1 * exp(f2 * Tr**zeta)
+        Z2 = Z1 * (1 + a * Pr**e / (b * Pr**f + 1 / (1.0 + c * Pr**d)))
 
     # FP
-    Y = Z2/Z1
-    FP = (1. + (FP0 - 1.)/Y**3)/FP0
+    Y = Z2 / Z1
+    FP = (1.0 + (FP0 - 1.0) / Y**3) / FP0
 
     # ξ
-    xi = 0.176e7*(Tc/((M*1e3)**3 * (Pc/1e5)**4))**(1/6)
+    xi = 0.176e7 * (Tc / ((M * 1e3) ** 3 * (Pc / 1e5) ** 4)) ** (1 / 6)
 
-    return Z2*FP/xi
+    return Z2 * FP / xi
 
 
-def _MUV_Lucas_FP0(Tr: float | FloatArray,
-                   Tc: float | FloatArray,
-                   Pc: float | FloatArray,
-                   Zc: float | FloatArray,
-                   dm: float | FloatArray
-                   ) -> float | FloatArray:
-    "Compute FP0 for Lucas method of estimating gas viscosity."
+def _MUV_Lucas_FP0(
+    Tr: float | FloatArray,
+    Tc: float | FloatArray,
+    Pc: float | FloatArray,
+    Zc: float | FloatArray,
+    dm: float | FloatArray,
+) -> float | FloatArray:
+    """Compute FP0 for Lucas method of estimating gas viscosity."""
     dmr = 52.46 * dm**2 * (Pc / 1e5) / Tc**2
     FP0 = np.where(dmr <= 0.022, 0.0, 30.55 * (0.292 - Zc) ** 1.72)
-    FP0 = np.where(dmr >= 0.075, FP0*abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
+    FP0 = np.where(dmr >= 0.075, FP0 * abs(0.96 + 0.1 * (Tr - 0.7)), FP0)
     FP0 += 1.0
     return FP0
 

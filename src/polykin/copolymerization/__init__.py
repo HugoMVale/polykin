@@ -3,8 +3,8 @@
 # Copyright Hugo Vale 2023
 
 """
-This module implements methods and classes to model and analyze binary and
-multicomponent copolymerization systems.
+Implement methods and classes to model and analyze binary and multicomponent
+copolymerization systems.
 """
 
 from .binary import *

@@ -335,7 +335,7 @@ def fD_Colebrook(Re: float, er: float) -> float:
     def fnc(f):
         return 2 * log10(er / 3.7 + 2.51 / (Re * sqrt(f))) + 1 / sqrt(f)
 
-    sol = root_newton(fnc, fD_Haaland(Re, er), 1e-5)
+    sol = root_newton(fnc, fD_Haaland(Re, er))
 
     if sol.success:
         fD = sol.x

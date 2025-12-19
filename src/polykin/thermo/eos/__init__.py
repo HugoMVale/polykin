@@ -2,9 +2,7 @@
 #
 # Copyright Hugo Vale 2023
 
-"""
-This module implements equations of state (EOS) for gas and liquid mixtures.
-"""
+"""Implement equations of state (EOS) for gas and liquid mixtures."""
 
 from .base import *
 from .cubic import *

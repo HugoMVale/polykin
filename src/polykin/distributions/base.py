@@ -15,23 +15,27 @@ from numpy import log10
 from scipy import integrate
 
 from polykin.utils.math import add_dicts, vectorize
-from polykin.utils.tools import (check_bounds, check_in_set, check_type,
-                                 check_valid_range, custom_error)
-from polykin.utils.types import (FloatArray, FloatArrayLike, FloatRangeArray,
-                                 IntArray)
+from polykin.utils.tools import (
+    check_bounds,
+    check_in_set,
+    check_type,
+    check_valid_range,
+    custom_error,
+)
+from polykin.utils.types import FloatArray, FloatArrayLike, FloatRangeArray, IntArray
 
-__all__ = ['plotdists']
+__all__ = ["plotdists"]
 
 
 class Distribution(ABC):
-    r"""_Abstract_ class for all chain-length distributions."""
+    r"""Abstract class for all chain-length distributions."""
 
-    kind_order = {'number': 0, 'mass': 1, 'gpc': 2}
-    units = {'molar_mass': 'kg/mol'}
+    kind_order = {"number": 0, "mass": 1, "gpc": 2}
+    units = {"molar_mass": "kg/mol"}
     name: str
 
     def __repr__(self) -> str:
-        unit_M = self.units['molar_mass']
+        unit_M = self.units["molar_mass"]
         return (
             f"type: {self.__class__.__name__}\n"
             f"name: {self.name}\n"
@@ -54,32 +58,32 @@ class Distribution(ABC):
     @property
     def DPn(self) -> float:
         r"""Number-average degree of polymerization, $DP_n$."""
-        return self._moment_mass(1, 1)/self._moment_mass(0)
+        return self._moment_mass(1, 1) / self._moment_mass(0)
 
     @property
     def DPw(self) -> float:
         r"""Mass-average degree of polymerization, $DP_w$."""
-        return self._moment_mass(2, 1)/self._moment_mass(1)
+        return self._moment_mass(2, 1) / self._moment_mass(1)
 
     @property
     def DPz(self) -> float:
         r"""z-average degree of polymerization, $DP_z$."""
-        return self._moment_mass(3, 1)/self._moment_mass(2)
+        return self._moment_mass(3, 1) / self._moment_mass(2)
 
     @property
     def Mn(self) -> float:
         r"""Number-average molar mass, $M_n$."""
-        return self._moment_mass(1)/self._moment_mass(0)
+        return self._moment_mass(1) / self._moment_mass(0)
 
     @property
     def Mw(self) -> float:
         r"""Weight-average molar mass, $M_w$."""
-        return self._moment_mass(2)/self._moment_mass(1)
+        return self._moment_mass(2) / self._moment_mass(1)
 
     @property
     def Mz(self) -> float:
         r"""z-average molar mass, $M_z$."""
-        return self._moment_mass(3)/self._moment_mass(2)
+        return self._moment_mass(3) / self._moment_mass(2)
 
     @property
     def PDI(self) -> float:
@@ -91,11 +95,12 @@ class Distribution(ABC):
         """Number-average molar mass of the repeating units, $M_0=M_n/DP_n$."""
         return self.Mn / self.DPn
 
-    def pdf(self,
-            size: float | FloatArrayLike,
-            kind: Literal['number', 'mass', 'gpc'] = 'mass',
-            sizeasmass: bool = False,
-            ) -> float | FloatArray:
+    def pdf(
+        self,
+        size: float | FloatArrayLike,
+        kind: Literal["number", "mass", "gpc"] = "mass",
+        sizeasmass: bool = False,
+    ) -> float | FloatArray:
         r"""Evaluate the probability density function, $p(k)$.
 
         Parameters
@@ -122,12 +127,13 @@ class Distribution(ABC):
         # Math is done by the corresponding subclass method
         return self._pdf(size, order, sizeasmass)
 
-    def cdf(self,
-            size: float | FloatArrayLike,
-            kind: Literal['number', 'mass'] = 'mass',
-            sizeasmass: bool = False,
-            ) -> float | FloatArray:
-        r"""Evaluate the cumulative distribution function:
+    def cdf(
+        self,
+        size: float | FloatArrayLike,
+        kind: Literal["number", "mass"] = "mass",
+        sizeasmass: bool = False,
+    ) -> float | FloatArray:
+        r"""Evaluate the cumulative distribution function.
 
         $$
         F(s) = \frac{\sum_{k=1}^{s}k^m\,p(k)}{\sum_{k=1}^{\infty}k^m\,p(k)}
@@ -159,9 +165,8 @@ class Distribution(ABC):
         """
         # Check inputs
         kind = self._verify_kind(kind)
-        if kind == 'gpc':
-            custom_error('kind', kind, ValueError,
-                         "Please use `mass` instead.")
+        if kind == "gpc":
+            custom_error("kind", kind, ValueError, "Please use `mass` instead.")
         order = self.kind_order[kind]
         self._verify_sizeasmass(sizeasmass)
         # Convert list to ndarray
@@ -170,17 +175,19 @@ class Distribution(ABC):
         # Math is done by the corresponding subclass method
         return self._cdf(size, order, sizeasmass)
 
-    def plot(self,
-             kind: Literal['number', 'mass',
-                           'gpc'] | list[Literal['number', 'mass', 'gpc']] = 'mass',
-             sizeasmass: bool = False,
-             xscale: Literal['auto', 'linear', 'log'] = 'auto',
-             xrange: tuple[float, float] | None = None,
-             cdf: Literal[0, 1, 2] = 0,
-             title: str | None = None,
-             axes: list[Axes] | None = None,
-             return_objects: bool = False
-             ) -> tuple[Figure | None, list[Axes]] | None:
+    def plot(
+        self,
+        kind: (
+            Literal["number", "mass", "gpc"] | list[Literal["number", "mass", "gpc"]]
+        ) = "mass",
+        sizeasmass: bool = False,
+        xscale: Literal["auto", "linear", "log"] = "auto",
+        xrange: tuple[float, float] | None = None,
+        cdf: Literal[0, 1, 2] = 0,
+        title: str | None = None,
+        axes: list[Axes] | None = None,
+        return_objects: bool = False,
+    ) -> tuple[Figure | None, list[Axes]] | None:
         """Plot the chain-length distribution.
 
         Parameters
@@ -214,35 +221,37 @@ class Distribution(ABC):
         # Check inputs
         kind = self._verify_kind(kind, accept_list=True)
         self._verify_sizeasmass(sizeasmass)
-        check_in_set(xscale, {'linear', 'log', 'auto'}, 'xscale')
-        check_in_set(cdf, {0, 1, 2}, 'cdf')
+        check_in_set(xscale, {"linear", "log", "auto"}, "xscale")
+        check_in_set(cdf, {0, 1, 2}, "cdf")
         if isinstance(kind, str):
             kind = [kind]
 
         # x-axis scale
-        if xscale == 'auto' and set(kind) == {'gpc'}:
-            xscale = 'log'
-        elif xscale == 'log':
+        if xscale == "auto" and set(kind) == {"gpc"}:
+            xscale = "log"
+        elif xscale == "log":
             pass
         else:
-            xscale = 'linear'
+            xscale = "linear"
 
         # x-axis range
         if xrange is not None:
-            check_valid_range(xrange, 0., np.inf, 'xrange')
+            check_valid_range(xrange, 0.0, np.inf, "xrange")
         else:
             vrange = self._xrange_plot(sizeasmass)  # type : ignore
-            if xscale == 'log' and log10(vrange[1]/vrange[0]) > 3 and \
-                    isinstance(self, (AnalyticalDistribution,
-                                      MixtureDistribution)):
+            if (
+                xscale == "log"
+                and log10(vrange[1] / vrange[0]) > 3
+                and isinstance(self, (AnalyticalDistribution, MixtureDistribution))
+            ):
                 vrange[1] *= 10
             xrange = tuple(vrange)  # type: ignore
 
         # x-axis vector
         npoints = 200
         if isinstance(self, MixtureDistribution):
-            npoints += 100*(len(self.components)-1)
-        if xscale == 'log':
+            npoints += 100 * (len(self.components) - 1)
+        if xscale == "log":
             x = np.geomspace(*xrange, npoints)  # type: ignore
         else:
             x = np.linspace(*xrange, npoints)  # type: ignore
@@ -275,8 +284,8 @@ class Distribution(ABC):
             if cdf != 1:
                 y1 = self.pdf(x, kind=mykind, sizeasmass=sizeasmass)
             if cdf > 0:
-                if mykind == 'gpc':
-                    _mykind = 'mass'
+                if mykind == "gpc":
+                    _mykind = "mass"
                 else:
                     _mykind = mykind
                 y2 = self.cdf(x, kind=_mykind, sizeasmass=sizeasmass)
@@ -284,17 +293,17 @@ class Distribution(ABC):
                 y1 = y2
             if ext_mode:
                 label = self.name
-                if label == '':
-                    label = '?'
+                if label == "":
+                    label = "?"
             else:
                 label = mykind
             ax.plot(x, y1, label=label)
             if cdf == 2:
-                ax2.plot(x, y2, linestyle='--')
+                ax2.plot(x, y2, linestyle="--")
 
         # y-axis and labels
-        label_y_pdf = 'Relative abundance'
-        label_y_cdf = 'Cumulative probability'
+        label_y_pdf = "Relative abundance"
+        label_y_cdf = "Cumulative probability"
         bbox_to_anchor = (1.05, 1.0)
         if cdf == 0:
             label_y1 = label_y_pdf
@@ -323,61 +332,59 @@ class Distribution(ABC):
         if isinstance(kind, str):
             kind = kind.lower()
         elif isinstance(kind, list) and accept_list:
-            check_type(kind, str, 'kind', check_inside=True)
+            check_type(kind, str, "kind", check_inside=True)
             kind = [item.lower() for item in kind]
         else:
             if accept_list:
                 valid_types = (str, list)
             else:
                 valid_types = (str,)
-            check_type(kind, valid_types, 'kind')
-        return check_in_set(kind, set(cls.kind_order.keys()), 'kind')
+            check_type(kind, valid_types, "kind")
+        return check_in_set(kind, set(cls.kind_order.keys()), "kind")
 
     def _verify_sizeasmass(self, sizeasmass):
         """Verify `sizeasmass` input."""
-        return check_type(sizeasmass, bool, 'sizeasmass')
+        return check_type(sizeasmass, bool, "sizeasmass")
 
     @abstractmethod
-    def _pdf(self,
-             size: float | FloatArray,
-             order: int,
-             sizeasmass: bool = False
-             ) -> float | FloatArray:
+    def _pdf(
+        self,
+        size: float | FloatArray,
+        order: int,
+        sizeasmass: bool = False,
+    ) -> float | FloatArray:
         """$m$-th order chain-length / molar mass probability density
-        function."""
-        pass
-
-    @abstractmethod
-    def _cdf(self,
-             size: float | FloatArray,
-             order: int,
-             sizeasmass: bool = False
-             ) -> float | FloatArray:
-        """$m$-th order chain-length / molar mass cumulative distribution
-        function."""
-        pass
-
-    @abstractmethod
-    def _moment_mass(self,
-                     order: int,
-                     shift: int = 0
-                     ) -> float:
-        """Molar-mass moment of the _number_ probability density/mass
         function.
         """
         pass
 
     @abstractmethod
-    def _xrange_plot(self,
-                     sizeasmass: bool
-                     ) -> FloatRangeArray:
-        """Default chain-length or molar mass range for distribution plots.
+    def _cdf(
+        self,
+        size: float | FloatArray,
+        order: int,
+        sizeasmass: bool = False,
+    ) -> float | FloatArray:
+        """$m$-th order chain-length / molar mass cumulative distribution
+        function.
         """
+        pass
+
+    @abstractmethod
+    def _moment_mass(self, order: int, shift: int = 0) -> float:
+        """Return molar-mass moment of the _number_ probability density/mass
+        function.
+        """
+        pass
+
+    @abstractmethod
+    def _xrange_plot(self, sizeasmass: bool) -> FloatRangeArray:
+        """Return default chain-length or molar mass range for distribution plots."""
         pass
 
 
 class IndividualDistribution(Distribution):
-    """_Abstract_ class for all individual chain-length distributions."""
+    """Abstract class for all individual chain-length distributions."""
 
     _continuous: bool = True
 
@@ -395,45 +402,46 @@ class IndividualDistribution(Distribution):
 
     def __add__(self, other):
         if isinstance(other, IndividualDistribution):
-            return MixtureDistribution(add_dicts({self: 1}, {other: 1}),
-                                       name=self.name+'+'+other.name)
+            return MixtureDistribution(
+                add_dicts({self: 1}, {other: 1}, new=False),
+                name=self.name + "+" + other.name,
+            )
         else:
             return NotImplemented
 
     @property
     def M0(self) -> float:
-        r"""Number-average molar mass of the repeating units, $M_0=M_n/DP_n$.
-        """
+        r"""Number-average molar mass of the repeating units, $M_0=M_n/DP_n$."""
         return self.__M0
 
     @M0.setter
     def M0(self, M0: float):
-        check_bounds(M0, 0.0, np.inf, 'M0')
+        check_bounds(M0, 0.0, np.inf, "M0")
         self.__M0 = M0
 
-    def _moment_mass(self,
-                     order: int,
-                     shift: int = 0
-                     ) -> float:
-        return self._moment_length(order)*self.M0**(order-shift)
+    def _moment_mass(self, order: int, shift: int = 0) -> float:
+        return self._moment_length(order) * self.M0 ** (order - shift)
 
     def _pdf(self, size, order, sizeasmass):
         factor = 1
         if sizeasmass:
-            size = size/self.M0
+            size = size / self.M0
             factor = self.M0
-        return self._pdf0_length(size) * size**order \
-            / (self._moment_length(order)*factor)
+        return (
+            self._pdf0_length(size)
+            * size**order
+            / (self._moment_length(order) * factor)
+        )
 
     def _cdf(self, size, order, sizeasmass):
         if sizeasmass:
-            size = size/self.M0
+            size = size / self.M0
         return self._cdf_length(size, order)
 
     def _xrange_plot(self, sizeasmass):
         xrange = self._range_length_default
         if sizeasmass:
-            xrange = xrange*self.M0
+            xrange = xrange * self.M0
         return xrange
 
     def _update_internal_parameters(self) -> None:
@@ -442,7 +450,7 @@ class IndividualDistribution(Distribution):
         """
         # clear cached properties
         self._moment_length.cache_clear()
-        self.__dict__.pop('_range_length_default', None)
+        self.__dict__.pop("_range_length_default", None)
 
     @property
     def _range_length_default(self) -> FloatRangeArray:
@@ -454,12 +462,8 @@ class IndividualDistribution(Distribution):
         return np.array([1, self.DPz])
 
     @vectorize
-    def _moment_quadrature(self,
-                           xa: float,
-                           xb: float,
-                           order: int
-                           ) -> float:
-        r"""Evaluate the partial moment sum / integral:
+    def _moment_quadrature(self, xa: float, xb: float, order: int) -> float:
+        r"""Evaluate the partial moment sum / integral.
 
         $$ F(a,b) = \frac{\sum_{k=a}^{b}k^m\,p(k)}{\lambda_m} $$
 
@@ -483,8 +487,10 @@ class IndividualDistribution(Distribution):
         float
             Numerical approximation to partial moment.
         """
+
         # cast to float is required to use mpmath with ufuncs
-        def f(z): return (z**order)*self._pdf0_length(float(z))
+        def f(z):
+            return (z**order) * self._pdf0_length(float(z))
 
         if self._continuous:
             result, _ = integrate.quad(f, xa, xb, limit=50, epsrel=1e-4)
@@ -492,10 +498,11 @@ class IndividualDistribution(Distribution):
             result = float(mpmath.nsum(f, [max(1, int(xa)), xb]))
         return result
 
-    def _cdf_length(self,
-                    x: float | FloatArray,
-                    order: int
-                    ) -> float | FloatArray:
+    def _cdf_length(
+        self,
+        x: float | FloatArray,
+        order: int,
+    ) -> float | FloatArray:
         r"""Cumulative distribution function.
 
         This implementation is a general low-performance fallback solution.
@@ -515,13 +522,12 @@ class IndividualDistribution(Distribution):
         float | FloatArray
             Cumulative distribution value.
         """
-        return self._moment_quadrature(np.zeros_like(x), x, order) \
-            / self._moment_length(order)
+        return self._moment_quadrature(
+            np.zeros_like(x), x, order
+        ) / self._moment_length(order)
 
     @functools.cache
-    def _moment_length(self,
-                       order: int
-                       ) -> float:
+    def _moment_length(self, order: int) -> float:
         r"""Chain-length moments of the _number_ probability density/mass
         function.
 
@@ -541,12 +547,10 @@ class IndividualDistribution(Distribution):
             Moment of the number distribution.
         """
         # print("Warning: using low performance 'moment_length' method.")
-        return self._moment_quadrature(0, np.inf, order)
+        return self._moment_quadrature(0.0, np.inf, order)
 
     @abstractmethod
-    def _pdf0_length(self,
-                     k: float | FloatArray
-                     ) -> float | FloatArray:
+    def _pdf0_length(self, k: float | FloatArray) -> float | FloatArray:
         r"""Probability density/mass function.
 
         Each child class must implement a method delivering the _number_
@@ -566,18 +570,13 @@ class IndividualDistribution(Distribution):
 
 
 class AnalyticalDistribution(IndividualDistribution):
-    r"""_Abstract_ class for all analytical chain-length distributions.
-    """
+    r"""Abstract class for all analytical chain-length distributions."""
 
     # (min-DPn, max-DPn)
-    _pbounds = ((1.0, np.inf), )
+    _pbounds = ((1.0, np.inf),)
     _ppf_bounds = (1e-4, 0.9999)
 
-    def __init__(self,
-                 DPn: float,
-                 M0: float,
-                 name: str
-                 ) -> None:
+    def __init__(self, DPn: float, M0: float, name: str) -> None:
 
         self.DPn = DPn
         self.M0 = M0
@@ -591,19 +590,21 @@ class AnalyticalDistribution(IndividualDistribution):
 
     @DPn.setter
     def DPn(self, DPn: float):
-        check_bounds(DPn, *self._pbounds[0], 'DPn')
+        check_bounds(DPn, *self._pbounds[0], "DPn")
         self.__DPn = DPn
         self._update_internal_parameters()
 
     @property
     def _pvalues(self) -> tuple:
         """Value(s) defining the chain-length pdf. Used for generalized access
-        by fit method."""
+        by fit method.
+        """
         return (self.DPn,)
 
-    def random(self,
-               shape: int | tuple[int, ...] | None = None
-               ) -> int | IntArray:
+    def random(
+        self,
+        shape: int | tuple[int, ...] | None = None,
+    ) -> int | IntArray:
         r"""Generate random sample of chain lengths according to the
         corresponding number probability density/mass function.
 
@@ -622,9 +623,10 @@ class AnalyticalDistribution(IndividualDistribution):
         return self._random_length(shape)
 
     @abstractmethod
-    def _random_length(self,
-                       shape: int | tuple[int, ...] | None,
-                       ) -> int | IntArray:
+    def _random_length(
+        self,
+        shape: int | tuple[int, ...] | None,
+    ) -> int | IntArray:
         r"""Random chain-length generator.
 
         Each child class must implement a method to generate random chain
@@ -645,24 +647,16 @@ class AnalyticalDistribution(IndividualDistribution):
 
 
 class AnalyticalDistributionP1(AnalyticalDistribution):
-    r"""_Abstract_ class for 1-parameter analytical chain-length distributions.
-    """
-    pass
+    r"""Abstract class for 1-parameter analytical chain-length distributions."""
 
 
 class AnalyticalDistributionP2(AnalyticalDistribution):
-    r"""_Abstract_ class for 2-parameter analytical chain-length distributions.
-    """
+    r"""Abstract class for 2-parameter analytical chain-length distributions."""
 
     # ((min-DPn, max-DPn), (min-PDI, max-PDI))
     _pbounds = ((1.0, np.inf), (1.000001, np.inf))
 
-    def __init__(self,
-                 DPn: float,
-                 PDI: float,
-                 M0: float,
-                 name: str
-                 ) -> None:
+    def __init__(self, DPn: float, PDI: float, M0: float, name: str) -> None:
 
         super().__init__(DPn=DPn, M0=M0, name=name)
         self.PDI = PDI
@@ -674,7 +668,7 @@ class AnalyticalDistributionP2(AnalyticalDistribution):
 
     @PDI.setter
     def PDI(self, PDI: float):
-        check_bounds(PDI, *self._pbounds[1], 'PDI')
+        check_bounds(PDI, *self._pbounds[1], "PDI")
         self.__PDI = PDI
         self._update_internal_parameters()
 
@@ -720,22 +714,26 @@ class MixtureDistribution(Distribution):
 
     """
 
-    def __init__(self,
-                 components: dict[IndividualDistribution, float],
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        components: dict[IndividualDistribution, float],
+        name: str = "",
+    ) -> None:
 
         self.__components = components
         self.name = name
 
     def __add__(self, other):
         if isinstance(other, MixtureDistribution):
-            return MixtureDistribution(add_dicts(self.components,
-                                                 other.components),
-                                       name=self.name+'+'+other.name)
+            return MixtureDistribution(
+                add_dicts(self.components, other.components, new=False),
+                name=self.name + "+" + other.name,
+            )
         elif isinstance(other, IndividualDistribution):
-            return MixtureDistribution(add_dicts(self.components, {other: 1}),
-                                       name=self.name+'+'+other.name)
+            return MixtureDistribution(
+                add_dicts(self.components, {other: 1}, new=False),
+                name=self.name + "+" + other.name,
+            )
         elif isinstance(other, (int, float)):
             return self
         else:
@@ -748,13 +746,13 @@ class MixtureDistribution(Distribution):
         return self.components
 
     def __contains__(self, component):
-        return (component in self.components)
+        return component in self.components
 
     def __repr__(self):
         if len(self.components) > 0:
             return super().__repr__() + "\n\n" + self.components_table
         else:
-            return 'empty'
+            return "empty"
 
     def __bool__(self):
         return bool(self.components)
@@ -780,18 +778,29 @@ class MixtureDistribution(Distribution):
         str
             Table with key properties of each component.
         """
-        result = 'empty'
+        result = "empty"
         if self.components:
-            spacer = ' '*3
-            header = [f"{'#':>2}", f"{'Weight':>6}", f"{'Distribution':>12}",
-                      f"{'DPn':>8}", f"{'DPw':>8}", f"{'PDI':>4}"]
+            spacer = " " * 3
+            header = [
+                f"{'#':>2}",
+                f"{'Weight':>6}",
+                f"{'Distribution':>12}",
+                f"{'DPn':>8}",
+                f"{'DPw':>8}",
+                f"{'PDI':>4}",
+            ]
             header = (spacer).join(header)
             ruler = f"{'-'*len(header)}"
             table = [header, ruler]
             for i, (d, w) in enumerate(self.components.items()):
-                row = [f"{i+1:2}", f"{w:>6.3f}",
-                       f"{d.__class__.__name__:>12}",
-                       f"{d.DPn:>4.2e}", f"{d.DPw:>4.2e}", f"{d.PDI:>4.2f}"]
+                row = [
+                    f"{i+1:2}",
+                    f"{w:>6.3f}",
+                    f"{d.__class__.__name__:>12}",
+                    f"{d.DPn:>4.2e}",
+                    f"{d.DPw:>4.2e}",
+                    f"{d.PDI:>4.2f}",
+                ]
                 table.append((spacer).join(row))
             result = ("\n").join(table)
         return result
@@ -801,7 +810,7 @@ class MixtureDistribution(Distribution):
         """Mole fraction of each individual distribution."""
         xn = np.empty(len(self.components))
         for i, (d, w) in enumerate(self.__iter__().items()):
-            xn[i] = w/d.Mn
+            xn[i] = w / d.Mn
         xn[:] /= xn.sum()
         return xn
 
@@ -809,7 +818,7 @@ class MixtureDistribution(Distribution):
         xn = self._molefrac
         result = 0
         for i, d in enumerate(self.__iter__()):
-            result += xn[i]*d._moment_mass(order, shift)
+            result += xn[i] * d._moment_mass(order, shift)
         return result
 
     def _pdf(self, size, order, sizeasmass):
@@ -817,39 +826,36 @@ class MixtureDistribution(Distribution):
         numerator = 0
         denominator = 0
         for i, d in enumerate(self.__iter__()):
-            term1 = xn[i]*d._moment_mass(order)
-            term2 = term1*d._pdf(size, order, sizeasmass)
+            term1 = xn[i] * d._moment_mass(order)
+            term2 = term1 * d._pdf(size, order, sizeasmass)
             denominator += term1
             numerator += term2
-        return numerator/denominator
+        return numerator / denominator
 
     def _cdf(self, size, order, sizeasmass):
         xn = self._molefrac
         numerator = 0
         denominator = 0
         for i, d in enumerate(self.__iter__()):
-            term1 = xn[i]*d._moment_mass(order)
-            term2 = term1*d._cdf(size, order, sizeasmass)
+            term1 = xn[i] * d._moment_mass(order)
+            term2 = term1 * d._cdf(size, order, sizeasmass)
             denominator += term1
             numerator += term2
-        return numerator/denominator
+        return numerator / denominator
 
     def _xrange_plot(self, sizeasmass):
         xrange = np.empty(2)
-        xrange[0] = min([d._xrange_plot(sizeasmass)[0]
-                        for d in self.__iter__()])
-        xrange[1] = max([d._xrange_plot(sizeasmass)[1]
-                         for d in self.__iter__()])
+        xrange[0] = min([d._xrange_plot(sizeasmass)[0] for d in self.__iter__()])
+        xrange[1] = max([d._xrange_plot(sizeasmass)[1] for d in self.__iter__()])
         return xrange
 
-# %% Aux functions
 
-
-def plotdists(dists: list[Distribution],
-              kind: Literal['number', 'mass', 'gpc'],
-              title: str | None = None,
-              **kwargs
-              ) -> Figure:
+def plotdists(
+    dists: list[Distribution],
+    kind: Literal["number", "mass", "gpc"],
+    title: str | None = None,
+    **kwargs,
+) -> Figure:
     """Plot a list of distributions in a joint plot.
 
     Parameters
@@ -874,18 +880,17 @@ def plotdists(dists: list[Distribution],
     >>> fig = plotdists([a, b], kind='gpc', xrange=(1, 1e4), cdf=2)
     >>> fig.show()
     """
-
     # Check input
     kind = Distribution._verify_kind(kind)
 
     # Create matplotlib objects
     fig, ax = plt.subplots(1, 1)
-    if kwargs.get('cdf', 1) == 2:
+    if kwargs.get("cdf", 1) == 2:
         ax.twinx()
 
     # Title
     if title is None:
-        titles = {'number': 'Number', 'mass': 'Mass', 'gpc': 'GPC'}
+        titles = {"number": "Number", "mass": "Mass", "gpc": "GPC"}
         title = f"{titles.get(kind, '')} distributions"
     fig.suptitle(title)
 

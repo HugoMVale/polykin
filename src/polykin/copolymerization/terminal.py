@@ -18,16 +18,18 @@ from polykin.kinetics import Arrhenius
 from polykin.math import root_brent
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.tools import check_bounds, check_in_set, custom_repr
-from polykin.utils.types import (FloatArray, FloatArrayLike, FloatVectorLike,
-                                 IntArrayLike)
+from polykin.utils.types import (
+    FloatArray,
+    FloatArrayLike,
+    FloatVectorLike,
+    IntArrayLike,
+)
 
 from .binary import inst_copolymer_binary, kp_average_binary
 from .copodataset import CopoDataset, DriftDataset, MayoDataset, kpDataset
 from .multicomponent import convert_Qe_to_r
 
-__all__ = ['TerminalModel']
-
-# %% Models
+__all__ = ["TerminalModel"]
 
 
 class CopoModel(ABC):
@@ -41,13 +43,14 @@ class CopoModel(ABC):
 
     _pnames: tuple[str, ...]
 
-    def __init__(self,
-                 k1: Arrhenius | None,
-                 k2: Arrhenius | None,
-                 M1: str,
-                 M2: str,
-                 name: str
-                 ) -> None:
+    def __init__(
+        self,
+        k1: Arrhenius | None,
+        k2: Arrhenius | None,
+        M1: str,
+        M2: str,
+        name: str,
+    ) -> None:
 
         if M1 and M2 and M1.lower() != M2.lower():
             self.M1 = M1
@@ -61,29 +64,33 @@ class CopoModel(ABC):
         self.data = []
 
     def __repr__(self) -> str:
-        return custom_repr(self,
-                           ('name', 'M1', 'M2', 'k1', 'k2') + self._pnames)
+        """Return string representation of the model."""
+        return custom_repr(self, ("name", "M1", "M2", "k1", "k2") + self._pnames)
 
     @abstractmethod
-    def ri(self,
-           f1: float | FloatArray
-           ) -> tuple[float | FloatArray, float | FloatArray]:
+    def ri(
+        self,
+        f1: float | FloatArray,
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         """Return the evaluated reactivity ratios at the given conditions."""
         pass
 
     @abstractmethod
-    def kii(self,
-            f1: float | FloatArray,
-            T: float,
-            Tunit,
-            ) -> tuple[float | FloatArray, float | FloatArray]:
+    def kii(
+        self,
+        f1: float | FloatArray,
+        T: float,
+        Tunit,
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         """Return the evaluated homopropagation rate coefficients at the given
-        conditions."""
+        conditions.
+        """
         pass
 
-    def F1(self,
-           f1: float | FloatArrayLike
-           ) -> float | FloatArray:
+    def F1(
+        self,
+        f1: float | FloatArrayLike,
+    ) -> float | FloatArray:
         r"""Calculate the instantaneous copolymer composition, $F_1$.
 
         The calculation is handled by
@@ -99,17 +106,17 @@ class CopoModel(ABC):
         float | FloatArray
             Instantaneous copolymer composition, $F_1$.
         """
-
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=float)
-        check_bounds(f1, 0.0, 1.0, 'f1')
+        check_bounds(f1, 0.0, 1.0, "f1")
         return inst_copolymer_binary(f1, *self.ri(f1))
 
-    def kp(self,
-           f1: float | FloatArrayLike,
-           T: float,
-           Tunit: Literal['C', 'K'] = 'K'
-           ) -> float | FloatArray:
+    def kp(
+        self,
+        f1: float | FloatArrayLike,
+        T: float,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> float | FloatArray:
         r"""Calculate the average propagation rate coefficient, $\bar{k}_p$.
 
         The calculation is handled by
@@ -133,10 +140,9 @@ class CopoModel(ABC):
         float | FloatArray
             Average propagation rate coefficient [L/(mol·s)].
         """
-
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=float)
-        check_bounds(f1, 0.0, 1.0, 'f1')
+        check_bounds(f1, 0.0, 1.0, "f1")
         return kp_average_binary(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
     @property
@@ -149,7 +155,6 @@ class CopoModel(ABC):
             If an azeotrope exists, it returns its composition in terms of
             $f_1$.
         """
-
         # Check if system is trivial
         ri_check = np.array(self.ri(0.1) + self.ri(0.9))
         if np.allclose(ri_check, 1.0, atol=1e-2):
@@ -171,10 +176,11 @@ class CopoModel(ABC):
 
         return result
 
-    def drift(self,
-              f10: float | FloatVectorLike,
-              x: float | FloatVectorLike
-              ) -> FloatArray:
+    def drift(
+        self,
+        f10: float | FloatVectorLike,
+        x: float | FloatVectorLike,
+    ) -> FloatArray:
         r"""Calculate drift of comonomer composition in a closed system for a
         given total monomer conversion.
 
@@ -204,16 +210,18 @@ class CopoModel(ABC):
 
         def df1dx(x_, f1_):
             F1_ = inst_copolymer_binary(f1_, *self.ri(f1_))
-            return (f1_ - F1_)/(1.0 - x_ + eps)
+            return (f1_ - F1_) / (1.0 - x_ + eps)
 
-        sol = solve_ivp(df1dx,
-                        (0.0, max(x)),
-                        f10,
-                        t_eval=x,
-                        method='LSODA',
-                        vectorized=True,
-                        atol=1e-4,
-                        rtol=1e-4)
+        sol = solve_ivp(
+            df1dx,
+            (0.0, max(x)),
+            f10,
+            t_eval=x,
+            method="LSODA",
+            vectorized=True,
+            atol=1e-4,
+            rtol=1e-4,
+        )
         if sol.success:
             result = sol.y
             result = np.maximum(0.0, result)
@@ -226,17 +234,18 @@ class CopoModel(ABC):
 
         return result
 
-    def plot(self,
-             kind: Literal['drift', 'kp', 'Mayo', 'triads'],
-             show: Literal['auto', 'all', 'data', 'model'] = 'auto',
-             M: Literal[1, 2] = 1,
-             f0: float | FloatVectorLike | None = None,
-             T: float | None = None,
-             Tunit: Literal['C', 'K'] = 'K',
-             title: str | None = None,
-             axes: Axes | None = None,
-             return_objects: bool = False
-             ) -> tuple[Figure | None, Axes] | None:
+    def plot(
+        self,
+        kind: Literal["drift", "kp", "Mayo", "triads"],
+        show: Literal["auto", "all", "data", "model"] = "auto",
+        M: Literal[1, 2] = 1,
+        f0: float | FloatVectorLike | None = None,
+        T: float | None = None,
+        Tunit: Literal["C", "K"] = "K",
+        title: str | None = None,
+        axes: Axes | None = None,
+        return_objects: bool = False,
+    ) -> tuple[Figure | None, Axes] | None:
         r"""Generate a plot of instantaneous copolymer composition, monomer
         composition drift, or average propagation rate coefficient.
 
@@ -271,18 +280,20 @@ class CopoModel(ABC):
         tuple[Figure | None, Axes] | None
             Figure and Axes objects if return_objects is `True`.
         """
-        check_in_set(M, {1, 2}, 'M')
-        check_in_set(kind, {'Mayo', 'kp', 'drift', 'triads'}, 'kind')
-        check_in_set(show, {'auto', 'all', 'data', 'model'}, 'show')
+        check_in_set(M, {1, 2}, "M")
+        check_in_set(kind, {"Mayo", "kp", "drift", "triads"}, "kind")
+        check_in_set(show, {"auto", "all", "data", "model"}, "show")
 
         label_model = None
         if axes is None:
             fig, ax = plt.subplots()
             if title is None:
-                titles = {'Mayo': "Mayo-Lewis diagram",
-                          'drift': "Monomer composition drift",
-                          'kp': "Average propagation coefficient",
-                          'triads': "Triad fractions"}
+                titles = {
+                    "Mayo": "Mayo-Lewis diagram",
+                    "drift": "Monomer composition drift",
+                    "kp": "Average propagation coefficient",
+                    "triads": "Triad fractions",
+                }
                 title = titles[kind] + f" {self.M1}(1)-{self.M2}(2)"
             if title:
                 fig.suptitle(title)
@@ -297,22 +308,22 @@ class CopoModel(ABC):
         Mname = self.M1 if M == 1 else self.M2
         ndataseries = 0
 
-        if show == 'auto':
+        if show == "auto":
             if not self.data:
-                show = 'model'
+                show = "model"
             else:
-                show = 'all'
+                show = "all"
 
-        if kind == 'Mayo':
+        if kind == "Mayo":
 
-            ax.set_xlabel(fr"$f_{M}$")
-            ax.set_ylabel(fr"$F_{M}$")
+            ax.set_xlabel(rf"$f_{M}$")
+            ax.set_ylabel(rf"$F_{M}$")
             ax.set_xlim(*unit_range)
             ax.set_ylim(*unit_range)
 
-            ax.plot(unit_range, unit_range, color='black', linewidth=0.5)
+            ax.plot(unit_range, unit_range, color="black", linewidth=0.5)
 
-            if show in {'model', 'all'}:
+            if show in {"model", "all"}:
                 x = np.linspace(*unit_range, npoints, dtype=float)
                 y = self.F1(x)
                 if M == 2:
@@ -320,24 +331,23 @@ class CopoModel(ABC):
                     y[:] = 1.0 - y  # type: ignore
                 ax.plot(x, y, label=label_model)
 
-            if show in {'data', 'all'}:
+            if show in {"data", "all"}:
                 for ds in self.data:
                     if not isinstance(ds, MayoDataset):
                         continue
-                    x = ds.getvar('f', Mname)
-                    y = ds.getvar('F', Mname)
+                    x = ds.getvar("f", Mname)
+                    y = ds.getvar("F", Mname)
                     ndataseries += 1
-                    ax.scatter(x, y,
-                               label=ds.name if ds.name else None)
+                    ax.scatter(x, y, label=ds.name if ds.name else None)
 
-        elif kind == 'drift':
+        elif kind == "drift":
 
             ax.set_xlabel(r"Total molar monomer conversion, $x$")
-            ax.set_ylabel(fr"$f_{M}$")
+            ax.set_ylabel(rf"$f_{M}$")
             ax.set_xlim(*unit_range)
             ax.set_ylim(*unit_range)
 
-            if show == 'model':
+            if show == "model":
 
                 if f0 is None:
                     raise ValueError("`f0` is required for a `drift` plot.")
@@ -345,7 +355,7 @@ class CopoModel(ABC):
                     if isinstance(f0, (int, float)):
                         f0 = [f0]
                     f0 = np.array(f0, dtype=float)
-                    check_bounds(f0, *unit_range, 'f0')
+                    check_bounds(f0, *unit_range, "f0")
 
                 x = np.linspace(*unit_range, 1000)
                 if M == 2:
@@ -358,31 +368,30 @@ class CopoModel(ABC):
                 for i in range(y.shape[0]):
                     ax.plot(x, y[i, :], label=label_model)
 
-            if show in {'data', 'all'}:
+            if show in {"data", "all"}:
 
                 for ds in self.data:
                     if not isinstance(ds, DriftDataset):
                         continue
-                    x = ds.getvar('x')
-                    y = ds.getvar('f', Mname)
+                    x = ds.getvar("x")
+                    y = ds.getvar("f", Mname)
                     ndataseries += 1
-                    ax.scatter(x, y,
-                               label=ds.name if ds.name else None)
+                    ax.scatter(x, y, label=ds.name if ds.name else None)
 
-                    if show == 'all':
+                    if show == "all":
                         x = np.linspace(*unit_range, npoints)
-                        y = self.drift(ds.getvar('f', self.M1)[0], x)
+                        y = self.drift(ds.getvar("f", self.M1)[0], x)
                         if M == 2:
                             y[:] = 1.0 - y
                         ax.plot(x, y, label=label_model)
 
-        elif kind == 'kp':
+        elif kind == "kp":
 
-            ax.set_xlabel(fr"$f_{M}$")
+            ax.set_xlabel(rf"$f_{M}$")
             ax.set_ylabel(r"$\bar{k}_p$")
             ax.set_xlim(*unit_range)
 
-            if show == 'model':
+            if show == "model":
 
                 if T is None:
                     raise ValueError("`T` is required for a `kp` plot.")
@@ -393,24 +402,23 @@ class CopoModel(ABC):
                     x[:] = 1.0 - x
                 ax.plot(x, y, label=label_model)
 
-            if show in {'data', 'all'}:
+            if show in {"data", "all"}:
 
                 for ds in self.data:
                     if not isinstance(ds, kpDataset):
                         continue
-                    x = ds.getvar('f', Mname)
-                    y = ds.getvar('kp')
+                    x = ds.getvar("f", Mname)
+                    y = ds.getvar("kp")
                     ndataseries += 1
-                    ax.scatter(x, y,
-                               label=ds.name if ds.name else None)
-                    if show == 'all':
+                    ax.scatter(x, y, label=ds.name if ds.name else None)
+                    if show == "all":
                         x = np.linspace(*unit_range, npoints)
                         y = self.kp(x, ds.T, ds.Tunit)
                         if M == 2:
                             x[:] = 1.0 - x
                         ax.plot(x, y, label=label_model)
 
-        elif kind == 'triads':
+        elif kind == "triads":
             raise NotImplementedError("Triads plotting not implemented yet.")
 
         ax.grid(True)
@@ -421,9 +429,10 @@ class CopoModel(ABC):
         if return_objects:
             return (fig, ax)
 
-    def add_data(self,
-                 data: CopoDataset | list[CopoDataset]
-                 ) -> None:
+    def add_data(
+        self,
+        data: CopoDataset | list[CopoDataset],
+    ) -> None:
         r"""Add a copolymerization dataset for subsequent analysis.
 
         Parameters
@@ -440,14 +449,12 @@ class CopoModel(ABC):
             if ds_monomers != valid_monomers:
                 raise ValueError(
                     f"Monomers defined in dataset `{ds.name}` are invalid: "
-                    f"{ds_monomers}!={valid_monomers}")
+                    f"{ds_monomers}!={valid_monomers}"
+                )
             if ds not in set(self.data):
                 self.data.append(ds)
             else:
                 warn(f"Duplicate dataset '{ds.name}' was skipped.")
-
-
-# %% Terminal model
 
 
 class TerminalModel(CopoModel):
@@ -490,41 +497,44 @@ class TerminalModel(CopoModel):
     r1: float
     r2: float
 
-    _pnames = ('r1', 'r2')
+    _pnames = ("r1", "r2")
 
-    def __init__(self,
-                 r1: float,
-                 r2: float,
-                 k1: Arrhenius | None = None,
-                 k2: Arrhenius | None = None,
-                 M1: str = 'M1',
-                 M2: str = 'M2',
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        r1: float,
+        r2: float,
+        k1: Arrhenius | None = None,
+        k2: Arrhenius | None = None,
+        M1: str = "M1",
+        M2: str = "M2",
+        name: str = "",
+    ) -> None:
 
-        check_bounds(r1, 0.0, np.inf, 'r1')
-        check_bounds(r2, 0.0, np.inf, 'r2')
+        check_bounds(r1, 0.0, np.inf, "r1")
+        check_bounds(r2, 0.0, np.inf, "r2")
 
         # Perhaps this could be upgraded to exception, but I don't want to be
         # too restrictive (one does find literature data with (r1,r2)>1)
         if r1 > 1.0 and r2 > 1.0:
             warn(
-                f"`r1`={r1} and `r2`={r2} are both greater than 1, which is deemed physically impossible.")
+                f"`r1`={r1} and `r2`={r2} are both greater than 1, which is deemed physically impossible."
+            )
 
         self.r1 = r1
         self.r2 = r2
         super().__init__(k1, k2, M1, M2, name)
 
     @classmethod
-    def from_Qe(cls,
-                Qe1: tuple[float, float],
-                Qe2: tuple[float, float],
-                k1: Arrhenius | None = None,
-                k2: Arrhenius | None = None,
-                M1: str = 'M1',
-                M2: str = 'M2',
-                name: str = ''
-                ) -> TerminalModel:
+    def from_Qe(
+        cls,
+        Qe1: tuple[float, float],
+        Qe2: tuple[float, float],
+        k1: Arrhenius | None = None,
+        k2: Arrhenius | None = None,
+        M1: str = "M1",
+        M2: str = "M2",
+        name: str = "",
+    ) -> TerminalModel:
         r"""Construct `TerminalModel` from Q-e values.
 
         Alternative constructor that takes the $Q$-$e$ values of the monomers
@@ -576,29 +586,31 @@ class TerminalModel(CopoModel):
         r1 = self.r1
         r2 = self.r2
         if r1 < 1.0 and r2 < 1.0:
-            result = (1.0 - r2)/(2.0 - r1 - r2)
+            result = (1.0 - r2) / (2.0 - r1 - r2)
         else:
             result = None
         return result
 
-    def ri(self,
-           f1: float | FloatArray
-           ) -> tuple[float | FloatArray, float | FloatArray]:
+    def ri(
+        self,
+        f1: float | FloatArray,
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         return (self.r1, self.r2)
 
-    def kii(self,
-            f1: float | FloatArray,
-            T: float,
-            Tunit: Literal['C', 'K'] = 'K'
-            ) -> tuple[float | FloatArray, float | FloatArray]:
+    def kii(
+        self,
+        f1: float | FloatArray,
+        T: float,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> tuple[float | FloatArray, float | FloatArray]:
         if self.k1 is None or self.k2 is None:
-            raise ValueError(
-                "To use this feature, `k1` and `k2` cannot be `None`.")
+            raise ValueError("To use this feature, `k1` and `k2` cannot be `None`.")
         return (self.k1(T, Tunit), self.k2(T, Tunit))
 
-    def transitions(self,
-                    f1: float | FloatArrayLike
-                    ) -> dict[str, float | FloatArray]:
+    def transitions(
+        self,
+        f1: float | FloatArrayLike,
+    ) -> dict[str, float | FloatArray]:
         r"""Calculate the instantaneous transition probabilities.
 
         For a binary system, the transition probabilities are given by:
@@ -625,29 +637,26 @@ class TerminalModel(CopoModel):
         dict[str, float | FloatArray]
             Transition probabilities, {'11': $P_{11}$, '12': $P_{12}$, ... }.
         """
-
         if isinstance(f1, (list, tuple)):
             f1 = np.array(f1, dtype=float)
-        check_bounds(f1, 0.0, 1.0, 'f1')
+        check_bounds(f1, 0.0, 1.0, "f1")
 
         f2 = 1.0 - f1
         r1 = self.r1
         r2 = self.r2
-        P11 = r1*f1/(r1*f1 + f2)
-        P22 = r2*f2/(r2*f2 + f1)
+        P11 = r1 * f1 / (r1 * f1 + f2)
+        P22 = r2 * f2 / (r2 * f2 + f1)
         P12 = 1.0 - P11
         P21 = 1.0 - P22
 
-        result = {'11': P11,
-                  '12': P12,
-                  '21': P21,
-                  '22': P22}
+        result = {"11": P11, "12": P12, "21": P21, "22": P22}
 
         return result
 
-    def triads(self,
-               f1: float | FloatArrayLike
-               ) -> dict[str, float | FloatArray]:
+    def triads(
+        self,
+        f1: float | FloatArrayLike,
+    ) -> dict[str, float | FloatArray]:
         r"""Calculate the instantaneous triad fractions.
 
         For a binary system, the triad fractions are given by:
@@ -677,37 +686,39 @@ class TerminalModel(CopoModel):
             Triad fractions,
             {'111': $A_{111}$, '112': $A_{112}$, '212': $A_{212}$, ... }.
         """
-
         P = self.transitions(f1)
-        P11 = P['11']
-        P12 = P['12']
-        P21 = P['21']
-        P22 = P['22']
+        P11 = P["11"]
+        P12 = P["12"]
+        P21 = P["21"]
+        P22 = P["22"]
 
-        F1 = P21/(P12 + P21 + eps)
+        F1 = P21 / (P12 + P21 + eps)
         F2 = 1.0 - F1
 
-        A111 = F1*P11**2
-        A112 = F1*2*P11*P12
-        A212 = F1*P12**2
+        A111 = F1 * P11**2
+        A112 = F1 * 2 * P11 * P12
+        A212 = F1 * P12**2
 
-        A222 = F2*P22**2
-        A221 = F2*2*P22*P21
-        A121 = F2*P21**2
+        A222 = F2 * P22**2
+        A221 = F2 * 2 * P22 * P21
+        A121 = F2 * P21**2
 
-        result = {'111': A111,
-                  '112': A112,
-                  '212': A212,
-                  '222': A222,
-                  '221': A221,
-                  '121': A121}
+        result = {
+            "111": A111,
+            "112": A112,
+            "212": A212,
+            "222": A222,
+            "221": A221,
+            "121": A121,
+        }
 
         return result
 
-    def sequence(self,
-                 f1: float | FloatArrayLike,
-                 k: int | IntArrayLike | None = None,
-                 ) -> dict[str, float | FloatArray]:
+    def sequence(
+        self,
+        f1: float | FloatArrayLike,
+        k: int | IntArrayLike | None = None,
+    ) -> dict[str, float | FloatArray]:
         r"""Calculate the instantaneous sequence length probability or the
         number-average sequence length.
 
@@ -743,18 +754,19 @@ class TerminalModel(CopoModel):
             {'1': $\bar{S}_1$, '2': $\bar{S}_2$}. Otherwise, the
             sequence probabilities, {'1': $S_{1,k}$, '2': $S_{2,k}$}.
         """
-
         P = self.transitions(f1)
-        P11 = P['11']
-        P22 = P['22']
+        P11 = P["11"]
+        P22 = P["22"]
 
         if k is None:
-            result = {str(i + 1): 1.0/(1.0 - P + eps)
-                      for i, P in enumerate([P11, P22])}
+            result = {
+                str(i + 1): 1.0 / (1.0 - P + eps) for i, P in enumerate([P11, P22])
+            }
         else:
             if isinstance(k, (list, tuple)):
                 k = np.asarray(k, dtype=int)
-            result = {str(i + 1): (1.0 - P)*P**(k - 1)
-                      for i, P in enumerate([P11, P22])}
+            result = {
+                str(i + 1): (1.0 - P) * P ** (k - 1) for i, P in enumerate([P11, P22])
+            }
 
         return result

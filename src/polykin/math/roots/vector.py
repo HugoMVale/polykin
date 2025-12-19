@@ -2,8 +2,9 @@
 #
 # Copyright Hugo Vale 2025
 
+from collections.abc import Callable
 from enum import IntEnum
-from typing import Callable, Literal
+from typing import Literal
 
 import numpy as np
 import scipy
@@ -15,9 +16,7 @@ from polykin.math.roots.results import VectorRootResult
 from polykin.utils.math import eps
 from polykin.utils.types import FloatMatrix, FloatVector
 
-all = ['rootvec_qnewton']
-
-# %% quasi-Newton's method for systems of nonlinear equations
+all = ["rootvec_qnewton"]
 
 
 def rootvec_qnewton(
@@ -32,7 +31,7 @@ def rootvec_qnewton(
     maxlenfac: float = 1e3,
     trustlen: float | None = None,
     ndigit: int | None = None,
-    global_method: Literal['line-search', 'dogleg'] | None = 'line-search',
+    global_method: Literal["line-search", "dogleg"] | None = "line-search",
     broyden_update: bool = False,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
     jac0: FloatMatrix | None = None,
@@ -41,7 +40,7 @@ def rootvec_qnewton(
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
     method with optional global strategies.
 
-    This function implements a quasi-Newton solver for systems of nonlinear 
+    This function implements a quasi-Newton solver for systems of nonlinear
     equations according to Dennis and Schnabel (1996). The user can choose the
     approach to calculate and update the Jacobian approximation, as well as the
     global strategy to improve convergence from remote starting points.
@@ -54,9 +53,9 @@ def rootvec_qnewton(
     !!! note
 
         Solving systems of nonlinear equations is a surprisingly complex task —
-        often more difficult than solving systems of differential equations or 
-        even multivariate optimization problems. 
-        Convergence is guaranteed only when the initial guess is sufficiently 
+        often more difficult than solving systems of differential equations or
+        even multivariate optimization problems.
+        Convergence is guaranteed only when the initial guess is sufficiently
         close to the root, which is rarely true in practice. The choice of a
         good initial guess, appropriate scaling factors, and a suitable global
         strategy is an essential part of solving the problem.
@@ -74,7 +73,7 @@ def rootvec_qnewton(
         Initial guess for the root. Moreover, if no user-defined scale `sclx`
         is provided, the scaling factors will be determined from this value.
     tolx : float
-        Tolerance for the scaled step size. The algorithm terminates when the 
+        Tolerance for the scaled step size. The algorithm terminates when the
         scaled distance between two successive iterates `||Δx/max(x, 1/sclx)||∞`
         is below this threshold. If the value is too large, the algorithm may
         terminate prematurely. A value on the order of $\epsilon^{2/3}$ is
@@ -82,7 +81,7 @@ def rootvec_qnewton(
     tolf : float
         Tolerance for the scaled residual norm. This is the main convergence
         criterion. The algorithm terminates when the infinity norm of the scaled
-        function values `||sclf*f(x)||∞` is below this threshold. A value on 
+        function values `||sclf*f(x)||∞` is below this threshold. A value on
         the order of $\epsilon^{1/3}$ is typically recommended.
     sclx : FloatVector | None
         Positive scaling factors for the components of `x`. Ideally, these
@@ -97,7 +96,7 @@ def rootvec_qnewton(
     maxlenfac : float
         Factor determining the maximum allowable scaled step length `||sclx*Δx||₂`
         for global methods. Used to prevent steps that would cause the algorithm
-        to overflow, leave the domain of interest, or diverge. It should be 
+        to overflow, leave the domain of interest, or diverge. It should be
         chosen small enough to prevent such issues, but large enough to allow
         any anticipated reasonable step length.
     trustlen : float | None
@@ -105,7 +104,7 @@ def rootvec_qnewton(
         the length of the initial scaled gradient is used.
     ndigit : int | None
         Number of reliable digits returned by `f`. Used to set the step size
-        for finite-difference Jacobian approximations. By default, 64-bit float 
+        for finite-difference Jacobian approximations. By default, 64-bit float
         precision is assumed (i.e., ~15 digits).
     global_method : Literal['line-search','dogleg'] | None
         Global strategy to improve convergence from remote starting points. With
@@ -114,7 +113,7 @@ def rootvec_qnewton(
         the Armijo condition is fullfiled. With `dogleg`, a trust-region dogleg
         method is used to compute both the step direction and length. If `None`,
         no global strategy is used and the full quasi-Newton step is taken at
-        each iteration. 
+        each iteration.
     broyden_update : bool
         If `True`, the Jacobian is updated at each iteration using Broyden's
         rank-1 update formula. If `False`, the Jacobian is computed at each
@@ -148,7 +147,7 @@ def rootvec_qnewton(
     >>> from polykin.math import rootvec_qnewton
     >>> import numpy as np
     >>> def f(x, A0=1.0, B0=2.0, C0=0.0, k1=1e-3, k2=5e-4, tau=1e3):
-    ...     "Steady-state mole balances: inflow - outflow ± reaction" 
+    ...     "Steady-state mole balances: inflow - outflow ± reaction"
     ...     A, B, C = x
     ...     f = np.zeros_like(x)
     ...     f[0] = (A0 - A)/tau - k1*A*B
@@ -159,7 +158,6 @@ def rootvec_qnewton(
     >>> sol.x
     array([0.41421356, 1.41421356, 0.34314575])
     """
-
     method = "Quasi-Newton"
     if global_method:
         method += f" ({global_method})"
@@ -187,22 +185,22 @@ def rootvec_qnewton(
             J = jac(xc)
             njeval += 1
         else:
-            J = jacobian_forward(f, xc, fc, sclx, ndigit)
+            J = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
             nfeval += n
 
     # Set f scaling factors
     if sclf is None:
         sclf = np.max(np.abs(J), axis=1)
         sclf[sclf == 0.0] = 1.0
-        sclf = 1/sclf
+        sclf = 1 / sclf
 
     # Check initial solution with tight tolerance
-    if norm(sclf*fc, np.inf) <= 1e-2*tolf:
+    if norm(sclf * fc, np.inf) <= 1e-2 * tolf:
         message = "||sclf*f(x0)||∞ ≤ 1e-2*tolf"
         return VectorRootResult(method, True, message, nfeval, njeval, 0, x0, fc, J)
 
     # Set maximum step length for global methods
-    maxlen = max(0.0, maxlenfac)*float(max(norm(sclx*x0), norm(sclx)))
+    maxlen = max(0.0, maxlenfac) * float(max(norm(sclx * x0), norm(sclx)))
 
     # Set initial trust region radius for dogleg method
     if trustlen is None:
@@ -212,15 +210,15 @@ def rootvec_qnewton(
 
     # Norm function for global methods
     def fN(fx: FloatVector) -> float:
-        "1/2*||sclf*f(x)||²"
-        return 0.5*np.sum((sclf*fx)**2)
+        """1/2*||sclf*f(x)||²."""
+        return 0.5 * np.sum((sclf * fx) ** 2)
 
     gm_nmaxsteps = 0
     restart = True
     Q = np.array([])
     R = np.array([])
 
-    for niter in range(1, maxiter+1):
+    for niter in range(1, maxiter + 1):
 
         if verbose:
             print(f"Iteration {niter:3d}:", flush=True)
@@ -234,11 +232,11 @@ def rootvec_qnewton(
                 break
 
         # Condition number of R
-        Rcond = np.linalg.cond(R/sclx, 1)
+        Rcond = np.linalg.cond(R / sclx, 1)
 
         # Solve (Q*R)*p = - sclf*fc
-        if Rcond < 1/sqrt(eps):
-            p = - scipy.linalg.solve_triangular(R, Q.T @ (sclf * fc))
+        if Rcond < 1 / sqrt(eps):
+            p = -scipy.linalg.solve_triangular(R, Q.T @ (sclf * fc))
             if global_method:
                 gc = R.T @ (Q.T @ (sclf * fc))
         else:
@@ -246,10 +244,10 @@ def rootvec_qnewton(
                 print("R is ill-conditioned (cond={Rcond:.2e}).", flush=True)
             H = R.T @ R
             Hnorm = norm(H / (sclx[:, None] * sclx[None, :]), 1)
-            H[np.diag_indices_from(H)] += sqrt(n*eps)*Hnorm*sclx**2
+            H[np.diag_indices_from(H)] += sqrt(n * eps) * Hnorm * sclx**2
             gc = R.T @ (Q.T @ (sclf * fc))
             R, _ = scipy.linalg.cho_factor(H, overwrite_a=True)
-            p = - scipy.linalg.cho_solve((R, False), gc)
+            p = -scipy.linalg.cho_solve((R, False), gc)
 
         # Compute actual x step
         if global_method is None:
@@ -258,12 +256,14 @@ def rootvec_qnewton(
             gm_ismaxstep = True
             gm_success = True
             gm_nfeval = 1
-        elif global_method == 'line-search':
-            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _ = \
-                line_search(f, fN, xc, fc, gc, p, tolx, sclx, maxlen, verbose)
-        elif global_method == 'dogleg':
-            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _, trustlen = \
-                dogleg(f, fN, xc, fc, gc, p, R, tolx, sclx, maxlen, trustlen, verbose)
+        elif global_method == "line-search":
+            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _ = line_search(
+                f, fN, xc, fc, gc, p, tolx, sclx, maxlen, verbose
+            )
+        elif global_method == "dogleg":
+            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _, trustlen = dogleg(
+                f, fN, xc, fc, gc, p, R, tolx, sclx, maxlen, trustlen, verbose
+            )
         else:
             raise ValueError(f"Unknown `global_method`: {global_method}.")
 
@@ -272,9 +272,10 @@ def rootvec_qnewton(
 
         # Display iteration progress
         if verbose:
-            print(f"  x = {xp}\n"
-                  f"  ||sclx*f(x)||∞ = {norm(sclf*fp, np.inf):.2e}",
-                  flush=True)
+            print(
+                f"  x = {xp}\n" f"  ||sclx*f(x)||∞ = {norm(sclf*fp, np.inf):.2e}",
+                flush=True,
+            )
 
         # If global method step failed, restart once
         if not gm_success and not restart:
@@ -282,33 +283,30 @@ def rootvec_qnewton(
                 J = jac(xc)
                 njeval += 1
             else:
-                J = jacobian_forward(f, xc, fc, sclx, ndigit)
+                J = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
                 nfeval += n
             restart = True
             continue
 
         # Check termination and convergence conditions
         if not gm_success:
-            message = \
-                """Last global step failed to decrease ½||sclx*f(x)||₂ sufficiently.
+            message = """Last global step failed to decrease ½||sclx*f(x)||₂ sufficiently.
             Either `x` is close to a root and no more accuracy is possible,
             or the secant approximation to the Jacobian is inaccurate,
             or `tolx` is too large."""
             stop = True
-        elif norm(sclf*fp, np.inf) <= tolf:
+        elif norm(sclf * fp, np.inf) <= tolf:
             message = "||sclf*f(x)||∞ ≤ tolf"
             success = True
             stop = True
-        elif norm((xp - xc)/np.maximum(np.abs(xp), 1/sclx), np.inf) <= tolx:
-            message = \
-                """||Δx/max(x, 1/sclx)||∞ ≤ tolx
+        elif norm((xp - xc) / np.maximum(np.abs(xp), 1 / sclx), np.inf) <= tolx:
+            message = """||Δx/max(x, 1/sclx)||∞ ≤ tolx
             `x` may be an approximate root, but it is also possible that the
             the algorithm is making slow progress and is not near a root,
             or that `tolx` is too large."""
             stop = True
         elif global_method and gm_nmaxsteps >= 5:
-            message = \
-                """Maximum number (5) of consecutive steps of length `maxlen` reached.
+            message = """Maximum number (5) of consecutive steps of length `maxlen` reached.
             Perhaps stuck in a flat region or `maxlen` is too small."""
             stop = True
         else:
@@ -326,7 +324,7 @@ def rootvec_qnewton(
                 J = jac(xp)
                 njeval += 1
             else:
-                J = jacobian_forward(f, xp, fp, sclx, ndigit)
+                J = jacobian_forward(f, xp, fx=fp, sclx=sclx, ndigit=ndigit)
                 nfeval += n
 
         # Next iteration
@@ -350,13 +348,13 @@ def _update_broyden_qr(
     Qc: FloatMatrix,
     Rc: FloatMatrix,
     sclx: FloatVector,
-    sclf: FloatVector
+    sclf: FloatVector,
 ) -> tuple[FloatMatrix, FloatMatrix]:
     r"""Perform a Broyden update of the QR decomposition of a Jacobian
     approximation.
 
     This function updates the QR factors of an approximate Jacobian according
-    to the Broyden rank-1 update formula, using scaling factors for both the 
+    to the Broyden rank-1 update formula, using scaling factors for both the
     variables and function values to improve numerical conditioning.
 
     **References**
@@ -388,20 +386,17 @@ def _update_broyden_qr(
     tuple[FloatMatrix, FloatMatrix]
         The updated orthogonal and upper-triangular factors, `(Qp, Rp)`.
     """
-
     s = xp - xc
     y = fp - fc
 
-    w = sclf*y - Qc @ (Rc @ s)
-    w[np.abs(w) < eps*sclf*(np.abs(fp) + np.abs(fc))] = 0.0
+    w = sclf * y - Qc @ (Rc @ s)
+    w[np.abs(w) < eps * sclf * (np.abs(fp) + np.abs(fc))] = 0.0
 
-    t = s*sclx**2
+    t = s * sclx**2
     s = t / dot(s, t)
     Qp, Rp = scipy.linalg.qr_update(Qc, Rc, w, s, overwrite_qruv=True)
 
     return (Qp, Rp)
-
-# %% Line-search method
 
 
 def line_search(
@@ -414,7 +409,7 @@ def line_search(
     tolx: float,
     sclx: FloatVector,
     maxlen: float,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> tuple[bool, bool, int, FloatVector, FloatVector, float]:
     r"""Perform a line search.
 
@@ -454,14 +449,13 @@ def line_search(
     tuple[bool, bool, int, FloatVector, FloatVector, float]
         `(success, ismaxstep, nfeval, xp, fp, fNp)`
     """
-
     nfeval = 0
     success = False
     ismaxstep = False
 
-    newtlen = norm(sclx*p)
+    newtlen = norm(sclx * p)
     if newtlen > maxlen:
-        p = p*(maxlen/newtlen)
+        p = p * (maxlen / newtlen)
         newtlen = maxlen
 
     fNc = fN(fc)
@@ -469,7 +463,7 @@ def line_search(
 
     α = 1e-4
     λ = 1.0
-    λmin = tolx/np.max(np.abs(p)/np.maximum(np.abs(xc), 1/sclx))
+    λmin = tolx / np.max(np.abs(p) / np.maximum(np.abs(xc), 1 / sclx))
 
     A = np.empty((2, 2))
     B = np.empty(2)
@@ -479,7 +473,7 @@ def line_search(
     first = True
     while True:
 
-        xp = xc + λ*p
+        xp = xc + λ * p
         fp = f(xp)
         fNp = fN(fp)
         nfeval += 1
@@ -487,9 +481,9 @@ def line_search(
         if verbose:
             print(f"  λ = {λ:.2e}, ½||sclx*f(x)||² = {fNp:.2e}", flush=True)
 
-        if fNp <= fNc + α*λ*slope:
+        if fNp <= fNc + α * λ * slope:
             success = True
-            if first and (newtlen > 0.99*maxlen):
+            if first and (newtlen > 0.99 * maxlen):
                 ismaxstep = True
             break
         elif λ < λmin:
@@ -498,35 +492,31 @@ def line_search(
             break
         else:
             if first:
-                λtemp = - slope/(2*(fNp - fNc - slope))
+                λtemp = -slope / (2 * (fNp - fNc - slope))
                 first = False
             else:
-                A[0, 0] = 1/λ**2
-                A[0, 1] = -1/λ_prev**2
-                A[1, 0] = -λ_prev/λ**2
-                A[1, 1] = λ/λ_prev**2
-                B[0] = fNp - fNc - λ*slope
-                B[1] = fNp_prev - fNc - λ_prev*slope
-                a, b = 1/(λ - λ_prev) * A @ B
+                A[0, 0] = 1 / λ**2
+                A[0, 1] = -1 / λ_prev**2
+                A[1, 0] = -λ_prev / λ**2
+                A[1, 1] = λ / λ_prev**2
+                B[0] = fNp - fNc - λ * slope
+                B[1] = fNp_prev - fNc - λ_prev * slope
+                a, b = 1 / (λ - λ_prev) * A @ B
                 if isclose(a, 0.0):
-                    λtemp = - slope/(2*b)
+                    λtemp = -slope / (2 * b)
                 else:
-                    λtemp = (-b + sqrt(b**2 - 3*a*slope))/(3*a)
-                λtemp = min(λtemp, 0.5*λ)
+                    λtemp = (-b + sqrt(b**2 - 3 * a * slope)) / (3 * a)
+                λtemp = min(λtemp, 0.5 * λ)
             λ_prev = λ
             fNp_prev = fNp
-            λ = max(0.1*λ, λtemp)
+            λ = max(0.1 * λ, λtemp)
 
     return (success, ismaxstep, nfeval, xp, fp, fNp)
 
 
-# %% Dogleg method
-
-
 class TrustState(IntEnum):
-    """
-    Codes for the status of the trust region step and update.
-    """
+    """Codes for the status of the trust region step and update."""
+
     accepted = 0
     convergence = 1
     rejected = 2
@@ -546,7 +536,7 @@ def dogleg(
     sclx: FloatVector,
     maxlen: float,
     trustlen: float,
-    verbose: bool = False
+    verbose: bool = False,
 ) -> tuple[bool, bool, int, FloatVector, FloatVector, float, float]:
     r"""Perform a dogleg step.
 
@@ -587,7 +577,6 @@ def dogleg(
     tuple[bool, bool, int, FloatVector, FloatVector, float, float]
         `(success, ismaxstep, nfeval, xp, fp, fNp, trustlen)`
     """
-
     nfeval = 0
     state = TrustState.start
     ismaxstep = False
@@ -600,11 +589,11 @@ def dogleg(
     fp_prev = fc
     fNp_prev = 0.0
 
-    newtlen = float(norm(sclx*p))
+    newtlen = float(norm(sclx * p))
     fNc = fN(fc)
 
     first = True
-    while not (state in (TrustState.accepted, TrustState.convergence)):
+    while state not in (TrustState.accepted, TrustState.convergence):
 
         # Perform dogleg step to determine s
         if newtlen <= trustlen:
@@ -615,31 +604,46 @@ def dogleg(
             isnewtstep = False
             if first:
                 first = False
-                α = norm(gc/sclx)**2
-                β = norm(R @ (gc / sclx**2))**2
-                sSD = - (α/β) * (gc/sclx)
-                cauchylen = α*sqrt(α)/β
+                α = norm(gc / sclx) ** 2
+                β = norm(R @ (gc / sclx**2)) ** 2
+                sSD = -(α / β) * (gc / sclx)
+                cauchylen = α * sqrt(α) / β
                 η = 0.2 + (0.8 * α**2 / (β * abs(dot(gc, p))))
-                v = η*(p*sclx) - sSD
+                v = η * (p * sclx) - sSD
                 if trustlen <= 0.0:
                     trustlen = min(cauchylen, maxlen)
 
-            if η*newtlen <= trustlen:
-                s = (trustlen/newtlen)*p
+            if η * newtlen <= trustlen:
+                s = (trustlen / newtlen) * p
             elif cauchylen >= trustlen:
-                s = (trustlen/cauchylen)*(sSD/sclx)
+                s = (trustlen / cauchylen) * (sSD / sclx)
             else:
                 a = dot(v, v)
                 b = dot(v, sSD)
-                λ = (-b + sqrt(b**2 - a*(cauchylen**2 - trustlen**2))) / a
-                s = (sSD + λ*v)/sclx
+                λ = (-b + sqrt(b**2 - a * (cauchylen**2 - trustlen**2))) / a
+                s = (sSD + λ * v) / sclx
 
         # Update trust region
-        state, ismaxstep, trustlen, xp, fp, fNp, xp_prev, fp_prev, fNp_prev = \
+        state, ismaxstep, trustlen, xp, fp, fNp, xp_prev, fp_prev, fNp_prev = (
             _update_trust_region(
-                f, fN, fNc, xc, gc, R, s, sclx, tolx, maxlen, trustlen,
-                isnewtstep, xp_prev, fp_prev, fNp_prev, state
+                f,
+                fN,
+                fNc,
+                xc,
+                gc,
+                R,
+                s,
+                sclx,
+                tolx,
+                maxlen,
+                trustlen,
+                isnewtstep,
+                xp_prev,
+                fp_prev,
+                fNp_prev,
+                state,
             )
+        )
         nfeval += 1
 
         # Display iteration progress
@@ -665,8 +669,18 @@ def _update_trust_region(
     xp_prev: FloatVector,
     fp_prev: FloatVector,
     fNp_prev: float,
-    state: TrustState
-) -> tuple[TrustState, bool, float, FloatVector, FloatVector, float, FloatVector, FloatVector, float]:
+    state: TrustState,
+) -> tuple[
+    TrustState,
+    bool,
+    float,
+    FloatVector,
+    FloatVector,
+    float,
+    FloatVector,
+    FloatVector,
+    float,
+]:
     r"""Perform trust-region update.
 
     **References**
@@ -714,11 +728,10 @@ def _update_trust_region(
     tuple[TrustRegionState, bool, float, FloatVector, FloatVector, float, FloatVector, FloatVector, float]
         `(state, ismaxstep, trustlen, xp, fp, fNp, xp_prev, fp_prev, fNp_prev)`
     """
-
     α = 1e-4
     ismaxstep = False
 
-    steplen = norm(sclx*s)
+    steplen = norm(sclx * s)
     slope = dot(gc, s)
 
     xp = xc + s
@@ -727,36 +740,41 @@ def _update_trust_region(
     fNp = fN(fp)
     ΔfN = fNp - fNc
 
-    if (state == TrustState.exploratory_success) and \
-            ((fNp >= fNp_prev) or (ΔfN > α*slope)):
+    if (state == TrustState.exploratory_success) and (
+        (fNp >= fNp_prev) or (ΔfN > α * slope)
+    ):
         state = TrustState.accepted
         xp, fp, fNp = xp_prev, fp_prev, fNp_prev
         trustlen *= 0.5
-    elif (ΔfN >= α*slope):
-        rlen = np.max(np.abs(s)/np.maximum(np.abs(xp), 1/sclx))
+    elif ΔfN >= α * slope:
+        rlen = np.max(np.abs(s) / np.maximum(np.abs(xp), 1 / sclx))
         if rlen < tolx:
             state = TrustState.convergence
             xp = xc
         else:
             state = TrustState.rejected
-            trustlen = np.clip(-slope*steplen/(2*(ΔfN - slope)),
-                               0.1*trustlen, 0.5*trustlen)
+            trustlen = np.clip(
+                -slope * steplen / (2 * (ΔfN - slope)), 0.1 * trustlen, 0.5 * trustlen
+            )
     else:
-        ΔfN_pred = slope + 0.5*norm(R @ s)**2
-        if (state != TrustState.rejected) and \
-            (not isnewtstep) and (trustlen <= 0.99*maxlen) and \
-                ((abs(ΔfN_pred - ΔfN) <= 0.1*abs(ΔfN)) or (ΔfN <= slope)):
+        ΔfN_pred = slope + 0.5 * norm(R @ s) ** 2
+        if (
+            (state != TrustState.rejected)
+            and (not isnewtstep)
+            and (trustlen <= 0.99 * maxlen)
+            and ((abs(ΔfN_pred - ΔfN) <= 0.1 * abs(ΔfN)) or (ΔfN <= slope))
+        ):
             state = TrustState.exploratory_success
             xp_prev, fp_prev, fNp_prev = xp, fp, fNp
-            trustlen = min(2*trustlen, maxlen)
+            trustlen = min(2 * trustlen, maxlen)
         else:
             state = TrustState.accepted
-            if steplen >= 0.99*maxlen:
+            if steplen >= 0.99 * maxlen:
                 ismaxstep = True
-            if ΔfN >= 0.1*ΔfN_pred:
+            if ΔfN >= 0.1 * ΔfN_pred:
                 trustlen *= 0.5
-            elif ΔfN <= 0.75*ΔfN_pred:
-                trustlen = min(2*trustlen, maxlen)
+            elif ΔfN <= 0.75 * ΔfN_pred:
+                trustlen = min(2 * trustlen, maxlen)
             else:
                 trustlen = trustlen  # no change
 

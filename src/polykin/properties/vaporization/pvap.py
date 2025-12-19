@@ -5,9 +5,9 @@
 from numpy import exp, log
 
 __all__ = [
-    'PL_Lee_Kesler',
-    'PL_Wilson',
-    'PL_Ambrose_Walton'
+    "PL_Lee_Kesler",
+    "PL_Wilson",
+    "PL_Ambrose_Walton",
 ]
 
 
@@ -15,9 +15,9 @@ def PL_Lee_Kesler(
     T: float,
     Tb: float,
     Tc: float,
-    Pc: float
+    Pc: float,
 ) -> float:
-    r"""Estimate the vapor pressure of a pure compound using the Lee-Kesler 
+    r"""Estimate the vapor pressure of a pure compound using the Lee-Kesler
     form of the Pitzer equation.
 
     $$ \ln \frac{P_{vap}}{P_c} = f^{(0)}(T_r) + \omega f^{(1)}(T_r) $$
@@ -47,7 +47,7 @@ def PL_Lee_Kesler(
     float
         Vapor pressure [Pa].
 
-    See also
+    See Also
     --------
     * [`PL_Ambrose_Walton`](PL_Ambrose_Walton.md): alternative more accurate
       method.
@@ -58,32 +58,32 @@ def PL_Lee_Kesler(
     >>> from polykin.properties.vaporization import PL_Lee_Kesler
     >>> pvap = PL_Lee_Kesler(298.15, Tb=420.0, Tc=644.0, Pc=45.40e5)
     >>> print(f"{pvap:.1e} Pa")
-    6.6e+02 Pa    
+    6.6e+02 Pa
     """
 
     def fLK(t):
-        f0 = 5.92714 - 6.09648/t - 1.28862*log(t) + 0.169347*t**6
-        f1 = 15.2518 - 15.6875/t - 13.4721*log(t) + 0.43577*t**6
+        f0 = 5.92714 - 6.09648 / t - 1.28862 * log(t) + 0.169347 * t**6
+        f1 = 15.2518 - 15.6875 / t - 13.4721 * log(t) + 0.43577 * t**6
         return (f0, f1)
 
-    f0, f1 = fLK(T/Tc)
-    a, b = fLK(Tb/Tc)
-    a = - log(Pc/101325) - a
-    w = a/b
+    f0, f1 = fLK(T / Tc)
+    a, b = fLK(Tb / Tc)
+    a = -log(Pc / 101325) - a
+    w = a / b
 
-    return Pc*exp(f0 + w*f1)
+    return Pc * exp(f0 + w * f1)
 
 
 def PL_Ambrose_Walton(
     T: float,
     Tc: float,
     Pc: float,
-    w: float
+    w: float,
 ) -> float:
-    r"""Estimate the vapor pressure of a pure compound using the Ambrose-Walton 
+    r"""Estimate the vapor pressure of a pure compound using the Ambrose-Walton
     form of the Pitzer equation.
 
-    $$ \ln \frac{P_{vap}}{P_c} 
+    $$ \ln \frac{P_{vap}}{P_c}
        = f^{(0)}(T_r) + \omega f^{(1)}(T_r) + \omega^2 f^{(2)}(T_r) $$
 
     where $P_{vap}$ is the vapor pressure, $P_c$ is the critical pressure,
@@ -92,7 +92,7 @@ def PL_Ambrose_Walton(
 
     **References**
 
-    *   BE Poling, JM Prausniz, and JP O'Connell. The properties of gases & 
+    *   BE Poling, JM Prausniz, and JP O'Connell. The properties of gases &
         liquids, 5th edition, 2001, p. 235.
 
     Parameters
@@ -119,21 +119,21 @@ def PL_Ambrose_Walton(
     >>> print(f"{pvap:.1e} Pa")
     1.0e+05 Pa
     """
-    Tr = T/Tc
+    Tr = T / Tc
     t = 1.0 - Tr
-    f0 = (-5.97616*t + 1.29874*t**1.5 - 0.60394*t**2.5 - 1.06841*t**5)/Tr
-    f1 = (-5.03365*t + 1.11505*t**1.5 - 5.41217*t**2.5 - 7.46628*t**5)/Tr
-    f2 = (-0.64771*t + 2.41539*t**1.5 - 4.26979*t**2.5 + 3.25259*t**5)/Tr
-    return Pc*exp(f0 + w*f1 + (w**2)*f2)
+    f0 = (-5.97616 * t + 1.29874 * t**1.5 - 0.60394 * t**2.5 - 1.06841 * t**5) / Tr
+    f1 = (-5.03365 * t + 1.11505 * t**1.5 - 5.41217 * t**2.5 - 7.46628 * t**5) / Tr
+    f2 = (-0.64771 * t + 2.41539 * t**1.5 - 4.26979 * t**2.5 + 3.25259 * t**5) / Tr
+    return Pc * exp(f0 + w * f1 + (w**2) * f2)
 
 
 def PL_Wilson(
     T: float,
     Tc: float,
     Pc: float,
-    w: float
+    w: float,
 ) -> float:
-    r"""Estimate the vapor pressure of a pure compound using the Wilson 
+    r"""Estimate the vapor pressure of a pure compound using the Wilson
     approximation.
 
     $$ \ln \frac{P_{vap}}{P_c} = 5.373(1 + \omega)(1 - 1/T_r) $$
@@ -170,4 +170,4 @@ def PL_Wilson(
     >>> print(f"{pvap:.1e} Pa")
     1.0e+05 Pa
     """
-    return Pc*exp(5.373*(1 + w)*(1 - Tc/T))
+    return Pc * exp(5.373 * (1 + w) * (1 - Tc / T))

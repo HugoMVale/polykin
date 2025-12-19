@@ -3,7 +3,8 @@
 # Copyright Hugo Vale 2023
 
 from abc import ABC, abstractmethod
-from typing import Iterable, Literal
+from collections.abc import Iterable
+from typing import Literal
 
 # import numpy as np
 from numpy import sqrt
@@ -12,7 +13,7 @@ from scipy.constants import R
 from polykin.utils.math import eps
 from polykin.utils.types import FloatVector
 
-__all__ = ['EoS']
+__all__ = ["EoS"]
 
 
 class EoS(ABC):
@@ -21,16 +22,13 @@ class EoS(ABC):
     _N: int
     name: str
 
-    def __init__(self,
-                 N: int,
-                 name: str
-                 ) -> None:
+    def __init__(self, N: int, name: str) -> None:
         self._N = N
         self.name = name
 
     @property
     def N(self) -> int:
-        "Number of components."
+        """Number of components."""
         return self._N
 
     @abstractmethod
@@ -39,12 +37,13 @@ class EoS(ABC):
         pass
 
     @abstractmethod
-    def DA(self,
-           T: float,
-           V: float,
-           n: FloatVector,
-           v0: float
-           ) -> float:
+    def DA(
+        self,
+        T: float,
+        V: float,
+        n: FloatVector,
+        v0: float,
+    ) -> float:
         r"""Calculate the departure of Helmholtz energy.
 
         $$ A(T,V,n) - A^{\circ}(T,V,n)$$
@@ -67,31 +66,32 @@ class EoS(ABC):
         """
         pass
 
-    def DX(self,
-           T: float,
-           P: float,
-           y: FloatVector,
-           P0: float = 1e5
-           ) -> dict[str, float]:
+    def DX(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+        P0: float = 1e5,
+    ) -> dict[str, float]:
 
-        v0 = R*T/P0
-        nt = 1.
-        n = nt*y
+        v0 = R * T / P0
+        nt = 1.0
+        n = nt * y
 
         Z = self.Z(T, P, y)
         if isinstance(Z, Iterable):
             Z = max(Z)  # temporary fix, get only vapor solution !!!
-        V = nt*Z*R*T/P
+        V = nt * Z * R * T / P
 
-        dT = 2*sqrt(eps)*T
+        dT = 2 * sqrt(eps) * T
         DA_minus = self.DA(T - dT, V, n, v0)
         DA_plus = self.DA(T + dT, V, n, v0)
-        DA = (DA_minus + DA_plus)/2
-        DS = -(DA_plus - DA_minus)/(2*dT)
-        DU = DA + T*DS
-        DH = DU + R*T*(Z - 1)
-        DG = DA + R*T*(Z - 1)
-        result = {'A': DA, 'G': DG, 'H': DH, 'S': DS, 'U': DU}
+        DA = (DA_minus + DA_plus) / 2
+        DS = -(DA_plus - DA_minus) / (2 * dT)
+        DU = DA + T * DS
+        DH = DU + R * T * (Z - 1)
+        DG = DA + R * T * (Z - 1)
+        result = {"A": DA, "G": DG, "H": DH, "S": DS, "U": DU}
         return result
 
 
@@ -113,11 +113,12 @@ class GasEoS(EoS):
         """Calculate the fugacity coefficients of all components."""
         pass
 
-    def v(self,
-          T: float,
-          P: float,
-          y: FloatVector
-          ) -> float:
+    def v(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+    ) -> float:
         r"""Calculate the molar volume the fluid.
 
         $$ v = \frac{Z R T}{P} $$
@@ -140,20 +141,21 @@ class GasEoS(EoS):
         float
             Molar volume of the fluid [m³/mol].
         """
-        return self.Z(T, P, y)*R*T/P
+        return self.Z(T, P, y) * R * T / P
 
-    def f(self,
-          T: float,
-          P: float,
-          y: FloatVector
-          ) -> FloatVector:
+    def f(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+    ) -> FloatVector:
         r"""Calculate the fugacity of all components.
 
         For each component, the fugacity is given by:
 
         $$ \hat{f}_i = \hat{\phi}_i y_i P $$
 
-        where $\hat{\phi}_i(T,P,y)$ is the fugacity coefficient, $P$ is the 
+        where $\hat{\phi}_i(T,P,y)$ is the fugacity coefficient, $P$ is the
         pressure, and $y_i$ is the mole fraction.
 
         Parameters
@@ -170,7 +172,7 @@ class GasEoS(EoS):
         FloatVector (N)
             Fugacities of all components [Pa].
         """
-        return self.phi(T, P, y)*y*P
+        return self.phi(T, P, y) * y * P
 
 
 class GasLiquidEoS(EoS):
@@ -184,22 +186,29 @@ class GasLiquidEoS(EoS):
     @abstractmethod
     def Z(self, T: float, P: float, z: FloatVector) -> FloatVector:
         """Calculate the compressibility factors for the possible phases of a
-        fluid."""
+        fluid.
+        """
         pass
 
     @abstractmethod
-    def phi(self, T: float, P: float, z: FloatVector, phase: Literal['L', 'V']
-            ) -> FloatVector:
+    def phi(
+        self,
+        T: float,
+        P: float,
+        z: FloatVector,
+        phase: Literal["L", "V"],
+    ) -> FloatVector:
         """Calculate the fugacity coefficients of all components in a given
         phase.
         """
         pass
 
-    def v(self,
-          T: float,
-          P: float,
-          z: FloatVector
-          ) -> FloatVector:
+    def v(
+        self,
+        T: float,
+        P: float,
+        z: FloatVector,
+    ) -> FloatVector:
         r"""Calculate the molar volumes of the possible phases a fluid.
 
         $$ v = \frac{Z R T}{P} $$
@@ -223,21 +232,22 @@ class GasLiquidEoS(EoS):
             Molar volumes of the possible phases [m³/mol]. If two phases are
             possible, the first result is the lowest value (liquid).
         """
-        return self.Z(T, P, z)*R*T/P
+        return self.Z(T, P, z) * R * T / P
 
-    def f(self,
-          T: float,
-          P: float,
-          z: FloatVector,
-          phase: Literal['L', 'V']
-          ) -> FloatVector:
+    def f(
+        self,
+        T: float,
+        P: float,
+        z: FloatVector,
+        phase: Literal["L", "V"],
+    ) -> FloatVector:
         r"""Calculate the fugacity of all components in a given phase.
 
         For each component, the fugacity is given by:
 
         $$ \hat{f}_i = \hat{\phi}_i z_i P $$
 
-        where $\hat{\phi}_i(T,P,y)$ is the fugacity coefficient, $P$ is the 
+        where $\hat{\phi}_i(T,P,y)$ is the fugacity coefficient, $P$ is the
         pressure, and $z_i$ is the mole fraction.
 
         Parameters
@@ -257,14 +267,15 @@ class GasLiquidEoS(EoS):
         FloatVector (N)
             Fugacities of all components [Pa].
         """
-        return self.phi(T, P, z, phase)*z*P
+        return self.phi(T, P, z, phase) * z * P
 
-    def K(self,
-          T: float,
-          P: float,
-          x: FloatVector,
-          y: FloatVector
-          ) -> FloatVector:
+    def K(
+        self,
+        T: float,
+        P: float,
+        x: FloatVector,
+        y: FloatVector,
+    ) -> FloatVector:
         r"""Calculate the K-values of all components.
 
         $$ K_i = \frac{y_i}{x_i} = \frac{\hat{\phi}_i^L}{\hat{\phi}_i^V} $$
@@ -285,6 +296,6 @@ class GasLiquidEoS(EoS):
         FloatVector (N)
             K-values of all components.
         """
-        phiV = self.phi(T, P, y, 'V')
-        phiL = self.phi(T, P, x, 'L')
-        return phiL/phiV
+        phiV = self.phi(T, P, y, "V")
+        phiL = self.phi(T, P, x, "L")
+        return phiL / phiV

@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2025
 
 import functools
-from typing import Union
 
 import numpy as np
 from numpy import dot, exp, log, sqrt
@@ -11,22 +10,22 @@ from scipy.constants import R
 
 from polykin.properties.pvt.mixing_rules import quadratic_mixing
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector
-from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector,
-                                 FloatVectorLike)
+from polykin.utils.types import (
+    FloatArray,
+    FloatSquareMatrix,
+    FloatVector,
+    FloatVectorLike,
+)
 
 from .base import GasEoS
 
-__all__ = ['Virial',
-           'B_pure',
-           'B_mixture']
-
-# %% Virial equation
+__all__ = ["Virial", "B_pure", "B_mixture"]
 
 
 class Virial(GasEoS):
     r"""Virial equation of state truncated to the second coefficient.
 
-    This EOS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(v,T)$ relationship:
 
     $$ P = \frac{R T}{v - B_m} $$
 
@@ -64,16 +63,16 @@ class Virial(GasEoS):
     Zc: FloatVector
     w: FloatVector
 
-    def __init__(self,
-                 Tc: Union[float, FloatVectorLike],
-                 Pc: Union[float, FloatVectorLike],
-                 Zc: Union[float, FloatVectorLike],
-                 w: Union[float, FloatVectorLike],
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        Tc: float | FloatVectorLike,
+        Pc: float | FloatVectorLike,
+        Zc: float | FloatVectorLike,
+        w: float | FloatVectorLike,
+        name: str = "",
+    ) -> None:
 
-        Tc, Pc, Zc, w = \
-            convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, Zc, w])
+        Tc, Pc, Zc, w = convert_FloatOrVectorLike_to_FloatVector([Tc, Pc, Zc, w])
 
         N = len(Tc)
         super().__init__(N, name)
@@ -82,10 +81,11 @@ class Virial(GasEoS):
         self.Zc = Zc
         self.w = w
 
-    def Bm(self,
-           T: float,
-           y: FloatVector
-           ) -> float:
+    def Bm(
+        self,
+        T: float,
+        y: FloatVector,
+    ) -> float:
         r"""Calculate the second virial coefficient of the mixture.
 
         $$ B_m = \sum_i \sum_j y_i y_j B_{ij} $$
@@ -110,9 +110,10 @@ class Virial(GasEoS):
         return quadratic_mixing(y, self.Bij(T))
 
     @functools.cache
-    def Bij(self,
-            T: float,
-            ) -> FloatSquareMatrix:
+    def Bij(
+        self,
+        T: float,
+    ) -> FloatSquareMatrix:
         r"""Calculate the matrix of interaction virial coefficients.
 
         The calculation is handled by [`B_mixture`](B_mixture.md).
@@ -129,11 +130,12 @@ class Virial(GasEoS):
         """
         return B_mixture(T, self.Tc, self.Pc, self.Zc, self.w)
 
-    def Z(self,
-          T: float,
-          P: float,
-          y: FloatVector
-          ) -> float:
+    def Z(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+    ) -> float:
         r"""Calculate the compressibility factor of the fluid.
 
         $$ Z = 1 + \frac{B_m P}{R T} $$
@@ -161,13 +163,14 @@ class Virial(GasEoS):
             Compressibility factor.
         """
         Bm = self.Bm(T, y)
-        return 1.0 + Bm*P/(R*T)
+        return 1.0 + Bm * P / (R * T)
 
-    def P(self,
-          T: float,
-          v: float,
-          y: FloatVector
-          ) -> float:
+    def P(
+        self,
+        T: float,
+        v: float,
+        y: FloatVector,
+    ) -> float:
         r"""Calculate the pressure of the fluid.
 
         Parameters
@@ -185,13 +188,14 @@ class Virial(GasEoS):
             Pressure [Pa].
         """
         Bm = self.Bm(T, y)
-        return R*T/(v - Bm)
+        return R * T / (v - Bm)
 
-    def phi(self,
-            T: float,
-            P: float,
-            y: FloatVector
-            ) -> FloatVector:
+    def phi(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+    ) -> FloatVector:
         r"""Calculate the fugacity coefficients of all components.
 
         For each component, the fugacity coefficient is given by:
@@ -200,7 +204,7 @@ class Virial(GasEoS):
         \ln \hat{\phi}_i = \left(2\sum_j {y_jB_{ij}} -B_m \right)\frac{P}{RT}
         $$
 
-        where $P$ is the pressure, $T$ is the temperature, $B_{ij}$ is the 
+        where $P$ is the pressure, $T$ is the temperature, $B_{ij}$ is the
         matrix of interaction virial coefficients, $B_m$ is the second virial
         coefficient of the mixture, and $y_i$ is the mole fraction.
 
@@ -225,27 +229,27 @@ class Virial(GasEoS):
         """
         B = self.Bij(T)
         Bm = self.Bm(T, y)
-        return exp((2*dot(B, y) - Bm)*P/(R*T))
+        return exp((2 * dot(B, y) - Bm) * P / (R * T))
 
-    def DA(self,
-           T: float,
-           V: float,
-           n: FloatVector,
-           v0: float
-           ) -> float:
+    def DA(
+        self,
+        T: float,
+        V: float,
+        n: FloatVector,
+        v0: float,
+    ) -> float:
         nT = n.sum()
-        y = n/nT
+        y = n / nT
         Bm = self.Bm(T, y)
-        return -nT*R*T*log((V - nT*Bm)/(nT*v0))
-
-# %% Second virial coefficient
+        return -nT * R * T * log((V - nT * Bm) / (nT * v0))
 
 
-def B_pure(T: Union[float, FloatArray],
-           Tc: float,
-           Pc: float,
-           w: float
-           ) -> Union[float, FloatArray]:
+def B_pure(
+    T: float | FloatArray,
+    Tc: float,
+    Pc: float,
+    w: float,
+) -> float | FloatArray:
     r"""Estimate the second virial coefficient of a nonpolar or slightly polar
     gas.
 
@@ -276,18 +280,19 @@ def B_pure(T: Union[float, FloatArray],
     float | FloatArray
         Second virial coefficient, $B$ [m³/mol].
     """
-    Tr = T/Tc
-    B0 = 0.083 - 0.422/Tr**1.6
-    B1 = 0.139 - 0.172/Tr**4.2
-    return R*Tc/Pc*(B0 + w*B1)
+    Tr = T / Tc
+    B0 = 0.083 - 0.422 / Tr**1.6
+    B1 = 0.139 - 0.172 / Tr**4.2
+    return R * Tc / Pc * (B0 + w * B1)
 
 
-def B_mixture(T: float,
-              Tc: FloatVector,
-              Pc: FloatVector,
-              Zc: FloatVector,
-              w: FloatVector,
-              ) -> FloatSquareMatrix:
+def B_mixture(
+    T: float,
+    Tc: FloatVector,
+    Pc: FloatVector,
+    Zc: FloatVector,
+    w: FloatVector,
+) -> FloatSquareMatrix:
     r"""Calculate the matrix of interaction virial coefficients using the
     mixing rules of Prausnitz.
 
@@ -327,20 +332,20 @@ def B_mixture(T: float,
     FloatSquareMatrix (N,N)
         Matrix of interaction virial coefficients $B_{ij}$ [m³/mol].
     """
-    vc = Zc*R*Tc/Pc
+    vc = Zc * R * Tc / Pc
     N = Tc.size
     B = np.empty((N, N), dtype=np.float64)
     for i in range(N):
         for j in range(i, N):
             if i == j:
-                B[i, j] = B_pure(T, Tc[i],  Pc[i], w[i])
+                B[i, j] = B_pure(T, Tc[i], Pc[i], w[i])
             else:
-                vcm = (vc[i]**(1/3) + vc[j]**(1/3))**3 / 8
-                km = 1 - sqrt(vc[i]*vc[j])/vcm
-                Tcm = sqrt(Tc[i]*Tc[j])*(1 - km)
-                Zcm = (Zc[i] + Zc[j])/2
-                wm = (w[i] + w[j])/2
-                Pcm = Zcm*R*Tcm/vcm
+                vcm = (vc[i] ** (1 / 3) + vc[j] ** (1 / 3)) ** 3 / 8
+                km = 1 - sqrt(vc[i] * vc[j]) / vcm
+                Tcm = sqrt(Tc[i] * Tc[j]) * (1 - km)
+                Zcm = (Zc[i] + Zc[j]) / 2
+                wm = (w[i] + w[j]) / 2
+                Pcm = Zcm * R * Tcm / vcm
                 B[i, j] = B_pure(T, Tcm, Pcm, wm)
                 B[j, i] = B[i, j]
     return B

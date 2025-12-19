@@ -13,23 +13,25 @@ from numpy import log
 from scipy.optimize import curve_fit
 
 from polykin.utils.math import eps
-from polykin.utils.tools import (check_bounds, check_in_set, check_valid_range,
-                                 convert_check_temperature)
+from polykin.utils.tools import (
+    check_bounds,
+    check_in_set,
+    check_valid_range,
+    convert_check_temperature,
+)
 from polykin.utils.types import FloatArray, FloatArrayLike, FloatVectorLike
+
+__all__ = ["plotequations"]
 
 
 class PropertyEquation(ABC):
-    r"""_Abstract_ class for all property equations, $Y(...)$."""
+    r"""Abstract class for all property equations, $Y(...)$."""
 
     name: str
     unit: str
     symbol: str
 
-    def __init__(self,
-                 unit: str,
-                 symbol: str,
-                 name: str
-                 ) -> None:
+    def __init__(self, unit: str, symbol: str, name: str) -> None:
 
         self.unit = unit
         self.symbol = symbol
@@ -37,29 +39,31 @@ class PropertyEquation(ABC):
 
 
 class PropertyEquationT(PropertyEquation):
-    r"""_Abstract_ temperature-dependent property equation, $Y(T)$"""
+    r"""Abstract temperature-dependent property equation, $Y(T)$."""
 
     _pinfo: dict[str, tuple[str, bool]]
     p: dict[str, Any]
     Trange: tuple[float | FloatArray, float | FloatArray]
 
-    def __init__(self,
-                 Trange: tuple[float | FloatArray, float | FloatArray],
-                 unit: str,
-                 symbol: str,
-                 name: str
-                 ) -> None:
+    def __init__(
+        self,
+        Trange: tuple[float | FloatArray, float | FloatArray],
+        unit: str,
+        symbol: str,
+        name: str,
+    ) -> None:
 
-        check_bounds(Trange[0], 0.0, np.inf, 'Tmin')
-        check_bounds(Trange[1], 0.0, np.inf, 'Tmax')
-        check_bounds(Trange[1]-Trange[0], eps, np.inf, 'Tmax-Tmin')
+        check_bounds(Trange[0], 0.0, np.inf, "Tmin")
+        check_bounds(Trange[1], 0.0, np.inf, "Tmax")
+        check_bounds(Trange[1] - Trange[0], eps, np.inf, "Tmax-Tmin")
         self.Trange = Trange
         super().__init__(unit, symbol, name)
 
-    def __call__(self,
-                 T: float | FloatArrayLike,
-                 Tunit: Literal['C', 'K'] = 'K'
-                 ) -> float | FloatArray:
+    def __call__(
+        self,
+        T: float | FloatArrayLike,
+        Tunit: Literal["C", "K"] = "K",
+    ) -> float | FloatArray:
         r"""Evaluate property equation at given temperature, including unit
         conversion and range check.
 
@@ -80,9 +84,7 @@ class PropertyEquationT(PropertyEquation):
 
     @staticmethod
     @abstractmethod
-    def equation(T: float | FloatArray,
-                 *args
-                 ) -> float | FloatArray:
+    def equation(T: float | FloatArray, *args) -> float | FloatArray:
         """Property equation, $Y(T,p...)$."""
         pass
 
@@ -97,20 +99,25 @@ class PropertyEquationT(PropertyEquation):
         for pname, pvalue in self.p.items():
             punits = self._pinfo[pname][0]
             if not punits:
-                punits = '—'
-            punits = punits.replace('#', self.unit)
-            string2 += "\n" + f"{pname} [{punits}]:" + \
-                " "*(13 - len(pname+punits)) + f"{pvalue}"
+                punits = "—"
+            punits = punits.replace("#", self.unit)
+            string2 += (
+                "\n"
+                + f"{pname} [{punits}]:"
+                + " " * (13 - len(pname + punits))
+                + f"{pvalue}"
+            )
         return string1 + string2
 
-    def plot(self,
-             kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
-             Trange: tuple[float, float] | None = None,
-             Tunit: Literal['C', 'K'] = 'K',
-             title: str | None = None,
-             axes: Axes | None = None,
-             return_objects: bool = False
-             ) -> tuple[Figure | None, Axes] | None:
+    def plot(
+        self,
+        kind: Literal["linear", "semilogy", "Arrhenius"] = "linear",
+        Trange: tuple[float, float] | None = None,
+        Tunit: Literal["C", "K"] = "K",
+        title: str | None = None,
+        axes: Axes | None = None,
+        return_objects: bool = False,
+    ) -> tuple[Figure | None, Axes] | None:
         """Plot quantity as a function of temperature.
 
         Parameters
@@ -136,15 +143,14 @@ class PropertyEquationT(PropertyEquation):
         tuple[Figure | None, Axes] | None
             Figure and Axes objects if return_objects is `True`.
         """
-
         # Check inputs
-        check_in_set(kind, {'linear', 'semilogy', 'Arrhenius'}, 'kind')
-        check_in_set(Tunit, {'K', 'C'}, 'Tunit')
+        check_in_set(kind, {"linear", "semilogy", "Arrhenius"}, "kind")
+        check_in_set(Tunit, {"K", "C"}, "Tunit")
         if Trange is not None:
             Trange_min = 0.0
-            if Tunit == 'C':
+            if Tunit == "C":
                 Trange_min = -273.15
-            check_valid_range(Trange, Trange_min, np.inf, 'Trange')
+            check_valid_range(Trange, Trange_min, np.inf, "Trange")
 
         # Plot objects
         if axes is None:
@@ -161,19 +167,19 @@ class PropertyEquationT(PropertyEquation):
 
         # Units and xlabel
         Tunit_range = Tunit
-        if kind == 'Arrhenius':
-            Tunit = 'K'
+        if kind == "Arrhenius":
+            Tunit = "K"
         Tsymbol = Tunit
-        if Tunit == 'C':
-            Tsymbol = '°' + Tunit
+        if Tunit == "C":
+            Tsymbol = "°" + Tunit
 
-        if kind == 'Arrhenius':
+        if kind == "Arrhenius":
             xlabel = r"$1/T$ [" + Tsymbol + r"$^{-1}$]"
         else:
-            xlabel = fr"$T$ [{Tsymbol}]"
+            xlabel = rf"$T$ [{Tsymbol}]"
 
         # ylabel
-        ylabel = fr"${self.symbol}$ [{self.unit}]"
+        ylabel = rf"${self.symbol}$ [{self.unit}]"
         if axes is not None:
             ylabel0 = ax.get_ylabel()
             if ylabel0 and ylabel not in ylabel0:
@@ -185,8 +191,8 @@ class PropertyEquationT(PropertyEquation):
 
         # x-axis vector
         if Trange is not None:
-            if Tunit_range == 'C':
-                Trange = (Trange[0]+273.15, Trange[1]+273.15)
+            if Tunit_range == "C":
+                Trange = (Trange[0] + 273.15, Trange[1] + 273.15)
         else:
             Trange = (np.min(self.Trange[0]), np.max(self.Trange[1]))
             if Trange == (0.0, np.inf):
@@ -200,16 +206,16 @@ class PropertyEquationT(PropertyEquation):
             print("Plot method not yet implemented for array-like equations.")
         else:
             TK = np.linspace(*Trange, num=100)
-            y = self.__call__(TK, 'K')
+            y = self.__call__(TK, "K")
             T = TK
-            if Tunit == 'C':
+            if Tunit == "C":
                 T -= 273.15
-            if kind == 'linear':
+            if kind == "linear":
                 ax.plot(T, y, label=label)
-            elif kind == 'semilogy':
+            elif kind == "semilogy":
                 ax.semilogy(T, y, label=label)
-            elif kind == 'Arrhenius':
-                ax.semilogy(1/TK, y, label=label)
+            elif kind == "Arrhenius":
+                ax.semilogy(1 / TK, y, label=label)
 
         if fig is None:
             ax.legend(bbox_to_anchor=(1.05, 1.0), loc="upper left")
@@ -217,14 +223,15 @@ class PropertyEquationT(PropertyEquation):
         if return_objects:
             return (fig, ax)
 
-    def fit(self,
-            T: FloatVectorLike,
-            Y: FloatVectorLike,
-            sigmaY: FloatVectorLike | None = None,
-            fit_only: list[str] | None = None,
-            logY: bool = False,
-            plot: bool = True,
-            ) -> dict:
+    def fit(
+        self,
+        T: FloatVectorLike,
+        Y: FloatVectorLike,
+        sigmaY: FloatVectorLike | None = None,
+        fit_only: list[str] | None = None,
+        logY: bool = False,
+        plot: bool = True,
+    ) -> dict:
         """Fit equation to data using non-linear regression.
 
         Parameters
@@ -249,7 +256,6 @@ class PropertyEquationT(PropertyEquation):
             A dictionary of results with the following keys: 'success',
             'parameters', 'covariance', and 'plot'.
         """
-
         # Current parameter values
         pdict = self.p.copy()
 
@@ -268,15 +274,17 @@ class PropertyEquationT(PropertyEquation):
                 Yfit = log(Yfit)
             return Yfit
 
-        solution = curve_fit(ffit,
-                             xdata=T,
-                             ydata=log(Y) if logY else Y,
-                             p0=p0,
-                             sigma=sigmaY,
-                             absolute_sigma=False,
-                             full_output=True)
+        solution = curve_fit(
+            ffit,
+            xdata=T,
+            ydata=log(Y) if logY else Y,
+            p0=p0,
+            sigma=sigmaY,
+            absolute_sigma=False,
+            full_output=True,
+        )
         result = {}
-        result['success'] = bool(solution[4])
+        result["success"] = bool(solution[4])
         if solution[4]:
             popt = solution[0]
             pcov = solution[1]
@@ -285,32 +293,32 @@ class PropertyEquationT(PropertyEquation):
                 print(f"{pname}: {pvalue}")
             print("Covariance:")
             print(pcov)
-            result['covariance'] = pcov
+            result["covariance"] = pcov
 
             # Update attributes
             self.Trange = (min(T), max(T))
             for pname, pvalue in zip(pnames_fit, popt):
                 self.p[pname] = pvalue
-            result['parameters'] = pdict
+            result["parameters"] = pdict
 
             # plot
             if plot:
-                kind = 'semilogy' if logY else 'linear'
+                kind = "semilogy" if logY else "linear"
                 fig, ax = self.plot(kind=kind, return_objects=True)  # ok
-                ax.plot(T, Y, 'o', mfc='none')
-                result['plot'] = (fig, ax)
+                ax.plot(T, Y, "o", mfc="none")
+                result["plot"] = (fig, ax)
         else:
             print("Fit error: ", solution[3])
-            result['message'] = solution[3]
+            result["message"] = solution[3]
 
         return result
 
 
 def plotequations(
     eqs: list[PropertyEquationT],
-    kind: Literal['linear', 'semilogy', 'Arrhenius'] = 'linear',
+    kind: Literal["linear", "semilogy", "Arrhenius"] = "linear",
     title: str | None = None,
-    **kwargs
+    **kwargs,
 ) -> Figure:
     """Plot a list of temperature-dependent property equations in a combined
     plot.
@@ -329,7 +337,6 @@ def plotequations(
     Figure
         Matplotlib Figure object holding the combined plot.
     """
-
     # Create matplotlib objects
     fig, ax = plt.subplots()
 

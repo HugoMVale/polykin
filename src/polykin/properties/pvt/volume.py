@@ -4,7 +4,7 @@
 
 from scipy.constants import R
 
-__all__ = ['VL_Rackett']
+__all__ = ["VL_Rackett"]
 
 
 def VL_Rackett(
@@ -12,7 +12,7 @@ def VL_Rackett(
     Tc: float,
     Pc: float,
     ZRA: float | None = None,
-    w: float | None = None
+    w: float | None = None,
 ) -> float:
     r"""Calculate the saturated liquid molar volume of a pure component using
     the Rackett equation.
@@ -23,7 +23,7 @@ def VL_Rackett(
     $T_r=T/T_c$ is the reduced temperature, and $Z_{RA}$ is the Rackett
     compressibility factor.
 
-    If $Z_{RA}$ is not known, it will be estimated from the acentric factor 
+    If $Z_{RA}$ is not known, it will be estimated from the acentric factor
     $\omega$ using the following approximation:
 
     $$ Z_{RA} = 0.29056 - 0.08775 \omega $$
@@ -64,7 +64,7 @@ def VL_Rackett(
         raise ValueError("Provide exactly one of `ZRA` or `w`.")
 
     if ZRA is None and w is not None:
-        ZRA = 0.29056 - 0.08775*w
+        ZRA = 0.29056 - 0.08775 * w
 
-    Tr = T/Tc
-    return (R*Tc/Pc)*ZRA**(1 + (1 - Tr)**(2/7))
+    Tr = T / Tc
+    return (R * Tc / Pc) * ZRA ** (1 + (1 - Tr) ** (2 / 7))

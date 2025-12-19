@@ -19,6 +19,7 @@ __all__ = [
 def fixpoint_anderson(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
+    *,
     m: int = 3,
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,

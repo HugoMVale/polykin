@@ -17,6 +17,7 @@ __all__ = ["fixpoint_wegstein"]
 def fixpoint_wegstein(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
+    *,
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
     wait: int = 1,

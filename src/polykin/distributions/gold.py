@@ -1,11 +1,9 @@
-
 from math import factorial
 
 import numpy as np
 import scipy.special as sp
-from numpy import exp
+from numpy import exp, sqrt
 from numpy import log as ln
-from numpy import sqrt
 
 from polykin.distributions.analyticaldistributions import poisson
 from polykin.math import root_brent
@@ -16,7 +14,7 @@ from polykin.utils.types import FloatArray, IntArrayLike
 def WeibullNycanderGold_pdf(
     k: int | IntArrayLike,
     v: float,
-    r: float
+    r: float,
 ) -> float | FloatArray:
     r"""Weibull, Nycander and Gold's analytical chain-length distribution for
     living polymerization with different initiation and propagation rate
@@ -24,7 +22,7 @@ def WeibullNycanderGold_pdf(
 
     For a living polymerization with only initiation and propagation (i.e.,
     constant number of chains), the number fraction of chains of length
-    $k$ can be computed in two steps. First, the number fraction of unreacted 
+    $k$ can be computed in two steps. First, the number fraction of unreacted
     initiator molecules, $p_0=p(0)$, is found by solving the equation:
 
     $$ v + r \ln{p_0} + (r - 1)(1 - p_0) = 0 $$
@@ -32,8 +30,8 @@ def WeibullNycanderGold_pdf(
     where $v$ denotes the number-average degree of polymerization of all chains,
     including unreacted initiator molecules, and $r=k_p/k_i$ is the ratio of the
     propagation and initiation rate coefficients. Then, the number fraction
-    of chains with $k \ge 1$ monomer units can be evaluated by one of two 
-    expressions, depending on the value of $r$. For $r > 1$: 
+    of chains with $k \ge 1$ monomer units can be evaluated by one of two
+    expressions, depending on the value of $r$. For $r > 1$:
 
     $$ p(k) = \frac{p_0}{r} \left(\frac{r}{r-1} \right)^k P(k,a) $$
 
@@ -95,7 +93,6 @@ def WeibullNycanderGold_pdf(
     >>> WeibullNycanderGold_pdf([0, 1, 2], 1.0, 5.0)
     array([0.58958989, 0.1295864 , 0.11493254])
     """
-
     r = float(r)
     scalar_input = np.isscalar(k)
     k = np.atleast_1d(k).astype(int)
@@ -106,14 +103,14 @@ def WeibullNycanderGold_pdf(
 
     # Find p0
     def find_p0(p0):
-        return v + r*ln(p0) + (r - 1.0)*(1.0 - p0)
+        return v + r * ln(p0) + (r - 1.0) * (1.0 - p0)
 
     if find_p0(eps) < 0.0:
         sol = root_brent(find_p0, eps, 1.0, tolx=1e-12, tolf=1e-12)
         p0 = sol.x
     else:
         # Limiting analytical solution for p0->0
-        p0 = exp((1.0 - v - r)/r)
+        p0 = exp((1.0 - v - r) / r)
 
     # Special case k=0
     result = np.zeros_like(k, dtype=float)
@@ -123,9 +120,9 @@ def WeibullNycanderGold_pdf(
     mask = k > 0
     kp = k[mask]
     if len(kp) > 0:
-        a = (1.0 - r)*ln(p0)
+        a = (1.0 - r) * ln(p0)
         if r > 1.0:
-            result[mask] = exp(ln(p0/r) + kp*ln(r/(r - 1.0))) * sp.gammainc(kp, a)
+            result[mask] = exp(ln(p0 / r) + kp * ln(r / (r - 1.0))) * sp.gammainc(kp, a)
         else:
             result[mask] = _gold(kp, v, r, p0, a)
 
@@ -142,9 +139,9 @@ def _gold(
     v: float,
     r: float,
     p0: float,
-    a: float
+    a: float,
 ) -> float:
-    """Helper function to compute Weibull-Nycander-Gold's distribution for r<1.
+    """Compute Weibull-Nycander-Gold's distribution for r<1.
 
     Parameters
     ----------
@@ -165,8 +162,7 @@ def _gold(
     float
         Number probability density.
     """
-
-    A = exp(ln(p0/r) + k*ln(r/(1.0 - r))) * (-1)**k
+    A = exp(ln(p0 / r) + k * ln(r / (1.0 - r))) * (-1) ** k
     B = exp(-a)
 
     # Try normal sum
@@ -176,8 +172,8 @@ def _gold(
         s *= a / j
         S += s
 
-    if abs(B*S - 1) > sqrt(eps) and k < v:
-        return A*(1.0 - B*S)
+    if abs(B * S - 1) > sqrt(eps) and k < v:
+        return A * (1.0 - B * S)
 
     # Tail sum
     s = a**k / factorial(k)
@@ -185,6 +181,6 @@ def _gold(
     for j in range(k + 1, k + 101):
         s *= a / j
         S += s
-        if abs(s) < eps*100:
+        if abs(s) < eps * 100:
             break
-    return A*B*S
+    return A * B * S

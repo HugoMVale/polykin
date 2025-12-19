@@ -375,9 +375,6 @@ def check_range_warn(
         print(xname + "=", x, "is outside the valid range [", xmin, ",", xmax, "]")
 
 
-# %% Unit functions
-
-
 def convert_check_temperature(
     T: FloatOrArrayLike,
     Tunit: Literal["C", "K"],

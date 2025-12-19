@@ -8,13 +8,13 @@ from polykin.utils.tools import colored_bool
 from polykin.utils.types import FloatMatrix, FloatVector
 
 __all__ = [
-    'RootResult',
-    'VectorRootResult'
+    "RootResult",
+    "VectorRootResult",
 ]
 
 
 @dataclass
-class RootResult():
+class RootResult:
     """Dataclass with scalar root solution results.
 
     Attributes
@@ -34,6 +34,7 @@ class RootResult():
     f: float
         Function (residual) value at root.
     """
+
     method: str
     success: bool
     message: str
@@ -43,17 +44,20 @@ class RootResult():
     f: float
 
     def __repr__(self) -> str:
-        return (f" method: {self.method}\n"
-                f"success: {colored_bool(self.success)}\n"
-                f"message: {self.message}\n"
-                f" nfeval: {self.nfeval}\n"
-                f"  niter: {self.niter}\n"
-                f"      x: {self.x}\n"
-                f"      f: {self.f}")
+        """Return a string representation of the root result."""
+        return (
+            f" method: {self.method}\n"
+            f"success: {colored_bool(self.success)}\n"
+            f"message: {self.message}\n"
+            f" nfeval: {self.nfeval}\n"
+            f"  niter: {self.niter}\n"
+            f"      x: {self.x}\n"
+            f"      f: {self.f}"
+        )
 
 
 @dataclass
-class VectorRootResult():
+class VectorRootResult:
     """Dataclass with vector root solution results.
 
     Attributes
@@ -77,6 +81,7 @@ class VectorRootResult():
     jac: FloatMatrix
         Last Jacobian value evaluated or estimated.
     """
+
     method: str
     success: bool
     message: str
@@ -88,13 +93,15 @@ class VectorRootResult():
     jac: FloatMatrix | None
 
     def __repr__(self) -> str:
-        return (f" method: {self.method}\n"
-                f"success: {colored_bool(self.success)}\n"
-                f"message: {self.message}\n"
-                f" nfeval: {self.nfeval}\n"
-                f" njeval: {self.njeval}\n"
-                f"  niter: {self.niter}\n"
-                f"      x: {self.x}\n"
-                f"      f: {self.f}\n"
-                f"    jac: {self.jac}"
-                )
+        """Return a string representation of the vector root result."""
+        return (
+            f" method: {self.method}\n"
+            f"success: {colored_bool(self.success)}\n"
+            f"message: {self.message}\n"
+            f" nfeval: {self.nfeval}\n"
+            f" njeval: {self.njeval}\n"
+            f"  niter: {self.niter}\n"
+            f"      x: {self.x}\n"
+            f"      f: {self.f}\n"
+            f"    jac: {self.jac}"
+        )

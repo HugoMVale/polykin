@@ -8,17 +8,16 @@ from scipy.constants import R
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
 __all__ = [
-    'quadratic_mixing',
-    'geometric_interaction_mixing',
-    'pseudocritical_properties'
+    "quadratic_mixing",
+    "geometric_interaction_mixing",
+    "pseudocritical_properties",
 ]
 
-# %% Mixing rules
 
-
-def quadratic_mixing(y: FloatVector,
-                     Q: FloatSquareMatrix
-                     ) -> float:
+def quadratic_mixing(
+    y: FloatVector,
+    Q: FloatSquareMatrix,
+) -> float:
     r"""Calculate a mixture parameter using a quadratic mixing rule.
 
     $$ Q_m = \sum_i \sum_j y_i y_j Q_{ij} $$
@@ -49,10 +48,11 @@ def quadratic_mixing(y: FloatVector,
     return dot(y, dot(y, Q))
 
 
-def geometric_interaction_mixing(y: FloatVector,
-                                 Q: FloatVector,
-                                 k: FloatSquareMatrix | None = None
-                                 ) -> float:
+def geometric_interaction_mixing(
+    y: FloatVector,
+    Q: FloatVector,
+    k: FloatSquareMatrix | None = None,
+) -> float:
     r"""Calculate a mixture parameter using a geometric average with
     interaction.
 
@@ -84,25 +84,27 @@ def geometric_interaction_mixing(y: FloatVector,
         Mixture parameter, $Q_m$ [Q].
     """
     if k is None:
-        Qm = (dot(y, sqrt(Q)))**2
+        Qm = (dot(y, sqrt(Q))) ** 2
     else:
         N = y.size
         Qm = 0.0
         for i in range(N):
-            Qm += y[i]**2 * Q[i]
-            for j in range(i+1, N):
-                Qm += 2*y[i]*y[j]*sqrt(Q[i]*Q[j])*(1 - k[i, j])
+            Qm += y[i] ** 2 * Q[i]
+            for j in range(i + 1, N):
+                Qm += 2 * y[i] * y[j] * sqrt(Q[i] * Q[j]) * (1 - k[i, j])
     return Qm
+
 
 # %% Pseudocritical properties
 
 
-def pseudocritical_properties(y: FloatVector,
-                              Tc: FloatVector,
-                              Pc: FloatVector,
-                              Zc: FloatVector,
-                              w: FloatVector | None = None
-                              ) -> tuple[float, float, float, float, float]:
+def pseudocritical_properties(
+    y: FloatVector,
+    Tc: FloatVector,
+    Pc: FloatVector,
+    Zc: FloatVector,
+    w: FloatVector | None = None,
+) -> tuple[float, float, float, float, float]:
     r"""Calculate the pseudocritial properties of a mixture to use in
     corresponding states correlations.
 
@@ -140,12 +142,11 @@ def pseudocritical_properties(y: FloatVector,
         Tuple of pseudocritial properties,
         $(T_{cm}, P_{cm}, v_{cm}, Z_{cm}, \omega_{cm})$.
     """
-
     Tc_mix = dot(y, Tc)
     Zc_mix = dot(y, Zc)
-    vc = Zc*R*Tc/Pc
+    vc = Zc * R * Tc / Pc
     vc_mix = dot(y, vc)
-    Pc_mix = R*Zc_mix*Tc_mix/vc_mix
+    Pc_mix = R * Zc_mix * Tc_mix / vc_mix
 
     if w is not None:
         w_mix = dot(y, w)

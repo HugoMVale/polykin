@@ -10,8 +10,8 @@ from polykin.math.roots import root_brent, root_newton, root_secant
 
 
 def f(x):
-    "Test for scalar root-finding methods."
-    return 2*x**3 + 4*x**2 + x - 2
+    """Test for scalar root-finding methods."""
+    return 2 * x**3 + 4 * x**2 + x - 2
 
 
 f.sol = min(np.roots((2, 4, 1, -2)), key=lambda x: abs(x - 0.5))

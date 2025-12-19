@@ -10,13 +10,12 @@ from scipy.integrate import solve_ivp
 
 from polykin.utils.exceptions import ODESolverError
 from polykin.utils.math import eps
-from polykin.utils.types import (FloatArray, FloatArrayLike, FloatMatrix,
-                                 FloatVectorLike)
+from polykin.utils.types import FloatArray, FloatArrayLike, FloatMatrix, FloatVectorLike
 
 __all__ = [
-    'inst_copolymer_binary',
-    'kp_average_binary',
-    'monomer_drift_binary'
+    "inst_copolymer_binary",
+    "kp_average_binary",
+    "monomer_drift_binary",
 ]
 
 
@@ -24,7 +23,7 @@ __all__ = [
 def inst_copolymer_binary(
     f1: float | FloatArrayLike,
     r1: float | FloatArray,
-    r2: float | FloatArray
+    r2: float | FloatArray,
 ) -> float | FloatArray:
     r"""Calculate the instantaneous copolymer composition using the
     [Mayo-Lewis](https://en.wikipedia.org/wiki/Mayo%E2%80%93Lewis_equation)
@@ -57,7 +56,7 @@ def inst_copolymer_binary(
     float | FloatArray
         Instantaneous copolymer composition, $F_1$.
 
-    See also
+    See Also
     --------
     * [`inst_copolymer_ternary`](inst_copolymer_ternary.md):
       specific method for terpolymer systems.
@@ -81,7 +80,7 @@ def inst_copolymer_binary(
     """
     f1 = np.asarray(f1, dtype=np.float64)
     f2 = 1 - f1
-    return (r1*f1**2 + f1*f2)/(r1*f1**2 + 2*f1*f2 + r2*f2**2)
+    return (r1 * f1**2 + f1 * f2) / (r1 * f1**2 + 2 * f1 * f2 + r2 * f2**2)
 
 
 def kp_average_binary(
@@ -89,7 +88,7 @@ def kp_average_binary(
     r1: float | FloatArray,
     r2: float | FloatArray,
     k11: float | FloatArray,
-    k22: float | FloatArray
+    k22: float | FloatArray,
 ) -> float | FloatArray:
     r"""Calculate the average propagation rate coefficient in a
     copolymerization.
@@ -142,7 +141,7 @@ def kp_average_binary(
     """
     f1 = np.asarray(f1, dtype=float)
     f2 = 1 - f1
-    return (r1*f1**2 + r2*f2**2 + 2*f1*f2)/((r1*f1/k11) + (r2*f2/k22))
+    return (r1 * f1**2 + r2 * f2**2 + 2 * f1 * f2) / ((r1 * f1 / k11) + (r2 * f2 / k22))
 
 
 def monomer_drift_binary(
@@ -152,7 +151,7 @@ def monomer_drift_binary(
     r2: float,
     atol: float = 1e-4,
     rtol: float = 1e-4,
-    method: Literal['LSODA', 'RK45'] = 'LSODA'
+    method: Literal["LSODA", "RK45"] = "LSODA",
 ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a binary system.
 
@@ -187,7 +186,7 @@ def monomer_drift_binary(
     FloatMatrix (M, N)
         Monomer fraction of M1 at a given conversion, $f_1(x)$.
 
-    See also
+    See Also
     --------
     * [`monomer_drift_multi`](monomer_drift_multi.md):
       generic method for multicomponent systems.
@@ -208,19 +207,20 @@ def monomer_drift_binary(
     array([[0.19841009, 0.18898084, 0.15854395],
            [0.82315475, 0.94379024, 0.99996457]])
     """
-
     if isinstance(f10, (int, float)):
         f10 = [f10]
 
-    sol = solve_ivp(df1dx,
-                    (0.0, max(x)),
-                    f10,
-                    args=(r1, r2),
-                    t_eval=x,
-                    method=method,
-                    vectorized=True,
-                    atol=atol,
-                    rtol=rtol)
+    sol = solve_ivp(
+        df1dx,
+        (0.0, max(x)),
+        f10,
+        args=(r1, r2),
+        t_eval=x,
+        method=method,
+        vectorized=True,
+        atol=atol,
+        rtol=rtol,
+    )
 
     if sol.success:
         result = sol.y
@@ -234,7 +234,12 @@ def monomer_drift_binary(
 
 
 @jit
-def df1dx(x: float, f1: FloatArray, r1: float, r2: float) -> FloatArray:
+def df1dx(
+    x: float,
+    f1: FloatArray,
+    r1: float,
+    r2: float,
+) -> FloatArray:
     """Skeist equation for a binary system.
 
     Parameters
@@ -253,7 +258,8 @@ def df1dx(x: float, f1: FloatArray, r1: float, r2: float) -> FloatArray:
     FloatVector
         df1/dx.
     """
-    return (f1 - inst_copolymer_binary(f1, r1, r2))/(1 - x + eps)
+    return (f1 - inst_copolymer_binary(f1, r1, r2)) / (1 - x + eps)
+
 
 # %% Jacobian for monomer_drift_binary
 # Tried, but does not really accelerate computation

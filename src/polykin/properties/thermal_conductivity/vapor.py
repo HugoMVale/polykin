@@ -9,20 +9,19 @@ from scipy.constants import N_A, R
 from polykin.utils.types import FloatVectorLike
 
 __all__ = [
-    'KVPC_Stiel_Thodos',
-    'KVMXPC_Stiel_Thodos',
-    'KVMX2_Wassilijewa'
+    "KVPC_Stiel_Thodos",
+    "KVMXPC_Stiel_Thodos",
+    "KVMX2_Wassilijewa",
 ]
 
-# %% Pressure correction
 
-
-def KVPC_Stiel_Thodos(v: float,
-                      M: float,
-                      Tc: float,
-                      Pc: float,
-                      Zc: float
-                      ) -> float:
+def KVPC_Stiel_Thodos(
+    v: float,
+    M: float,
+    Tc: float,
+    Pc: float,
+    Zc: float,
+) -> float:
     r"""Calculate the effect of pressure (or density) on the thermal
     conductivity of pure gases using the method of Stiel and Thodos for
     nonpolar components.
@@ -69,31 +68,31 @@ def KVPC_Stiel_Thodos(v: float,
     >>> print(f"{k_residual:.2e} W/(m·K)")
     1.69e-02 W/(m·K)
     """
-
-    gamma = ((Tc * M**3 * N_A**2)/(R**5 * Pc**4))**(1/6)
-    vc = Zc*R*Tc/Pc
-    rhor = vc/v
+    gamma = ((Tc * M**3 * N_A**2) / (R**5 * Pc**4)) ** (1 / 6)
+    vc = Zc * R * Tc / Pc
+    rhor = vc / v
 
     if rhor < 0.5:
-        a = 1.22e-2*(exp(0.535*rhor) - 1)
+        a = 1.22e-2 * (exp(0.535 * rhor) - 1)
     elif rhor < 2.0:
-        a = 1.14e-2*(exp(0.67*rhor) - 1.069)
+        a = 1.14e-2 * (exp(0.67 * rhor) - 1.069)
     elif rhor < 2.8:
-        a = 2.60e-3*(exp(1.155*rhor) + 2.016)
+        a = 2.60e-3 * (exp(1.155 * rhor) + 2.016)
     else:
         raise ValueError("Invalid `rhor` input. Valid range: `rhor` < 2.8.")
 
-    return a/(gamma * Zc**5)
+    return a / (gamma * Zc**5)
 
 
-def KVMXPC_Stiel_Thodos(v: float,
-                        y: FloatVectorLike,
-                        M: FloatVectorLike,
-                        Tc: FloatVectorLike,
-                        Pc: FloatVectorLike,
-                        Zc: FloatVectorLike,
-                        w: FloatVectorLike
-                        ) -> float:
+def KVMXPC_Stiel_Thodos(
+    v: float,
+    y: FloatVectorLike,
+    M: FloatVectorLike,
+    Tc: FloatVectorLike,
+    Pc: FloatVectorLike,
+    Zc: FloatVectorLike,
+    w: FloatVectorLike,
+) -> float:
     r"""Calculate the effect of pressure (or density) on the thermal
     conductivity of gas mixtures using the method of Stiel and Thodos for
     nonpolar components, combined with the mixing rules of Yorizane.
@@ -142,20 +141,19 @@ def KVMXPC_Stiel_Thodos(v: float,
     >>> print(f"{k_residual:.2e} W/(m·K)")
     3.82e-02 W/(m·K)
     """
+    y = np.asarray(y, dtype=np.float64)
+    M = np.asarray(M, dtype=np.float64)
+    Tc = np.asarray(Tc, dtype=np.float64)
+    Pc = np.asarray(Pc, dtype=np.float64)
+    Zc = np.asarray(Zc, dtype=np.float64)
+    w = np.asarray(w, dtype=np.float64)
 
-    y = np.asarray(y)
-    M = np.asarray(M)
-    Tc = np.asarray(Tc)
-    Pc = np.asarray(Pc)
-    Zc = np.asarray(Zc)
-    w = np.asarray(w)
-
-    vc = Zc*R*Tc/Pc
+    vc = Zc * R * Tc / Pc
 
     # The loop could be simplified because
     # sum_i sum_j y_i y_j V_{ij} = sum_i y_i^2 V_{ii} + 2 sum_i sum_{j>i} y_i y_j V_ij
-    vc_mix = 0.
-    Tc_mix = 0.
+    vc_mix = 0.0
+    Tc_mix = 0.0
     N = len(y)
     for i in range(N):
         for j in range(N):
@@ -163,27 +161,26 @@ def KVMXPC_Stiel_Thodos(v: float,
                 vc_ = vc[i]
                 Tc_ = Tc[i]
             else:
-                vc_ = (1/8)*(vc[i]**(1/3) + vc[j]**(1/3))**3
-                Tc_ = sqrt(Tc[i]*Tc[j])
-            vc_term = y[i]*y[j]*vc_
+                vc_ = (1 / 8) * (vc[i] ** (1 / 3) + vc[j] ** (1 / 3)) ** 3
+                Tc_ = sqrt(Tc[i] * Tc[j])
+            vc_term = y[i] * y[j] * vc_
             vc_mix += vc_term
-            Tc_mix += vc_term*Tc_
+            Tc_mix += vc_term * Tc_
     Tc_mix /= vc_mix
 
     w_mix = dot(y, w)
-    Zc_mix = 0.291 - 0.08*w_mix
-    Pc_mix = Zc_mix*R*Tc_mix/vc_mix
+    Zc_mix = 0.291 - 0.08 * w_mix
+    Pc_mix = Zc_mix * R * Tc_mix / vc_mix
     M_mix = dot(y, M)
 
     return KVPC_Stiel_Thodos(v, M_mix, Tc_mix, Pc_mix, Zc_mix)
 
-# %% Mixing rules
 
-
-def KVMX2_Wassilijewa(y: FloatVectorLike,
-                      k: FloatVectorLike,
-                      M: FloatVectorLike
-                      ) -> float:
+def KVMX2_Wassilijewa(
+    y: FloatVectorLike,
+    k: FloatVectorLike,
+    M: FloatVectorLike,
+) -> float:
     r"""Calculate the thermal conductivity of a gas mixture from the thermal
     conductivities of the pure components using the mixing rule of Wassilijewa,
     with the simplification of Herning and Zipperer.
@@ -228,11 +225,11 @@ def KVMX2_Wassilijewa(y: FloatVectorLike,
     >>> print(f"{k_mix:.2e} W/(m·K)")
     1.28e-02 W/(m·K)
     """
-    y = np.asarray(y)
-    k = np.asarray(k)
-    M = np.asarray(M)
+    y = np.asarray(y, dtype=np.float64)
+    k = np.asarray(k, dtype=np.float64)
+    M = np.asarray(M, dtype=np.float64)
 
-    a = y*sqrt(M)
+    a = y * sqrt(M)
     a /= a.sum()
 
     return dot(a, k)

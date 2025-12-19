@@ -10,13 +10,13 @@ from polykin.utils.types import FloatVector
 
 from .base import GasEoS
 
-__all__ = ['IdealGas']
+__all__ = ["IdealGas"]
 
 
 class IdealGas(GasEoS):
     r"""Ideal gas equation of state.
 
-    This EOS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(v,T)$ relationship:
 
     $$ P = \frac{R T}{v} $$
 
@@ -31,18 +31,11 @@ class IdealGas(GasEoS):
         Name.
     """
 
-    def __init__(self,
-                 N: int,
-                 name: str = ''
-                 ) -> None:
+    def __init__(self, N: int, name: str = "") -> None:
 
         super().__init__(N, name)
 
-    def Z(self,
-          T=None,
-          P=None,
-          y=None
-          ) -> float:
+    def Z(self, T=None, P=None, y=None) -> float:
         r"""Calculate the compressibility factor of the fluid.
 
         $$ Z = 1 $$
@@ -54,11 +47,7 @@ class IdealGas(GasEoS):
         """
         return 1.0
 
-    def P(self,
-          T: float,
-          v: float,
-          y=None
-          ) -> float:
+    def P(self, T: float, v: float, y=None) -> float:
         r"""Calculate the pressure of the fluid.
 
         Parameters
@@ -73,13 +62,9 @@ class IdealGas(GasEoS):
         float
             Pressure [Pa].
         """
-        return R*T/v
+        return R * T / v
 
-    def phi(self,
-            T=None,
-            P=None,
-            y=None
-            ) -> FloatVector:
+    def phi(self, T=None, P=None, y=None) -> FloatVector:
         r"""Calculate the fugacity coefficients of all components.
 
         $$ \hat{\phi}_i = 1 $$
@@ -91,12 +76,13 @@ class IdealGas(GasEoS):
         """
         return np.ones(self.N)
 
-    def DA(self,
-           T: float,
-           V: float,
-           n: FloatVector,
-           v0: float
-           ) -> float:
+    def DA(
+        self,
+        T: float,
+        V: float,
+        n: FloatVector,
+        v0: float,
+    ) -> float:
         r"""Calculate the departure of Helmholtz energy.
 
         $$ A(T,V,n) - A^{\circ}(T,V,n)$$
@@ -118,4 +104,4 @@ class IdealGas(GasEoS):
             Helmholtz energy departure, $A - A^{\circ}$ [J].
         """
         nT = n.sum()
-        return -nT*R*T*log(V/(nT*v0))
+        return -nT * R * T * log(V / (nT * v0))

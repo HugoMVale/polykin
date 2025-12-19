@@ -14,7 +14,7 @@ from polykin.utils.types import FloatSquareMatrix, FloatVector
 
 from .base import SmallSpeciesActivityModel
 
-__all__ = ['Wilson', 'Wilson_gamma']
+__all__ = ["Wilson", "Wilson_gamma"]
 
 
 class Wilson(SmallSpeciesActivityModel):
@@ -56,7 +56,7 @@ class Wilson(SmallSpeciesActivityModel):
     name: str
         Name.
 
-    See also
+    See Also
     --------
     * [`Wilson_gamma`](Wilson_gamma.md): related activity coefficient
     method.
@@ -68,14 +68,15 @@ class Wilson(SmallSpeciesActivityModel):
     _c: FloatSquareMatrix
     _d: FloatSquareMatrix
 
-    def __init__(self,
-                 N: int,
-                 a: FloatSquareMatrix | None = None,
-                 b: FloatSquareMatrix | None = None,
-                 c: FloatSquareMatrix | None = None,
-                 d: FloatSquareMatrix | None = None,
-                 name: str = ''
-                 ) -> None:
+    def __init__(
+        self,
+        N: int,
+        a: FloatSquareMatrix | None = None,
+        b: FloatSquareMatrix | None = None,
+        c: FloatSquareMatrix | None = None,
+        d: FloatSquareMatrix | None = None,
+        name: str = "",
+    ) -> None:
 
         # Set default values
         if a is None:
@@ -91,11 +92,12 @@ class Wilson(SmallSpeciesActivityModel):
         for array in [a, b, c, d]:
             if array.shape != (N, N):
                 raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}.")
+                    f"The shape of matrix {array} is invalid: {array.shape}."
+                )
 
         # Check bounds (same as Aspen Plus)
-        check_bounds(a, -50., 50., 'a')
-        check_bounds(b, -1.5e4, 1.5e4, 'b')
+        check_bounds(a, -50.0, 50.0, "a")
+        check_bounds(b, -1.5e4, 1.5e4, "b")
 
         # Ensure Lambda_ii=1
         for array in [a, b, c, d]:
@@ -108,9 +110,7 @@ class Wilson(SmallSpeciesActivityModel):
         self._d = d
 
     @functools.cache
-    def Lambda(self,
-               T: float
-               ) -> FloatSquareMatrix:
+    def Lambda(self, T: float) -> FloatSquareMatrix:
         r"""Compute the matrix of interaction parameters.
 
         $$ \Lambda_{ij}=\exp(a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T) $$
@@ -125,10 +125,10 @@ class Wilson(SmallSpeciesActivityModel):
         FloatSquareMatrix (N,N)
             Interaction parameters.
         """
-        return exp(self._a + self._b/T + self._c*log(T) + self._d*T)
+        return exp(self._a + self._b / T + self._c * log(T) + self._d * T)
 
     def gE(self, T: float, x: FloatVector) -> float:
-        return -R*T*dot(x, log(dot(self.Lambda(T), x)))
+        return -R * T * dot(x, log(dot(self.Lambda(T), x)))
 
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return Wilson_gamma(x, self.Lambda(T))
@@ -136,12 +136,12 @@ class Wilson(SmallSpeciesActivityModel):
 
 def Wilson_gamma(
     x: FloatVector,
-        Lambda: FloatSquareMatrix
+    Lambda: FloatSquareMatrix,
 ) -> FloatVector:
     r"""Calculate the activity coefficients of a multicomponent mixture
     according to the Wilson model.
 
-    $$ \ln{\gamma_i} = 
+    $$ \ln{\gamma_i} =
     -\ln{\left(\displaystyle\sum_{j}{x_{j}\Lambda_{ij}}\right)} + 1 -
     \sum_{k}{\frac{x_{k}\Lambda_{ki}}
     {\displaystyle\sum_{j}{x_{j}\Lambda_{kj}}}} $$
@@ -166,10 +166,10 @@ def Wilson_gamma(
     FloatVector (N)
         Activity coefficients of all components.
 
-    See also
+    See Also
     --------
     * [`Wilson`](Wilson.md): related class.
 
     """
     A = dot(Lambda, x)
-    return exp(1 - dot(x/A, Lambda))/A
+    return exp(1 - dot(x / A, Lambda)) / A

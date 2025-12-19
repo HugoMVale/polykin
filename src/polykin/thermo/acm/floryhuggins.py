@@ -12,19 +12,18 @@ from polykin.math import derivative_complex
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import (FloatArray, FloatSquareMatrix, FloatVector,
-                                 Number)
+from polykin.utils.types import FloatArray, FloatSquareMatrix, FloatVector, Number
 
 # from .base import ActivityCoefficientModel
 
 __all__ = [
-    'FloryHuggins',
-    'FloryHuggins_activity',
-    'FloryHuggins2_activity'
+    "FloryHuggins",
+    "FloryHuggins_activity",
+    "FloryHuggins2_activity",
 ]
 
 
-class FloryHuggins():
+class FloryHuggins:
     r"""[Flory-Huggings](https://en.wikipedia.org/wiki/Flory–Huggins_solution_theory)
     multicomponent activity coefficient model.
 
@@ -36,7 +35,7 @@ class FloryHuggins():
 
     where $\phi_i$ are the volume, mass or segment fractions of the
     components, $\chi_{ij}$ are the interaction parameters, and $m_i$ is the
-    characteristic size of the components. 
+    characteristic size of the components.
 
     In this particular implementation, the interaction parameters are allowed
     to depend on temperature according to the following empirical relationship
@@ -78,14 +77,15 @@ class FloryHuggins():
     _d: FloatSquareMatrix
     _e: FloatSquareMatrix
 
-    def __init__(self,
-                 N: int,
-                 a: FloatSquareMatrix | None = None,
-                 b: FloatSquareMatrix | None = None,
-                 c: FloatSquareMatrix | None = None,
-                 d: FloatSquareMatrix | None = None,
-                 e: FloatSquareMatrix | None = None
-                 ) -> None:
+    def __init__(
+        self,
+        N: int,
+        a: FloatSquareMatrix | None = None,
+        b: FloatSquareMatrix | None = None,
+        c: FloatSquareMatrix | None = None,
+        d: FloatSquareMatrix | None = None,
+        e: FloatSquareMatrix | None = None,
+    ) -> None:
 
         # Set default values
         if a is None:
@@ -103,18 +103,19 @@ class FloryHuggins():
         for array in [a, b, c, d, e]:
             if array.shape != (N, N):
                 raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}.")
+                    f"The shape of matrix {array} is invalid: {array.shape}."
+                )
 
         # Check bounds (same as Aspen Plus)
-        check_bounds(a, -1e2, 1e2, 'a')
-        check_bounds(b, -1e6, 1e6, 'b')
-        check_bounds(c, -1e6, 1e6, 'c')
-        check_bounds(d, -1e6, 1e6, 'd')
-        check_bounds(e, -1e6, 1e6, 'e')
+        check_bounds(a, -1e2, 1e2, "a")
+        check_bounds(b, -1e6, 1e6, "b")
+        check_bounds(c, -1e6, 1e6, "c")
+        check_bounds(d, -1e6, 1e6, "d")
+        check_bounds(e, -1e6, 1e6, "e")
 
         # Ensure chi_ii=0 and chi_ij=chi_ji
         for array in [a, b, c, d, e]:
-            np.fill_diagonal(array, 0.)
+            np.fill_diagonal(array, 0.0)
             enforce_symmetry(array)
 
         self._N = N
@@ -142,12 +143,14 @@ class FloryHuggins():
         FloatSquareMatrix (N,N)
             Matrix of interaction parameters.
         """
-        return self._a + self._b/T + self._c*log(T) + self._d*T + self._e*T**2
+        return self._a + self._b / T + self._c * log(T) + self._d * T + self._e * T**2
 
-    def Dgmix(self,
-              T: Number,
-              phi: FloatVector,
-              m: FloatVector) -> Number:
+    def Dgmix(
+        self,
+        T: Number,
+        phi: FloatVector,
+        m: FloatVector,
+    ) -> Number:
         r"""Gibbs energy of mixing per mole of sites, $\Delta g_{mix}$.
 
         Parameters
@@ -166,15 +169,17 @@ class FloryHuggins():
         float
             Gibbs energy of mixing per mole of sites [J/mol].
         """
-        p = phi > 0.
-        gC = dot(phi[p]/m[p], log(phi[p]))
-        gR = 0.5*dot(phi, dot(phi, self.chi(T)))
-        return R*T*(gC + gR)
+        p = phi > 0.0
+        gC = dot(phi[p] / m[p], log(phi[p]))
+        gR = 0.5 * dot(phi, dot(phi, self.chi(T)))
+        return R * T * (gC + gR)
 
-    def Dhmix(self,
-              T: float,
-              phi: FloatVector,
-              m: FloatVector) -> float:
+    def Dhmix(
+        self,
+        T: float,
+        phi: FloatVector,
+        m: FloatVector,
+    ) -> float:
         r"""Enthalpy of mixing per mole of sites, $\Delta h_{mix}$.
 
         $$ \Delta h_{mix} = \Delta g_{mix} + T \Delta s_{mix} $$
@@ -195,12 +200,14 @@ class FloryHuggins():
         float
             Enthalpy of mixing per mole of sites [J/mol].
         """
-        return self.Dgmix(T, phi, m) + T*self.Dsmix(T, phi, m)
+        return self.Dgmix(T, phi, m) + T * self.Dsmix(T, phi, m)
 
-    def Dsmix(self,
-              T: float,
-              phi: FloatVector,
-              m: FloatVector) -> float:
+    def Dsmix(
+        self,
+        T: float,
+        phi: FloatVector,
+        m: FloatVector,
+    ) -> float:
         r"""Entropy of mixing per mole of sites, $\Delta s_{mix}$.
 
         $$ \Delta s_{mix} = -\left(\frac{\partial \Delta g_{mix}}
@@ -224,11 +231,12 @@ class FloryHuggins():
         """
         return -derivative_complex(lambda t: self.Dgmix(t, phi, m), T)[0]
 
-    def activity(self,
-                 T: float,
-                 phi: FloatVector,
-                 m: FloatVector
-                 ) -> FloatVector:
+    def activity(
+        self,
+        T: float,
+        phi: FloatVector,
+        m: FloatVector,
+    ) -> FloatVector:
         r"""Activities, $a_i$.
 
         Parameters
@@ -253,19 +261,19 @@ class FloryHuggins():
 def FloryHuggins_activity(
     phi: FloatVector,
     m: FloatVector,
-    chi: FloatSquareMatrix
+    chi: FloatSquareMatrix,
 ) -> FloatVector:
     r"""Calculate the activities of a multicomponent mixture according to the
     Flory-Huggins model.
 
-    $$ 
-    \ln{a_i} = \ln{\phi_i} + 1 - m_i \left(\sum_j \frac{\phi_j}{m_j} - 
+    $$
+    \ln{a_i} = \ln{\phi_i} + 1 - m_i \left(\sum_j \frac{\phi_j}{m_j} -
     \sum_j \phi_j \chi_{ij} + \sum_j \sum_{k>j} \phi_j \phi_k \chi_{jk} \right)
     $$
 
     where $\phi_i$ are the volume, mass or segment fractions of the
     components, $\chi_{ij}$ are the interaction parameters, and $m_i$ is the
-    characteristic size of the components. 
+    characteristic size of the components.
 
     !!! note
 
@@ -303,21 +311,21 @@ def FloryHuggins_activity(
     FloatVector
         Activities of all components.
 
-    See also
+    See Also
     --------
     * [`FloryHuggins2_activity`](FloryHuggins2_activity.md): equivalent
       method for binary solvent-polymer systems.
     """
-    A = dot(phi, 1/m)
+    A = dot(phi, 1 / m)
     B = dot(chi, phi)
-    C = 0.5*dot(phi, dot(phi, chi))
-    return phi*exp(1 - m*(A - B + C))
+    C = 0.5 * dot(phi, dot(phi, chi))
+    return phi * exp(1 - m * (A - B + C))
 
 
 def FloryHuggins2_activity(
     phi1: float | FloatArray,
     m: float | FloatArray,
-    chi: float | FloatArray
+    chi: float | FloatArray,
 ) -> float | FloatArray:
     r"""Calculate the solvent activity of a binary polymer solution according
     to the Flory-Huggins model.
@@ -328,7 +336,7 @@ def FloryHuggins2_activity(
     where $\phi_1$ is the volume, mass or segment fraction of the solvent in
     the solution, $\chi$ is the solvent-polymer interaction parameter, and $m$
     is the ratio of the molar volume of the polymer to the solvent, often
-    approximated as the degree of polymerization. 
+    approximated as the degree of polymerization.
 
     !!! note
 
@@ -362,7 +370,7 @@ def FloryHuggins2_activity(
     FloatVector
         Activity of the solvent.
 
-    See also
+    See Also
     --------
     * [`FloryHuggins_activity`](FloryHuggins_activity.md): equivalent method
       for multicomponent systems.
@@ -377,4 +385,4 @@ def FloryHuggins2_activity(
     0.62
     """
     phi2 = 1 - phi1
-    return phi1*exp((1 - 1/m)*phi2 + chi*phi2**2)
+    return phi1 * exp((1 - 1 / m) * phi2 + chi * phi2**2)
