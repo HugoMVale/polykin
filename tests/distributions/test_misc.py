@@ -66,7 +66,7 @@ def test_reconstruct_Laguerre():
     d = Flory(100)
     moments = [d._moment_length(i) for i in range(4)]
     drec = reconstruct_Laguerre(moments)
-    n = np.arange(1, int(5 * d.DPz), 1, dtype=int)
+    n = np.arange(1, int(5 * d.DPz), 1, dtype=np.int_)
     pdf = drec(n)
     for i in range(len(moments)):
         assert isclose(np.dot(n**i, pdf), moments[i], rtol=1e-2)

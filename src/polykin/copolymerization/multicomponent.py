@@ -110,8 +110,8 @@ def inst_copolymer_ternary(
     >>> print(f"F1 = {F1:.2f}; F2 = {F2:.2f}; F3 = {F3:.2f}")
     F1 = 0.32; F2 = 0.41; F3 = 0.27
     """
-    f1 = np.asarray(f1, dtype=float)
-    f2 = np.asarray(f2, dtype=float)
+    f1 = np.asarray(f1, dtype=np.float64)
+    f2 = np.asarray(f2, dtype=np.float64)
 
     f3 = 1.0 - (f1 + f2)
 
@@ -308,8 +308,8 @@ def radical_fractions_ternary(
     >>> print(f"p1 = {p1:.2f}; p2 = {p2:.2f}; p3 = {p3:.2f}")
     p1 = 0.25; p2 = 0.48; p3 = 0.27
     """
-    f1 = np.asarray(f1, dtype=float)
-    f2 = np.asarray(f2, dtype=float)
+    f1 = np.asarray(f1, dtype=np.float64)
+    f2 = np.asarray(f2, dtype=np.float64)
     f3 = 1.0 - (f1 + f2)
 
     p1 = k21 * k31 * f1**2 + k21 * k32 * f1 * f2 + k23 * k31 * f1 * f3
@@ -379,7 +379,7 @@ def radical_fractions_multi(
     >>> p
     array([0.25012791, 0.47956341, 0.27030868])
     """
-    f = np.asarray(f, dtype=float)
+    f = np.asarray(f, dtype=np.float64)
 
     A = k.T * f[:, np.newaxis]
     x = A.sum(axis=0)
@@ -555,7 +555,7 @@ def transitions_multi(
            [0.58139535, 0.20930233, 0.20930233]])
 
     """
-    f = np.asarray(f, dtype=float)
+    f = np.asarray(f, dtype=np.float64)
 
     # N = len(f)
     # P = np.empty((N, N))
@@ -647,13 +647,13 @@ def sequence_multi(
            [0.79069767, 0.00151742]])
 
     """
-    Pself = np.asarray(Pself, dtype=float)
+    Pself = np.asarray(Pself, dtype=np.float64)
 
     if k is None:
         S = 1 / (1.0 - Pself + eps)
     else:
         if isinstance(k, (list, tuple)):
-            k = np.array(k, dtype=int)
+            k = np.array(k, dtype=np.int_)
         if isinstance(k, np.ndarray):
             Pself = Pself.reshape(-1, 1)
         S = (1.0 - Pself) * Pself ** (k - 1)

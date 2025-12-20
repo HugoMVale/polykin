@@ -107,7 +107,7 @@ class CopoModel(ABC):
             Instantaneous copolymer composition, $F_1$.
         """
         if isinstance(f1, (list, tuple)):
-            f1 = np.array(f1, dtype=float)
+            f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0.0, 1.0, "f1")
         return inst_copolymer_binary(f1, *self.ri(f1))
 
@@ -141,7 +141,7 @@ class CopoModel(ABC):
             Average propagation rate coefficient [L/(mol·s)].
         """
         if isinstance(f1, (list, tuple)):
-            f1 = np.array(f1, dtype=float)
+            f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0.0, 1.0, "f1")
         return kp_average_binary(f1, *self.ri(f1), *self.kii(f1, T, Tunit))
 
@@ -324,7 +324,7 @@ class CopoModel(ABC):
             ax.plot(unit_range, unit_range, color="black", linewidth=0.5)
 
             if show in {"model", "all"}:
-                x = np.linspace(*unit_range, npoints, dtype=float)
+                x = np.linspace(*unit_range, npoints, dtype=np.float64)
                 y = self.F1(x)
                 if M == 2:
                     x[:] = 1.0 - x
@@ -354,7 +354,7 @@ class CopoModel(ABC):
                 else:
                     if isinstance(f0, (int, float)):
                         f0 = [f0]
-                    f0 = np.array(f0, dtype=float)
+                    f0 = np.array(f0, dtype=np.float64)
                     check_bounds(f0, *unit_range, "f0")
 
                 x = np.linspace(*unit_range, 1000)
@@ -638,7 +638,7 @@ class TerminalModel(CopoModel):
             Transition probabilities, {'11': $P_{11}$, '12': $P_{12}$, ... }.
         """
         if isinstance(f1, (list, tuple)):
-            f1 = np.array(f1, dtype=float)
+            f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0.0, 1.0, "f1")
 
         f2 = 1.0 - f1
@@ -764,7 +764,7 @@ class TerminalModel(CopoModel):
             }
         else:
             if isinstance(k, (list, tuple)):
-                k = np.asarray(k, dtype=int)
+                k = np.asarray(k, dtype=np.int_)
             result = {
                 str(i + 1): (1.0 - P) * P ** (k - 1) for i, P in enumerate([P11, P22])
             }

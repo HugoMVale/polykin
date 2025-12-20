@@ -225,7 +225,7 @@ class VrentasDudaBinary:
             Solvent self-diffusion or mutual diffusion coefficient.
         """
         if isinstance(w1, (list, tuple)):
-            w1 = np.array(w1, dtype=float)
+            w1 = np.array(w1, dtype=np.float64)
 
         check_bounds(w1, 0.0, 1.0, "w1")
 

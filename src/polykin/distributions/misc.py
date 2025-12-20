@@ -116,7 +116,7 @@ def convolve_moments_self(
     >>> convolve_moments_self([1e0, 1e2, 2e4], 2)
     array([1.0e+00, 3.0e+02, 1.2e+05])
     """
-    q = np.asarray(q, dtype=float)
+    q = np.asarray(q, dtype=np.float64)
 
     if order == 0:
         return q.copy()
@@ -199,7 +199,7 @@ def convert_polymer_standards(
     >>> print(f"{M2:.2e} g/mol")
     1.19e+05 g/mol
     """
-    M1 = np.asarray(M1, dtype=float)
+    M1 = np.asarray(M1, dtype=np.float64)
     return (K1 / K2) ** (1 / (1 + a2)) * M1 ** ((1 + a1) / (1 + a2))
 
 
@@ -250,12 +250,12 @@ def reconstruct_Laguerre(
         A function `pdf(n)` that evaluates the reconstructed number distribution
         $P(n)$ at the supplied chain lengths `n`.
     """
-    moments = np.asarray(moments, dtype=float)
+    moments = np.asarray(moments, dtype=np.float64)
     DPn = moments[1] / moments[0]
     k = len(moments)
 
     # Series coefficients
-    γ = np.empty(k, dtype=float)
+    γ = np.empty(k, dtype=np.float64)
     for m in range(k):
         γ[m] = sum(
             comb(m, i) * (-1) ** i * moments[i] / DPn ** (i - 1) / factorial(i)
@@ -267,7 +267,7 @@ def reconstruct_Laguerre(
 
     # Bild pdf
     def pdf(n: FloatArrayLike) -> FloatArray:
-        n = np.asarray(n, dtype=float)
+        n = np.asarray(n, dtype=np.float64)
         ρ = n / DPn
         return np.exp(-ρ) / DPn**2 * L(ρ)
 

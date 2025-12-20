@@ -159,5 +159,5 @@ class PropagationHalfLength(KineticCoefficientCLD):
         """
         TK = convert_check_temperature(T, Tunit, self.kp.Trange)
         if isinstance(i, (list, tuple)):
-            i = np.array(i, dtype=int)
+            i = np.array(i, dtype=np.int_)
         return self.equation(i, self.kp(TK), self.C, self.ihalf)

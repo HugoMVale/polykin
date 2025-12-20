@@ -230,7 +230,7 @@ class PenultimateModel(CopoModel):
             {'111': $P_{111}$, '211': $P_{211}$, '121': $P_{121}$, ... }.
         """
         if isinstance(f1, (list, tuple)):
-            f1 = np.array(f1, dtype=float)
+            f1 = np.array(f1, dtype=np.float64)
         check_bounds(f1, 0.0, 1.0, "f1")
 
         f2 = 1.0 - f1
@@ -384,7 +384,7 @@ class PenultimateModel(CopoModel):
             S2 = 1.0 + P122 / (1.0 - P222 + eps)
         else:
             if isinstance(k, (list, tuple)):
-                k = np.array(k, dtype=int)
+                k = np.array(k, dtype=np.int_)
             S1 = np.where(k == 1, 1.0 - P211, P211 * (1.0 - P111) * P111 ** (k - 2))
             S2 = np.where(k == 1, 1.0 - P122, P122 * (1.0 - P222) * P222 ** (k - 2))
 

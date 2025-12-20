@@ -113,7 +113,7 @@ def WeibullNycanderGold_pdf(
         p0 = exp((1.0 - v - r) / r)
 
     # Special case k=0
-    result = np.zeros_like(k, dtype=float)
+    result = np.zeros_like(k, dtype=np.float64)
     result[k == 0] = p0
 
     # Weibull-Nycander-Gold solution p(k>=1)

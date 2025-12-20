@@ -184,7 +184,7 @@ class TerminationCompositeModel(KineticCoefficientCLD):
         """
         TK = convert_check_temperature(T, Tunit, self.kt11.Trange)
         if isinstance(i, (list, tuple)):
-            i = np.array(i, dtype=int)
+            i = np.array(i, dtype=np.int_)
         if isinstance(j, (list, tuple)):
-            j = np.array(j, dtype=int)
+            j = np.array(j, dtype=np.int_)
         return self.equation(i, j, self.kt11(TK), self.icrit, self.aS, self.aL)

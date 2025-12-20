@@ -139,7 +139,7 @@ def kp_average_binary(
     >>> kp
     array([880.        , 523.87096774, 317.18309859])
     """
-    f1 = np.asarray(f1, dtype=float)
+    f1 = np.asarray(f1, dtype=np.float64)
     f2 = 1 - f1
     return (r1 * f1**2 + r2 * f2**2 + 2 * f1 * f2) / ((r1 * f1 / k11) + (r2 * f2 / k22))
 
