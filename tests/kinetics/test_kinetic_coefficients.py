@@ -4,6 +4,7 @@
 
 import numpy as np
 import pytest
+from numpy import allclose, isclose
 
 from polykin.kinetics import (
     Arrhenius,
@@ -74,12 +75,12 @@ def test_evaluation_Arrhenius():
     T0 = np.array(400)  # array declared on pupose
     k = Arrhenius(k0, EaR, T0, name="test")
     assert k.shape == (2,)
-    assert np.all(np.isclose(k(T0, "K"), k0))
-    assert np.all(np.isclose(k.A, k(np.inf)))
+    assert allclose(k(T0, "K"), k0)
+    assert allclose(k.A, k(np.inf))
     k = Arrhenius(k0, EaR)
     k1 = k(300, "K")
     k2 = k(600, "K")
-    assert np.isclose(k2[1] / k1[0], 1)  # type:ignore
+    assert isclose(k2[1] / k1[0], 1)  # type:ignore
 
 
 def test_product_Arrhenius_number():
@@ -89,16 +90,16 @@ def test_product_Arrhenius_number():
     k1_value = k1(T, "K")
     # int left
     k2 = number * k1
-    assert np.isclose(k1_value * number, k2(T))
+    assert isclose(k1_value * number, k2(T))
     # float left
     k2 = float(number) * k1
-    assert np.isclose(k1_value * number, k2(T))
+    assert isclose(k1_value * number, k2(T))
     # int right
     k2 = k1 * number
-    assert np.isclose(k1_value * number, k2(T))
+    assert isclose(k1_value * number, k2(T))
     # float right
     k2 = k1 * float(number)
-    assert np.isclose(k1_value * number, k2(T))
+    assert isclose(k1_value * number, k2(T))
 
 
 def test_division_Arrhenius_number():
@@ -108,16 +109,16 @@ def test_division_Arrhenius_number():
     k1_value = k1(T, "K")
     # int left
     k2 = number / k1
-    assert np.isclose(number / k1_value, k2(T))
+    assert isclose(number / k1_value, k2(T))
     # float left
     k2 = float(number) / k1
-    assert np.isclose(number / k1_value, k2(T))
+    assert isclose(number / k1_value, k2(T))
     # int right
     k2 = k1 / number
-    assert np.isclose(k1_value / number, k2(T))
+    assert isclose(k1_value / number, k2(T))
     # float right
     k2 = k1 / float(number)
-    assert np.isclose(k1_value / number, k2(T))
+    assert isclose(k1_value / number, k2(T))
 
 
 def test_product_Arrhenius_Arrhenius_scalar():
@@ -128,7 +129,7 @@ def test_product_Arrhenius_Arrhenius_scalar():
     k2_value = k2(T, "K")
     k3 = k1 * k2
     k3_value = k3(T, "K")
-    assert np.isclose(k3_value, k1_value * k2_value)
+    assert isclose(k3_value, k1_value * k2_value)
 
     with pytest.warns(Warning):
         _ = k3(390, "K")
@@ -144,7 +145,7 @@ def test_division_Arrhenius_Arrhenius_scalar():
     k2_value = k2(T, "K")
     k3 = k1 / k2
     k3_value = k3(T, "K")
-    assert np.isclose(k3_value, k1_value / k2_value)
+    assert isclose(k3_value, k1_value / k2_value)
 
     with pytest.warns(Warning):
         _ = k3(390, "K")
@@ -169,17 +170,33 @@ def test_product_Arrhenius_Arrhenius_array():
         Tmax=[390, 391],
         name="k2",
     )
+    k3 = Arrhenius(
+        [2e2],
+        [3e4],
+        T0=[350],
+        Tmin=[310],
+        Tmax=[390],
+        name="k3",
+    )
+
     T = 350.0
     k1_value = k1(T, "K")
     k2_value = k2(T, "K")
-    k3 = k1 * k2
-    k3_value = k3(T, "K")
-    assert np.all(np.isclose(k3_value, k1_value * k2_value))
+    k12 = k1 * k2
+    k12_value = k12(T, "K")
+    assert allclose(k12_value, k1_value * k2_value)
 
     with pytest.warns(Warning):
-        _ = k3(390, "K")
+        _ = k12(390, "K")
     with pytest.warns(Warning):
-        _ = k3(310, "K")
+        _ = k12(310, "K")
+
+    # shape mismatch
+    with pytest.raises(ShapeError):
+        _ = k1 * k3
+    # invalid type
+    with pytest.raises(TypeError):
+        _ = k1 * {1}  # type: ignore
 
 
 def test_power_Arrhenius_():
@@ -189,7 +206,7 @@ def test_power_Arrhenius_():
     k3 = k1**2
     k2_value = k2(T, "K")
     k3_value = k3(T, "K")
-    assert np.isclose(k3_value, k2_value)
+    assert isclose(k3_value, k2_value)
 
     with pytest.warns(Warning):
         _ = k3(390, "K")
@@ -219,7 +236,7 @@ def test_division_Arrhenius_Arrhenius_array():
     k2_value = k2(T, "K")
     k3 = k1 / k2
     k3_value = k3(T, "K")
-    assert np.all(np.isclose(k3_value, k1_value / k2_value))
+    assert allclose(k3_value, k1_value / k2_value)
 
     with pytest.warns(Warning):
         _ = k3(390, "K")
@@ -233,8 +250,8 @@ def test_evaluation_Eyring():
     kappa = [0.5, 1]
     Tref = 300.0
     k = Eyring(DSa, DHa, kappa, name="test")
-    assert np.all(np.isclose(k(2 * Tref, "K")[0] / k(Tref, "K")[0], 2))  # type: ignore
-    assert np.isclose(k(Tref, "K")[-1], 1, rtol=0.1)  # type: ignore
+    assert allclose(k(2 * Tref, "K")[0] / k(Tref, "K")[0], 2)  # type: ignore
+    assert isclose(k(Tref, "K")[-1], 1, rtol=0.1)  # type: ignore
 
 
 def test_evaluation_TerminationCompositeModel():
@@ -244,7 +261,7 @@ def test_evaluation_TerminationCompositeModel():
     aL = 0.2
     kt11 = Arrhenius(1, 2000, T0, name="kt11")
     kt = TerminationCompositeModel(kt11, icrit, aS, aL, "kt")
-    assert np.isclose(kt(T0, icrit, icrit), kt11(T0) / icrit**aS)
+    assert isclose(kt(T0, icrit, icrit), kt11(T0) / icrit**aS)
     assert len(kt(T0, np.arange(1, 1000, 1), np.arange(1, 1000, 1)))  # type: ignore
     assert len(kt(T0, [1, 2, 3], (1, 2, 3)))  # type: ignore
 
@@ -255,8 +272,8 @@ def test_evaluation_PropagationHalfLength():
     C = 11
     kp = Arrhenius(1e3, 2000, T0=298.0, name="kp(inf)")
     kpi = PropagationHalfLength(kp, C, ihalf, name="kp(i)")
-    assert np.isclose(kpi(T0, 1) / kp(T0), C)
-    assert np.isclose(kpi(T0, ihalf + 1) / kp(T0), (C + 1) / 2)
+    assert isclose(kpi(T0, 1) / kp(T0), C)
+    assert isclose(kpi(T0, ihalf + 1) / kp(T0), (C + 1) / 2)
     assert len(kpi(T0, np.arange(1, 101)))  # type: ignore
     assert len(kpi(T0, (1, 2, 3)))  # type: ignore
     assert len(kpi(T0, [1, 2, 3]))  # type: ignore
