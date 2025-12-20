@@ -34,6 +34,8 @@ def test_profile_constc_sheet():
     # Long times, read from Fig 4.1 of Crank
     q = profile_constc_sheet(1, 0.1)
     assert isclose(q, 0.9, atol=0.01)
+    # Special case Fo=0
+    assert isclose(profile_constc_sheet(0, 0.5), 0)
 
 
 def test_profile_constc_sphere():
@@ -50,6 +52,8 @@ def test_profile_constc_sphere():
     # Particular case of r=0
     assert isclose(profile_constc_sphere(0.3, 0), 0.9, atol=0.01)
     assert isclose(profile_constc_sphere(0.04, 0), 0.01, atol=0.003)
+    # Special case Fo=0
+    assert isclose(profile_constc_sphere(0, 0.5), 0)
 
 
 def test_uptake_constc_sheet():
