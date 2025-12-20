@@ -5,6 +5,4 @@
 * [RedlichKwong](RedlichKwong.md)
 * [SoaveRedlichKwong](SoaveRedlichKwong.md)
 * [Virial](Virial.md)
-* [B_mixture](B_mixture.md)
-* [B_pure](B_pure.md)
 * [Z_cubic_roots](Z_cubic_roots.md)
