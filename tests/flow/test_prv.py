@@ -17,13 +17,13 @@ def test_area_relief_gas():
     P2 = 1.01325  # bara
     P1 = 6.70  # bara
     Z = 0.90
-    res = area_relief_gas(W, P1, P2, T, k, M, Z)
+    res = area_relief_gas(W, P1, P2, T, k, M, Z=Z)
     assert isclose(res.Pcf, 3.92, rtol=1e-2)
     assert isclose(res.A, 3698, rtol=1e-2)
 
     # API 520, Example 2, p. 80
     P2 = 5.32  # bara
-    res = area_relief_gas(W, P1, P2, T, k, M, Z)
+    res = area_relief_gas(W, P1, P2, T, k, M, Z=Z)
     assert isclose(res.A, 4226, rtol=1e-2)
 
     # API 520, Example 4, p. 91
@@ -94,7 +94,7 @@ def test_compare_gas():
     Kd = 0.85
     v1 = (8.314 * T) / (P1 * 1e5 * M * 1e-3)
     v9 = (8.314 * T) / (0.9 * P1 * 1e5 * M * 1e-3)
-    res1 = area_relief_gas(W, P1, P2, T, k, M, Z, Kd=Kd)
+    res1 = area_relief_gas(W, P1, P2, T, k, M, Z=Z, Kd=Kd)
     res2 = area_relief_2phase(W, P1, P2, v1=v1, v9=v9, Kd=Kd)
     assert res1.critical_flow and res2.critical_flow
     assert isclose(res1.A, res2.A, rtol=0.05)
@@ -102,7 +102,7 @@ def test_compare_gas():
     P1 = 1.5
     v1 = (8.314 * T) / (P1 * 1e5 * M * 1e-3)
     v9 = (8.314 * T) / (0.9 * P1 * 1e5 * M * 1e-3)
-    res1 = area_relief_gas(W, P1, P2, T, k, M, Z, Kd=Kd)
+    res1 = area_relief_gas(W, P1, P2, T, k, M, Z=Z, Kd=Kd)
     res2 = area_relief_2phase(W, P1, P2, v1=v1, v9=v9, Kd=Kd)
     assert not res1.critical_flow and not res2.critical_flow
     assert isclose(res1.A, res2.A, rtol=0.05)
