@@ -197,6 +197,8 @@ def test_product_Arrhenius_Arrhenius_array():
     # invalid type
     with pytest.raises(TypeError):
         _ = k1 * [1]  # type: ignore
+    with pytest.raises(TypeError):
+        _ = [1] * k1  # type: ignore
 
 
 def test_power_Arrhenius_():
@@ -215,6 +217,8 @@ def test_power_Arrhenius_():
 
     with pytest.raises(TypeError):
         _ = k1 ** [1.0, 2.0]  # type: ignore
+    with pytest.raises(TypeError):
+        _ = [1.0, 2.0] ** k1  # type: ignore
 
 
 def test_division_Arrhenius_Arrhenius_array():
@@ -260,6 +264,8 @@ def test_division_Arrhenius_Arrhenius_array():
     # invalid type
     with pytest.raises(TypeError):
         _ = k1 / [1]  # type: ignore
+    with pytest.raises(TypeError):
+        _ = [1] / k1  # type: ignore
 
 
 def test_evaluation_Eyring():
