@@ -181,7 +181,6 @@ class SmallSpeciesActivityModel(ActivityModel):
         float
             Molar excess Gibbs energy [J/mol].
         """
-        pass
 
     @abstractmethod
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
@@ -199,7 +198,6 @@ class SmallSpeciesActivityModel(ActivityModel):
         FloatVector (N)
             Activity coefficients of all components.
         """
-        pass
 
 
 class PolymerActivityModel(ActivityModel):
@@ -428,7 +426,6 @@ class PolymerActivityModel(ActivityModel):
         float
             Excess Gibbs energy per mole of segments [J/mol].
         """
-        pass
 
     @abstractmethod
     def activity(
@@ -456,4 +453,3 @@ class PolymerActivityModel(ActivityModel):
         FloatVector (N)
             Activities of all components.
         """
-        pass

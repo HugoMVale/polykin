@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import numpy as np
+import pytest
 from numpy import allclose, isclose
 from scipy.constants import gas_constant as R
 
@@ -16,6 +17,7 @@ from polykin.thermo.acm import (
     Wilson,
 )
 from polykin.thermo.acm.base import SmallSpeciesActivityModel
+from polykin.utils.exceptions import ShapeError
 
 
 def check_gE_gamma(acm: SmallSpeciesActivityModel, x, T=298):
@@ -30,6 +32,8 @@ def test_IdealSolution():
     T = 298.0
     x = np.array([0.5, 0.5])
     assert isclose(acm.gE(T, x), 0.0)
+    assert isclose(acm.hE(T, x), 0.0)
+    assert isclose(acm.sE(T, x), 0.0)
     assert allclose(acm.gamma(T, x), [1.0, 1.0])
 
 
@@ -49,6 +53,12 @@ def test_NRTL():
     assert allclose(acm.gamma(T, np.array([1.0, 0.0])), [1.0, 4.557085], rtol=1e-6)
     assert isclose(acm.Dgmix(T, np.array([0.5, 0.5])), -0.98183e3, rtol=1e-4)
     assert check_gE_gamma(acm, np.array([0.3, 0.7]))
+    # trivial case: ideal solution
+    acm = NRTL(2, name="ideal")
+    assert isclose(acm.gE(T, x=np.array([0.4, 0.6])), 0.0)
+    # invalid shape
+    with pytest.raises(ShapeError):
+        _ = NRTL(2, a=np.zeros((2, 3)), b=np.zeros((2, 2)))
 
 
 def test_UNIQUAC():
@@ -61,6 +71,11 @@ def test_UNIQUAC():
     T = 45 + 273.15
     assert allclose(acm.gamma(T, x), [7.15, 1.25, 1.06], rtol=2e-3)
     assert check_gE_gamma(acm, x)
+    # invalid shape
+    with pytest.raises(ShapeError):
+        _ = UNIQUAC(N, q, r[0:2])
+    with pytest.raises(ShapeError):
+        _ = UNIQUAC(3, q, r, a=np.zeros((2, 3)))
 
 
 def test_UNIQUAC_2():
@@ -159,3 +174,9 @@ def test_Wilson():
     assert allclose(acm.gamma(T, np.array([1.0, 0.0])), [1.0, 4.90196], rtol=1e-6)
     assert isclose(acm.Dgmix(T, np.array([0.5, 0.5])), -0.983275e3, rtol=1e-4)
     assert check_gE_gamma(acm, x=np.array([0.4, 0.6]))
+    # trivial case: ideal solution
+    acm = Wilson(N, name="ideal")
+    assert isclose(acm.gE(T, x=np.array([0.4, 0.6])), 0.0)
+    # invalid shape
+    with pytest.raises(ShapeError):
+        _ = Wilson(2, a=np.zeros((2, 3)), b=np.zeros((2, 2)))
