@@ -616,7 +616,7 @@ def Nu_cylinder_bank(
 
     where $Re_{max}$ is the Reynolds number based on the maximum fluid velocity
     within the bank of tubes, and $Pr$ is the Prandtl number. Additionally,
-    $C_2$, $C$ and $m$ are tabulated constants that depend on the tube bundle
+    $C$, $C_2$, and $m$ are tabulated constants that depend on the tube bundle
     configuration.
 
     **References**
