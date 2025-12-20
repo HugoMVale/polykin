@@ -14,16 +14,16 @@ Using any of these subpackages requires an explicit import. For example,
 
 * copolymerization = copolymerization models
 * distributions    = chain-length distributions
+* flow             = fluid dynamics and rheology
+* hmt              = heat and mass transfer
 * kinetics         = kinetic coefficients
 * math             = mathematical algorithms
 * properties       = physical property methods and models
 * reactors         = reaction engineering models
 * stepgrowth       = step-growth polymerization formulas
 * thermo           = thermodynamic models
-* transport        = transport phenomena
 """
+
 import importlib.metadata
 
-from polykin.properties.equations import plotequations
-
-__version__ = importlib.metadata.version('polykin')
+__version__ = importlib.metadata.version("polykin")
