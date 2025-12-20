@@ -196,7 +196,7 @@ def test_product_Arrhenius_Arrhenius_array():
         _ = k1 * k3
     # invalid type
     with pytest.raises(TypeError):
-        _ = k1 * {1}  # type: ignore
+        _ = k1 * [1]  # type: ignore
 
 
 def test_power_Arrhenius_():
@@ -212,6 +212,9 @@ def test_power_Arrhenius_():
         _ = k3(390, "K")
     with pytest.warns(Warning):
         _ = k3(290, "K")
+
+    with pytest.raises(TypeError):
+        _ = k1 ** [1.0, 2.0]  # type: ignore
 
 
 def test_division_Arrhenius_Arrhenius_array():
@@ -231,17 +234,32 @@ def test_division_Arrhenius_Arrhenius_array():
         Tmax=[390, 391],
         name="k2",
     )
+    k3 = Arrhenius(
+        [2e2],
+        [3e4],
+        T0=[350],
+        Tmin=[310],
+        Tmax=[390],
+        name="k3",
+    )
     T = 350.0
     k1_value = k1(T, "K")
     k2_value = k2(T, "K")
-    k3 = k1 / k2
-    k3_value = k3(T, "K")
-    assert allclose(k3_value, k1_value / k2_value)
+    k12 = k1 / k2
+    k12_value = k12(T, "K")
+    assert allclose(k12_value, k1_value / k2_value)
 
     with pytest.warns(Warning):
-        _ = k3(390, "K")
+        _ = k12(390, "K")
     with pytest.warns(Warning):
-        _ = k3(310, "K")
+        _ = k12(310, "K")
+
+    # shape mismatch
+    with pytest.raises(ShapeError):
+        _ = k1 / k3
+    # invalid type
+    with pytest.raises(TypeError):
+        _ = k1 / [1]  # type: ignore
 
 
 def test_evaluation_Eyring():
