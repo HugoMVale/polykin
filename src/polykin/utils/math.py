@@ -38,7 +38,7 @@ def add_dicts(
     d1: dict[Any, int | float],
     d2: dict[Any, int | float],
     *,
-    new: bool = False,
+    new: bool = True,
 ) -> dict[Any, int | float]:
     r"""Add two dictionaries by summing the values for the same key.
 
