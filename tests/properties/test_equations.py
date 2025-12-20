@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy import isclose
 
-from polykin import plotequations
+from polykin.properties import plotequations
 from polykin.properties.equations.dippr import (
     DIPPR100,
     DIPPR101,
