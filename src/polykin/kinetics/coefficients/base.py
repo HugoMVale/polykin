@@ -29,10 +29,8 @@ class KineticCoefficientCLD(ABC):
     @abstractmethod
     def __call__(self, T, i, *args) -> float | FloatArray:
         """Evaluate the coefficient."""
-        pass
 
     @staticmethod
     @abstractmethod
     def equation(T, i, *args) -> float | FloatArray:
         """Equation for the coefficient."""
-        pass
