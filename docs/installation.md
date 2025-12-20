@@ -17,6 +17,14 @@ With [`uv`](https://docs.astral.sh/uv/) do:
 uv add polykin
 ```
 
+## Install from conda-forge
+
+With `conda` do:
+
+```bash
+conda install -c conda-forge polykin
+```
+
 ## Install from the source code repository
 
 The very latest code (no guarantee it will work!) may be installed directly from the source code repository:
