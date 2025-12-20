@@ -1,6 +1,6 @@
 [project]
 name = "polykin"
-version = "0.5.7"
+version = "0.6.0"
 license = { file = "LICENSE" }
 description = "A polymerization kinetics library."
 readme = "README.md"
