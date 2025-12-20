@@ -1,3 +1,4 @@
+import pytest
 from numpy import exp, inf, isclose
 
 from polykin.reactors.rtd import (
@@ -104,4 +105,7 @@ def test_F_dispersion_model():
 def test_Pe_tube():
     assert isclose(Pe_tube(1, 1), 1, rtol=1e-2)
     assert isclose(Pe_tube(2100, 1000), 1e-4, rtol=1e-1)
-    # !!! test in turbulent is missing
+    assert isclose(Pe_tube(1e6), 5.0, atol=1.0)
+    # Missing 'Sc' in laminar flow
+    with pytest.raises(ValueError):
+        _ = Pe_tube(100)
