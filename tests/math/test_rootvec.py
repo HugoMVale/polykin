@@ -76,6 +76,11 @@ def f_example65(x):
     return np.array([f1, f2])
 
 
+def jac_example65(x):
+    x1, x2 = x
+    return np.array([[2 * x1, 2 * x2], [np.exp(x1 - 1), 3 * x2**2]])
+
+
 f_example65.x0 = np.array([2.0, 0.5])
 f_example65.xs = np.array([1.0, 1.0])
 
@@ -111,3 +116,17 @@ def test_rootvec_qnewton():
     f = f_example65
     sol = rootvec_qnewton(f, f.x0, broyden_update=True, jac0=np.eye(f.x0.size))
     assert sol.success
+
+    # With analytic jacobian
+    f = f_example65
+    jac = jac_example65
+    for broyden_update in [False, True]:
+        sol = rootvec_qnewton(f, f.x0, jac=jac, broyden_update=broyden_update)
+        assert sol.success
+        assert allclose(sol.x, f.xs)
+
+    # Initial guess is solution
+    f = f_example65
+    sol = rootvec_qnewton(f, f.xs)
+    assert sol.success
+    assert sol.niter == 0
