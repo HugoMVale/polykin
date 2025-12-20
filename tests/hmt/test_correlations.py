@@ -129,6 +129,23 @@ def test_Nu_cylinder_bank():
         NL=7,
     )
     assert isclose(Nu, 87.9, rtol=2e-2)
+    # Test other combinations
+    for aligned in [True, False]:
+        for NL in [10, 30]:
+            for v in [0.1, 1, 10]:
+                Nu = Nu_cylinder_bank(
+                    v=v,
+                    rho=1,
+                    mu=14.82e-6,
+                    Pr=0.710,
+                    Prs=0.701,
+                    aligned=aligned,
+                    D=16.4e-3,
+                    ST=31.3e-3,
+                    SL=34.3e-3,
+                    NL=NL,
+                )
+                assert Nu > 0
 
 
 def test_Nu_cylinder_free():
