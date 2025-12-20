@@ -20,6 +20,7 @@ dependencies = [
     "mpmath>=1.3.0",
     "numba>=0.60.0",
     "numpy>=1.26.4",
+    "odrpack>=0.3.5",
     "pandas>=2.2.2",
     "pydantic>=2.10.2",
     "scipy>=1.13.1",

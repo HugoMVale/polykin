@@ -10,7 +10,7 @@ import numpy as np
 from matplotlib.axes._axes import Axes
 from matplotlib.figure import Figure
 from numpy import dot
-from scipy import odr
+from odrpack import odr_fit
 from scipy.optimize import minimize
 from scipy.stats import linregress
 from scipy.stats.distributions import t as tdist
@@ -508,19 +508,23 @@ def _fit_copo_ODR(
     sF1 = np.asarray(sF1)
 
     # Parameter estimation
-    odr_Model = odr.Model(lambda beta, x: inst_copolymer_binary(x, *beta))
-    odr_Data = odr.RealData(x=f1, y=F1, sx=sf1, sy=sF1)
-    odr_ODR = odr.ODR(odr_Data, odr_Model, beta0=r_guess)
-    solution = odr_ODR.run()
+    sol = odr_fit(
+        f=lambda x, beta: inst_copolymer_binary(x, *beta),
+        xdata=f1,
+        ydata=F1,
+        weight_x=1 / sf1**2,
+        weight_y=1 / sF1**2,
+        beta0=np.array(r_guess),
+    )
 
-    if solution.info > 4:  # type: ignore
-        raise FitError(solution.stopreason)
+    if not sol.success:
+        raise FitError(sol.stopreason)
 
-    r_opt = solution.beta
-    f1plus = solution.xplus  # type: ignore
+    r_opt = sol.beta
+    f1plus = sol.xplusd
     if f1.size > 2:
         # cov_beta is absolute, so rescaling is required
-        cov = solution.cov_beta * solution.res_var  # type: ignore
+        cov = sol.cov_beta * sol.res_var
     else:
         cov = None
 

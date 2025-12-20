@@ -7,8 +7,6 @@ from numpy import allclose
 
 from polykin.copolymerization import CopoDataset_Ff, fit_copo_data, fit_Finemann_Ross
 
-# %% Terminal
-
 
 def test_fit_Finemann_Ross():
     """Scott & Penlidis (2019). p. 9."""
