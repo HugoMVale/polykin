@@ -35,7 +35,6 @@ class EoS(ABC):
     @abstractmethod
     def Z(self, T, P, z) -> float | FloatVector:
         """Calculate the compressibility factor of the fluid."""
-        pass
 
     @abstractmethod
     def DA(
@@ -65,7 +64,6 @@ class EoS(ABC):
         float
             Helmholtz energy departure, $A - A^{\circ}$ [J].
         """
-        pass
 
     def DX(
         self,
@@ -102,17 +100,14 @@ class GasEoS(EoS):
     @abstractmethod
     def P(self, T: float, v: float, y: FloatVector) -> float:
         """Calculate the pressure of the fluid."""
-        pass
 
     @abstractmethod
     def Z(self, T: Number, P: Number, y: FloatVector) -> float:
         """Calculate the compressibility factor of the fluid."""
-        pass
 
     @abstractmethod
     def phi(self, T: float, P: float, y: FloatVector) -> FloatVector:
         """Calculate the fugacity coefficients of all components."""
-        pass
 
     def v(
         self,
@@ -174,10 +169,7 @@ class GasEoS(EoS):
         float
             Thermal expansion coefficient, $\beta$ [K⁻¹].
         """
-        dZdT, Z = derivative_complex(
-            lambda x: self.Z(x, P, y),
-            T,
-        )
+        dZdT, Z = derivative_complex(lambda x: self.Z(x, P, y), T)
         return 1 / T + dZdT / Z
 
     def kappa(
@@ -210,10 +202,7 @@ class GasEoS(EoS):
         float
             Isothermal compressibility coefficient, $\kappa$ [Pa⁻¹].
         """
-        dZdP, Z = derivative_complex(
-            lambda x: self.Z(T, x, y),
-            P,
-        )
+        dZdP, Z = derivative_complex(lambda x: self.Z(T, x, y), P)
         return 1 / P - dZdP / Z
 
     def f(
@@ -254,14 +243,12 @@ class GasLiquidEoS(EoS):
     @abstractmethod
     def P(self, T: float, v: float, z: FloatVector) -> float:
         """Calculate the pressure of the fluid."""
-        pass
 
     @abstractmethod
     def Z(self, T: float, P: float, z: FloatVector) -> FloatVector:
         """Calculate the compressibility factors for the possible phases of a
         fluid.
         """
-        pass
 
     def beta(
         self,
@@ -354,7 +341,6 @@ class GasLiquidEoS(EoS):
         """Calculate the fugacity coefficients of all components in a given
         phase.
         """
-        pass
 
     def v(
         self,
