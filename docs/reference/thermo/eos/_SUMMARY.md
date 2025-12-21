@@ -1,5 +1,6 @@
 * [](index.md)
 * [CubicEoS](CubicEoS.md)
+* [GasEoS](GasEoS.md)
 * [IdealGas](IdealGas.md)
 * [PengRobinson](PengRobinson.md)
 * [RedlichKwong](RedlichKwong.md)
