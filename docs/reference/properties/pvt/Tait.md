@@ -31,8 +31,8 @@ m = Tait(
     )
 
 print(m.vs(127., 1500, Tunit='C', Punit='bar'))
-print(m.alpha(400., 1.5e8))
 print(m.beta(400., 1.5e8))
+print(m.kappa(400., 1.5e8))
 ```
 
 ```python exec="on" source="console"
@@ -42,6 +42,6 @@ from polykin.properties.pvt import Tait
 m = Tait.from_database("PMMA")
 
 print(m.vs(127., 1500, Tunit='C', Punit='bar'))
-print(m.alpha(400., 1.5e8))
 print(m.beta(400., 1.5e8))
+print(m.kappa(400., 1.5e8))
 ```
