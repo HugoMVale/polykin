@@ -402,7 +402,7 @@ class RedlichKwong(CubicEoS):
     r"""[Redlich-Kwong](https://en.wikipedia.org/wiki/Redlich%E2%80%93Kwong_equation_of_state)
     equation of state.
 
-    This EoS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(T,v)$ relationship:
 
     $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v (v + b_m)} $$
 
@@ -461,7 +461,7 @@ class SoaveRedlichKwong(CubicEoS):
     r"""[Soave-Redlich-Kwong](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Soave_modification_of_Redlich%E2%80%93Kwong)
     equation of state.
 
-    This EoS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(T,v)$ relationship:
 
     $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v (v + b_m)} $$
 
@@ -537,7 +537,7 @@ class PengRobinson(CubicEoS):
     r"""[Peng-Robinson](https://en.wikipedia.org/wiki/Cubic_equations_of_state#Peng%E2%80%93Robinson_equation_of_state)
     equation of state.
 
-    This EoS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(T,v)$ relationship:
 
     $$ P = \frac{RT}{v - b_m} -\frac{a_m}{v^2 + 2 v b_m - b_m^2} $$
 

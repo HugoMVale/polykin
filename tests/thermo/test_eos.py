@@ -9,6 +9,7 @@ import pytest
 from numpy import allclose, isclose
 
 from polykin.thermo.eos import (
+    GasEoS,
     IdealGas,
     PengRobinson,
     RedlichKwong,
@@ -39,6 +40,10 @@ def test_IdealGas(air_parameters: dict[str, Any]):
     assert isclose(eos.Z(**state), 1.0)
     assert isclose(eos.v(**state), 24.4e-3, rtol=1e-2)
     assert isclose(eos.P(state["T"], eos.v(**state), state["y"]), state["P"], rtol=1e-2)
+    assert isclose(eos.beta(state["T"]), 1 / state["T"])
+    assert isclose(eos.kappa(state["T"], state["P"]), 1 / state["P"])
+    assert isclose(eos.beta(**state), GasEoS.beta(eos, **state))
+    assert isclose(eos.kappa(**state), GasEoS.kappa(eos, **state))
 
 
 def test_air(air_parameters: dict[str, Any]):
@@ -65,6 +70,7 @@ def test_Virial_Z():
     state = (366.5, 20.67e5, np.array([1.0]))
     assert isclose(eos.Z(*state), 0.75, rtol=0.1)
     assert isclose(eos.v(*state), 1097e-6, rtol=0.1)
+    assert isclose(eos.kappa(*state), GasEoS.kappa(eos, *state))
 
 
 def test_Virial_B():
@@ -257,6 +263,21 @@ def test_Z_Cubic_interaction():
     eos1 = PengRobinson(Tc, Pc, w, k=None)
     eos2 = PengRobinson(Tc, Pc, w, k=k)
     assert isclose(eos1.Z(T, P, y), eos2.Z(T, P, y), rtol=0.01)
+
+
+def test_Cubic_beta_kappa():
+    """Check consistency with ideal gas limit."""
+    # isobutane
+    Tc = [400.0]
+    Pc = [40e5]
+    w = [0.2]
+    T = 500.0
+    P = 0.1e5
+    y = np.array([1.0])
+    for EOS in [SoaveRedlichKwong, PengRobinson]:
+        eos = EOS(Tc, Pc, w)
+        assert isclose(eos.beta(T, P, y), 1 / T, rtol=0.01)
+        assert isclose(eos.kappa(T, P, y), 1 / P, rtol=0.01)
 
 
 def test_Cubic_departures():

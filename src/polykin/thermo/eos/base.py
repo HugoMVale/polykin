@@ -10,10 +10,11 @@ from typing import Literal
 from numpy import sqrt
 from scipy.constants import R
 
+from polykin.math.derivatives import derivative_complex
 from polykin.utils.math import eps
-from polykin.utils.types import FloatVector
+from polykin.utils.types import FloatVector, Number
 
-__all__ = ["EoS"]
+__all__ = ["EoS", "GasEoS"]
 
 
 class EoS(ABC):
@@ -104,7 +105,7 @@ class GasEoS(EoS):
         pass
 
     @abstractmethod
-    def Z(self, T: float, P: float, y: FloatVector) -> float:
+    def Z(self, T: Number, P: Number, y: FloatVector) -> float:
         """Calculate the compressibility factor of the fluid."""
         pass
 
@@ -142,6 +143,78 @@ class GasEoS(EoS):
             Molar volume of the fluid [m³/mol].
         """
         return self.Z(T, P, y) * R * T / P
+
+    def beta(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+    ) -> float:
+        r"""Calculate the thermal expansion coefficient.
+
+        $$ \beta
+           = \frac{1}{v} \left( \frac{\partial v}{\partial T} \right)_P
+           = \frac{1}{T}
+             + \frac{1}{Z} \left( \frac{\partial Z}{\partial T} \right)_P $$
+
+        where $P$ is the pressure, $T$ is the temperature, and $Z$ is the
+        compressibility factor.
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Thermal expansion coefficient, $\beta$ [K⁻¹].
+        """
+        dZdT, Z = derivative_complex(
+            lambda x: self.Z(x, P, y),
+            T,
+        )
+        return 1 / T + dZdT / Z
+
+    def kappa(
+        self,
+        T: float,
+        P: float,
+        y: FloatVector,
+    ) -> float:
+        r"""Calculate the isothermal compressibility coefficient.
+
+        $$ \kappa
+           = - \frac{1}{v} \left( \frac{\partial v}{\partial P} \right)_T
+           = \frac{1}{P}
+             - \frac{1}{Z} \left( \frac{\partial Z}{\partial P} \right)_T $$
+
+        where $P$ is the pressure, $T$ is the temperature, and $Z$ is the
+        compressibility factor.
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Isothermal compressibility coefficient, $\kappa$ [Pa⁻¹].
+        """
+        dZdP, Z = derivative_complex(
+            lambda x: self.Z(T, x, y),
+            P,
+        )
+        return 1 / P - dZdP / Z
 
     def f(
         self,
@@ -189,6 +262,86 @@ class GasLiquidEoS(EoS):
         fluid.
         """
         pass
+
+    def beta(
+        self,
+        T: float,
+        P: float,
+        z: FloatVector,
+    ) -> FloatVector:
+        r"""Calculate the thermal expansion coefficients of the possible phases
+        of a fluid.
+
+        $$ \beta
+           = \frac{1}{v} \left( \frac{\partial v}{\partial T} \right)_P
+           = \frac{1}{T}
+             + \frac{1}{Z} \left( \frac{\partial Z}{\partial T} \right)_P $$
+
+        where $P$ is the pressure, $T$ is the temperature, and $Z$ is the
+        compressibility factor.
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        FloatVector
+            Thermal expansion coefficients of the possible phases [K⁻¹].
+            If two phases are possible, the first result corresponds to the
+            liquid.
+        """
+        dT = 1.0
+        Zp = self.Z(T + dT, P, z)
+        Zm = self.Z(T - dT, P, z)
+        dZdT = (Zp - Zm) / (2 * dT)
+        Z = (Zp + Zm) / 2
+        return 1 / T + dZdT / Z
+
+    def kappa(
+        self,
+        T: float,
+        P: float,
+        z: FloatVector,
+    ) -> FloatVector:
+        r"""Calculate the isothermal compressibility coefficients of the
+        possible phases of a fluid.
+
+        $$ \kappa
+           = - \frac{1}{v} \left( \frac{\partial v}{\partial P} \right)_T
+           = \frac{1}{P}
+             - \frac{1}{Z} \left( \frac{\partial Z}{\partial P} \right)_T $$
+
+        where $P$ is the pressure, $T$ is the temperature, and $Z$ is the
+        compressibility factor.
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        z : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Isothermal compressibility coefficients of the possible phases [Pa⁻¹].
+            If two phases are possible, the first result corresponds to the
+            liquid.
+        """
+        dP = max(P * 1e-2, 1e1)
+        Zp = self.Z(T, P + dP, z)
+        Zm = self.Z(T, P - dP, z)
+        dZdP = (Zp - Zm) / (2 * dP)
+        Z = (Zp + Zm) / 2
+        return 1 / P - dZdP / Z
 
     @abstractmethod
     def phi(

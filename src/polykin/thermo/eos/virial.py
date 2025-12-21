@@ -24,7 +24,7 @@ __all__ = ["Virial"]
 class Virial(GasEoS):
     r"""Virial equation of state truncated to the second coefficient.
 
-    This EoS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(T,v)$ relationship:
 
     $$ P = \frac{R T}{v - B_m} $$
 
@@ -129,6 +129,31 @@ class Virial(GasEoS):
         """
         return B_mixture(T, self.Tc, self.Pc, self.Zc, self.w)
 
+    def P(
+        self,
+        T: float,
+        v: float,
+        y: FloatVector,
+    ) -> float:
+        r"""Calculate the pressure of the fluid.
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        v : float
+            Molar volume [m³/mol].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Pressure [Pa].
+        """
+        Bm = self.Bm(T, y)
+        return R * T / (v - Bm)
+
     def Z(
         self,
         T: float,
@@ -164,30 +189,37 @@ class Virial(GasEoS):
         Bm = self.Bm(T, y)
         return 1.0 + Bm * P / (R * T)
 
-    def P(
+    def kappa(
         self,
         T: float,
-        v: float,
+        P: float,
         y: FloatVector,
     ) -> float:
-        r"""Calculate the pressure of the fluid.
+        r"""Calculate the isothermal compressibility coefficient.
+
+        $$ \kappa
+           = - \frac{1}{v} \left( \frac{\partial v}{\partial P} \right)_T
+           = \frac{1}{P Z} $$
+
+        where $P$ is the pressure, $T$ is the temperature, and $Z$ is the
+        compressibility factor.
 
         Parameters
         ----------
         T : float
             Temperature [K].
-        v : float
-            Molar volume [m³/mol].
+        P : float
+            Pressure [Pa].
         y : FloatVector (N)
             Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Pressure [Pa].
+            Isothermal compressibility coefficient, $\kappa$ [Pa⁻¹].
         """
-        Bm = self.Bm(T, y)
-        return R * T / (v - Bm)
+        Z = self.Z(T, P, y)
+        return 1 / (P * Z)
 
     def phi(
         self,

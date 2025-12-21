@@ -16,7 +16,7 @@ __all__ = ["IdealGas"]
 class IdealGas(GasEoS):
     r"""Ideal gas equation of state.
 
-    This EoS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following $P(T,v)$ relationship:
 
     $$ P = \frac{R T}{v} $$
 
@@ -63,6 +63,52 @@ class IdealGas(GasEoS):
             Pressure [Pa].
         """
         return R * T / v
+
+    def beta(self, T: float, P=None, y=None) -> float:
+        r"""Calculate the thermal expansion coefficient.
+
+        $$ \beta
+           = \frac{1}{v} \left( \frac{\partial v}{\partial T} \right)_P
+           = \frac{1}{T} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Thermal expansion coefficient, $\beta$ [K⁻¹].
+        """
+        return 1 / T
+
+    def kappa(self, T: float, P: float, y=None) -> float:
+        r"""Calculate the isothermal compressibility coefficient.
+
+        $$ \kappa
+           = - \frac{1}{v} \left( \frac{\partial v}{\partial P} \right)_T
+           = \frac{1}{P} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Isothermal compressibility coefficient, $\kappa$ [Pa⁻¹].
+        """
+        return 1 / P
 
     def phi(self, T=None, P=None, y=None) -> FloatVector:
         r"""Calculate the fugacity coefficients of all components.
