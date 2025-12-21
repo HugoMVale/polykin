@@ -175,14 +175,14 @@ class Tait:
         """
         return self.B0 * exp(-self.B1 * (T - 273.15))
 
-    def alpha(
+    def beta(
         self,
         T: float | FloatArray,
         P: float | FloatArray,
     ) -> float | FloatArray:
-        r"""Calculate the thermal expansion coefficient, $\alpha$.
+        r"""Calculate the thermal expansion coefficient, $\beta$.
 
-        $$ \alpha = \frac{1}{\hat{v}}
+        $$ \beta = \frac{1}{\hat{v}}
                     \left( \frac{\partial \hat{v}}{\partial T} \right)_{P} $$
 
         Parameters
@@ -195,23 +195,23 @@ class Tait:
         Returns
         -------
         float | FloatArray
-            Thermal expansion coefficient, $\alpha$ [K⁻¹].
+            Thermal expansion coefficient, $\beta$ [K⁻¹].
         """
         A0 = self.A0
         A1 = self.A1
         A2 = self.A2
         TC = T - 273.15
-        alpha0 = (A1 + 2 * A2 * TC) / (A0 + A1 * TC + A2 * TC**2)
-        return alpha0 - P * self.B1 * self.beta(T, P)
+        beta0 = (A1 + 2 * A2 * TC) / (A0 + A1 * TC + A2 * TC**2)
+        return beta0 - P * self.B1 * self.kappa(T, P)
 
-    def beta(
+    def kappa(
         self,
         T: float | FloatArray,
         P: float | FloatArray,
     ) -> float | FloatArray:
-        r"""Calculate the isothermal compressibility coefficient, $\beta$.
+        r"""Calculate the isothermal compressibility coefficient, $\kappa$.
 
-        $$ \beta = -\frac{1}{\hat{v}}
+        $$ \kappa = -\frac{1}{\hat{v}}
                     \left( \frac{\partial \hat{v}}{\partial P} \right)_{T} $$
 
         Parameters
@@ -224,7 +224,7 @@ class Tait:
         Returns
         -------
         float | FloatArray
-            Isothermal compressibility coefficient, $\beta$ [Pa⁻¹].
+            Isothermal compressibility coefficient, $\kappa$ [Pa⁻¹].
         """
         B = self._B(T)
         return (self._C / (P + B)) / (1 - self._C * ln(1 + P / B))

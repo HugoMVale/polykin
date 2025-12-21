@@ -80,17 +80,17 @@ def test_Tait_V(tait_instance):
     assert np.isclose(vs, 8.2232e-4, atol=ATOL, rtol=RTOL)
 
 
-def test_Tait_alpha(tait_instance):
-    alpha = tait_instance.alpha(432.15, 2e8)
-    assert np.isclose(alpha, 3.5012e-4, atol=ATOL, rtol=RTOL)
-
-
 def test_Tait_beta(tait_instance):
     beta = tait_instance.beta(432.15, 2e8)
-    assert np.isclose(beta, 2.7765e-10, atol=ATOL, rtol=RTOL)
+    assert np.isclose(beta, 3.5012e-4, atol=ATOL, rtol=RTOL)
 
 
-def testTait__databank():
+def test_Tait_kappa(tait_instance):
+    kappa = tait_instance.kappa(432.15, 2e8)
+    assert np.isclose(kappa, 2.7765e-10, atol=ATOL, rtol=RTOL)
+
+
+def test_Tait_databank():
     table = Tait.get_database()
     polymers = table.index.to_list()
     for polymer in polymers:
