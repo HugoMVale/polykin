@@ -182,8 +182,9 @@ class Tait:
     ) -> float | FloatArray:
         r"""Calculate the thermal expansion coefficient, $\beta$.
 
-        $$ \beta = \frac{1}{\hat{v}}
-                    \left( \frac{\partial \hat{v}}{\partial T} \right)_{P} $$
+        $$ \beta \equiv
+            \frac{1}{\hat{v}}
+            \left( \frac{\partial \hat{v}}{\partial T} \right)_{P} $$
 
         Parameters
         ----------
@@ -211,8 +212,9 @@ class Tait:
     ) -> float | FloatArray:
         r"""Calculate the isothermal compressibility coefficient, $\kappa$.
 
-        $$ \kappa = -\frac{1}{\hat{v}}
-                    \left( \frac{\partial \hat{v}}{\partial P} \right)_{T} $$
+        $$ \kappa \equiv
+            -\frac{1}{\hat{v}}
+            \left( \frac{\partial \hat{v}}{\partial P} \right)_{T} $$
 
         Parameters
         ----------
