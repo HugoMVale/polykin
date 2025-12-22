@@ -3,6 +3,7 @@
 * [FloryHuggins](FloryHuggins.md)
 * [FloryHuggins_activity](FloryHuggins_activity.md)
 * [FloryHuggins2_activity](FloryHuggins2_activity.md)
+* [MolecularACM](MolecularACM.md)
 * [NRTL](NRTL.md)
 * [NRTL_gamma](NRTL_gamma.md)
 * [UNIQUAC](UNIQUAC.md)

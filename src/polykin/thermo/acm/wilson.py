@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
+from typing import override
 
 import numpy as np
 from numpy import dot, exp, log
@@ -12,12 +13,12 @@ from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
-from .base import SmallSpeciesActivityModel
+from .base import MolecularACM
 
 __all__ = ["Wilson", "Wilson_gamma"]
 
 
-class Wilson(SmallSpeciesActivityModel):
+class Wilson(MolecularACM):
     r"""Wilson multicomponent activity coefficient model.
 
     This model is based on the following molar excess Gibbs energy
@@ -130,6 +131,7 @@ class Wilson(SmallSpeciesActivityModel):
     def gE(self, T: float, x: FloatVector) -> float:
         return -R * T * dot(x, log(dot(self.Lambda(T), x)))
 
+    @override
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return Wilson_gamma(x, self.Lambda(T))
 

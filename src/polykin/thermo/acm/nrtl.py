@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
+from typing import override
 
 import numpy as np
 from numpy import dot, exp, log
@@ -13,12 +14,12 @@ from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
-from .base import SmallSpeciesActivityModel
+from .base import MolecularACM
 
 __all__ = ["NRTL", "NRTL_gamma"]
 
 
-class NRTL(SmallSpeciesActivityModel):
+class NRTL(MolecularACM):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     multicomponent activity coefficient model.
 
@@ -184,6 +185,7 @@ class NRTL(SmallSpeciesActivityModel):
         B = dot(x, G)
         return R * T * dot(x, A / B)
 
+    @override
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 

@@ -13,12 +13,12 @@ from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatMatrix, FloatSquareMatrix, FloatVector
 
-from .base import PolymerActivityModel
+from .base import PolymerACM
 
 __all__ = ["PolyNRTL", "PolyNRTL_a"]
 
 
-class PolyNRTL(PolymerActivityModel):
+class PolyNRTL(PolymerACM):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     multicomponent activity coefficient model.
 

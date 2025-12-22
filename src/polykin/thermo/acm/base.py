@@ -5,15 +5,16 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from numpy import dot, log
+from numpy import dot, exp, log
 from scipy.constants import R
 
 from polykin.math import derivative_complex
+from polykin.math.derivatives import jacobian_forward
 from polykin.utils.types import FloatMatrix, FloatVector, Number
 
 
-class ActivityModel(ABC):
-    """Base class for activity coefficient models."""
+class ACM(ABC):
+    """Abstract base class for activity coefficient models."""
 
     _N: int
     name: str
@@ -48,8 +49,66 @@ class ActivityModel(ABC):
         return -R * dot(x[p], log(x[p]))
 
 
-class SmallSpeciesActivityModel(ActivityModel):
-    """Base class for activity coefficient models for small species."""
+class MolecularACM(ACM):
+    """Abstract base class for activity coefficient models for molecular
+    (i.e., non-polymeric) systems.
+
+    A molecular ACM is defined in terms of a molar excess Gibbs energy model,
+
+    $$ g^{E} = g^{E}(T, x_i) $$
+
+    typically evaluated at constant pressure. All other thermodynamic
+    solution properties are derived from $g^{E}$.
+
+    To implement a concrete molecular ACM, the user must implement the `gE`
+    method and is highly encouraged to override `gamma` for efficiency and
+    numerical robustness.
+    """
+
+    @abstractmethod
+    def gE(self, T: Number, x: FloatVector) -> Number:
+        r"""Molar excess Gibbs energy, $g^{E}$.
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        x : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Molar excess Gibbs energy [J/mol].
+        """
+
+    def gamma(self, T: float, x: FloatVector) -> FloatVector:
+        r"""Activity coefficients based on mole fraction, $\gamma_i$.
+
+        $$ \ln \gamma_i = \frac{1}{RT}
+           \left( \frac{\partial (ng^E)}{\partial n_i} \right)_{T,P,n_j} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        x : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        FloatVector (N)
+            Activity coefficients of all components.
+        """
+
+        def GE(n: np.ndarray):
+            """Total excess Gibbs energy."""
+            nT = n.sum()
+            return nT * self.gE(T, n / nT)
+
+        dGEdn = jacobian_forward(GE, x)
+
+        return exp(dGEdn / (R * T))
 
     def Dgmix(self, T: float, x: FloatVector) -> float:
         r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.
@@ -144,7 +203,7 @@ class SmallSpeciesActivityModel(ActivityModel):
         float
             Molar excess entropy [J/(mol·K)].
         """
-        return -1 * derivative_complex(lambda t: self.gE(t, x), T)[0]
+        return -1 * derivative_complex(lambda T_: self.gE(T_, x), T)[0]
 
     def activity(self, T: float, x: FloatVector) -> FloatVector:
         r"""Activities, $a_i$.
@@ -165,43 +224,9 @@ class SmallSpeciesActivityModel(ActivityModel):
         """
         return x * self.gamma(T, x)
 
-    @abstractmethod
-    def gE(self, T: Number, x: FloatVector) -> Number:
-        r"""Molar excess Gibbs energy, $g^{E}$.
 
-        Parameters
-        ----------
-        T : float
-            Temperature [K].
-        x : FloatVector (N)
-            Mole fractions of all components [mol/mol].
-
-        Returns
-        -------
-        float
-            Molar excess Gibbs energy [J/mol].
-        """
-
-    @abstractmethod
-    def gamma(self, T: float, x: FloatVector) -> FloatVector:
-        r"""Activity coefficients based on mole fraction, $\gamma_i$.
-
-        Parameters
-        ----------
-        T : float
-            Temperature [K].
-        x : FloatVector (N)
-            Mole fractions of all components [mol/mol].
-
-        Returns
-        -------
-        FloatVector (N)
-            Activity coefficients of all components.
-        """
-
-
-class PolymerActivityModel(ActivityModel):
-    """Base class for activity coefficient models for polymer systems."""
+class PolymerACM(ACM):
+    """Abstract base class for activity coefficient models for polymer systems."""
 
     def Dgmix(
         self,
@@ -348,7 +373,7 @@ class PolymerActivityModel(ActivityModel):
         float
             Excess entropy per mole of segments [J/(mol·K)].
         """
-        return -1 * derivative_complex(lambda t: self.gE(t, xs, DP, F), T)[0]
+        return -1 * derivative_complex(lambda T_: self.gE(T_, xs, DP, F), T)[0]
 
     @staticmethod
     def _convert_xs_to_x(xs: FloatVector, DP: FloatVector) -> FloatVector:

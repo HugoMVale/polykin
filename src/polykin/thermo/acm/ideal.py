@@ -2,16 +2,18 @@
 #
 # Copyright Hugo Vale 2024
 
+from typing import override
+
 import numpy as np
 
 from polykin.utils.types import FloatVector
 
-from .base import SmallSpeciesActivityModel
+from .base import MolecularACM
 
 __all__ = ["IdealSolution"]
 
 
-class IdealSolution(SmallSpeciesActivityModel):
+class IdealSolution(MolecularACM):
     r"""[Ideal solution](https://en.wikipedia.org/wiki/Ideal_solution) model.
 
     This model is based on the following trivial molar excess Gibbs energy
@@ -34,5 +36,6 @@ class IdealSolution(SmallSpeciesActivityModel):
     def gE(self, T: float, x: FloatVector) -> float:
         return 0.0
 
+    @override
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return np.ones(self.N)

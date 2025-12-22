@@ -5,6 +5,7 @@
 import numpy as np
 import pytest
 from numpy import allclose, isclose
+from numpy import log as ln
 from scipy.constants import gas_constant as R
 
 from polykin.thermo.acm import (
@@ -16,15 +17,20 @@ from polykin.thermo.acm import (
     IdealSolution,
     Wilson,
 )
-from polykin.thermo.acm.base import SmallSpeciesActivityModel
+from polykin.thermo.acm.base import MolecularACM
 from polykin.utils.exceptions import ShapeError
 
 
-def check_gE_gamma(acm: SmallSpeciesActivityModel, x, T=298):
+def check_gE_gamma(acm: MolecularACM, x, T=298):
     """Check consistency or formulas for gE and gamma."""
+    gE = acm.gE(T, x)
     Dgmix = acm.Dgmix(T, x)
+    gamma = acm.gamma(T, x)
     a = acm.activity(T, x)
-    return isclose(Dgmix, R * T * np.sum(x * np.log(a)))
+    check1 = isclose(Dgmix, R * T * np.sum(x * ln(a)))
+    check2 = isclose(gE, R * T * np.sum(x * ln(gamma)))
+    check3 = allclose(gamma, MolecularACM.gamma(acm, T, x), rtol=1e-5)
+    return check1 and check2 and check3
 
 
 def test_IdealSolution():
@@ -35,6 +41,7 @@ def test_IdealSolution():
     assert isclose(acm.hE(T, x), 0.0)
     assert isclose(acm.sE(T, x), 0.0)
     assert allclose(acm.gamma(T, x), [1.0, 1.0])
+    assert check_gE_gamma(acm, x)
 
 
 def test_NRTL():
@@ -155,7 +162,7 @@ def test_FloryHuggins():
     acm = FloryHuggins(N, b=X * T)
     Dgmix = acm.Dgmix(T, phi, m)
     a = acm.activity(T, phi, m)
-    assert isclose(Dgmix, R * T * np.sum(phi / m * np.log(a)))
+    assert isclose(Dgmix, R * T * np.sum(phi / m * ln(a)))
 
 
 def test_Wilson():

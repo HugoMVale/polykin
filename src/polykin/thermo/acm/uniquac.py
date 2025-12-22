@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2024
 
 import functools
+from typing import override
 
 import numpy as np
 from numpy import dot, exp, log
@@ -12,12 +13,12 @@ from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
 
-from .base import SmallSpeciesActivityModel
+from .base import MolecularACM
 
 __all__ = ["UNIQUAC", "UNIQUAC_gamma"]
 
 
-class UNIQUAC(SmallSpeciesActivityModel):
+class UNIQUAC(MolecularACM):
     r"""[UNIQUAC](https://en.wikipedia.org/wiki/UNIQUAC) multicomponent
     activity coefficient model.
 
@@ -171,6 +172,7 @@ class UNIQUAC(SmallSpeciesActivityModel):
 
         return R * T * (gC + gR)
 
+    @override
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return UNIQUAC_gamma(x, self._q, self._r, self.tau(T))
 
