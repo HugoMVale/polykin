@@ -42,6 +42,13 @@ def test_IdealGas(air_parameters: dict[str, Any]):
     assert isclose(eos.P(state["T"], eos.v(**state), state["y"]), state["P"], rtol=1e-2)
     assert isclose(eos.beta(state["T"]), 1 / state["T"])
     assert isclose(eos.kappa(state["T"], state["P"]), 1 / state["P"])
+    # Check against base method
+    assert isclose(
+        eos.P(state["T"], 10e-3, state["y"]),
+        GasEoS.P(eos, state["T"], 10e-3, state["y"]),
+    )
+    assert isclose(eos.gR(**state), GasEoS.gR(eos, **state))
+    assert allclose(eos.phi(**state), GasEoS.phi(eos, **state))
     assert isclose(eos.beta(**state), GasEoS.beta(eos, **state))
     assert isclose(eos.kappa(**state), GasEoS.kappa(eos, **state))
 
@@ -70,6 +77,12 @@ def test_Virial_Z():
     state = (366.5, 20.67e5, np.array([1.0]))
     assert isclose(eos.Z(*state), 0.75, rtol=0.1)
     assert isclose(eos.v(*state), 1097e-6, rtol=0.1)
+    # Check against base method
+    assert isclose(eos.gR(*state), GasEoS.gR(eos, *state))
+    assert isclose(
+        eos.P(state[0], 10e-3, state[-1]),
+        GasEoS.P(eos, state[0], 10e-3, state[-1]),
+    )
     assert isclose(eos.kappa(*state), GasEoS.kappa(eos, *state))
 
 
@@ -107,6 +120,8 @@ def test_Virial_phi():
     P = 25e3
     assert allclose(eos.phi(T, P, y), [0.987, 0.983], rtol=1e-3)
     assert allclose(eos.f(T, P, y), np.array([0.987, 0.983]) * P / 2, rtol=1e-3)
+    # Check against base method
+    assert allclose(eos.phi(T, P, y), GasEoS.phi(eos, T, P, y), rtol=1e-3)
 
 
 def test_Virial_isopropanol():
@@ -130,9 +145,8 @@ def test_Virial_butene():
     T = 273.15
     P = 1.2771e5
     assert isclose(eos.phi(T, P, y), 0.956, rtol=0.001)
-    DX = eos.DX(T, P, y, P0=P)
-    assert isclose(DX["S"], -0.8822, rtol=0.01)
-    assert isclose(DX["H"], -344, rtol=0.01)
+    assert isclose(eos.sR(T, P, y), -0.8822, rtol=0.01)
+    assert isclose(eos.hR(T, P, y), -344, rtol=0.01)
 
 
 def test_RK():
