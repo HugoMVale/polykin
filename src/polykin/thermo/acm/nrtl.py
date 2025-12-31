@@ -143,7 +143,7 @@ class NRTL(MolecularACM):
 
     @functools.cache
     def alpha(self, T: float) -> FloatSquareMatrix:
-        r"""Compute matrix of non-randomness parameters.
+        r"""Calculate the matrix of non-randomness parameters.
 
         $$ \alpha_{ij} = c_{ij} + d_{ij}(T - 273.15) $$
 
@@ -161,7 +161,7 @@ class NRTL(MolecularACM):
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
-        r"""Compute the matrix of interaction parameters.
+        r"""Calculate the matrix of interaction parameters.
 
         $$ \tau_{ij} = a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T $$
 

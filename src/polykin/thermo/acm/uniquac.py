@@ -141,7 +141,7 @@ class UNIQUAC(MolecularACM):
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
-        r"""Compute the matrix of interaction parameters.
+        r"""Calculate the matrix of interaction parameters.
 
         $$ \tau_{ij} = \exp( a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T ) $$
 

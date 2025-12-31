@@ -127,7 +127,7 @@ class FloryHuggins:
 
     @functools.cache
     def chi(self, T: float) -> FloatSquareMatrix:
-        r"""Compute the matrix of interaction parameters.
+        r"""Calculate the matrix of interaction parameters.
 
         $$
         \chi_{ij} = a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T + e_{ij} T^2
