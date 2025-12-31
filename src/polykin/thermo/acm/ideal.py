@@ -2,11 +2,9 @@
 #
 # Copyright Hugo Vale 2024
 
-from typing import override
-
 import numpy as np
 
-from polykin.utils.types import FloatVector
+from polykin.utils.types import FloatVector, override
 
 from .base import MolecularACM
 

@@ -3,7 +3,6 @@
 # Copyright Hugo Vale 2025
 
 import functools
-from typing import override
 
 from numpy import dot, exp
 from scipy.constants import R
@@ -15,6 +14,7 @@ from polykin.utils.types import (
     FloatSquareMatrix,
     FloatVector,
     FloatVectorLike,
+    override,
 )
 
 from .base import GasEoS

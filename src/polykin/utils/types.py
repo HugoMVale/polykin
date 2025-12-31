@@ -17,8 +17,36 @@ not enforce shape information.
 
 from typing import TypeVar
 
+try:
+    # Python ≥ 3.12
+    from typing import override
+except ImportError:  # Python < 3.12
+    from typing_extensions import override
+
 import numpy as np
 from numpy.typing import NDArray
+
+__all__ = [
+    "Number",
+    "Floaty",
+    "IntArray",
+    "IntArrayLike",
+    "IntVector",
+    "IntVectorLike",
+    "FloatArray",
+    "FloatArrayLike",
+    "FloatOrArray",
+    "FloatOrArrayLike",
+    "FloatVector",
+    "FloatVectorLike",
+    "FloatOrVector",
+    "FloatOrVectorLike",
+    "FloatMatrix",
+    "FloatSquareMatrix",
+    "Float2x2Matrix",
+    "FloatRangeArray",
+    "override",
+]
 
 # Numeric type variables
 Number = TypeVar("Number", float, complex)

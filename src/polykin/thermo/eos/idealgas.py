@@ -2,12 +2,10 @@
 #
 # Copyright Hugo Vale 2023
 
-from typing import override
-
 import numpy as np
 from scipy.constants import R
 
-from polykin.utils.types import FloatVector
+from polykin.utils.types import FloatVector, override
 
 from .base import GasEoS
 
