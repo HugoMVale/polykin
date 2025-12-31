@@ -221,31 +221,10 @@ class GasEoS(EoS):
 
         return exp(dGRdn / (R * T))
 
-    def sR(self, T: float, P: float, y: FloatVector) -> float:
-        r"""Calculate the molar residual entropy of the fluid.
+    def f(self, T: float, P: float, y: FloatVector) -> FloatVector:
+        r"""Calculate the fugacity of all components.
 
-        $$ s^R = -\left( \frac{\partial g^R}{\partial T} \right)_{P,y_i} $$
-
-        Parameters
-        ----------
-        T : float
-            Temperature [K].
-        P : float
-            Pressure [Pa].
-        y : FloatVector
-            Mole fractions of all components [mol/mol].
-
-        Returns
-        -------
-        float
-            Molar residual entropy [J/(mol·K)].
-        """
-        return -1 * derivative_centered(lambda T_: self.gR(T_, P, y), T)[0]
-
-    def hR(self, T: float, P: float, y: FloatVector) -> float:
-        r"""Calculate the molar residual enthalpy of the fluid.
-
-        $$ h^R = g^R + T s^R $$
+        $$ \hat{f}_i = \hat{\phi}_i y_i P $$
 
         Parameters
         ----------
@@ -253,36 +232,15 @@ class GasEoS(EoS):
             Temperature [K].
         P : float
             Pressure [Pa].
-        y : FloatVector
+        y : FloatVector (N)
             Mole fractions of all components [mol/mol].
 
         Returns
         -------
-        float
-            Molar residual enthalpy [J/mol].
+        FloatVector (N)
+            Fugacities of all components [Pa].
         """
-        return self.gR(T, P, y) + T * self.sR(T, P, y)
-
-    def vR(self, T: float, P: float, y: FloatVector) -> float:
-        r"""Calculate the molar residual volume of the fluid.
-
-        $$ v^R = \left(Z - 1 \right) \frac{R T}{P} $$
-
-        Parameters
-        ----------
-        T : float
-            Temperature [K].
-        P : float
-            Pressure [Pa].
-        y : FloatVector
-            Mole fractions of all components [mol/mol].
-
-        Returns
-        -------
-        float
-            Molar residual volume [m³/mol].
-        """
-        return R * T / P * (self.Z(T, P, y) - 1.0)
+        return self.phi(T, P, y) * y * P
 
     def v(self, T: float, P: float, y: FloatVector) -> float:
         r"""Calculate the molar volume the fluid.
@@ -357,10 +315,10 @@ class GasEoS(EoS):
 
         return 1 / P - dZdP / Z
 
-    def f(self, T: float, P: float, y: FloatVector) -> FloatVector:
-        r"""Calculate the fugacity of all components.
+    def aR(self, T: float, P: float, y: FloatVector) -> float:
+        r"""Calculate the molar residual Helmholtz energy of the fluid.
 
-        $$ \hat{f}_i = \hat{\phi}_i y_i P $$
+        $$ a^R = g^R - R T (Z - 1) $$
 
         Parameters
         ----------
@@ -368,15 +326,78 @@ class GasEoS(EoS):
             Temperature [K].
         P : float
             Pressure [Pa].
-        y : FloatVector (N)
+        y : FloatVector
             Mole fractions of all components [mol/mol].
 
         Returns
         -------
-        FloatVector (N)
-            Fugacities of all components [Pa].
+        float
+            Molar residual Helmholtz energy [J/mol].
         """
-        return self.phi(T, P, y) * y * P
+        return self.gR(T, P, y) - R * T * (self.Z(T, P, y) - 1.0)
+
+    def hR(self, T: float, P: float, y: FloatVector) -> float:
+        r"""Calculate the molar residual enthalpy of the fluid.
+
+        $$ h^R = g^R + T s^R $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Molar residual enthalpy [J/mol].
+        """
+        return self.gR(T, P, y) + T * self.sR(T, P, y)
+
+    def sR(self, T: float, P: float, y: FloatVector) -> float:
+        r"""Calculate the molar residual entropy of the fluid.
+
+        $$ s^R = -\left( \frac{\partial g^R}{\partial T} \right)_{P,y_i} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Molar residual entropy [J/(mol·K)].
+        """
+        return -1 * derivative_centered(lambda T_: self.gR(T_, P, y), T)[0]
+
+    def vR(self, T: float, P: float, y: FloatVector) -> float:
+        r"""Calculate the molar residual volume of the fluid.
+
+        $$ v^R = \left(Z - 1 \right) \frac{R T}{P} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Molar residual volume [m³/mol].
+        """
+        return R * T / P * (self.Z(T, P, y) - 1.0)
 
 
 class GasLiquidEoS(EoS):
