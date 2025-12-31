@@ -29,9 +29,9 @@ class ACM(ABC):
         return self._N
 
     def _Dsmix_ideal(self, T: float, x: FloatVector) -> float:
-        r"""Molar entropy of mixing of ideal solution, $\Delta s_{mix}^{ideal}$.
+        r"""Calculate the molar entropy of mixing of ideal solution.
 
-        $$ \Delta s_{mix}^{ideal} = - R \sum_i {x_i \ln{x_i}} $$
+        $$ \Delta_{mix} s^{id} = - R \sum_i {x_i \ln{x_i}} $$
 
         Parameters
         ----------
@@ -60,14 +60,17 @@ class MolecularACM(ACM):
     typically evaluated at constant pressure. All other thermodynamic
     solution properties are derived from $g^{E}$.
 
-    To implement a concrete molecular ACM, the user must implement the `gE`
-    method and is highly encouraged to override `gamma` for efficiency and
-    numerical robustness.
+    To implement a specific molecular ACM, subclasses must:
+
+    * Implement the `gE` method.
+    * Preferably override the `gamma` method for efficiency.
     """
 
     @abstractmethod
     def gE(self, T: Number, x: FloatVector) -> Number:
-        r"""Molar excess Gibbs energy, $g^{E}$.
+        r"""Calculate the molar excess Gibbs energy.
+
+        $$ g^{E} \equiv g - g^{id} $$
 
         Parameters
         ----------
@@ -83,10 +86,10 @@ class MolecularACM(ACM):
         """
 
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
-        r"""Activity coefficients based on mole fraction, $\gamma_i$.
+        r"""Calculate the activity coefficients based on mole fraction.
 
         $$ \ln \gamma_i = \frac{1}{RT}
-           \left( \frac{\partial (ng^E)}{\partial n_i} \right)_{T,P,n_j} $$
+           \left( \frac{\partial (n g^E)}{\partial n_i} \right)_{T,P,n_j} $$
 
         Parameters
         ----------
@@ -111,9 +114,9 @@ class MolecularACM(ACM):
         return exp(dGEdn / (R * T))
 
     def Dgmix(self, T: float, x: FloatVector) -> float:
-        r"""Molar Gibbs energy of mixing, $\Delta g_{mix}$.
+        r"""Calculate the molar Gibbs energy of mixing.
 
-        $$ \Delta g_{mix} = \Delta h_{mix} -T \Delta s_{mix} $$
+        $$ \Delta_{mix} g = g^E + R T \sum_i {x_i \ln{x_i}} $$
 
         Parameters
         ----------
@@ -130,9 +133,9 @@ class MolecularACM(ACM):
         return self.gE(T, x) - T * self._Dsmix_ideal(T, x)
 
     def Dhmix(self, T: float, x: FloatVector) -> float:
-        r"""Molar enthalpy of mixing, $\Delta h_{mix}$.
+        r"""Calculate the molar enthalpy of mixing.
 
-        $$ \Delta h_{mix} = h^{E} $$
+        $$ \Delta_{mix} h = h^{E} $$
 
         Parameters
         ----------
@@ -149,9 +152,9 @@ class MolecularACM(ACM):
         return self.hE(T, x)
 
     def Dsmix(self, T: float, x: FloatVector) -> float:
-        r"""Molar entropy of mixing, $\Delta s_{mix}$.
+        r"""Calculate the molar entropy of mixing.
 
-        $$ \Delta s_{mix} = s^{E} - R \sum_i {x_i \ln{x_i}} $$
+        $$ \Delta_{mix} s = s^{E} - R \sum_i {x_i \ln{x_i}} $$
 
         Parameters
         ----------
@@ -168,7 +171,7 @@ class MolecularACM(ACM):
         return self.sE(T, x) + self._Dsmix_ideal(T, x)
 
     def hE(self, T: float, x: FloatVector) -> float:
-        r"""Molar excess enthalpy, $h^{E}$.
+        r"""Calculate the molar excess enthalpy.
 
         $$ h^{E} = g^{E} + T s^{E} $$
 
@@ -187,7 +190,7 @@ class MolecularACM(ACM):
         return self.gE(T, x) + T * self.sE(T, x)
 
     def sE(self, T: float, x: FloatVector) -> float:
-        r"""Molar excess entropy, $s^{E}$.
+        r"""Calculate the molar excess entropy.
 
         $$ s^{E} = -\left(\frac{\partial g^{E}}{\partial T}\right)_{P,x_i} $$
 
@@ -206,7 +209,7 @@ class MolecularACM(ACM):
         return -1 * derivative_complex(lambda T_: self.gE(T_, x), T)[0]
 
     def activity(self, T: float, x: FloatVector) -> FloatVector:
-        r"""Activities, $a_i$.
+        r"""Calculate the activities.
 
         $$ a_i = x_i \gamma_i $$
 
