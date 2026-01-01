@@ -34,7 +34,7 @@ __all__ = [
 
 
 class CubicEoS(GasLiquidEoS):
-    r"""Base class for cubic equations of state.
+    r"""Abstract base class for cubic equations of state.
 
     This abstract class represents a general two-parameter cubic EoS of the
     form:
