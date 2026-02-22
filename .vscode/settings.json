@@ -1,10 +1,17 @@
 {
+    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "black-formatter.path": [
+        "${workspaceFolder}\\.venv\\Scripts\\black.exe"
+    ],
     "python.testing.pytestArgs": [
         "tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "[python]": {
+        "editor.rulers": [
+            90
+        ],
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "ms-python.black-formatter",
         "editor.codeActionsOnSave": {
