@@ -3,7 +3,7 @@
 # Copyright Hugo Vale 2024
 
 from numpy import sqrt
-from scipy.special import iv
+from scipy.special import ive
 
 from polykin.utils.exceptions import ConvergenceError
 
@@ -48,8 +48,11 @@ def nbar_Stockmayer_OToole(alpha: float, m: float) -> float:
     >>> print(f"nbar = {nbar:.2e}")
     nbar = 5.02e-01
     """
-    a = sqrt(8 * alpha)
-    return (a / 4) * iv(m, a) / iv(m - 1, a)
+    if alpha == 0:
+        return 0.0
+    else:
+        a = sqrt(8 * alpha)
+        return (a / 4) * ive(m, a) / ive(m - 1, a)
 
 
 def nbar_Li_Brooks(alpha: float, m: float) -> float:
@@ -92,10 +95,11 @@ def nbar_Li_Brooks(alpha: float, m: float) -> float:
         2 * alpha / (m + sqrt(m**2 + 8 * alpha * (2 * alpha + m) / (2 * alpha + m + 1)))
     )
 
+
 def nbar_Ugelstad_Mork(
     alpha: float,
     m: float,
-    tol: float=1e-10,
+    tol: float = 1e-10,
     maxiter: int = 100,
 ) -> float:
     r"""Average number of radicals per particle according to the Ugelstad-Mørk
