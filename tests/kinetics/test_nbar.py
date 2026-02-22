@@ -2,21 +2,26 @@
 #
 # Copyright Hugo Vale 2024
 
-from numpy import isclose
+from numpy import isclose, sqrt
 
-from polykin.kinetics import nbar_Li_Brooks, nbar_Stockmayer_OToole
+from polykin.kinetics import nbar_Li_Brooks, nbar_Stockmayer_OToole, nbar_Ugelstad_Mork
 
 
 def test_nbar_Stockmayer_OToole():
-    alpha = 1e-3
-    m = 0.0
-    nbar = nbar_Stockmayer_OToole(alpha, m)
-    assert isclose(nbar, 0.5, rtol=1e-3)
+    assert isclose(nbar_Stockmayer_OToole(alpha=1e-3, m=0.0), 0.5, rtol=1e-3)
+    assert isclose(nbar_Stockmayer_OToole(alpha=0, m=1e-3), 0.0, atol=1e-10)
+    assert isclose(nbar_Stockmayer_OToole(alpha=1e2, m=0.0), sqrt(1e2 / 2), rtol=5e-2)
 
 
 def test_nbar_Li_Brooks():
-    alpha = 1e0
-    m = 1e0
-    nbar_SOT = nbar_Stockmayer_OToole(alpha, m)
-    nbar_LB = nbar_Li_Brooks(alpha, m)
-    assert isclose(nbar_SOT, nbar_LB, rtol=4e-2)
+    for alpha, m in [(0.0, 1e-5), (1e-6, 1e-4), (1e0, 1e0), (1.0, 0.0), (1e1, 1e0)]:
+        nbar_ref = nbar_Stockmayer_OToole(alpha, m)
+        nbar = nbar_Li_Brooks(alpha, m)
+        assert isclose(nbar_ref, nbar, rtol=5e-2)
+
+
+def test_nbar_Ugelstad_Mork():
+    for alpha, m in [(0.0, 1e-5), (1e-6, 1e-4), (1e0, 1e0), (1.0, 0.0), (1e1, 1e0)]:
+        nbar_ref = nbar_Stockmayer_OToole(alpha, m)
+        nbar = nbar_Ugelstad_Mork(alpha, m)
+        assert isclose(nbar_ref, nbar, rtol=1e-5)
