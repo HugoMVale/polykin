@@ -30,6 +30,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "black>=25.11.0",
+    "pre-commit>=3.7.0",
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
@@ -68,7 +69,7 @@ pydocstyle = { convention = 'numpy' }
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D103"]
 
-[tool.back]
+[tool.black]
 line-length = 90
 
 [build-system]
