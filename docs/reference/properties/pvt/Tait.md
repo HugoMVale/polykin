@@ -7,7 +7,7 @@
 
 ## Parameter databank
 
-{{ read_csv('src/polykin/properties/pvt/Tait_parameters.tsv', delim_whitespace=True) }}
+{{ read_csv('src/polykin/properties/pvt/Tait_parameters.tsv', sep=r"\s+") }}
 
 ## Examples
 
