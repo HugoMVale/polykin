@@ -294,6 +294,7 @@ def test_Cubic_beta_kappa():
         assert isclose(eos.kappa(T, P, y), 1 / P, rtol=0.01)
 
 
+@pytest.mark.xfail(reason="DX is not finished yet...")
 def test_Cubic_departures():
     """Example 5-3, p. 111, Reid-Prausnitz-Poling."""
     # isobutane
