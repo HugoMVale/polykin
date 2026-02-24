@@ -13,8 +13,8 @@ import numpy as np
 # from matplotlib.axes._axes import Axes
 # from matplotlib.figure import Figure
 from numpy import dot, exp, log, sqrt
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.math import fixpoint_wegstein
 from polykin.properties.pvt.mixing_rules import geometric_interaction_mixing
 from polykin.properties.vaporization import PL_Wilson

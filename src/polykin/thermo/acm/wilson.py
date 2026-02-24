@@ -6,8 +6,8 @@ import functools
 
 import numpy as np
 from numpy import dot, exp, log
-from scipy.constants import gas_constant as R
 
+from polykin.constants import R
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
 from polykin.utils.types import FloatSquareMatrix, FloatVector, override

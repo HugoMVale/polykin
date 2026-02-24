@@ -6,7 +6,8 @@
 from typing import Literal
 
 from numpy import log, log10
-from scipy.constants import R
+
+from polykin.constants import R
 
 __all__ = [
     "DHVL_Pitzer",

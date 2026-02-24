@@ -3,8 +3,8 @@
 # Copyright Hugo Vale 2024
 
 from numpy import dot, sqrt
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.utils.types import FloatSquareMatrix, FloatVector
 
 __all__ = [

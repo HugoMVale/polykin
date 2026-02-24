@@ -6,8 +6,8 @@ import functools
 
 import numpy as np
 from numpy import dot, exp, log
-from scipy.constants import gas_constant as R
 
+from polykin.constants import R
 from polykin.math import derivative_complex
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry

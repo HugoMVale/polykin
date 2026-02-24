@@ -6,8 +6,8 @@ import numpy as np
 import pytest
 from numpy import allclose, isclose
 from numpy import log as ln
-from scipy.constants import gas_constant as R
 
+from polykin.constants import R
 from polykin.thermo.acm import (
     NRTL,
     UNIQUAC,

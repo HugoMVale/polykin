@@ -6,8 +6,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 from numpy import dot, exp, log
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.math import derivative_complex
 from polykin.math.derivatives import jacobian_forward
 from polykin.utils.types import FloatMatrix, FloatVector, Number

@@ -4,8 +4,8 @@
 
 import pytest
 from numpy import isclose
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.properties.thermal_conductivity import (
     KLMX2_Li,
     KVMX2_Wassilijewa,

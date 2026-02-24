@@ -3,8 +3,8 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.utils.types import FloatVector, override
 
 from .base import GasEoS

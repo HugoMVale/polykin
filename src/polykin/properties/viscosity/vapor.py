@@ -4,8 +4,8 @@
 
 import numpy as np
 from numpy import abs, dot, exp, sqrt
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.properties.pvt.mixing_rules import pseudocritical_properties
 from polykin.utils.types import FloatArray, FloatVectorLike
 

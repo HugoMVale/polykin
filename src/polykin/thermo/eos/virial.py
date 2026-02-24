@@ -5,8 +5,8 @@
 import functools
 
 from numpy import dot, exp
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.properties.pvt.mixing_rules import quadratic_mixing
 from polykin.properties.pvt.virial import B_mixture
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector
