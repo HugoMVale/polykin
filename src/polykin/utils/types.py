@@ -3,19 +3,19 @@
 # Copyright Hugo Vale 2023
 
 """
-Type aliases for numeric scalars and NumPy arrays used throughout the package.
+Type aliases and variables for numeric scalars and NumPy arrays.
 
-This module defines common scalar, array-like, vector, and matrix type aliases
-based on ``numpy.typing.NDArray``. The aliases primarily constrain data types
-(e.g., ``float64`` or integer) and provide consistent terminology across the
-codebase.
+This module provides a centralized set of type hints used throughout PolyKin to ensure
+consistency and improve code readability. It leverages `numpy.typing` for data type
+validation and uses PEP 585-style shape annotations to provide informal hints about array
+dimensions.
 
-Array shapes (such as vectors or matrices) are documented by convention and
-validated at runtime where required, as NumPy's static typing currently does
-not enforce shape information.
+Note:
+    While shapes (e.g., 1D vectors vs 2D matrices) are annotated in the type aliases, most
+    static type checkers (like Mypy) do not yet strictly enforce NumPy array shapes.
 """
 
-from typing import TypeVar
+from typing import Literal, TypeAlias, TypeVar
 
 try:
     # Python ≥ 3.12
@@ -24,6 +24,7 @@ except ImportError:  # Python < 3.12
     from typing_extensions import override
 
 import numpy as np
+from numpy import dtype
 from numpy.typing import NDArray
 
 __all__ = [
@@ -48,85 +49,66 @@ __all__ = [
     "override",
 ]
 
-# Numeric type variables
+# --- Numeric Type Variables ---
+
 Number = TypeVar("Number", float, complex)
-"""A generic numeric type, either `float` or `complex`."""
+"""A TypeVar bound to `float` or `complex` for generic numeric operations."""
 
 Floaty = TypeVar("Floaty", float, NDArray[np.float64])
-"""A type that can be either a float scalar or a NumPy array of float64."""
+"""A TypeVar representing either a float scalar or a float64 NumPy array."""
 
-# Integer arrays and sequences
+# --- Integer Arrays and Sequences ---
+
 IntArray = NDArray[np.int_]
-"""A NumPy array with integer dtype."""
+"""A NumPy array of integers (any shape)."""
 
-IntArrayLike = list[int] | tuple[int, ...] | IntArray
-"""
-Any object that can be interpreted as an integer array, including:
+IntArrayLike: TypeAlias = list[int] | tuple[int, ...] | IntArray
+"""An object convertible to an integer array (list, tuple, or NDArray)."""
 
-- Python list of ints
-- Python tuple of ints
-- NumPy integer array
-"""
-
-IntVector = NDArray[np.int_]
+IntVector: TypeAlias = np.ndarray[tuple[int], dtype[np.int_]]
 """A 1-dimensional NumPy array of integers."""
 
-IntVectorLike = list[int] | tuple[int, ...] | IntVector
-"""
-Any object that can be interpreted as a 1D integer vector, including:
+IntVectorLike: TypeAlias = list[int] | tuple[int, ...] | IntVector
+"""An object convertible to a 1D integer vector."""
 
-- Python list of ints
-- Python tuple of ints
-- 1D NumPy integer array
-"""
+# --- Float Arrays and Sequences ---
 
-# Float arrays and sequences
 FloatArray = NDArray[np.float64]
-"""A NumPy array with float64 dtype."""
+"""A NumPy array of float64 (any shape)."""
 
-FloatArrayLike = list[float] | tuple[float, ...] | FloatArray
-"""
-Any object that can be interpreted as a float array, including:
+FloatArrayLike: TypeAlias = list[float] | tuple[float, ...] | FloatArray
+"""An object convertible to a float64 array (list, tuple, or NDArray)."""
 
-- Python list of floats
-- Python tuple of floats
-- NumPy float64 array
-"""
+FloatOrArray: TypeAlias = float | FloatArray
+"""A union of a float scalar or a float64 array."""
 
-FloatOrArray = float | FloatArray
-"""A float scalar or a NumPy float64 array."""
+FloatOrArrayLike: TypeAlias = float | FloatArrayLike
+"""A union of a float scalar or any object convertible to a float array."""
 
-FloatOrArrayLike = float | FloatArrayLike
-"""A float scalar or any array-like object convertible to a float array."""
+FloatVector: TypeAlias = np.ndarray[tuple[int], dtype[np.float64]]
+"""A 1-dimensional NumPy array of float64."""
 
-FloatVector = NDArray[np.float64]
-"""A 1-dimensional NumPy float64 array."""
+FloatVectorLike: TypeAlias = list[float] | tuple[float, ...] | FloatVector
+"""An object convertible to a 1D float64 vector."""
 
-FloatVectorLike = list[float] | tuple[float, ...] | FloatVector
-"""
-Any object that can be interpreted as a 1D float vector, including:
+FloatOrVector: TypeAlias = float | FloatVector
+"""A union of a float scalar or a 1D float64 vector."""
 
-- Python list of floats
-- Python tuple of floats
-- 1D NumPy float64 array
-"""
+FloatOrVectorLike: TypeAlias = float | FloatVectorLike
+"""A union of a float scalar or any object convertible to a 1D float vector."""
 
-FloatOrVector = float | FloatVector
-"""A float scalar or a 1D float64 array."""
+# --- Float Matrices ---
 
-FloatOrVectorLike = float | FloatVectorLike
-"""A float scalar or any array-like object convertible to a 1D float vector."""
+FloatMatrix: TypeAlias = np.ndarray[tuple[int, int], dtype[np.float64]]
+"""A 2-dimensional NumPy array of float64."""
 
-# Float matrices
-FloatMatrix = NDArray[np.float64]
-"""A 2-dimensional NumPy float64 array of arbitrary shape."""
+FloatSquareMatrix: TypeAlias = np.ndarray[tuple[int, int], dtype[np.float64]]
+"""A 2-dimensional float64 array with implicitly equal dimensions."""
 
-FloatSquareMatrix = NDArray[np.float64]
-"""A 2-dimensional NumPy float64 array with equal number of rows and columns."""
+Float2x2Matrix: TypeAlias = np.ndarray[tuple[Literal[2], Literal[2]], dtype[np.float64]]
+"""A 2x2 NumPy array of float64."""
 
-Float2x2Matrix = NDArray[np.float64]
-"""A NumPy float64 array of shape (2, 2)."""
+# --- Specialized Float Arrays ---
 
-# Specialized float arrays
-FloatRangeArray = NDArray[np.float64]
-"""A NumPy float64 array of shape (2,) representing a range of values."""
+FloatRangeArray: TypeAlias = np.ndarray[tuple[Literal[2]], dtype[np.float64]]
+"""A NumPy array of shape (2,) used to define [min, max] ranges."""
