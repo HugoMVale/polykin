@@ -4,8 +4,8 @@
 
 import numpy as np
 from numpy import isclose
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.properties.viscosity import (
     MULMX2_Perry,
     MUV_Lucas,
@@ -61,9 +61,7 @@ def test_MUVMXPC_dean_stiel_2():
 
 
 def test_MUV_lucas():
-    mu = MUV_Lucas(
-        T=420.0, P=300e5, M=17.03e-3, Tc=405.5, Pc=113.5e5, Zc=0.244, dm=1.47
-    )
+    mu = MUV_Lucas(T=420.0, P=300e5, M=17.03e-3, Tc=405.5, Pc=113.5e5, Zc=0.244, dm=1.47)
     assert isclose(mu, 601e-7, rtol=1e-2)
     mu1 = MUV_Lucas(T=299.9, P=299.9e5, M=100e-3, Tc=300.0, Pc=300e5, Zc=0.28, dm=1.0)
     mu2 = MUV_Lucas(T=300.1, P=300.1e5, M=100e-3, Tc=300.0, Pc=300e5, Zc=0.28, dm=1.0)
@@ -84,9 +82,7 @@ def test_MUVMX_lucas():
     Pc = [Pc1, 123.0]
     Zc = [Zc1, 0.2]
     dm = [dm1, 123.0]
-    mu1 = MUV_Lucas(
-        T=420.0, P=300e5, M=17.03e-3, Tc=405.5, Pc=113.5e5, Zc=0.244, dm=1.47
-    )
+    mu1 = MUV_Lucas(T=420.0, P=300e5, M=17.03e-3, Tc=405.5, Pc=113.5e5, Zc=0.244, dm=1.47)
     mu_mix = MUVMX_Lucas(T, P, y, M, Tc, Pc, Zc, dm)
     assert isclose(mu1, mu_mix)
 
