@@ -114,6 +114,7 @@ def nbar_Li_Brooks(alpha: float, m: float) -> float:
 def nbar_Ugelstad(
     alpha: float,
     m: float,
+    *,
     tol: float = 1e-10,
     maxiter: int = 100,
 ) -> float:
