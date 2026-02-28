@@ -4,7 +4,7 @@
 
 from numpy import isclose, sqrt
 
-from polykin.kinetics import nbar_Li_Brooks, nbar_Stockmayer_OToole, nbar_Ugelstad_Mork
+from polykin.kinetics import nbar_Li_Brooks, nbar_Stockmayer_OToole, nbar_Ugelstad
 
 
 def test_nbar_Stockmayer_OToole():
@@ -20,8 +20,8 @@ def test_nbar_Li_Brooks():
         assert isclose(nbar_ref, nbar, rtol=5e-2)
 
 
-def test_nbar_Ugelstad_Mork():
+def test_nbar_Ugelstad():
     for alpha, m in [(0.0, 1e-5), (1e-6, 1e-4), (1e0, 1e0), (1.0, 0.0), (1e1, 1e0)]:
         nbar_ref = nbar_Stockmayer_OToole(alpha, m)
-        nbar = nbar_Ugelstad_Mork(alpha, m)
+        nbar = nbar_Ugelstad(alpha, m)
         assert isclose(nbar_ref, nbar, rtol=1e-5)

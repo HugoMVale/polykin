@@ -10,7 +10,7 @@ from polykin.utils.exceptions import ConvergenceError
 __all__ = [
     "nbar_Li_Brooks",
     "nbar_Stockmayer_OToole",
-    "nbar_Ugelstad_Mork",
+    "nbar_Ugelstad",
 ]
 
 
@@ -39,6 +39,13 @@ def nbar_Stockmayer_OToole(alpha: float, m: float) -> float:
     -------
     float
         Average number of radicals per particle.
+
+    See Also
+    --------
+    * [`nbar_Li_Brooks`](nbar_Li_Brooks.md): approximate solution, about 10 times faster
+      to evaluate.
+    * [`nbar_Ugelstad`](nbar_Ugelstad.md): alternative exact solution, with similar
+      computational cost.
 
     Examples
     --------
@@ -83,6 +90,14 @@ def nbar_Li_Brooks(alpha: float, m: float) -> float:
     float
         Average number of radicals per particle.
 
+
+    See Also
+    --------
+    * [`nbar_Stockmayer_OToole`](nbar_Stockmayer_OToole.md): exact solution, about 10
+      times slower to evaluate.
+    * [`nbar_Ugelstad`](nbar_Ugelstad.md): alternative exact solution, about 10 times
+      slower to evaluate.
+
     Examples
     --------
     Evaluate the average number of radicals per particle for α=1e-2 and m=1e-4.
@@ -96,14 +111,14 @@ def nbar_Li_Brooks(alpha: float, m: float) -> float:
     )
 
 
-def nbar_Ugelstad_Mork(
+def nbar_Ugelstad(
     alpha: float,
     m: float,
     tol: float = 1e-10,
     maxiter: int = 100,
 ) -> float:
     r"""Average number of radicals per particle according to the Ugelstad-Mørk
-    approximation.
+    solution.
 
     $$ \bar{n} = \frac{1}{2}
       \frac{2 \alpha}{m +
@@ -133,11 +148,19 @@ def nbar_Ugelstad_Mork(
     float
         Average number of radicals per particle.
 
+
+    See Also
+    --------
+    * [`nbar_Stockmayer_OToole`](nbar_Stockmayer_OToole.md): alternative exact solution,
+      with similar computational cost.
+    * [`nbar_Li_Brooks`](nbar_Li_Brooks.md): approximate solution, about 10 times
+      faster to evaluate.
+
     Examples
     --------
     Evaluate the average number of radicals per particle for α=1e-2 and m=1e-4.
-    >>> from polykin.kinetics import nbar_Ugelstad_Mork
-    >>> nbar = nbar_Ugelstad_Mork(alpha=1e-2, m=1e-4)
+    >>> from polykin.kinetics import nbar_Ugelstad
+    >>> nbar = nbar_Ugelstad(alpha=1e-2, m=1e-4)
     >>> print(f"nbar = {nbar:.2e}")
     nbar = 5.02e-01
     """
