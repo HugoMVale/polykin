@@ -1,10 +1,9 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-    "black-formatter.path": [
-        "${workspaceFolder}\\.venv\\Scripts\\black.exe"
-    ],
-    "python.testing.pytestArgs": [
-        "tests"
+    "ruff.path": [
+        "uv",
+        "run",
+        "--frozen",
+        "ruff"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
@@ -13,7 +12,7 @@
             90
         ],
         "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.codeActionsOnSave": {
             "source.fixAll": "explicit",
             "source.fixAll.ruff": "explicit",

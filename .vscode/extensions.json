@@ -1,6 +1,6 @@
 {
     "recommendations": [
         "ms-python.python",
-        "ms-python.black-formatter"
+        "charliermarsh.ruff"
     ]
 }

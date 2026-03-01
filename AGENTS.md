@@ -82,17 +82,17 @@ Project config lives in `pyproject.toml`.
 uv run ruff check .
 ```
 
-- Black (format):
+- Ruff (format):
 
 ```powershell
-uv run black .
+uv run ruff format .
 ```
 
 If you change imports or add new modules, ensure Ruff import rules pass.
 
 ### (Optional) pre-commit hooks
 
-This repo includes a `.pre-commit-config.yaml` that runs Ruff and Black via `uv`.
+This repo includes a `.pre-commit-config.yaml` that runs Ruff lint and format via `uv`.
 
 ```powershell
 uv run --frozen pre-commit install
@@ -113,7 +113,7 @@ uv run mkdocs build -d _site
 1. Identify the smallest set of files needed.
 2. Implement the change.
 3. Run targeted tests first, then the full suite if the change is broad.
-4. Run `ruff check .` (and `black .` if you changed Python files).
+4. Run `ruff check .` and `ruff format .` if you changed Python files.
 5. If docs are affected, run `mkdocs build`.
 
 ## Conventions

@@ -29,7 +29,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "black>=25.11.0",
     "pre-commit>=3.7.0",
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
@@ -37,7 +36,7 @@ dev = [
     "ruff>=0.14.9",
 ]
 docs = [
-    "black>=24.10.0",
+    "black>=26.1.0",
     "griffe-inherited-docstrings>=1.1.1",
     "markdown-exec>=1.9.3",
     "mkdocs<2.0",
@@ -63,15 +62,15 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "D", "NPY201"]
-ignore = ["D100", "D104", "D205", "F403"]
+ignore = ["D100", "D104", "D205", "E502", "F403"]
 unfixable = ["F401"]
 pydocstyle = { convention = 'numpy' }
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D103"]
 
-[tool.black]
-line-length = 90
+[tool.ruff.format]
+line-ending = "auto"
 
 [build-system]
 requires = ["hatchling"]
