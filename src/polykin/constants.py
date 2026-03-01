@@ -12,13 +12,13 @@ from scipy.constants import (
     Avogadro,
     Boltzmann,
     Planck,
+    g,
     gas_constant,
-    gravitational_constant,
 )
 
 __all__ = ["g", "h", "kB", "NA", "R"]
 
-g = gravitational_constant
+g = g
 h = Planck
 kB = Boltzmann
 NA = Avogadro
