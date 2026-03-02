@@ -4,4 +4,6 @@
 
 """Implement methods for emulsion polymerization systems."""
 
-from .nbar import *
+from .desorption import *
+from .entry import *
+from .smithewart import *

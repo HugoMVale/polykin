@@ -11,7 +11,7 @@ from polykin.constants import R
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatMatrix, FloatSquareMatrix, FloatVector
+from polykin.utils.typing import FloatMatrix, FloatSquareMatrix, FloatVector
 
 from .base import PolymerACM
 

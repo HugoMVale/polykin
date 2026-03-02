@@ -11,7 +11,7 @@ from polykin.kinetics.coefficients.base import KineticCoefficientT
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import convert_FloatOrArrayLike_to_FloatOrArray
 from polykin.utils.tools import check_bounds, check_shapes
-from polykin.utils.types import FloatArray, FloatArrayLike
+from polykin.utils.typing import FloatArray, FloatArrayLike
 
 __all__ = ["Arrhenius"]
 

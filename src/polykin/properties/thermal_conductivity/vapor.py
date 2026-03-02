@@ -6,7 +6,7 @@ import numpy as np
 from numpy import dot, exp, sqrt
 
 from polykin.constants import NA, R
-from polykin.utils.types import FloatVectorLike
+from polykin.utils.typing import FloatVectorLike
 
 __all__ = [
     "KVPC_Stiel_Thodos",

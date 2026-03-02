@@ -9,7 +9,7 @@ import numpy as np
 from polykin.math import scalex
 from polykin.math.roots import VectorRootResult
 from polykin.utils.math import eps
-from polykin.utils.types import FloatVector
+from polykin.utils.typing import FloatVector
 
 __all__ = ["fixpoint_wegstein"]
 
@@ -116,7 +116,6 @@ def fixpoint_wegstein(
     wait = max(wait, 1)
 
     for k in range(maxiter):
-
         gxm = gx
         gx = g(x)
         nfeval += 1

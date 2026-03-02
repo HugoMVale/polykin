@@ -11,7 +11,7 @@ from polykin.constants import gas_constant as R
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatSquareMatrix, FloatVector, override
+from polykin.utils.typing import FloatSquareMatrix, FloatVector, override
 
 from .base import MolecularACM
 

@@ -21,7 +21,7 @@ from warnings import warn
 import numpy as np
 
 from .exceptions import RangeError, ShapeError
-from .types import FloatMatrix, FloatOrArray, FloatOrArrayLike
+from .typing import FloatMatrix, FloatOrArray, FloatOrArrayLike
 
 
 def custom_error(
@@ -198,9 +198,7 @@ def check_bounds(
         return x
     else:
         check_type(x, (int, float, Real, np.ndarray, Iterable), xname)
-        custom_error(
-            xname, x, RangeError, f"Valid `{xname}` range is [{xmin}, {xmax}]."
-        )
+        custom_error(xname, x, RangeError, f"Valid `{xname}` range is [{xmin}, {xmax}].")
 
 
 def check_in_set(

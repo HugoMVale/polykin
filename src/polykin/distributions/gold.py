@@ -8,7 +8,7 @@ from numpy import log as ln
 from polykin.distributions.analyticaldistributions import poisson
 from polykin.math import root_brent
 from polykin.utils.math import eps
-from polykin.utils.types import FloatArray, IntArrayLike
+from polykin.utils.typing import FloatArray, IntArrayLike
 
 
 def WeibullNycanderGold_pdf(

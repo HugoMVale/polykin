@@ -5,7 +5,7 @@
 import numpy as np
 from numpy import dot, sqrt
 
-from polykin.utils.types import FloatVectorLike, IntVectorLike
+from polykin.utils.typing import FloatVectorLike, IntVectorLike
 
 __all__ = [
     "Case_1",
@@ -81,9 +81,9 @@ def Case_1(
 
     Mn = (b * MAA + a * MBB) / (a + b - 2 * a * b)
 
-    Mw = (1 + a * b) / (1 - a * b) * (b * MAA**2 + a * MBB**2) / (
-        b * MAA + a * MBB
-    ) + (4 * a * b * MAA * MBB) / ((1 - a * b) * (b * MAA + a * MBB))
+    Mw = (1 + a * b) / (1 - a * b) * (b * MAA**2 + a * MBB**2) / (b * MAA + a * MBB) + (
+        4 * a * b * MAA * MBB
+    ) / ((1 - a * b) * (b * MAA + a * MBB))
 
     return (Mn, Mw)
 

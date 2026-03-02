@@ -5,7 +5,7 @@
 from numpy import dot, sqrt
 
 from polykin.constants import R
-from polykin.utils.types import FloatSquareMatrix, FloatVector
+from polykin.utils.typing import FloatSquareMatrix, FloatVector
 
 __all__ = [
     "quadratic_mixing",

@@ -7,7 +7,7 @@ from numpy import dot, exp, log
 from polykin.math import root_brent, root_newton
 from polykin.utils.math import eps
 from polykin.utils.tools import colored_bool
-from polykin.utils.types import FloatVector
+from polykin.utils.typing import FloatVector
 
 __all__ = [
     "FlashResult",
@@ -152,7 +152,6 @@ def flash2_PT(
     beta = np.clip(beta0, 0.0, 1.0) if beta0 is not None else np.nan
 
     for _ in range(maxiter):
-
         # Find beta
         sol = solve_Rachford_Rice(K, z, beta, maxiter=maxiter, atol_res=atol_inner)
         beta = sol.beta
@@ -263,7 +262,6 @@ def flash2_PV(
 
     # Outer loop
     for _ in range(maxiter):
-
         v_old = np.concatenate((u, [A]))
 
         # Inner R-loop
@@ -390,7 +388,6 @@ def flash2_TV(
 
     # Outer loop
     for _ in range(maxiter):
-
         v_old = np.concatenate((u, [A]))
 
         # Inner R-loop
@@ -431,7 +428,9 @@ def flash2_TV(
         if sol.success:
             P = sol.x
         else:
-            message = f"Pressure did not converge after {maxiter} iterations. Solution: {sol}."
+            message = (
+                f"Pressure did not converge after {maxiter} iterations. Solution: {sol}."
+            )
             break
 
         # Update u, A, K
@@ -533,7 +532,6 @@ def solve_Rachford_Rice(
     # Iteration loop
     success = False
     for iter in range(maxiter):
-
         F, dF = residual_Rachford_Rice(beta, K, z, derivative=True)
 
         # Check convergence

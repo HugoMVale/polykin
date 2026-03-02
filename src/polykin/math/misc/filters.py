@@ -5,7 +5,7 @@
 import numpy as np
 from numba import njit
 
-from polykin.utils.types import FloatMatrix, FloatVector
+from polykin.utils.typing import FloatMatrix, FloatVector
 
 __all__ = ["simplify_polyline"]
 

@@ -20,7 +20,7 @@ from polykin.properties.pvt.mixing_rules import geometric_interaction_mixing
 from polykin.properties.vaporization import PL_Wilson
 from polykin.utils.exceptions import ConvergenceError
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
-from polykin.utils.types import FloatSquareMatrix, FloatVector, FloatVectorLike
+from polykin.utils.typing import FloatSquareMatrix, FloatVector, FloatVectorLike
 
 from .base import GasLiquidEoS
 

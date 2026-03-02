@@ -8,7 +8,7 @@ from math import comb, factorial
 import numpy as np
 from numpy.polynomial.laguerre import Laguerre
 
-from polykin.utils.types import FloatArray, FloatArrayLike, FloatVector, FloatVectorLike
+from polykin.utils.typing import FloatArray, FloatArrayLike, FloatVector, FloatVectorLike
 
 __all__ = [
     "convolve_moments",

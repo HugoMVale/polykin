@@ -1,6 +1,6 @@
 # polykin.kinetics.emulsion
 
-::: polykin.kinetics.emulsion.nbar
+::: polykin.kinetics.emulsion.smithewart
     options:
         members:
             - nbar_Stockmayer_OToole

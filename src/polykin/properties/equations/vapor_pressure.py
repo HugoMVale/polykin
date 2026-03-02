@@ -10,7 +10,7 @@ import numpy as np
 from numpy import exp
 
 from polykin.properties.equations.base import PropertyEquationT
-from polykin.utils.types import FloatArray
+from polykin.utils.typing import FloatArray
 
 __all__ = [
     "Antoine",

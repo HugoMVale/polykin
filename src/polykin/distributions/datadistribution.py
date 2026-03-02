@@ -11,7 +11,7 @@ from scipy import integrate, interpolate, optimize
 
 from polykin.utils.math import vectorize
 from polykin.utils.tools import check_bounds, check_subclass
-from polykin.utils.types import FloatVectorLike
+from polykin.utils.typing import FloatVectorLike
 
 from .analyticaldistributions import Flory, LogNormal, Poisson, SchulzZimm
 from .base import (

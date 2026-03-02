@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 
 from polykin.utils.tools import colored_bool
-from polykin.utils.types import FloatMatrix, FloatVector
+from polykin.utils.typing import FloatMatrix, FloatVector
 
 __all__ = [
     "RootResult",

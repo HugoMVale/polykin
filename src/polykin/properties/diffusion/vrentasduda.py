@@ -18,7 +18,7 @@ from polykin.utils.tools import (
     check_valid_range,
     convert_check_temperature,
 )
-from polykin.utils.types import FloatArray, FloatArrayLike
+from polykin.utils.typing import FloatArray, FloatArrayLike
 
 __all__ = ["VrentasDudaBinary"]
 

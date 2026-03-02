@@ -10,7 +10,7 @@ from polykin.constants import R
 from polykin.properties.pvt.mixing_rules import quadratic_mixing
 from polykin.properties.pvt.virial import B_mixture
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector
-from polykin.utils.types import (
+from polykin.utils.typing import (
     FloatSquareMatrix,
     FloatVector,
     FloatVectorLike,

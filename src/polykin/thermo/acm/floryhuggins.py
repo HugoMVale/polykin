@@ -12,7 +12,7 @@ from polykin.math import derivative_complex
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatArray, FloatSquareMatrix, FloatVector, Number
+from polykin.utils.typing import FloatArray, FloatSquareMatrix, FloatVector, Number
 
 # from .base import ActivityCoefficientModel
 

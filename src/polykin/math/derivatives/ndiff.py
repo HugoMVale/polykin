@@ -8,7 +8,7 @@ import numpy as np
 from numpy import cbrt
 
 from polykin.utils.math import eps
-from polykin.utils.types import (
+from polykin.utils.typing import (
     Float2x2Matrix,
     FloatArray,
     FloatMatrix,

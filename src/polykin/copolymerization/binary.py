@@ -10,7 +10,7 @@ from scipy.integrate import solve_ivp
 
 from polykin.utils.exceptions import ODESolverError
 from polykin.utils.math import eps
-from polykin.utils.types import FloatArray, FloatArrayLike, FloatMatrix, FloatVectorLike
+from polykin.utils.typing import FloatArray, FloatArrayLike, FloatMatrix, FloatVectorLike
 
 __all__ = [
     "inst_copolymer_binary",

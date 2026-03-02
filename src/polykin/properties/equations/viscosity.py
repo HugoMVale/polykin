@@ -9,7 +9,7 @@
 import numpy as np
 from numpy import exp
 
-from polykin.utils.types import FloatArray
+from polykin.utils.typing import FloatArray
 
 from .base import PropertyEquationT
 

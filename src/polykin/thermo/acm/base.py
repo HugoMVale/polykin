@@ -10,7 +10,7 @@ from numpy import dot, exp, log
 from polykin.constants import R
 from polykin.math import derivative_complex
 from polykin.math.derivatives import jacobian_forward
-from polykin.utils.types import FloatMatrix, FloatVector, Number
+from polykin.utils.typing import FloatMatrix, FloatVector, Number
 
 
 class ACM(ABC):

@@ -14,7 +14,7 @@ from numpy.linalg import norm
 from polykin.math.derivatives import jacobian_forward, scalex
 from polykin.math.roots.results import VectorRootResult
 from polykin.utils.math import eps
-from polykin.utils.types import FloatMatrix, FloatVector
+from polykin.utils.typing import FloatMatrix, FloatVector
 
 all = ["rootvec_qnewton"]
 
@@ -219,7 +219,6 @@ def rootvec_qnewton(
     R = np.array([])
 
     for niter in range(1, maxiter + 1):
-
         if verbose:
             print(f"Iteration {niter:3d}:", flush=True)
 
@@ -273,7 +272,7 @@ def rootvec_qnewton(
         # Display iteration progress
         if verbose:
             print(
-                f"  x = {xp}\n" f"  ||sclx*f(x)||∞ = {norm(sclf*fp, np.inf):.2e}",
+                f"  x = {xp}\n  ||sclx*f(x)||∞ = {norm(sclf * fp, np.inf):.2e}",
                 flush=True,
             )
 
@@ -472,7 +471,6 @@ def line_search(
 
     first = True
     while True:
-
         xp = xc + λ * p
         fp = f(xp)
         fNp = fN(fp)
@@ -594,7 +592,6 @@ def dogleg(
 
     first = True
     while state not in (TrustState.accepted, TrustState.convergence):
-
         # Perform dogleg step to determine s
         if newtlen <= trustlen:
             isnewtstep = True

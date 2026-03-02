@@ -16,7 +16,7 @@ from polykin.utils.tools import (
     convert_check_temperature,
     custom_repr,
 )
-from polykin.utils.types import FloatArray, FloatArrayLike, IntArray, IntArrayLike
+from polykin.utils.typing import FloatArray, FloatArrayLike, IntArray, IntArrayLike
 
 __all__ = ["TerminationCompositeModel"]
 

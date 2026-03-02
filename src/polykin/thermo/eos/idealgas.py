@@ -5,7 +5,7 @@
 import numpy as np
 
 from polykin.constants import R
-from polykin.utils.types import FloatVector, override
+from polykin.utils.typing import FloatVector, override
 
 from .base import GasEoS
 

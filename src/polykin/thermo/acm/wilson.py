@@ -10,7 +10,7 @@ from numpy import dot, exp, log
 from polykin.constants import R
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatSquareMatrix, FloatVector, override
+from polykin.utils.typing import FloatSquareMatrix, FloatVector, override
 
 from .base import MolecularACM
 

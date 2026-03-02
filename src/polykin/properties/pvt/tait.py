@@ -18,7 +18,7 @@ from polykin.utils.tools import (
     convert_check_pressure,
     convert_check_temperature,
 )
-from polykin.utils.types import FloatArray, FloatVectorLike
+from polykin.utils.typing import FloatArray, FloatVectorLike
 
 __all__ = ["Tait"]
 
