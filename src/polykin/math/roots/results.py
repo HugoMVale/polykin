@@ -13,7 +13,7 @@ __all__ = [
 ]
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class RootResult:
     """Dataclass with scalar root solution results.
 
@@ -56,7 +56,7 @@ class RootResult:
         )
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class VectorRootResult:
     """Dataclass with vector root solution results.
 

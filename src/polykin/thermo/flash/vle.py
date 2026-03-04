@@ -19,7 +19,7 @@ __all__ = [
 ]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class FlashResult:
     """Flash result dataclass.
 
@@ -454,7 +454,7 @@ def flash2_TV(
     return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RachfordRiceResult:
     """Rachford-Rice result dataclass."""
 

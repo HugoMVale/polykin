@@ -235,7 +235,7 @@ class kpDataset(CopoDataset):
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CopoDataset_Ff:
     """Dataclass for instantaneous copolymerization data of the form F(f)."""
 
@@ -247,7 +247,7 @@ class CopoDataset_Ff:
     weight: float = 1.0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CopoDataset_fx:
     """Dataclass for drift copolymerization data of the form f1(x)."""
 
@@ -260,7 +260,7 @@ class CopoDataset_fx:
     weight: float = 1.0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CopoDataset_Fx:
     """Dataclass for drift copolymerization data of the form F1(x)."""
 
