@@ -29,7 +29,7 @@ def kdesorption_Asua(
 
     !!! note
 
-        * Nomura and Harada's model can be seen as a particular case of Asua's model where
+        Nomura and Harada's model can be seen as a particular case of Asua's model where
         $\beta=\bar{n}$.
 
 
@@ -61,7 +61,7 @@ def kdesorption_Asua(
 
     See Also
     --------
-    * [`K0_Nomura`](K0_Nomura.md): associated method for $K_0$.
+    * [`K0_Nomura`](K0_Nomura.md): Associated method for $K_0$.
 
     Examples
     --------
@@ -133,7 +133,7 @@ def K0_Nomura(
 
     See Also
     --------
-    * [`kdesorption_Asua`](kdesorption_Asua.md): related desorption coefficient method.
+    * [`kdesorption_Asua`](kdesorption_Asua.md): Related desorption coefficient method.
 
     Examples
     --------
