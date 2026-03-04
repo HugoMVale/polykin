@@ -9,8 +9,8 @@ from typing import Literal
 import numpy as np
 import scipy.integrate as integrate
 from numpy import exp, sqrt
-from scipy.constants import R
 
+from polykin.constants import R
 from polykin.math.derivatives import (
     derivative_centered,
     derivative_complex,
@@ -19,9 +19,12 @@ from polykin.math.derivatives import (
 from polykin.math.roots import root_newton
 from polykin.utils.exceptions import RootSolverError
 from polykin.utils.math import eps
-from polykin.utils.types import FloatVector, Number
+from polykin.utils.typing import FloatVector, Number
 
-__all__ = ["EoS", "GasEoS"]
+__all__ = [
+    "EoS",
+    "GasEoS",
+]
 
 
 class EoS(ABC):
