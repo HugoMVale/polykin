@@ -9,5 +9,5 @@ def test_kdesorption_Asua():
 
 
 def test_K0_Nomura():
-    K0_ = K0_Nomura(Dw=1e-9, Dp=1e-10, q=10, dp=200e-9)
-    assert isclose(K0_, 4.29e03, rtol=1e-2)
+    K0 = K0_Nomura(Dw=1e-9, Dp=1e-10, q=30, dp=200e-9)
+    assert isclose(K0, 9375.0, rtol=1e-3)
