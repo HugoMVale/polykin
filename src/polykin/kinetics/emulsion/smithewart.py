@@ -2,45 +2,82 @@
 #
 # Copyright Hugo Vale 2024
 
+from typing import overload
+
 import numpy as np
 from numpy import exp, sqrt
 from numpy import log as ln
 from scipy.special import ive, loggamma
 
 from polykin.utils.exceptions import ConvergenceError
-from polykin.utils.typing import FloatVector, IntVectorLike
+from polykin.utils.typing import FloatArray, IntArrayLike
 
 __all__ = [
+    "compartmentalization_factor",
     "nbar_Li_Brooks",
     "nbar_Stockmayer_OToole",
     "nbar_Ugelstad",
+    "n2bar",
     "SmithEwart_qssa_pdf",
 ]
 
 
-def nbar_Stockmayer_OToole(alpha: float, m: float) -> float:
-    r"""Average number of radicals per particle according to the
-    Stockmayer-O'Toole exact solution.
+@overload
+def nbar_Stockmayer_OToole(
+    alpha: float,
+    m: float,
+) -> float: ...
+
+
+@overload
+def nbar_Stockmayer_OToole(
+    alpha: FloatArray,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+@overload
+def nbar_Stockmayer_OToole(
+    alpha: FloatArray,
+    m: float,
+) -> FloatArray: ...
+
+
+@overload
+def nbar_Stockmayer_OToole(
+    alpha: float,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+def nbar_Stockmayer_OToole(
+    alpha: float | FloatArray,
+    m: float | FloatArray,
+) -> float | FloatArray:
+    r"""Calculate the average number of radicals per particle according to the
+    Stockmayer-O'Toole exact quasi-steady-state solution.
 
     $$ \bar{n} = \frac{a}{4} \frac{I_m(a)}{I_{m-1}(a)} $$
 
-    where $a=\sqrt{8 \alpha}$, and $I$ is the modified Bessel function of the
-    first kind.
+    where $a=\sqrt{8 \alpha}$, and $I$ is the modified Bessel function of the first kind.
 
     **References**
 
-    *   O'Toole JT. Kinetics of emulsion polymerization. J Appl Polym Sci 1965; 9:1291-7.
+    *   Stockmayer, W. H. Note on the Kinetics of Emulsion Polymerization. J. Polym. Sci.
+        1957, 24, 314-317.
+    *   O'Toole, J. T. Kinetics of Emulsion Polymerization. J. Appl. Polym. Sci.
+        1965, 9, 1291-1297.
 
     Parameters
     ----------
-    alpha : float
+    alpha : float | FloatArray
         Dimensionless entry frequency.
-    m : float
+    m : float | FloatArray
         Dimensionless desorption frequency.
 
     Returns
     -------
-    float
+    float | FloatArray
         Average number of radicals per particle.
 
     See Also
@@ -58,23 +95,64 @@ def nbar_Stockmayer_OToole(alpha: float, m: float) -> float:
     >>> print(f"nbar = {nbar:.2e}")
     nbar = 5.02e-01
     """
-    if alpha == 0 and m > 0:
-        return 0.0
+    alpha, m = np.broadcast_arrays(np.asarray(alpha), np.asarray(m))
+    result = np.zeros_like(alpha, dtype=np.float64)
+
+    mask_zero = (alpha == 0) & (m > 0)
+    mask_general = ~mask_zero
+
+    if np.any(mask_general):
+        a = sqrt(8 * alpha[mask_general])
+        result[mask_general] = (
+            a / 4 * ive(m[mask_general], a) / ive(m[mask_general] - 1.0, a)
+        )
+
+    if result.ndim == 0:
+        return float(result)
     else:
-        a = sqrt(8 * alpha)
-        # Use exponentially scaled Bessel function for numerical robustness
-        return (a / 4) * ive(m, a) / ive(m - 1, a)
+        return result
 
 
-def nbar_Li_Brooks(alpha: float, m: float) -> float:
-    r"""Average number of radicals per particle according to the Li-Brooks
-    approximate solution.
+@overload
+def nbar_Li_Brooks(
+    alpha: float,
+    m: float,
+) -> float: ...
+
+
+@overload
+def nbar_Li_Brooks(
+    alpha: FloatArray,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+@overload
+def nbar_Li_Brooks(
+    alpha: FloatArray,
+    m: float,
+) -> FloatArray: ...
+
+
+@overload
+def nbar_Li_Brooks(
+    alpha: float,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+def nbar_Li_Brooks(
+    alpha: float | FloatArray,
+    m: float | FloatArray,
+) -> float | FloatArray:
+    r"""Calculate the average number of radicals per particle according to the
+    Li-Brooks approximate quasi-steady-state solution.
 
     $$ \bar{n} = \frac{2 \alpha}{m + \sqrt{m^2 +
         \frac{8 \alpha \left( 2 \alpha + m \right)}{2 \alpha + m + 1}}} $$
 
-    This formula agrees well with the exact Stockmayer-O'Toole solution,
-    with a maximum deviation of about 4%.
+    This formula agrees well with the exact Stockmayer-O'Toole solution, with a maximum
+    deviation of about 4%.
 
     **References**
 
@@ -83,16 +161,15 @@ def nbar_Li_Brooks(alpha: float, m: float) -> float:
 
     Parameters
     ----------
-    alpha : float
+    alpha : float | FloatArray
         Dimensionless entry frequency.
-    m : float
+    m : float | FloatArray
         Dimensionless desorption frequency.
 
     Returns
     -------
-    float
+    float | FloatArray
         Average number of radicals per particle.
-
 
     See Also
     --------
@@ -121,8 +198,8 @@ def nbar_Ugelstad(
     tol: float = 1e-10,
     maxiter: int = 100,
 ) -> float:
-    r"""Average number of radicals per particle according to the Ugelstad-Mørk exact
-    solution.
+    r"""Calculate the average number of radicals per particle according to the
+    Ugelstad-Mørk exact quasi-steady-state solution.
 
     $$ \bar{n} = \frac{1}{2}
       \frac{2 \alpha}{m +
@@ -157,7 +234,6 @@ def nbar_Ugelstad(
     -------
     float
         Average number of radicals per particle.
-
 
     See Also
     --------
@@ -202,11 +278,171 @@ def nbar_Ugelstad(
     )
 
 
-def SmithEwart_qssa_pdf(
-    n: int | IntVectorLike,
+@overload
+def n2bar(
     alpha: float,
     m: float,
-) -> float | FloatVector:
+) -> float: ...
+
+
+@overload
+def n2bar(
+    alpha: FloatArray,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+@overload
+def n2bar(
+    alpha: FloatArray,
+    m: float,
+) -> FloatArray: ...
+
+
+@overload
+def n2bar(
+    alpha: float,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+def n2bar(
+    alpha: float | FloatArray,
+    m: float | FloatArray,
+) -> float | FloatArray:
+    r"""Calculate the second moment of the normalized radical number distribution
+    according to the Stockmayer-O'Toole quasi-steady-state solution.
+
+    $$ \overline{n^2} = \bar{n} \left(1 + \frac{m}{2} \right) + \frac{\alpha}{2} $$
+
+    where $\bar{n}(\alpha, m)$ is the average number of radicals per particle.
+
+    **References**
+
+    *   Stockmayer, W. H. Note on the Kinetics of Emulsion Polymerization. J. Polym. Sci.
+        1957, 24, 314-317.
+    *   O'Toole, J. T. Kinetics of Emulsion Polymerization. J. Appl. Polym. Sci.
+        1965, 9, 1291-1297.
+
+    Parameters
+    ----------
+    alpha : float | FloatArray
+        Dimensionless entry frequency.
+    m : float | FloatArray
+        Dimensionless desorption frequency.
+
+    Returns
+    -------
+    float | FloatArray
+        Second moment of the normalized radical number distribution.
+
+    Examples
+    --------
+    Evaluate the average square number of radicals per particle for α=1e-2 and m=1e-4.
+    >>> from polykin.kinetics import n2bar
+    >>> n2bar_ = n2bar(alpha=1e-2, m=1e-4)
+    >>> print(f"n2bar = {n2bar_:.2e}")
+    n2bar = 5.07e-01
+    """
+    nbar = nbar_Stockmayer_OToole(alpha, m)
+    return nbar * (1 - m / 2) + alpha / 2
+
+
+@overload
+def compartmentalization_factor(
+    alpha: float,
+    m: float,
+) -> float: ...
+
+
+@overload
+def compartmentalization_factor(
+    alpha: FloatArray,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+@overload
+def compartmentalization_factor(
+    alpha: FloatArray,
+    m: float,
+) -> FloatArray: ...
+
+
+@overload
+def compartmentalization_factor(
+    alpha: float,
+    m: FloatArray,
+) -> FloatArray: ...
+
+
+def compartmentalization_factor(
+    alpha: float | FloatArray,
+    m: float | FloatArray,
+) -> float | FloatArray:
+    r"""Calculate the compartmentalization factor according to the Stockmayer-O'Toole
+    quasi-steady-state solution.
+
+    The compartmentalization factor expresses the reduction of the effective termination
+    rate in a compartmentalized system relative to that in a bulk system with the same
+    overall radical concentration. It is defined as:
+
+    $$ D_f \equiv \frac{\overline{n(n-1)}}{\bar{n}^2 }
+           = \frac{1}{2 \bar{n}} \left(\frac{\alpha}{\bar{n}} - m \right) $$
+
+    where $\bar{n}(\alpha, m)$ is the average number of radicals per particle.
+
+    **References**
+
+    *   Wulkow, M.; Richards, J. R. Evaluation of the Chain Length Distribution in
+        Free-Radical Emulsion Polymerization—The Compartmentalization Problem.
+        Ind. Eng. Chem. Res. 2014, 53, 7275-7295.
+
+    Parameters
+    ----------
+    alpha : float | FloatArray
+        Dimensionless entry frequency.
+    m : float | FloatArray
+        Dimensionless desorption frequency.
+
+    Returns
+    -------
+    float | FloatArray
+        Compartmentalization factor.
+
+    Examples
+    --------
+    Evaluate the compartmentalization factor for α=1e-2 and m=1e-4.
+    >>> from polykin.kinetics import compartmentalization_factor
+    >>> Df = compartmentalization_factor(alpha=1e-2, m=1e-4)
+    >>> print(f"Df = {Df:.2e}")
+    Df = 1.97e-02
+    """
+    nbar = nbar_Stockmayer_OToole(alpha, m)
+    return (alpha / nbar - m) / (2 * nbar)
+
+
+@overload
+def SmithEwart_qssa_pdf(
+    n: int,
+    alpha: float,
+    m: float,
+) -> float: ...
+
+
+@overload
+def SmithEwart_qssa_pdf(
+    n: IntArrayLike,
+    alpha: float,
+    m: float,
+) -> FloatArray: ...
+
+
+def SmithEwart_qssa_pdf(
+    n: int | IntArrayLike,
+    alpha: float,
+    m: float,
+) -> float | FloatArray:
     r"""Probability distribution of the number of radicals per particle according to the
     Smith-Ewart quasi-steady-state approximation.
 
@@ -219,7 +455,7 @@ def SmithEwart_qssa_pdf(
 
     Parameters
     ----------
-    n : int | IntVectorLike
+    n : int | IntArrayLike
         Number of radicals per particle (≥0).
     alpha : float
         Dimensionless entry frequency.
@@ -228,7 +464,7 @@ def SmithEwart_qssa_pdf(
 
     Returns
     -------
-    float | FloatVector
+    float | FloatArray
         Number probability distribution.
     """
     scalar_input = np.isscalar(n)
@@ -241,6 +477,7 @@ def SmithEwart_qssa_pdf(
     ln_factor = (
         (n / 2) * ln(alpha) - loggamma(n + 1) + (ln(ive(m - 1 + n, arg_num)) + arg_num)
     )
+
     pn = exp(ln_prefactor + ln_factor)
 
     if scalar_input:

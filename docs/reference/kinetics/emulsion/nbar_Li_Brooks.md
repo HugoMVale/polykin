@@ -5,7 +5,7 @@
         members:
             - nbar_Li_Brooks
 
-### Benchmark
+### Graphical Illustration
 
 Illustration of the typical error obtained with the Li-Brooks approximation.
 
@@ -28,7 +28,7 @@ ax.set_xscale("log")
 ax.grid(True)
 ax.legend(loc="best")
 ax.set_xlabel(r"$\alpha$")
-ax.set_ylabel("Relative Error (%)");
+ax.set_ylabel("Relative Error (%)")
 
 print(to_html(fig))
 ```
