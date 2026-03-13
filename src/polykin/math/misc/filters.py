@@ -7,7 +7,9 @@ from numba import njit
 
 from polykin.utils.typing import FloatMatrix, FloatVector
 
-__all__ = ["simplify_polyline"]
+__all__ = [
+    "simplify_polyline",
+]
 
 
 def simplify_polyline(points: FloatMatrix, tol: float) -> FloatMatrix:
@@ -43,6 +45,7 @@ def simplify_polyline(points: FloatMatrix, tol: float) -> FloatMatrix:
     --------
     Simplify a 2D polyline.
     >>> from polykin.math import simplify_polyline
+    >>> import numpy as np
     >>> p = np.array([[0.0, 0.0],
     ...               [1.0, 0.1],
     ...               [2.0, -0.1],
@@ -115,7 +118,7 @@ def _ramer_douglas_peucker(
 
 @njit
 def _farthest_point(
-    points: FloatVector,
+    points: FloatMatrix,
     istart: int,
     iend: int,
 ) -> tuple[int, float]:
@@ -123,7 +126,7 @@ def _farthest_point(
 
     Parameters
     ----------
-    points : FloatVector
+    points : FloatMatrix
         Matrix of point coordinates.
     istart : int
         Start index of polyline segment.
