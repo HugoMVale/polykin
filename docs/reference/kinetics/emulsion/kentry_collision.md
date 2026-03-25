@@ -3,4 +3,4 @@
 ::: polykin.kinetics.emulsion.entry
     options:
         members:
-            - kentry_irreversible
+            - kentry_collision
