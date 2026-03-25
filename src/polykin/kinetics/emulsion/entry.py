@@ -131,6 +131,12 @@ def kentry_diffusion_reversible(
     the particle, $[M^p]$ is the monomer concentration in the particle, $n$ is the number
     of radicals per particle, and $v_p$ is the particle volume.
 
+    **References**
+
+    *   Hansen, F. K.; Ugelstad, J. Particle Nucleation in Emulsion Polymerization. I.
+        A Theory for Homogeneous Nucleation. J. Polym. Sci., Polym. Chem. Ed. 1978, 16,
+        1953-1979.
+
     Parameters
     ----------
     r : float
