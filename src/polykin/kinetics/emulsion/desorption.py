@@ -15,7 +15,7 @@ def kdesorption_Asua(
     K0: float,
     beta: float,
 ) -> float:
-    r"""Calculate the radical desorption coefficient according to Asua's model.
+    r"""Radical desorption coefficient according to Asua's model.
 
     The desorption coefficient is given by:
 
@@ -87,7 +87,7 @@ def K0_Nomura(
     *,
     b: float = 10.0,
 ) -> float:
-    r"""Calculate the monomeric radical desorption coefficient according to a two-film
+    r"""Monomeric radical desorption coefficient according to Nomura's two-film
     mass-transfer model.
 
     The monomeric radical desorption coefficient is given by:
@@ -110,9 +110,9 @@ def K0_Nomura(
     Parameters
     ----------
     Dw : float
-        Diffusivity of the monomeric radical in the aqueous phase [m²/s].
+        Diffusion coefficient of the monomeric radical in the aqueous phase [m²/s].
     Dp : float
-        Diffusivity of the monomeric radical in the particle phase [m²/s].
+        Diffusion coefficient of the monomeric radical in the particle phase [m²/s].
     q : float
         Partition coefficient of the monomeric radical (particle/aqueous).
     dp : float

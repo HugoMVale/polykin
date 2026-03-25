@@ -54,8 +54,8 @@ def nbar_Stockmayer_OToole(
     alpha: float | FloatArray,
     m: float | FloatArray,
 ) -> float | FloatArray:
-    r"""Calculate the average number of radicals per particle according to the
-    Stockmayer-O'Toole exact quasi-steady-state solution.
+    r"""Average number of radicals per particle according to the Stockmayer-O'Toole exact
+    quasi-steady-state solution.
 
     $$ \bar{n} = \frac{a}{4} \frac{I_m(a)}{I_{m-1}(a)} $$
 
@@ -145,8 +145,8 @@ def nbar_Li_Brooks(
     alpha: float | FloatArray,
     m: float | FloatArray,
 ) -> float | FloatArray:
-    r"""Calculate the average number of radicals per particle according to the
-    Li-Brooks approximate quasi-steady-state solution.
+    r"""Average number of radicals per particle according to the Li-Brooks approximate
+    quasi-steady-state solution.
 
     $$ \bar{n} = \frac{2 \alpha}{m + \sqrt{m^2 +
         \frac{8 \alpha \left( 2 \alpha + m \right)}{2 \alpha + m + 1}}} $$
@@ -198,8 +198,8 @@ def nbar_Ugelstad(
     tol: float = 1e-10,
     maxiter: int = 100,
 ) -> float:
-    r"""Calculate the average number of radicals per particle according to the
-    Ugelstad-Mørk exact quasi-steady-state solution.
+    r"""Average number of radicals per particle according to the Ugelstad-Mørk exact
+    quasi-steady-state solution.
 
     $$ \bar{n} = \frac{1}{2}
       \frac{2 \alpha}{m +
@@ -310,8 +310,8 @@ def n2bar(
     alpha: float | FloatArray,
     m: float | FloatArray,
 ) -> float | FloatArray:
-    r"""Calculate the second moment of the normalized radical number distribution
-    according to the Stockmayer-O'Toole quasi-steady-state solution.
+    r"""Second moment of the normalized radical number distribution according to the
+    Stockmayer-O'Toole quasi-steady-state solution.
 
     $$ \overline{n^2} = \bar{n} \left(1 + \frac{m}{2} \right) + \frac{\alpha}{2} $$
 
@@ -380,8 +380,8 @@ def compartmentalization_factor(
     alpha: float | FloatArray,
     m: float | FloatArray,
 ) -> float | FloatArray:
-    r"""Calculate the compartmentalization factor according to the Stockmayer-O'Toole
-    quasi-steady-state solution.
+    r"""Compartmentalization factor according to the Stockmayer-O'Toole quasi-steady-state
+    solution.
 
     The compartmentalization factor expresses the reduction of the effective termination
     rate in a compartmentalized system relative to that in a bulk system with the same
