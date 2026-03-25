@@ -2,7 +2,7 @@
 * [compartmentalization_factor](compartmentalization_factor.md)
 * [K0_Nomura](K0_Nomura.md)
 * [kdesorption_Asua](kdesorption_Asua.md)
-* [ke_diffusion](ke_diffusion.md)
+* [kentry_irreversible](kentry_irreversible.md)
 * [nbar_Li_Brooks](nbar_Li_Brooks.md)
 * [nbar_Stockmayer_OToole](nbar_Stockmayer_OToole.md)
 * [nbar_Ugelstad](nbar_Ugelstad.md)
