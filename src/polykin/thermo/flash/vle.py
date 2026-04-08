@@ -5,6 +5,7 @@ import numpy as np
 from numpy import dot, exp, log
 
 from polykin.math import root_brent, root_newton
+from polykin.properties.vaporization.pvap import PL_Wilson
 from polykin.utils.math import eps
 from polykin.utils.tools import colored_bool
 from polykin.utils.typing import FloatVector
@@ -14,6 +15,7 @@ __all__ = [
     "flash2_PV",
     "flash2_PT",
     "flash2_TV",
+    "K_Wilson",
     "residual_Rachford_Rice",
     "solve_Rachford_Rice",
 ]
@@ -731,3 +733,39 @@ def _parameters_TV(
         return u, Kb, A, B
     else:
         return u, A, K
+
+
+def K_Wilson(
+    T: float,
+    P: float,
+    Tc: float,
+    Pc: float,
+    w: float,
+) -> float:
+    r"""Estimate the K-value of a component in a mixture using the Wilson approximation.
+
+    $$ K = \frac{P_c}{P}
+       \exp \left(5.373 (1 + \omega) \left(1 - \frac{T_c}{T}\right) \right) $$
+
+    This specific $K$-value correlation was developed as a "shortcut" method for providing
+    initial guesses in flash calculations.
+
+    **References**
+
+    *  Wilson, G. M. A Modified Redlich-Kwong Equation of State: Application to General
+       Physical Data Calculation. AIChE Natl. Meet., Cleveland, 1969.
+
+    Parameters
+    ----------
+    T : float
+        Temperature [K].
+    P : float
+        Pressure [Pa].
+    Tc : float
+        Critical temperature [K].
+    Pc : float
+        Critical pressure [Pa].
+    w : float
+        Acentric factor.
+    """
+    return PL_Wilson(T, Tc, Pc, w) / P

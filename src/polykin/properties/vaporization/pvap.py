@@ -136,15 +136,15 @@ def PL_Wilson(
     r"""Estimate the vapor pressure of a pure compound using the Wilson
     approximation.
 
-    $$ \ln \frac{P_{vap}}{P_c} = 5.373(1 + \omega)(1 - 1/T_r) $$
+    $$ \ln \frac{P_{vap}}{P_c} = 5.373 (1 + \omega)(1 - 1/T_r) $$
 
     where $P_{vap}$ is the vapor pressure, $P_c$ is the critical pressure,
     $\omega$ is the acentric factor, and $T_r$ is the reduced temperature.
 
     **References**
 
-    *   RC Reid, JM Prausniz, and BE Poling. The properties of gases & liquids
-        4th edition, 1986, p. 207.
+    *  Wilson, G. M. A Modified Redlich-Kwong Equation of State: Application to General
+       Physical Data Calculation. AIChE Natl. Meet., Cleveland, 1969.
 
     Parameters
     ----------

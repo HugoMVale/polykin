@@ -4,6 +4,7 @@ from numpy import allclose, isclose
 from polykin.properties.equations import Antoine
 from polykin.thermo.acm import UNIQUAC
 from polykin.thermo.flash.vle import (
+    K_Wilson,
     flash2_PT,
     flash2_PV,
     flash2_TV,
@@ -165,3 +166,12 @@ def test_flash2_TV_dew():
 
     assert isclose(sol.P, 0.6e5, rtol=1e-3)
     assert allclose(sol.x, [0.5, 0.5], rtol=1e-5)
+
+
+def test_K_Wilson():
+    Tb = 418.3
+    Tc = 647.0
+    Pc = 39.9e5
+    w = 0.257
+    assert isclose(K_Wilson(Tc, Pc, Tc, Pc, w), 1)
+    assert isclose(K_Wilson(Tb, 101325, Tc, Pc, w), 1, rtol=5e-2)
