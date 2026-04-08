@@ -202,4 +202,4 @@ nav:
       - Utils:
           - reference/utils/index.md
           - Exceptions: reference/utils/exceptions.md
-          - Types: reference/utils/types.md
+          - Typing: reference/utils/typing.md
