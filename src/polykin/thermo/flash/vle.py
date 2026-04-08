@@ -10,7 +10,7 @@ from polykin.utils.tools import colored_bool
 from polykin.utils.typing import FloatVector
 
 __all__ = [
-    "FlashResult",
+    "Flash2Result",
     "flash2_PV",
     "flash2_PT",
     "flash2_TV",
@@ -20,8 +20,8 @@ __all__ = [
 
 
 @dataclass(frozen=True, slots=True)
-class FlashResult:
-    """Flash result dataclass.
+class Flash2Result:
+    """2-phase flash result dataclass.
 
     Attributes
     ----------
@@ -100,7 +100,7 @@ def flash2_PT(
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
     alpha_outer: float = 1.0,
-) -> FlashResult:
+) -> Flash2Result:
     r"""Solve a 2-phase flash problem at given pressure and temperature.
 
     **References**
@@ -137,7 +137,7 @@ def flash2_PT(
 
     Returns
     -------
-    FlashResult
+    Flash2Result
         Flash result.
     """
     method = "2-Phase PT Flash"
@@ -153,7 +153,7 @@ def flash2_PT(
 
     for _ in range(maxiter):
         # Find beta
-        sol = solve_Rachford_Rice(K, z, beta, maxiter=maxiter, atol_res=atol_inner)
+        sol = solve_Rachford_Rice(K, z, beta, maxiter=maxiter, atol=atol_inner)
         beta = sol.beta
         if not sol.success:
             message = f"Inner Rachford-Rice loop did not converge after {maxiter} iterations. Solution: {sol}."
@@ -185,7 +185,7 @@ def flash2_PT(
     V = F * beta
     L = F - V
 
-    return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
+    return Flash2Result(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
 def flash2_PV(
@@ -201,7 +201,7 @@ def flash2_PV(
     maxiter: int = 50,
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
-) -> FlashResult:
+) -> Flash2Result:
     r"""Solve a 2-phase flash problem at given pressure and vapor fraction.
 
     **References**
@@ -237,7 +237,7 @@ def flash2_PV(
 
     Returns
     -------
-    FlashResult
+    Flash2Result
         Flash result.
     """
     method = "2-Phase PV Flash"
@@ -311,7 +311,7 @@ def flash2_PV(
     V = F * beta
     L = F - V
 
-    return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
+    return Flash2Result(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
 def flash2_TV(
@@ -327,7 +327,7 @@ def flash2_TV(
     maxiter: int = 50,
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
-) -> FlashResult:
+) -> Flash2Result:
     r"""Solve a 2-phase flash problem at given temperature and vapor fraction.
 
     **References**
@@ -363,7 +363,7 @@ def flash2_TV(
 
     Returns
     -------
-    FlashResult
+    Flash2Result
         Flash result.
     """
     method = "2-Phase TV Flash"
@@ -451,7 +451,7 @@ def flash2_TV(
     V = F * beta
     L = F - V
 
-    return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
+    return Flash2Result(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
 @dataclass(frozen=True, slots=True)
@@ -470,7 +470,7 @@ def solve_Rachford_Rice(
     beta0: float,
     *,
     maxiter: int = 50,
-    atol_res: float = 1e-9,
+    atol: float = 1e-9,
 ) -> RachfordRiceResult:
     r"""Solve the Rachford-Rice flash residual equation.
 
@@ -494,7 +494,7 @@ def solve_Rachford_Rice(
         guess is automatically computed.
     maxiter : int
         Maximum number of iterations.
-    atol_res : float
+    atol : float
         Absolute tolerance for residual.
 
     Returns
@@ -531,11 +531,13 @@ def solve_Rachford_Rice(
 
     # Iteration loop
     success = False
+    F = np.nan
+    iter = 0
     for iter in range(maxiter):
         F, dF = residual_Rachford_Rice(beta, K, z, derivative=True)
 
         # Check convergence
-        if abs(F) <= atol_res:
+        if abs(F) <= atol:
             success = True
             break
 
@@ -560,7 +562,7 @@ def residual_Rachford_Rice(
     K: FloatVector,
     z: FloatVector,
     derivative: bool = False,
-) -> tuple[float, ...]:
+) -> tuple[float, float]:
     r"""Rachford-Rice flash residual function and its derivative.
 
     The residual function is defined as:
@@ -594,7 +596,7 @@ def residual_Rachford_Rice(
 
     Returns
     -------
-    tuple[float, ...]
+    tuple[float, float]
         Tuple with residual and derivative, `(F, dF)`.
 
     See Also
@@ -604,11 +606,12 @@ def residual_Rachford_Rice(
     """
     F = np.sum(z * (K - 1) / (1 + beta * (K - 1)))
 
-    if not derivative:
-        return (F,)
-    else:
+    if derivative:
         dF = -np.sum(z * (K - 1) ** 2 / (1 + beta * (K - 1)) ** 2)
-        return (F, dF)
+    else:
+        dF = np.nan
+
+    return (F, dF)
 
 
 def _Rloop(
