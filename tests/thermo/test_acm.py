@@ -15,6 +15,7 @@ from polykin.thermo.acm import (
     FloryHuggins2_activity,
     FloryHuggins_activity,
     IdealSolution,
+    ScatchardHildebrand,
     Wilson,
 )
 from polykin.thermo.acm.base import MolecularACM
@@ -187,3 +188,22 @@ def test_Wilson():
     # invalid shape
     with pytest.raises(ShapeError):
         _ = Wilson(2, a=np.zeros((2, 3)), b=np.zeros((2, 2)))
+
+
+def test_ScatchardHildebrand():
+    # cyclohexane: 0
+    # benzene: 1
+    N = 2
+    delta = [16.8, 18.8]  # (J/cm³)^(1/2)
+    v = [109.0, 89.0]  # cm³/mol
+    acm = ScatchardHildebrand(N, delta, v)
+    T = 298.15
+    assert allclose(acm.gamma(T, np.array([0.0, 1.0])), [1.192, 1.0], rtol=1e-2)
+    assert allclose(acm.gamma(T, np.array([1.0, 0.0])), [1.0, 1.154], rtol=1e-2)
+    assert isclose(acm.sE(T, np.array([0.5, 0.5])), 0.0)
+    assert check_gE_gamma(acm, x=np.array([0.4, 0.6]))
+    # invalid shape
+    with pytest.raises(ShapeError):
+        _ = ScatchardHildebrand(2, delta=[16.8], v=[109.0, 123.0])
+    with pytest.raises(ShapeError):
+        _ = ScatchardHildebrand(2, delta=[16.8, 12.0], v=[109.0])
