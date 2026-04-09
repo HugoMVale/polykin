@@ -5,11 +5,11 @@
 import functools
 
 import numpy as np
-from numpy import dot, exp, log
+from numpy import dot, exp
+from numpy import log as ln
 
 from polykin.constants import R
-from polykin.utils.exceptions import ShapeError
-from polykin.utils.tools import check_bounds
+from polykin.utils.tools import check_bounds, check_shape
 from polykin.utils.typing import (
     FloatSquareMatrix,
     FloatVector,
@@ -113,19 +113,15 @@ class UNIQUAC(MolecularACM):
         if d is None:
             d = np.zeros((N, N))
 
-        # Check shapes -> move to func
-        q = np.asarray(q)
-        r = np.asarray(r)
-        for vector in [q, r]:
-            if vector.shape != (N,):
-                raise ShapeError(
-                    f"The shape of vector {vector} is invalid: {vector.shape}."
-                )
-        for array in [a, b, c, d]:
-            if array.shape != (N, N):
-                raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}."
-                )
+        # Check shapes
+        q = np.asarray(q, dtype=float)
+        r = np.asarray(r, dtype=float)
+        check_shape(q, (N,), "q")
+        check_shape(r, (N,), "r")
+        check_shape(a, (N, N), "a")
+        check_shape(b, (N, N), "b")
+        check_shape(c, (N, N), "c")
+        check_shape(d, (N, N), "d")
 
         # Check bounds (same as Aspen Plus)
         check_bounds(a, -50.0, 50.0, "a")
@@ -159,7 +155,7 @@ class UNIQUAC(MolecularACM):
         FloatSquareMatrix (N,N)
             Interaction parameters.
         """
-        return exp(self._a + self._b / T + self._c * log(T) + self._d * T)
+        return exp(self._a + self._b / T + self._c * ln(T) + self._d * T)
 
     def gE(self, T: float, x: FloatVector) -> float:
 
@@ -167,12 +163,14 @@ class UNIQUAC(MolecularACM):
         q = self._q
         tau = self.tau(T)
 
-        phi = x * r / dot(x, r)
-        theta = x * q / dot(x, q)
+        phi = x * r
+        phi /= phi.sum()
+        theta = x * q
+        theta /= theta.sum()
 
         p = x > 0.0
-        gC = np.sum(x[p] * (log(phi[p] / x[p]) + 5 * q[p] * log(theta[p] / phi[p])))
-        gR = -np.sum(q[p] * x[p] * log(dot(theta, tau)[p]))
+        gC = np.sum(x[p] * (ln(phi[p] / x[p]) + 5 * q[p] * ln(theta[p] / phi[p])))
+        gR = -np.sum(q[p] * x[p] * ln(dot(theta, tau)[p]))
 
         return R * T * (gC + gR)
 
@@ -245,5 +243,5 @@ def UNIQUAC_gamma(
     s = dot(theta, tau)
 
     return J * exp(
-        1 - J + q * (1 - log(s) - dot(tau, theta / s) - 5 * (1 - J / L + log(J / L)))
+        1 - J + q * (1 - ln(s) - dot(tau, theta / s) - 5 * (1 - J / L + ln(J / L)))
     )

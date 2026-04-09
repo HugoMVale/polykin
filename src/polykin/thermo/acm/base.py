@@ -5,7 +5,8 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
-from numpy import dot, exp, log
+from numpy import dot, exp
+from numpy import log as ln
 
 from polykin.constants import R
 from polykin.math import derivative_complex
@@ -46,7 +47,7 @@ class ACM(ABC):
             Molar entropy of mixing [J/(mol·K)].
         """
         p = x > 0
-        return -R * dot(x[p], log(x[p]))
+        return -R * dot(x[p], ln(x[p]))
 
 
 class MolecularACM(ACM):

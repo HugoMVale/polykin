@@ -5,12 +5,12 @@
 import functools
 
 import numpy as np
-from numpy import dot, exp, log
+from numpy import dot, exp
+from numpy import log as ln
 
 from polykin.constants import gas_constant as R
-from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
-from polykin.utils.tools import check_bounds
+from polykin.utils.tools import check_bounds, check_shape
 from polykin.utils.typing import FloatSquareMatrix, FloatVector, override
 
 from .base import MolecularACM
@@ -111,11 +111,12 @@ class NRTL(MolecularACM):
             f = np.zeros((N, N))
 
         # Check shapes
-        for array in [a, b, c, d, e, f]:
-            if array.shape != (N, N):
-                raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}."
-                )
+        check_shape(a, (N, N), "a")
+        check_shape(b, (N, N), "b")
+        check_shape(c, (N, N), "c")
+        check_shape(d, (N, N), "d")
+        check_shape(e, (N, N), "e")
+        check_shape(f, (N, N), "f")
 
         # Check bounds (same as Aspen Plus)
         check_bounds(a, -1e2, 1e2, "a")
@@ -174,7 +175,7 @@ class NRTL(MolecularACM):
         FloatSquareMatrix (N,N)
             Interaction parameters.
         """
-        return self._a + self._b / T + self._e * log(T) + self._f * T
+        return self._a + self._b / T + self._e * ln(T) + self._f * T
 
     def gE(self, T: float, x: FloatVector) -> float:
         tau = self.tau(T)
