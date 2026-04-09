@@ -24,7 +24,7 @@ class IdealSolution(MolecularACM):
     N : int
         Number of components.
     name : str
-        Name.
+        Name of the model instance.
     """
 
     def __init__(self, N: int, name: str = "") -> None:

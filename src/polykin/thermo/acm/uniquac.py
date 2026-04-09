@@ -77,7 +77,7 @@ class UNIQUAC(MolecularACM):
     d : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters [1/K], by default 0.
     name : str
-        Name.
+        Name of the model instance.
 
     See Also
     --------
