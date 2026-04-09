@@ -254,6 +254,38 @@ def check_in_set(
         )
 
 
+def check_shape(
+    array: np.ndarray,
+    expected_shape: tuple[int, ...],
+    array_name: str,
+) -> None:
+    """Check if a NumPy array has the expected shape.
+
+    Parameters
+    ----------
+    array : np.ndarray
+        Array to check.
+    expected_shape : tuple[int, ...]
+        Expected shape of the array.
+    array_name : str
+        Variable name.
+
+    Returns
+    -------
+    None
+
+    Examples
+    --------
+    >>> check_shape(np.array([1, 2, 3]), (3,), 'a')
+    >>> check_shape(np.array([[1, 2], [3, 4]]), (2, 2), 'a')
+    >>> check_shape(np.array([1, 2]), (3,), 'a') # ShapeError
+    """
+    if array.shape != expected_shape:
+        raise ShapeError(
+            f"Array `{array_name}` has shape {array.shape}, but expected shape is {expected_shape}."  # noqa: E501
+        )
+
+
 def check_shapes(
     a: list[float | np.ndarray],
     b: list[float | np.ndarray] | None = None,
