@@ -7,5 +7,6 @@
 from .floryhuggins import *
 from .ideal import *
 from .nrtl import *
+from .scatchard import *
 from .uniquac import *
 from .wilson import *
