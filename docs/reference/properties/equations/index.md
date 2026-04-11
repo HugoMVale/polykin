@@ -1,8 +1,8 @@
 # polykin.properties.equations
 
-::: polykin.properties.equations
-
 [:simple-jupyter: Tutorial](../../../tutorials/physprop_equations){ .md-button }
+
+::: polykin.properties.equations
 
 ::: polykin.properties.equations.vapor_pressure
     options:
