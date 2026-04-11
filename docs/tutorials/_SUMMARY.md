@@ -4,6 +4,7 @@
 * [Copolymerization Fit](copolymerization_fit.ipynb)
 * [Diffusion Coefficients](diffusion_coefficients.ipynb)
 * [Distributions](distributions.ipynb)
+* [Equations of State](equations_of_state.ipynb)
 * [Kinetic Coefficients](kinetic_coefficients.ipynb)
 * [Physical Property Equations](physprop_equations.ipynb)
 * [Thermal Conductivity](thermal_conductivity.ipynb)
