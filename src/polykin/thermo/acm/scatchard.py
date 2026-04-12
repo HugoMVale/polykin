@@ -111,8 +111,8 @@ def ScatchardHildebrand_gamma(
     with:
 
     \begin{aligned}
-    \phi_i       &= \frac{x_i v_i}{\sum_j x_j v_j}
-    \bar{\delta} &= \sum_j \phi_j \delta_j \\
+    \phi_i       &= \frac{x_i v_i}{\sum_j x_j v_j} \\
+    \bar{\delta} &= \sum_j \phi_j \delta_j
     \end{aligned}
 
     where $x_i$ are the mole fractions, $\delta_{i}$ are the solubility parameters, and
