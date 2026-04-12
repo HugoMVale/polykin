@@ -3,10 +3,9 @@
 # Copyright Hugo Vale 2023
 
 import numpy as np
-from numpy import log
-from scipy.constants import R
 
-from polykin.utils.types import FloatVector
+from polykin.constants import R
+from polykin.utils.typing import FloatVector, override
 
 from .base import GasEoS
 
@@ -16,12 +15,9 @@ __all__ = ["IdealGas"]
 class IdealGas(GasEoS):
     r"""Ideal gas equation of state.
 
-    This EoS is based on the following $P(v,T)$ relationship:
+    This EoS is based on the following trivial $Z(T,P)$ relationship:
 
-    $$ P = \frac{R T}{v} $$
-
-    where $P$ is the pressure, $T$ is the temperature, and $v$ is the molar
-    volume.
+    $$ Z = 1 $$
 
     Parameters
     ----------
@@ -40,6 +36,15 @@ class IdealGas(GasEoS):
 
         $$ Z = 1 $$
 
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
         Returns
         -------
         float
@@ -47,8 +52,33 @@ class IdealGas(GasEoS):
         """
         return 1.0
 
+    @override
+    def gR(self, T=None, P=None, y=None) -> float:
+        """Calculate the molar residual Gibbs energy of the fluid.
+
+        $$ g^R = 0 $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Molar residual Gibbs energy [J/mol].
+        """
+        return 0.0
+
+    @override
     def P(self, T: float, v: float, y=None) -> float:
         r"""Calculate the pressure of the fluid.
+
+        $$ P = \frac{R T}{v} $$
 
         Parameters
         ----------
@@ -56,6 +86,8 @@ class IdealGas(GasEoS):
             Temperature [K].
         v : float
             Molar volume [m³/mol].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
@@ -64,10 +96,20 @@ class IdealGas(GasEoS):
         """
         return R * T / v
 
+    @override
     def phi(self, T=None, P=None, y=None) -> FloatVector:
         r"""Calculate the fugacity coefficients of all components.
 
         $$ \hat{\phi}_i = 1 $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
@@ -76,32 +118,50 @@ class IdealGas(GasEoS):
         """
         return np.ones(self.N)
 
-    def DA(
-        self,
-        T: float,
-        V: float,
-        n: FloatVector,
-        v0: float,
-    ) -> float:
-        r"""Calculate the departure of Helmholtz energy.
+    @override
+    def beta(self, T: float, P=None, y=None) -> float:
+        r"""Calculate the thermal expansion coefficient.
 
-        $$ A(T,V,n) - A^{\circ}(T,V,n)$$
+        $$ \beta \equiv
+           \frac{1}{v} \left( \frac{\partial v}{\partial T} \right)_P
+           = \frac{1}{T} $$
 
         Parameters
         ----------
         T : float
             Temperature [K].
-        V : float
-            Volume [m³].
-        n : FloatVector (N)
-            Mole amounts of all components [mol].
-        v0 : float
-            Molar volume in reference state [m³/mol].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
 
         Returns
         -------
         float
-            Helmholtz energy departure, $A - A^{\circ}$ [J].
+            Thermal expansion coefficient, $\beta$ [K⁻¹].
         """
-        nT = n.sum()
-        return -nT * R * T * log(V / (nT * v0))
+        return 1 / T
+
+    @override
+    def kappa(self, T: float, P: float, y=None) -> float:
+        r"""Calculate the isothermal compressibility coefficient.
+
+        $$ \kappa \equiv
+           - \frac{1}{v} \left( \frac{\partial v}{\partial P} \right)_T
+           = \frac{1}{P} $$
+
+        Parameters
+        ----------
+        T : float
+            Temperature [K].
+        P : float
+            Pressure [Pa].
+        y : FloatVector (N)
+            Mole fractions of all components [mol/mol].
+
+        Returns
+        -------
+        float
+            Isothermal compressibility coefficient, $\kappa$ [Pa⁻¹].
+        """
+        return 1 / P

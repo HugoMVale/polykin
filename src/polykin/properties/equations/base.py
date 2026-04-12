@@ -19,7 +19,7 @@ from polykin.utils.tools import (
     check_valid_range,
     convert_check_temperature,
 )
-from polykin.utils.types import FloatArray, FloatArrayLike, FloatVectorLike
+from polykin.utils.typing import FloatArray, FloatArrayLike, FloatVectorLike
 
 __all__ = ["plotequations"]
 

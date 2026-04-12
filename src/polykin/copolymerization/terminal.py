@@ -18,7 +18,7 @@ from polykin.kinetics import Arrhenius
 from polykin.math import root_brent
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
 from polykin.utils.tools import check_bounds, check_in_set, custom_repr
-from polykin.utils.types import (
+from polykin.utils.typing import (
     FloatArray,
     FloatArrayLike,
     FloatVectorLike,
@@ -33,7 +33,6 @@ __all__ = ["TerminalModel"]
 
 
 class CopoModel(ABC):
-
     k1: Arrhenius | None
     k2: Arrhenius | None
     M1: str
@@ -315,7 +314,6 @@ class CopoModel(ABC):
                 show = "all"
 
         if kind == "Mayo":
-
             ax.set_xlabel(rf"$f_{M}$")
             ax.set_ylabel(rf"$F_{M}$")
             ax.set_xlim(*unit_range)
@@ -341,14 +339,12 @@ class CopoModel(ABC):
                     ax.scatter(x, y, label=ds.name if ds.name else None)
 
         elif kind == "drift":
-
             ax.set_xlabel(r"Total molar monomer conversion, $x$")
             ax.set_ylabel(rf"$f_{M}$")
             ax.set_xlim(*unit_range)
             ax.set_ylim(*unit_range)
 
             if show == "model":
-
                 if f0 is None:
                     raise ValueError("`f0` is required for a `drift` plot.")
                 else:
@@ -369,7 +365,6 @@ class CopoModel(ABC):
                     ax.plot(x, y[i, :], label=label_model)
 
             if show in {"data", "all"}:
-
                 for ds in self.data:
                     if not isinstance(ds, DriftDataset):
                         continue
@@ -386,13 +381,11 @@ class CopoModel(ABC):
                         ax.plot(x, y, label=label_model)
 
         elif kind == "kp":
-
             ax.set_xlabel(rf"$f_{M}$")
             ax.set_ylabel(r"$\bar{k}_p$")
             ax.set_xlim(*unit_range)
 
             if show == "model":
-
                 if T is None:
                     raise ValueError("`T` is required for a `kp` plot.")
 
@@ -403,7 +396,6 @@ class CopoModel(ABC):
                 ax.plot(x, y, label=label_model)
 
             if show in {"data", "all"}:
-
                 for ds in self.data:
                     if not isinstance(ds, kpDataset):
                         continue
@@ -759,9 +751,7 @@ class TerminalModel(CopoModel):
         P22 = P["22"]
 
         if k is None:
-            result = {
-                str(i + 1): 1.0 / (1.0 - P + eps) for i, P in enumerate([P11, P22])
-            }
+            result = {str(i + 1): 1.0 / (1.0 - P + eps) for i, P in enumerate([P11, P22])}
         else:
             if isinstance(k, (list, tuple)):
                 k = np.asarray(k, dtype=np.int_)

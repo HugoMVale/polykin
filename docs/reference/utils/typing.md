@@ -1,6 +1,6 @@
-# Types (polykin.utils.types)
+# Types (polykin.utils.typing)
 
-::: polykin.utils.types
+::: polykin.utils.typing
     options:
         members:
             - FloatArray

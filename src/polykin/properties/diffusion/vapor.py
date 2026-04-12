@@ -5,9 +5,12 @@
 import numpy as np
 from numpy import exp, sqrt
 
-from polykin.utils.types import FloatVectorLike
+from polykin.utils.typing import FloatVectorLike
 
-__all__ = ["DV_Wilke_Lee", "DVMX"]
+__all__ = [
+    "DV_Wilke_Lee",
+    "DVMX",
+]
 
 
 def DV_Wilke_Lee(

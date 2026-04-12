@@ -5,7 +5,7 @@
 import numpy as np
 
 from polykin.properties import quadratic_mixing
-from polykin.utils.types import FloatVectorLike
+from polykin.utils.typing import FloatVectorLike
 
 __all__ = ["KLMX2_Li"]
 

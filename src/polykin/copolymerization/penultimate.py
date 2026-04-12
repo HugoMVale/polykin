@@ -11,7 +11,7 @@ import numpy as np
 from polykin.kinetics import Arrhenius
 from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatArray, FloatArrayLike, IntArrayLike
+from polykin.utils.typing import FloatArray, FloatArrayLike, IntArrayLike
 
 from .terminal import CopoModel, TerminalModel
 

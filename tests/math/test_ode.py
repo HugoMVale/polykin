@@ -25,8 +25,8 @@ def test_ode_rk():
         return c * exp(t) - t**2 - 2 * t - 2
 
     for h, order in zip([1e-5, 1e-2, 1e-1], [1, 2, 4]):
-        yf = ode_rk(ydot, t0, tf, y0, h, order)  # type: ignore
+        yf = ode_rk(ydot, t0, tf, y0, h, order=order)  # type: ignore
         assert isclose(yf, ysol(tf), rtol=1e-4)
 
     with pytest.raises(ValueError):
-        _ = ode_rk(ydot, 0.0, 1.0, 1.0, 1e-5, 5)  # type: ignore
+        _ = ode_rk(ydot, 0.0, 1.0, 1.0, 1e-5, order=5)  # type: ignore

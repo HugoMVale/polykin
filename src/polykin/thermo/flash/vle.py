@@ -5,23 +5,25 @@ import numpy as np
 from numpy import dot, exp, log
 
 from polykin.math import root_brent, root_newton
+from polykin.properties.vaporization.pvap import PL_Wilson
 from polykin.utils.math import eps
 from polykin.utils.tools import colored_bool
-from polykin.utils.types import FloatVector
+from polykin.utils.typing import FloatVector
 
 __all__ = [
-    "FlashResult",
+    "Flash2Result",
     "flash2_PV",
     "flash2_PT",
     "flash2_TV",
+    "K_Wilson",
     "residual_Rachford_Rice",
     "solve_Rachford_Rice",
 ]
 
 
-@dataclass(frozen=True)
-class FlashResult:
-    """Flash result dataclass.
+@dataclass(frozen=True, slots=True)
+class Flash2Result:
+    """2-phase flash result dataclass.
 
     Attributes
     ----------
@@ -100,7 +102,7 @@ def flash2_PT(
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
     alpha_outer: float = 1.0,
-) -> FlashResult:
+) -> Flash2Result:
     r"""Solve a 2-phase flash problem at given pressure and temperature.
 
     **References**
@@ -137,7 +139,7 @@ def flash2_PT(
 
     Returns
     -------
-    FlashResult
+    Flash2Result
         Flash result.
     """
     method = "2-Phase PT Flash"
@@ -152,9 +154,8 @@ def flash2_PT(
     beta = np.clip(beta0, 0.0, 1.0) if beta0 is not None else np.nan
 
     for _ in range(maxiter):
-
         # Find beta
-        sol = solve_Rachford_Rice(K, z, beta, maxiter=maxiter, atol_res=atol_inner)
+        sol = solve_Rachford_Rice(K, z, beta, maxiter=maxiter, atol=atol_inner)
         beta = sol.beta
         if not sol.success:
             message = f"Inner Rachford-Rice loop did not converge after {maxiter} iterations. Solution: {sol}."
@@ -186,7 +187,7 @@ def flash2_PT(
     V = F * beta
     L = F - V
 
-    return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
+    return Flash2Result(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
 def flash2_PV(
@@ -202,7 +203,7 @@ def flash2_PV(
     maxiter: int = 50,
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
-) -> FlashResult:
+) -> Flash2Result:
     r"""Solve a 2-phase flash problem at given pressure and vapor fraction.
 
     **References**
@@ -238,7 +239,7 @@ def flash2_PV(
 
     Returns
     -------
-    FlashResult
+    Flash2Result
         Flash result.
     """
     method = "2-Phase PV Flash"
@@ -263,7 +264,6 @@ def flash2_PV(
 
     # Outer loop
     for _ in range(maxiter):
-
         v_old = np.concatenate((u, [A]))
 
         # Inner R-loop
@@ -313,7 +313,7 @@ def flash2_PV(
     V = F * beta
     L = F - V
 
-    return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
+    return Flash2Result(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
 def flash2_TV(
@@ -329,7 +329,7 @@ def flash2_TV(
     maxiter: int = 50,
     atol_inner: float = 1e-9,
     rtol_outer: float = 1e-6,
-) -> FlashResult:
+) -> Flash2Result:
     r"""Solve a 2-phase flash problem at given temperature and vapor fraction.
 
     **References**
@@ -365,7 +365,7 @@ def flash2_TV(
 
     Returns
     -------
-    FlashResult
+    Flash2Result
         Flash result.
     """
     method = "2-Phase TV Flash"
@@ -390,7 +390,6 @@ def flash2_TV(
 
     # Outer loop
     for _ in range(maxiter):
-
         v_old = np.concatenate((u, [A]))
 
         # Inner R-loop
@@ -431,7 +430,9 @@ def flash2_TV(
         if sol.success:
             P = sol.x
         else:
-            message = f"Pressure did not converge after {maxiter} iterations. Solution: {sol}."
+            message = (
+                f"Pressure did not converge after {maxiter} iterations. Solution: {sol}."
+            )
             break
 
         # Update u, A, K
@@ -452,10 +453,10 @@ def flash2_TV(
     V = F * beta
     L = F - V
 
-    return FlashResult(method, success, message, T, P, F, L, V, beta, z, x, y, K)
+    return Flash2Result(method, success, message, T, P, F, L, V, beta, z, x, y, K)
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class RachfordRiceResult:
     """Rachford-Rice result dataclass."""
 
@@ -471,7 +472,7 @@ def solve_Rachford_Rice(
     beta0: float,
     *,
     maxiter: int = 50,
-    atol_res: float = 1e-9,
+    atol: float = 1e-9,
 ) -> RachfordRiceResult:
     r"""Solve the Rachford-Rice flash residual equation.
 
@@ -495,7 +496,7 @@ def solve_Rachford_Rice(
         guess is automatically computed.
     maxiter : int
         Maximum number of iterations.
-    atol_res : float
+    atol : float
         Absolute tolerance for residual.
 
     Returns
@@ -532,12 +533,13 @@ def solve_Rachford_Rice(
 
     # Iteration loop
     success = False
+    F = np.nan
+    iter = 0
     for iter in range(maxiter):
-
         F, dF = residual_Rachford_Rice(beta, K, z, derivative=True)
 
         # Check convergence
-        if abs(F) <= atol_res:
+        if abs(F) <= atol:
             success = True
             break
 
@@ -562,7 +564,7 @@ def residual_Rachford_Rice(
     K: FloatVector,
     z: FloatVector,
     derivative: bool = False,
-) -> tuple[float, ...]:
+) -> tuple[float, float]:
     r"""Rachford-Rice flash residual function and its derivative.
 
     The residual function is defined as:
@@ -596,7 +598,7 @@ def residual_Rachford_Rice(
 
     Returns
     -------
-    tuple[float, ...]
+    tuple[float, float]
         Tuple with residual and derivative, `(F, dF)`.
 
     See Also
@@ -606,11 +608,12 @@ def residual_Rachford_Rice(
     """
     F = np.sum(z * (K - 1) / (1 + beta * (K - 1)))
 
-    if not derivative:
-        return (F,)
-    else:
+    if derivative:
         dF = -np.sum(z * (K - 1) ** 2 / (1 + beta * (K - 1)) ** 2)
-        return (F, dF)
+    else:
+        dF = np.nan
+
+    return (F, dF)
 
 
 def _Rloop(
@@ -730,3 +733,39 @@ def _parameters_TV(
         return u, Kb, A, B
     else:
         return u, A, K
+
+
+def K_Wilson(
+    T: float,
+    P: float,
+    Tc: float,
+    Pc: float,
+    w: float,
+) -> float:
+    r"""Estimate the K-value of a component in a mixture using the Wilson approximation.
+
+    $$ K = \frac{P_c}{P}
+       \exp \left(5.373 (1 + \omega) \left(1 - \frac{T_c}{T}\right) \right) $$
+
+    This specific $K$-value correlation was developed as a "shortcut" method for providing
+    initial guesses in flash calculations.
+
+    **References**
+
+    *  Wilson, G. M. A Modified Redlich-Kwong Equation of State: Application to General
+       Physical Data Calculation. AIChE Natl. Meet., Cleveland, 1969.
+
+    Parameters
+    ----------
+    T : float
+        Temperature [K].
+    P : float
+        Pressure [Pa].
+    Tc : float
+        Critical temperature [K].
+    Pc : float
+        Critical pressure [Pa].
+    w : float
+        Acentric factor.
+    """
+    return PL_Wilson(T, Tc, Pc, w) / P

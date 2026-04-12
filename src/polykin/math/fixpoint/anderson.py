@@ -9,7 +9,7 @@ import scipy
 
 from polykin.math import scalex
 from polykin.math.roots import VectorRootResult
-from polykin.utils.types import FloatVector
+from polykin.utils.typing import FloatVector
 
 __all__ = [
     "fixpoint_anderson",
@@ -117,7 +117,6 @@ def fixpoint_anderson(
     fx = f0
 
     for k in range(1, maxiter):
-
         mk = min(m, k)
 
         ΔG[:-1, :] = ΔG[1:, :]
@@ -139,7 +138,6 @@ def fixpoint_anderson(
             break
 
         try:
-
             if k == 1:
                 Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
             if k > m:

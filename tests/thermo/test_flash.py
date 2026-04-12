@@ -4,6 +4,7 @@ from numpy import allclose, isclose
 from polykin.properties.equations import Antoine
 from polykin.thermo.acm import UNIQUAC
 from polykin.thermo.flash.vle import (
+    K_Wilson,
     flash2_PT,
     flash2_PV,
     flash2_TV,
@@ -50,18 +51,18 @@ def test_flash_residual():
     # Subcooled feed
     z = np.array([0.5, 0.25, 0.25])
     K = np.array([0.2, 0.75, 0.99])
-    (F,) = residual_Rachford_Rice(0.0, K, z)
+    F = residual_Rachford_Rice(0.0, K, z)[0]
     assert F < 0.0
     # Superheated feed
     K = np.array([1.5, 2.0, 5.0])
-    (F,) = residual_Rachford_Rice(1.0, K, z)
+    F = residual_Rachford_Rice(1.0, K, z)[0]
     assert F > 0.0
     # Saturated feed: Seader, Example 4.1
     z = np.array([0.1, 0.2, 0.3, 0.4])
     K = np.array([4.2, 1.75, 0.74, 0.34])
-    (F,) = residual_Rachford_Rice(0.0, K, z)
+    F = residual_Rachford_Rice(0.0, K, z)[0]
     assert isclose(F, 0.128, atol=1e-3)
-    (F,) = residual_Rachford_Rice(1.0, K, z)
+    F = residual_Rachford_Rice(1.0, K, z)[0]
     assert isclose(F, -0.720, atol=1e-3)
     F, dF = residual_Rachford_Rice(0.5, K, z, derivative=True)
     assert isclose(F, -0.2515, atol=1e-4)
@@ -165,3 +166,12 @@ def test_flash2_TV_dew():
 
     assert isclose(sol.P, 0.6e5, rtol=1e-3)
     assert allclose(sol.x, [0.5, 0.5], rtol=1e-5)
+
+
+def test_K_Wilson():
+    Tb = 418.3
+    Tc = 647.0
+    Pc = 39.9e5
+    w = 0.257
+    assert isclose(K_Wilson(Tc, Pc, Tc, Pc, w), 1)
+    assert isclose(K_Wilson(Tb, 101325, Tc, Pc, w), 1, rtol=5e-2)

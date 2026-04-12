@@ -130,13 +130,13 @@ markdown_extensions:
 
 extra_javascript:
   - javascripts/katex.js
-  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.js
-  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/contrib/auto-render.min.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
 
 extra_css:
+  - https://unpkg.com/katex@0/dist/katex.min.css
   - css/mkdocstrings.css
-  - https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.7/katex.min.css
-
+  
 # Customization
 extra:
   analytics:
@@ -202,4 +202,4 @@ nav:
       - Utils:
           - reference/utils/index.md
           - Exceptions: reference/utils/exceptions.md
-          - Types: reference/utils/types.md
+          - Typing: reference/utils/typing.md

@@ -16,7 +16,7 @@ __all__ = [
 ]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class PRVResult:
     """Dataclass for pressure relief device results.
 
@@ -225,7 +225,6 @@ def area_relief_liquid(
     converged = False
     MAX_ITER = 50
     for i in range(MAX_ITER):
-
         if i == 0:
             Kv = 1.0
         else:

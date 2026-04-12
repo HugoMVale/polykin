@@ -10,7 +10,7 @@ from scipy.integrate import solve_ivp
 
 from polykin.utils.exceptions import ODESolverError, ShapeError
 from polykin.utils.math import eps
-from polykin.utils.types import (
+from polykin.utils.typing import (
     FloatArray,
     FloatArrayLike,
     FloatMatrix,

@@ -19,7 +19,7 @@ from typing import Any
 import numpy as np
 
 from .tools import check_shapes
-from .types import (
+from .typing import (
     FloatOrArray,
     FloatOrArrayLike,
     FloatOrVector,

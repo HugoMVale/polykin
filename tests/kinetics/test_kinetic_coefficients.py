@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy import allclose, isclose
 
-from polykin.kinetics import (
+from polykin.kinetics.coefficients import (
     Arrhenius,
     Eyring,
     PropagationHalfLength,

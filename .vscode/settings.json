@@ -1,7 +1,23 @@
 {
-    "python.testing.pytestArgs": [
-        "tests"
+    "ruff.path": [
+        "uv",
+        "run",
+        "--frozen",
+        "ruff"
     ],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "[python]": {
+        "editor.rulers": [
+            90
+        ],
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports": "never",
+            "source.organizeImports.ruff": "never"
+        }
+    }
 }

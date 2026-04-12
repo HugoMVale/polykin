@@ -10,15 +10,15 @@ import numpy as np
 from matplotlib.axes._axes import Axes
 from matplotlib.figure import Figure
 from numpy import exp
-from scipy.constants import R as Rgas
 
+from polykin.constants import R
 from polykin.utils.tools import (
     check_bounds,
     check_in_set,
     check_valid_range,
     convert_check_temperature,
 )
-from polykin.utils.types import FloatArray, FloatArrayLike
+from polykin.utils.typing import FloatArray, FloatArrayLike
 
 __all__ = ["VrentasDudaBinary"]
 
@@ -271,7 +271,7 @@ class VrentasDudaBinary:
         w2 = 1 - w1
         D1 = (
             D0
-            * exp(-E / (Rgas * T))
+            * exp(-E / (R * T))
             * exp(
                 -(w1 * V1star + w2 * z * V2star)
                 / (w1 * (K11 / y) * (K21 - Tg1 + T) + w2 * (K12 / y) * (K22 - Tg2 + T))

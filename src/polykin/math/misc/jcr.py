@@ -16,7 +16,7 @@ from polykin.math.roots import RootResult, root_secant
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import eps
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import Float2x2Matrix, FloatVector
+from polykin.utils.typing import Float2x2Matrix, FloatVector
 
 __all__ = ["confidence_ellipse", "confidence_region"]
 

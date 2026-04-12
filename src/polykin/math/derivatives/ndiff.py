@@ -8,7 +8,7 @@ import numpy as np
 from numpy import cbrt
 
 from polykin.utils.math import eps
-from polykin.utils.types import (
+from polykin.utils.typing import (
     Float2x2Matrix,
     FloatArray,
     FloatMatrix,
@@ -237,7 +237,7 @@ def hessian_forward(
     x : FloatVector
         Differentiation point.
     fx : float | None
-        Function values at `x`, if available.
+        Function value at `x`, if available.
     sclx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
         default, the factors are set internally based on the magnitudes of `x`.

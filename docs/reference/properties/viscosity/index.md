@@ -1,5 +1,9 @@
 # Viscosity (polykin.properties.viscosity)
 
+[:simple-jupyter: Tutorial](../../../tutorials/viscosity){ .md-button }
+
+## Overview
+
 This module implements methods to calculate the viscosity of pure gases, gas
 mixtures, and liquid mixtures.
 
@@ -14,8 +18,6 @@ mixtures, and liquid mixtures.
 
     Estimation methods for liquids are not included, as none of those reported in the
     literature are considered sufficiently reliable.
-
-[:simple-jupyter: Tutorial](../../../tutorials/viscosity){ .md-button }
 
 [DIPPR101]: ../equations/index.md#polykin.properties.equations.dippr.DIPPR101
 [DIPPR102]: ../equations/index.md#polykin.properties.equations.dippr.DIPPR102

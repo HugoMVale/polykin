@@ -2,7 +2,7 @@
 name = "polykin"
 version = "0.6.0"
 license = { file = "LICENSE" }
-description = "A polymerization kinetics library."
+description = "A Python library for polymerization kinetics and related chemical engineering calculations."
 readme = "README.md"
 keywords = ["polymer", "polymerization", "kinetics", "reaction"]
 classifiers = [
@@ -24,21 +24,22 @@ dependencies = [
     "pandas>=2.2.2",
     "pydantic>=2.10.2",
     "scipy>=1.13.1",
+    "typing_extensions>=4.7; python_version < '3.12'",
 ]
 
 [dependency-groups]
 dev = [
-    "black>=25.11.0",
+    "pre-commit>=3.7.0",
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.14.9",
 ]
 docs = [
-    "black>=24.10.0",
+    "black>=26.1.0",
     "griffe-inherited-docstrings>=1.1.1",
     "markdown-exec>=1.9.3",
-    "mkdocs>=1.6.1",
+    "mkdocs<2.0",
     "mkdocs-autolinks-plugin>=0.7.1",
     "mkdocs-jupyter>=0.25.1",
     "mkdocs-literate-nav>=0.6.1",
@@ -61,14 +62,15 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "D", "NPY201"]
-ignore = ["D100", "D104", "D205", "F403"]
+ignore = ["D100", "D104", "D205", "E502", "F403"]
+unfixable = ["F401"]
 pydocstyle = { convention = 'numpy' }
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["D103"]
 
-[tool.back]
-line-length = 90
+[tool.ruff.format]
+line-ending = "auto"
 
 [build-system]
 requires = ["hatchling"]

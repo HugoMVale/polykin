@@ -5,20 +5,20 @@
 import functools
 
 import numpy as np
-from numpy import dot, exp, log
-from scipy.constants import gas_constant as R
+from numpy import dot, exp
+from numpy import log as ln
 
-from polykin.utils.exceptions import ShapeError
+from polykin.constants import gas_constant as R
 from polykin.utils.math import enforce_symmetry
-from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatSquareMatrix, FloatVector
+from polykin.utils.tools import check_bounds, check_shape
+from polykin.utils.typing import FloatSquareMatrix, FloatVector, override
 
-from .base import SmallSpeciesActivityModel
+from .base import MolecularACM
 
 __all__ = ["NRTL", "NRTL_gamma"]
 
 
-class NRTL(SmallSpeciesActivityModel):
+class NRTL(MolecularACM):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     multicomponent activity coefficient model.
 
@@ -70,7 +70,7 @@ class NRTL(SmallSpeciesActivityModel):
     f : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters [1/K], by default 0.
     name: str
-        Name.
+        Name of the model instance.
 
     See Also
     --------
@@ -111,11 +111,12 @@ class NRTL(SmallSpeciesActivityModel):
             f = np.zeros((N, N))
 
         # Check shapes
-        for array in [a, b, c, d, e, f]:
-            if array.shape != (N, N):
-                raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}."
-                )
+        check_shape(a, (N, N), "a")
+        check_shape(b, (N, N), "b")
+        check_shape(c, (N, N), "c")
+        check_shape(d, (N, N), "d")
+        check_shape(e, (N, N), "e")
+        check_shape(f, (N, N), "f")
 
         # Check bounds (same as Aspen Plus)
         check_bounds(a, -1e2, 1e2, "a")
@@ -142,7 +143,7 @@ class NRTL(SmallSpeciesActivityModel):
 
     @functools.cache
     def alpha(self, T: float) -> FloatSquareMatrix:
-        r"""Compute matrix of non-randomness parameters.
+        r"""Calculate the matrix of non-randomness parameters.
 
         $$ \alpha_{ij} = c_{ij} + d_{ij}(T - 273.15) $$
 
@@ -160,7 +161,7 @@ class NRTL(SmallSpeciesActivityModel):
 
     @functools.cache
     def tau(self, T: float) -> FloatSquareMatrix:
-        r"""Compute the matrix of interaction parameters.
+        r"""Calculate the matrix of interaction parameters.
 
         $$ \tau_{ij} = a_{ij} + b_{ij}/T + e_{ij} \ln{T} + f_{ij} T $$
 
@@ -174,7 +175,7 @@ class NRTL(SmallSpeciesActivityModel):
         FloatSquareMatrix (N,N)
             Interaction parameters.
         """
-        return self._a + self._b / T + self._e * log(T) + self._f * T
+        return self._a + self._b / T + self._e * ln(T) + self._f * T
 
     def gE(self, T: float, x: FloatVector) -> float:
         tau = self.tau(T)
@@ -184,6 +185,7 @@ class NRTL(SmallSpeciesActivityModel):
         B = dot(x, G)
         return R * T * dot(x, A / B)
 
+    @override
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return NRTL_gamma(x, self.tau(T), self.alpha(T))
 

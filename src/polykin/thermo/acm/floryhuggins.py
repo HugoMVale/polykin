@@ -5,14 +5,14 @@
 import functools
 
 import numpy as np
-from numpy import dot, exp, log
-from scipy.constants import gas_constant as R
+from numpy import dot, exp
+from numpy import log as ln
 
+from polykin.constants import R
 from polykin.math import derivative_complex
-from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
-from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatArray, FloatSquareMatrix, FloatVector, Number
+from polykin.utils.tools import check_bounds, check_shape
+from polykin.utils.typing import FloatArray, FloatSquareMatrix, FloatVector, Number
 
 # from .base import ActivityCoefficientModel
 
@@ -100,11 +100,11 @@ class FloryHuggins:
             e = np.zeros((N, N))
 
         # Check shapes
-        for array in [a, b, c, d, e]:
-            if array.shape != (N, N):
-                raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}."
-                )
+        check_shape(a, (N, N), "a")
+        check_shape(b, (N, N), "b")
+        check_shape(c, (N, N), "c")
+        check_shape(d, (N, N), "d")
+        check_shape(e, (N, N), "e")
 
         # Check bounds (same as Aspen Plus)
         check_bounds(a, -1e2, 1e2, "a")
@@ -127,7 +127,7 @@ class FloryHuggins:
 
     @functools.cache
     def chi(self, T: float) -> FloatSquareMatrix:
-        r"""Compute the matrix of interaction parameters.
+        r"""Calculate the matrix of interaction parameters.
 
         $$
         \chi_{ij} = a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T + e_{ij} T^2
@@ -143,7 +143,7 @@ class FloryHuggins:
         FloatSquareMatrix (N,N)
             Matrix of interaction parameters.
         """
-        return self._a + self._b / T + self._c * log(T) + self._d * T + self._e * T**2
+        return self._a + self._b / T + self._c * ln(T) + self._d * T + self._e * T**2
 
     def Dgmix(
         self,
@@ -170,7 +170,7 @@ class FloryHuggins:
             Gibbs energy of mixing per mole of sites [J/mol].
         """
         p = phi > 0.0
-        gC = dot(phi[p] / m[p], log(phi[p]))
+        gC = dot(phi[p] / m[p], ln(phi[p]))
         gR = 0.5 * dot(phi, dot(phi, self.chi(T)))
         return R * T * (gC + gR)
 

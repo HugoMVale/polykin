@@ -8,7 +8,7 @@ from typing import Any, Literal
 
 from polykin.utils.math import convert_FloatOrVectorLike_to_FloatOrVector
 from polykin.utils.tools import check_shapes
-from polykin.utils.types import FloatVector, FloatVectorLike
+from polykin.utils.typing import FloatVector, FloatVectorLike
 
 __all__ = [
     "MayoDataset",
@@ -21,7 +21,6 @@ __all__ = [
 
 
 class CopoDataset(ABC):
-
     varmap: dict[str, str]
 
     def __init__(
@@ -178,9 +177,7 @@ class DriftDataset(CopoDataset):
         source: str = "",
     ) -> None:
         """Construct `DriftDataset` with the given parameters."""
-        super().__init__(
-            M1, M2, x, f1, sigma_x, sigma_f1, weight, T, Tunit, name, source
-        )
+        super().__init__(M1, M2, x, f1, sigma_x, sigma_f1, weight, T, Tunit, name, source)
 
 
 class kpDataset(CopoDataset):
@@ -238,7 +235,7 @@ class kpDataset(CopoDataset):
         )
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CopoDataset_Ff:
     """Dataclass for instantaneous copolymerization data of the form F(f)."""
 
@@ -250,7 +247,7 @@ class CopoDataset_Ff:
     weight: float = 1.0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CopoDataset_fx:
     """Dataclass for drift copolymerization data of the form f1(x)."""
 
@@ -263,7 +260,7 @@ class CopoDataset_fx:
     weight: float = 1.0
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class CopoDataset_Fx:
     """Dataclass for drift copolymerization data of the form F1(x)."""
 

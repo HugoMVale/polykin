@@ -5,8 +5,9 @@
 import numpy as np
 import pytest
 from numpy import allclose, isclose
-from scipy.constants import gas_constant as R
+from numpy import log as ln
 
+from polykin.constants import R
 from polykin.thermo.acm import (
     NRTL,
     UNIQUAC,
@@ -14,17 +15,23 @@ from polykin.thermo.acm import (
     FloryHuggins2_activity,
     FloryHuggins_activity,
     IdealSolution,
+    ScatchardHildebrand,
     Wilson,
 )
-from polykin.thermo.acm.base import SmallSpeciesActivityModel
+from polykin.thermo.acm.base import MolecularACM
 from polykin.utils.exceptions import ShapeError
 
 
-def check_gE_gamma(acm: SmallSpeciesActivityModel, x, T=298):
+def check_gE_gamma(acm: MolecularACM, x, T=298):
     """Check consistency or formulas for gE and gamma."""
+    gE = acm.gE(T, x)
     Dgmix = acm.Dgmix(T, x)
+    gamma = acm.gamma(T, x)
     a = acm.activity(T, x)
-    return isclose(Dgmix, R * T * np.sum(x * np.log(a)))
+    check1 = isclose(Dgmix, R * T * np.sum(x * ln(a)))
+    check2 = isclose(gE, R * T * np.sum(x * ln(gamma)))
+    check3 = allclose(gamma, MolecularACM.gamma(acm, T, x), rtol=1e-5)
+    return check1 and check2 and check3
 
 
 def test_IdealSolution():
@@ -35,6 +42,7 @@ def test_IdealSolution():
     assert isclose(acm.hE(T, x), 0.0)
     assert isclose(acm.sE(T, x), 0.0)
     assert allclose(acm.gamma(T, x), [1.0, 1.0])
+    assert check_gE_gamma(acm, x)
 
 
 def test_NRTL():
@@ -155,7 +163,7 @@ def test_FloryHuggins():
     acm = FloryHuggins(N, b=X * T)
     Dgmix = acm.Dgmix(T, phi, m)
     a = acm.activity(T, phi, m)
-    assert isclose(Dgmix, R * T * np.sum(phi / m * np.log(a)))
+    assert isclose(Dgmix, R * T * np.sum(phi / m * ln(a)))
 
 
 def test_Wilson():
@@ -180,3 +188,22 @@ def test_Wilson():
     # invalid shape
     with pytest.raises(ShapeError):
         _ = Wilson(2, a=np.zeros((2, 3)), b=np.zeros((2, 2)))
+
+
+def test_ScatchardHildebrand():
+    # cyclohexane: 0
+    # benzene: 1
+    N = 2
+    delta = [16.8, 18.8]  # (J/cm³)^(1/2)
+    v = [109.0, 89.0]  # cm³/mol
+    acm = ScatchardHildebrand(N, delta, v)
+    T = 298.15
+    assert allclose(acm.gamma(T, np.array([0.0, 1.0])), [1.192, 1.0], rtol=1e-2)
+    assert allclose(acm.gamma(T, np.array([1.0, 0.0])), [1.0, 1.154], rtol=1e-2)
+    assert isclose(acm.sE(T, np.array([0.5, 0.5])), 0.0)
+    assert check_gE_gamma(acm, x=np.array([0.4, 0.6]))
+    # invalid shape
+    with pytest.raises(ShapeError):
+        _ = ScatchardHildebrand(2, delta=[16.8], v=[109.0, 123.0])
+    with pytest.raises(ShapeError):
+        _ = ScatchardHildebrand(2, delta=[16.8, 12.0], v=[109.0])

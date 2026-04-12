@@ -9,7 +9,7 @@ from numpy import arctan, exp, inf, pi, sqrt, tan
 from scipy.special import erfc
 
 from polykin.math import root_newton
-from polykin.utils.types import FloatVector
+from polykin.utils.typing import FloatVector
 
 __all__ = [
     "ierfc",

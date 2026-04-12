@@ -6,19 +6,19 @@ import functools
 
 import numpy as np
 from numpy import dot, exp, log
-from scipy.constants import gas_constant as R
 
+from polykin.constants import R
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import enforce_symmetry
 from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatMatrix, FloatSquareMatrix, FloatVector
+from polykin.utils.typing import FloatMatrix, FloatSquareMatrix, FloatVector
 
-from .base import PolymerActivityModel
+from .base import PolymerACM
 
 __all__ = ["PolyNRTL", "PolyNRTL_a"]
 
 
-class PolyNRTL(PolymerActivityModel):
+class PolyNRTL(PolymerACM):
     r"""[NRTL](https://en.wikipedia.org/wiki/Non-random_two-liquid_model)
     multicomponent activity coefficient model.
 

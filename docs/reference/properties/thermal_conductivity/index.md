@@ -1,5 +1,9 @@
 # Thermal Conductivity (polykin.properties.thermal_conductivity)
 
+[:simple-jupyter: Tutorial](../../../tutorials/thermal_conductivity){ .md-button }
+
+## Overview
+
 This module implements methods to calculate the thermal conductivity of pure gases, gas
 mixtures, pure liquids, and liquid mixtures.
 
@@ -21,8 +25,6 @@ mixtures, pure liquids, and liquid mixtures.
     literature are considered sufficiently reliable. Nonetheless, below the normal boiling point,
     most organic liquids have thermal conductivities between 0.1 and 0.2 W /(m·K), which can be
     used as a first approximation.
-
-[:simple-jupyter: Tutorial](../../../tutorials/thermal_conductivity){ .md-button }
 
 [DIPPR100]: ../equations/index.md#polykin.properties.equations.dippr.DIPPR100
 [DIPPR102]: ../equations/index.md#polykin.properties.equations.dippr.DIPPR102

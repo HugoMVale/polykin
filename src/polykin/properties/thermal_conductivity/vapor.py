@@ -4,9 +4,9 @@
 
 import numpy as np
 from numpy import dot, exp, sqrt
-from scipy.constants import N_A, R
 
-from polykin.utils.types import FloatVectorLike
+from polykin.constants import NA, R
+from polykin.utils.typing import FloatVectorLike
 
 __all__ = [
     "KVPC_Stiel_Thodos",
@@ -68,7 +68,7 @@ def KVPC_Stiel_Thodos(
     >>> print(f"{k_residual:.2e} W/(m·K)")
     1.69e-02 W/(m·K)
     """
-    gamma = ((Tc * M**3 * N_A**2) / (R**5 * Pc**4)) ** (1 / 6)
+    gamma = ((Tc * M**3 * NA**2) / (R**5 * Pc**4)) ** (1 / 6)
     vc = Zc * R * Tc / Pc
     rhor = vc / v
 

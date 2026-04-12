@@ -8,10 +8,10 @@ Currently, methods are available for problems specified by $P$-$T$, $P$-$V$, and
 
 In all cases, the following system of equations is solved:
 
-$$\begin{aligned}
+\begin{aligned}
 F & = L + V \\
 F z_i &= L x_i + V y_i \\
 y_i &= K_i(T,P,x,y) x_i
-\end{aligned}$$
+\end{aligned}
 
 where $F$, $L$, and $V$ are the inlet feed, outlet liquid, and outlet vapor molar flow rates. The quantities $z_i$, $x_i$, and $y_i$ are the corresponding feed, liquid, and vapor mole fractions, and $K_i(T,P,x,y)$ are the K-values. These K-values may be obtained from an equation of state or from an activity-coefficient model.

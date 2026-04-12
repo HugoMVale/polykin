@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2025
 
-from polykin.utils.types import FloatArray
+from polykin.utils.typing import FloatArray
 
 __all__ = [
     "mu_PowerLaw",

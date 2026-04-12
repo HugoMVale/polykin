@@ -5,9 +5,9 @@
 
 import numpy as np
 from numpy import sqrt
-from scipy.constants import R
 
-from polykin.utils.types import (
+from polykin.constants import R
+from polykin.utils.typing import (
     FloatArray,
     FloatSquareMatrix,
     FloatVector,

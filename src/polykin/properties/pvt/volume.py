@@ -2,7 +2,7 @@
 #
 # Copyright Hugo Vale 2025
 
-from scipy.constants import R
+from polykin.constants import R
 
 __all__ = ["VL_Rackett"]
 

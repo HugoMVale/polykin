@@ -5,7 +5,7 @@
 import numpy as np
 from numpy import cbrt, dot, exp, log
 
-from polykin.utils.types import FloatVectorLike
+from polykin.utils.typing import FloatVectorLike
 
 __all__ = ["MULMX2_Perry"]
 

@@ -5,7 +5,8 @@
 from typing import Literal
 
 from numpy import pi, sqrt
-from scipy.constants import Boltzmann as kB
+
+from polykin.constants import kB
 
 __all__ = [
     "DL_Wilke_Chang",
@@ -88,9 +89,7 @@ def DL_Wilke_Chang(
     >>> print(f"{D:.1e} m²/s")
     1.3e-09 m²/s
     """
-    return (
-        7.4e-12 * sqrt(phi * MB * 1e3) * T / ((viscB * 1e3) * (1e6 * MA / rhoA) ** 0.6)
-    )
+    return 7.4e-12 * sqrt(phi * MB * 1e3) * T / ((viscB * 1e3) * (1e6 * MA / rhoA) ** 0.6)
 
 
 def DL_Hayduk_Minhas(

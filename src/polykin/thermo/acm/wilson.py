@@ -5,19 +5,19 @@
 import functools
 
 import numpy as np
-from numpy import dot, exp, log
-from scipy.constants import gas_constant as R
+from numpy import dot, exp
+from numpy import log as ln
 
-from polykin.utils.exceptions import ShapeError
-from polykin.utils.tools import check_bounds
-from polykin.utils.types import FloatSquareMatrix, FloatVector
+from polykin.constants import R
+from polykin.utils.tools import check_bounds, check_shape
+from polykin.utils.typing import FloatSquareMatrix, FloatVector, override
 
-from .base import SmallSpeciesActivityModel
+from .base import MolecularACM
 
 __all__ = ["Wilson", "Wilson_gamma"]
 
 
-class Wilson(SmallSpeciesActivityModel):
+class Wilson(MolecularACM):
     r"""Wilson multicomponent activity coefficient model.
 
     This model is based on the following molar excess Gibbs energy
@@ -54,7 +54,7 @@ class Wilson(SmallSpeciesActivityModel):
     d : FloatSquareMatrix (N,N) | None
         Matrix of interaction parameters [1/K], by default 0.
     name: str
-        Name.
+        Name of the model instance.
 
     See Also
     --------
@@ -89,11 +89,10 @@ class Wilson(SmallSpeciesActivityModel):
             d = np.zeros((N, N))
 
         # Check shapes
-        for array in [a, b, c, d]:
-            if array.shape != (N, N):
-                raise ShapeError(
-                    f"The shape of matrix {array} is invalid: {array.shape}."
-                )
+        check_shape(a, (N, N), "a")
+        check_shape(b, (N, N), "b")
+        check_shape(c, (N, N), "c")
+        check_shape(d, (N, N), "d")
 
         # Check bounds (same as Aspen Plus)
         check_bounds(a, -50.0, 50.0, "a")
@@ -111,7 +110,7 @@ class Wilson(SmallSpeciesActivityModel):
 
     @functools.cache
     def Lambda(self, T: float) -> FloatSquareMatrix:
-        r"""Compute the matrix of interaction parameters.
+        r"""Calculate the matrix of interaction parameters.
 
         $$ \Lambda_{ij}=\exp(a_{ij} + b_{ij}/T + c_{ij} \ln{T} + d_{ij} T) $$
 
@@ -125,11 +124,12 @@ class Wilson(SmallSpeciesActivityModel):
         FloatSquareMatrix (N,N)
             Interaction parameters.
         """
-        return exp(self._a + self._b / T + self._c * log(T) + self._d * T)
+        return exp(self._a + self._b / T + self._c * ln(T) + self._d * T)
 
     def gE(self, T: float, x: FloatVector) -> float:
-        return -R * T * dot(x, log(dot(self.Lambda(T), x)))
+        return -R * T * dot(x, ln(dot(self.Lambda(T), x)))
 
+    @override
     def gamma(self, T: float, x: FloatVector) -> FloatVector:
         return Wilson_gamma(x, self.Lambda(T))
 

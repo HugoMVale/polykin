@@ -3,8 +3,8 @@
 # Copyright Hugo Vale 2024
 
 from numpy import inf, log10, pi, sqrt
-from scipy.constants import g
 
+from polykin.constants import g
 from polykin.math import root_newton
 from polykin.utils.exceptions import RootSolverError
 from polykin.utils.tools import check_range_warn

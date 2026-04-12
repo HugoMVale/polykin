@@ -22,7 +22,7 @@ from polykin.utils.tools import (
     check_valid_range,
     custom_error,
 )
-from polykin.utils.types import FloatArray, FloatArrayLike, FloatRangeArray, IntArray
+from polykin.utils.typing import FloatArray, FloatArrayLike, FloatRangeArray, IntArray
 
 __all__ = ["plotdists"]
 
@@ -428,9 +428,7 @@ class IndividualDistribution(Distribution):
             size = size / self.M0
             factor = self.M0
         return (
-            self._pdf0_length(size)
-            * size**order
-            / (self._moment_length(order) * factor)
+            self._pdf0_length(size) * size**order / (self._moment_length(order) * factor)
         )
 
     def _cdf(self, size, order, sizeasmass):
@@ -522,9 +520,9 @@ class IndividualDistribution(Distribution):
         float | FloatArray
             Cumulative distribution value.
         """
-        return self._moment_quadrature(
-            np.zeros_like(x), x, order
-        ) / self._moment_length(order)
+        return self._moment_quadrature(np.zeros_like(x), x, order) / self._moment_length(
+            order
+        )
 
     @functools.cache
     def _moment_length(self, order: int) -> float:
@@ -790,11 +788,11 @@ class MixtureDistribution(Distribution):
                 f"{'PDI':>4}",
             ]
             header = (spacer).join(header)
-            ruler = f"{'-'*len(header)}"
+            ruler = f"{'-' * len(header)}"
             table = [header, ruler]
             for i, (d, w) in enumerate(self.components.items()):
                 row = [
-                    f"{i+1:2}",
+                    f"{i + 1:2}",
                     f"{w:>6.3f}",
                     f"{d.__class__.__name__:>12}",
                     f"{d.DPn:>4.2e}",

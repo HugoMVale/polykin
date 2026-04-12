@@ -24,7 +24,7 @@ from polykin.copolymerization.copodataset import (
 from polykin.math import confidence_ellipse, confidence_region, hessian2_centered
 from polykin.utils.exceptions import FitError
 from polykin.utils.tools import pprint_matrix
-from polykin.utils.types import Float2x2Matrix, FloatVectorLike
+from polykin.utils.typing import Float2x2Matrix, FloatVectorLike
 
 __all__ = [
     "fit_Finemann_Ross",
@@ -367,7 +367,6 @@ def fit_copo_data(
 
     # Joint confidence region
     if (JCR_linear or JCR_exact) and cov is not None:
-
         plots["JCR"] = plt.subplots()
         ax = plots["JCR"][1]
         ax.set_xlabel(r"$r_1$")
