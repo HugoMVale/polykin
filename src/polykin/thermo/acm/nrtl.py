@@ -74,7 +74,8 @@ class NRTL(MolecularACM):
 
     See Also
     --------
-    * [`NRTL_gamma`](NRTL_gamma.md): related activity coefficient method.
+    * [`NRTL_gamma`](NRTL_gamma.md):
+      Related activity coefficient method.
     """
 
     _a: FloatSquareMatrix
@@ -232,7 +233,8 @@ def NRTL_gamma(
 
     See Also
     --------
-    * [`NRTL`](NRTL.md): related class.
+    * [`NRTL`](NRTL.md):
+      Related class.
     """
     G = exp(-alpha * tau)
 

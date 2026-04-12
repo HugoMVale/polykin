@@ -58,9 +58,7 @@ class Wilson(MolecularACM):
 
     See Also
     --------
-    * [`Wilson_gamma`](Wilson_gamma.md): related activity coefficient
-    method.
-
+    * [`Wilson_gamma`](Wilson_gamma.md): Related activity coefficient method.
     """
 
     _a: FloatSquareMatrix
@@ -168,8 +166,7 @@ def Wilson_gamma(
 
     See Also
     --------
-    * [`Wilson`](Wilson.md): related class.
-
+    * [`Wilson`](Wilson.md): Related class.
     """
     A = dot(Lambda, x)
     return exp(1 - dot(x / A, Lambda)) / A

@@ -81,7 +81,7 @@ class UNIQUAC(MolecularACM):
 
     See Also
     --------
-    * [`UNIQUAC_gamma`](UNIQUAC_gamma.md): related activity coefficient method.
+    * [`UNIQUAC_gamma`](UNIQUAC_gamma.md): Related activity coefficient method.
     """
 
     _q: FloatVector
@@ -235,7 +235,7 @@ def UNIQUAC_gamma(
 
     See Also
     --------
-    * [`UNIQUAC`](UNIQUAC.md): related class.
+    * [`UNIQUAC`](UNIQUAC.md): Related class.
     """
     J = r / dot(x, r)
     L = q / dot(x, q)

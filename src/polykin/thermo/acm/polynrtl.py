@@ -288,8 +288,8 @@ def PolyNRTL_a(phi: FloatVector, m: FloatVector, chi: FloatSquareMatrix) -> Floa
 
     See Also
     --------
-    * [`FloryHuggins2_a`](FloryHuggins2_a.md): equivalent method for binary
-      solvent-polymer systems.
+    * [`FloryHuggins2_a`](FloryHuggins2_a.md):
+      Equivalent method for binary solvent-polymer systems.
     """
     A = dot(phi, 1 / m)
     B = dot(chi, phi)

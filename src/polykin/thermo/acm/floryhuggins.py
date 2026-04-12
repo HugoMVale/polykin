@@ -313,8 +313,8 @@ def FloryHuggins_activity(
 
     See Also
     --------
-    * [`FloryHuggins2_activity`](FloryHuggins2_activity.md): equivalent
-      method for binary solvent-polymer systems.
+    * [`FloryHuggins2_activity`](FloryHuggins2_activity.md):
+      Equivalent method for binary solvent-polymer systems.
     """
     A = dot(phi, 1 / m)
     B = dot(chi, phi)
@@ -372,8 +372,8 @@ def FloryHuggins2_activity(
 
     See Also
     --------
-    * [`FloryHuggins_activity`](FloryHuggins_activity.md): equivalent method
-      for multicomponent systems.
+    * [`FloryHuggins_activity`](FloryHuggins_activity.md):
+      Equivalent method for multicomponent systems.
 
     Examples
     --------
