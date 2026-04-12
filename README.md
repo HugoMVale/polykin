@@ -13,6 +13,7 @@ development stage, but the following modules can already be used:
   - [x] Flory-Huggins
   - [x] NRTL
   - [ ] Poly-NRTL
+  - [x] Scatchard-Hildebrand
   - [x] UNIQUAC
   - [x] Wilson
 - Copolymerization
@@ -36,6 +37,7 @@ development stage, but the following modules can already be used:
   - [x] Weibull-Nycander-Gold
 - Flash solvers
   - [x] 2-Phase PT, PV, TV
+  - [ ] 3-Phase PT
 - Fluid Flow
   - [x] Pressure drop and drag equations
   - [x] Rheology
