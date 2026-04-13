@@ -4,4 +4,5 @@
 
 
 from .anderson import *
+from .damped import *
 from .wegstein import *

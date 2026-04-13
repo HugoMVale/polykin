@@ -5,7 +5,11 @@
 import numpy as np
 from numpy import allclose
 
-from polykin.math.fixpoint import fixpoint_anderson, fixpoint_wegstein
+from polykin.math.fixpoint import (
+    fixpoint_anderson,
+    fixpoint_damped,
+    fixpoint_wegstein,
+)
 
 
 def g(x):
@@ -61,3 +65,24 @@ def test_fixpoint_wegstein():
     assert "iterations" in sol.message
     assert sol.niter == maxiter
     assert allclose(sol.f, g(sol.x) - sol.x)
+
+
+def test_fixpoint_damped():
+    # stop tolx
+    tolx = 1e-8
+    sol = fixpoint_damped(g, np.array([0.0, 0.0]), omega=0.8, tolx=tolx)
+    assert sol.success
+    assert "tolx" in sol.message
+    assert allclose(sol.x, g.xs, atol=tolx)
+    assert allclose(sol.f, g(sol.x) - sol.x)
+    # stop maxiter
+    maxiter = 3
+    sol = fixpoint_damped(g, np.array([0.0, 0.0]), maxiter=maxiter)
+    assert not sol.success
+    assert "iterations" in sol.message
+    assert sol.niter == maxiter
+    assert allclose(sol.f, g(sol.x) - sol.x)
+    # initial guess close to solution
+    sol = fixpoint_damped(g, g.xs)
+    assert sol.success
+    assert sol.niter == 0
