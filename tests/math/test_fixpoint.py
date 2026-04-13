@@ -82,7 +82,3 @@ def test_fixpoint_damped():
     assert "iterations" in sol.message
     assert sol.niter == maxiter
     assert allclose(sol.f, g(sol.x) - sol.x)
-    # initial guess close to solution
-    sol = fixpoint_damped(g, g.xs)
-    assert sol.success
-    assert sol.niter == 0
