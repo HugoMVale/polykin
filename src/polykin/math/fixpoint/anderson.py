@@ -50,7 +50,7 @@ def fixpoint_anderson(
     Parameters
     ----------
     g : Callable[[FloatVector], FloatVector]
-        Identity function for the fixed-point problem, i.e. `g(x) = x`.
+        Fixed-point mapping defining the problem `g(x) = x`.
     x0 : FloatVector
         Initial guess.
     m : int

@@ -55,7 +55,7 @@ def fixpoint_wegstein(
     Parameters
     ----------
     g : Callable[[FloatVector], FloatVector]
-        Identity function for the fixed-point problem, i.e. `g(x) = x`.
+        Fixed-point mapping defining the problem `g(x) = x`.
     x0 : FloatVector
         Initial guess.
     tolx : float
@@ -112,8 +112,10 @@ def fixpoint_wegstein(
     n = x.size
     gx = np.full(n, np.nan)
     xm = np.full(n, np.nan)
-
     wait = max(wait, 1)
+
+    k = 0
+    fx = np.full_like(x, np.nan)
 
     for k in range(maxiter):
         gxm = gx
