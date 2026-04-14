@@ -5,7 +5,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/polykin?label=PyPI%20downloads)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/HugoMVale/polykin)
 
-PolyKin is an open-source polymerization kinetics library for Python. It is still at an early
+PolyKin is an open-source Python library for polymerization kinetics and related chemical engineering calculations. It is still at an early
 development stage, but the following modules can already be used:
 
 - Activity coefficient models
@@ -53,8 +53,8 @@ development stage, but the following modules can already be used:
   - [x] Termination composite model
 - Math
   - [x] Joint confidence regions
-  - [x] Root and fixed-point solvers
-- [ ] Models
+  - [x] Fixed-point solvers (scalar and vector)
+  - [x] Root solvers (scalar end vector)
 - Physical property correlations
   - [x] Antoine
   - [x] DIPPR
