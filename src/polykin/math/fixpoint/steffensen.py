@@ -56,7 +56,7 @@ def fixpoint_steffensen(
     >>> print(f"x = {sol.x:.6f}")
     x = 0.739085
     >>> print(f"g(x) - x = {cos(sol.x) - sol.x:.2e}")
-    g(x) - x = -2.85e-11
+    g(x) - x = 1.92e-11
     """
     method = "Steffensen fixed-point"
     success = False
