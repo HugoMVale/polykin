@@ -82,8 +82,10 @@ def fixpoint_wegstein(
 
     See Also
     --------
-    * [`fixpoint_anderson`](fixpoint_anderson.md): alternative method better
-      suited for problems with coupling between components.
+    * [`fixpoint_anderson`](fixpoint_anderson.md):
+      Alternative method better suited for problems with coupling between components.
+    * [`fixpoint_damped`](fixpoint_damped.md):
+      Damped fixed-point iteration method for mildly unstable problems.
 
     Examples
     --------
