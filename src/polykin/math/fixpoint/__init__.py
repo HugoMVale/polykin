@@ -5,4 +5,5 @@
 
 from .anderson import *
 from .damped import *
+from .steffensen import *
 from .wegstein import *
