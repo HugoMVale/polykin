@@ -17,23 +17,23 @@ def fixpoint_damped(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
     *,
-    q: float = 0.8,
+    q: float = 0.2,
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
     maxiter: int = 50,
 ) -> VectorRootResult:
-    r"""Find the solution of a N-dimensional fixed-point problem using
-    direct substitution with relaxation.
+    r"""Find the solution of a N-dimensional fixed-point problem using direct substitution
+    with damping.
 
-    Direct substitution with relaxation is a damped fixed-point iteration where the next
-    iterate is obtained from a convex combination of the current iterate and its direct
-    substitution update according to:
+    Direct substitution with damping is a fixed-point iteration where the next iterate is
+    obtained from a convex combination of the current iterate and its direct substitution
+    update according to:
 
-    $$ \mathbf{x}_{k+1} = q \mathbf{g}(\mathbf{x}_k) + (1 - q) \mathbf{x}_k $$
+    $$ \mathbf{x}_{k+1} = q \mathbf{x}_k  + (1 - q) \mathbf{g}(\mathbf{x}_k)  $$
 
-    where $0 < q \leq 1$ is the relaxation parameter. When $q=1$, the method is equivalent
-    to standard direct substitution. For $q<1$, the update is damped, which can improve
-    robustness for mildly unstable fixed-point iterations.
+    where $0 \leq q < 1$ is the damping parameter. When $q=0$, the method is equivalent
+    to standard direct substitution. For $q>0$, the update is damped, which can improve
+    robustness for mildly unstable problems.
 
     Parameters
     ----------
@@ -42,15 +42,14 @@ def fixpoint_damped(
     x0 : FloatVector
         Initial guess.
     q : float
-        Relaxation parameter in (0, 1]. Typically 0.5–1.0; lower values improve
-        stability.
+        Damping parameter in [0, 1). Typically 0.0–0.5; higher values improve stability.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
         `||sclx*(g(x) - x)||∞ <= tolx`.
     sclx : FloatVector | None
-        Positive scaling factors for the components of `x`. Ideally, these
-        should be chosen so that `sclx*x` is of order 1 near the solution for
-        all components. By default, scaling is determined automatically from `x0`.
+        Positive scaling factors for the components of `x`. Ideally, these should be
+        chosen so that `sclx*x` is of order 1 near the solution for all components. By
+        default, scaling is determined automatically from `x0`.
     maxiter : int
         Maximum number of iterations.
 
@@ -76,7 +75,7 @@ def fixpoint_damped(
     ...     g1 = 0.5*np.cos(x1) + 0.1*x2 + 0.5
     ...     g2 = np.sin(x2) - 0.2*x1 + 1.2
     ...     return np.array([g1, g2])
-    >>> sol = fixpoint_damped(g, x0=np.array([0.0, 0.0]), q=0.8)
+    >>> sol = fixpoint_damped(g, x0=np.array([0.0, 0.0]), q=0.2)
     >>> print(f"x = {sol.x}")
     x = [0.97458614 1.93830761]
     >>> print(f"g(x) = {g(sol.x)}")
@@ -87,8 +86,8 @@ def fixpoint_damped(
     message = ""
     nfeval = 0
 
-    if not (0.0 < q <= 1.0):
-        raise ValueError("`q` must satisfy 0 < q <= 1.")
+    if not (0.0 <= q < 1.0):
+        raise ValueError("`q` must satisfy 0 <= q < 1.")
 
     sclx = sclx if sclx is not None else scalex(x0)
 
@@ -108,7 +107,7 @@ def fixpoint_damped(
             break
 
         if k + 1 < maxiter:
-            x = q * gx + (1 - q) * x
+            x = q * x + (1 - q) * gx
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."

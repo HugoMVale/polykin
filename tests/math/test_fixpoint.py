@@ -79,7 +79,7 @@ def test_fixpoint_wegstein():
 def test_fixpoint_damped():
     # stop tolx
     tolx = 1e-8
-    sol = fixpoint_damped(g_vector, np.array([0.0, 0.0]), q=0.8, tolx=tolx)
+    sol = fixpoint_damped(g_vector, np.array([0.0, 0.0]), q=0.2, tolx=tolx)
     assert sol.success
     assert "tolx" in sol.message
     assert allclose(sol.x, G_VECTOR_XS, atol=tolx)
