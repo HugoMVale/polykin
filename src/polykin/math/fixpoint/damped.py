@@ -17,9 +17,9 @@ def fixpoint_damped(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
     *,
+    q: float = 0.8,
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
-    q: float = 0.8,
     maxiter: int = 50,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using
@@ -41,6 +41,9 @@ def fixpoint_damped(
         Fixed-point mapping defining the problem `g(x) = x`.
     x0 : FloatVector
         Initial guess.
+    q : float
+        Relaxation parameter in (0, 1]. Typically 0.5–1.0; lower values improve
+        stability.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
         `||sclx*(g(x) - x)||∞ <= tolx`.
@@ -48,9 +51,6 @@ def fixpoint_damped(
         Positive scaling factors for the components of `x`. Ideally, these
         should be chosen so that `sclx*x` is of order 1 near the solution for
         all components. By default, scaling is determined automatically from `x0`.
-    q : float
-        Relaxation parameter in (0, 1]. Typically 0.5–1.0; lower values improve
-        stability.
     maxiter : int
         Maximum number of iterations.
 
