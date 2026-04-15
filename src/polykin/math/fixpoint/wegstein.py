@@ -18,11 +18,11 @@ def fixpoint_wegstein(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
     *,
-    tolx: float = 1e-6,
-    sclx: FloatVector | None = None,
     wait: int = 1,
     qmin: float = -5.0,
     qmax: float = 0.0,
+    tolx: float = 1e-6,
+    sclx: FloatVector | None = None,
     maxiter: int = 50,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
@@ -58,6 +58,13 @@ def fixpoint_wegstein(
         Fixed-point mapping defining the problem `g(x) = x`.
     x0 : FloatVector
         Initial guess.
+    wait : int
+        Number of direct substitution iterations before the first acceleration
+        iteration.
+    qmin : float
+        Minimum value for the acceleration parameter.
+    qmax : float
+        Maximum value for the acceleration parameter.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
         `||sclx*(g(x) - x)||∞ <= tolx`.
@@ -65,13 +72,6 @@ def fixpoint_wegstein(
         Positive scaling factors for the components of `x`. Ideally, these
         should be chosen so that `sclx*x` is of order 1 near the solution for
         all components. By default, scaling is determined automatically from `x0`.
-    wait : int
-        Number of direct substitution iterations before the first acceleration
-        iteration.
-    qmin : float
-        Minimum value for the acceleration parameter.
-    qmax : float, optional
-        Maximum value for the acceleration parameter.
     maxiter : int
         Maximum number of iterations.
 
