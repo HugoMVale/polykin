@@ -16,6 +16,7 @@ def fixpoint_steffensen(
     *,
     tolx: float = 1e-6,
     maxiter: int = 50,
+    callback: Callable[[int, float, float], bool] | None = None,
 ) -> RootResult:
     r"""Find the solution of a scalar fixed-point problem using Steffensen's
     method.
@@ -41,6 +42,9 @@ def fixpoint_steffensen(
         terminate when `|g(x) - x| <= tolx`.
     maxiter : int
         Maximum number of iterations.
+    callback : Callable[[int, float, float], bool] | None
+        Optional callback with signature `callback(niter, x, fx)` called at the end of
+        each iteration. If the callback returns `True`, the iteration is terminated.
 
     Returns
     -------
@@ -67,28 +71,33 @@ def fixpoint_steffensen(
     fx = float("nan")
     niter = 0
 
-    for niter in range(maxiter):
+    for niter in range(1, maxiter + 1):
         gx = g(x)
         nfeval += 1
         fx = gx - x
+
+        if callback is not None and callback(niter, x, fx):
+            message = "Terminated by user callback."
+            success = True
+            break
 
         if abs(fx) <= tolx:
             message = "|g(x) - x| ≤ tolx"
             success = True
             break
 
-        if niter + 1 < maxiter:
+        if niter < maxiter:
             ggx = g(gx)
             nfeval += 1
 
-            d2 = ggx - 2 * gx + x
-            if abs(d2) <= eps * max(abs(ggx), abs(gx), abs(x), 1.0):
-                message = f"Nearly zero Steffensen denominator at x={x} (Δ²={d2:.2e})."
+            Δ2 = ggx - 2 * gx + x
+            if abs(Δ2) <= eps * max(abs(ggx), abs(gx), abs(x), 1.0):
+                message = f"Nearly zero Steffensen denominator at x={x} (Δ²={Δ2:.2e})."
                 break
 
-            x = x - fx**2 / d2
+            x = x - fx**2 / Δ2
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, niter + 1, x, fx)
+    return RootResult(method, success, message, nfeval, niter, x, fx)

@@ -76,10 +76,7 @@ def test_fixpoint_wegstein():
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # with callback
     sol = fixpoint_wegstein(
-        g_vector,
-        np.array([0.0, 0.0]),
-        qmax=0.5,
-        callback=lambda niter, x, fx: niter >= 2,
+        g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, fx: niter >= 2
     )
     assert sol.success
     assert "callback" in sol.message
@@ -103,10 +100,7 @@ def test_fixpoint_damped():
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # with callback
     sol = fixpoint_damped(
-        g_vector,
-        np.array([0.0, 0.0]),
-        q=0.2,
-        callback=lambda niter, x, _: niter >= 2,
+        g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, _: niter >= 2
     )
     assert sol.success
     assert "callback" in sol.message
@@ -120,16 +114,23 @@ def test_fixpoint_steffensen():
     assert "tolx" in sol.message
     assert isclose(sol.x, G_SCALAR_XS, atol=tolx)
     assert isclose(sol.f, g_scalar(sol.x) - sol.x, atol=tolx)
-
+    # stop maxiter
     maxiter = 1
     sol = fixpoint_steffensen(g_scalar, 0.5, maxiter=maxiter)
     assert not sol.success
     assert "iterations" in sol.message
     assert sol.niter == maxiter
     assert isclose(sol.f, g_scalar(sol.x) - sol.x, atol=tolx)
-
+    # test denominator zero
     sol = fixpoint_steffensen(lambda x: x + 1.0, 0.0)
     assert not sol.success
     assert "denominator" in sol.message
     assert sol.niter == 1
     assert allclose(sol.f, 1.0)
+    # with callback
+    sol = fixpoint_steffensen(
+        g_scalar, 0.5, tolx=tolx, callback=lambda niter, x, _: niter >= 2
+    )
+    assert sol.success
+    assert "callback" in sol.message
+    assert sol.niter == 2
