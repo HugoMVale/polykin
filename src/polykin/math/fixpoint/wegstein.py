@@ -33,7 +33,7 @@ def fixpoint_wegstein(
     problems, each component of the fixed-point vector is treated separately
     according to:
 
-    $$ x_{k+1} = q_k x_k + (1 - q_k) g(x_k) $$
+    $$ x_{k+1} = x_k + (1 - q_k) \left( g(x_k) - x_k \right) $$
 
     where $q_{min} \leq q_k \leq q_{max}$ is the acceleration parameter
     determined by:
@@ -112,14 +112,14 @@ def fixpoint_wegstein(
 
     x = x0.copy()
     n = x.size
+    wait = max(wait, 1)
     gx = np.full(n, np.nan)
     xm = np.full(n, np.nan)
-    wait = max(wait, 1)
+    fx = np.full(n, np.nan)
 
-    k = 0
-    fx = np.full_like(x, np.nan)
+    niter = 0
 
-    for k in range(maxiter):
+    for niter in range(maxiter):
         gxm = gx
         gx = g(x)
         nfeval += 1
@@ -130,8 +130,8 @@ def fixpoint_wegstein(
             success = True
             break
 
-        if k + 1 < maxiter:
-            if k < wait:
+        if niter + 1 < maxiter:
+            if niter < wait:
                 xm = x
                 x = gx
             else:
@@ -143,9 +143,11 @@ def fixpoint_wegstein(
                 q = s / (s - 1)
                 q = np.clip(q, qmin, qmax)
                 xm = x
-                x = q * x + (1 - q) * gx
+                x = x + (1 - q) * (gx - x)
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)
+    return VectorRootResult(
+        method, success, message, nfeval, None, niter + 1, x, fx, None
+    )
