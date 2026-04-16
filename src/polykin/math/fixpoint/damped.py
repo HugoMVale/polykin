@@ -29,7 +29,8 @@ def fixpoint_damped(
     obtained from a convex combination of the current iterate and its direct substitution
     update according to:
 
-    $$ \mathbf{x}_{k+1} = q \mathbf{x}_k  + (1 - q) \mathbf{g}(\mathbf{x}_k)  $$
+    $$ \mathbf{x}_{k+1} =
+       \mathbf{x}_k  + (1 - q) \left( \mathbf{g}(\mathbf{x}_k) - \mathbf{x}_k \right) $$
 
     where $0 \leq q < 1$ is the damping parameter. When $q=0$, the method is equivalent
     to standard direct substitution. For $q>0$, the update is damped, which can improve
@@ -92,11 +93,10 @@ def fixpoint_damped(
     sclx = sclx if sclx is not None else scalex(x0)
 
     x = x0.copy()
-
-    k = 0
     fx = np.full_like(x, np.nan)
+    niter = 0
 
-    for k in range(maxiter):
+    for niter in range(maxiter):
         gx = g(x)
         nfeval += 1
         fx = gx - x
@@ -106,10 +106,12 @@ def fixpoint_damped(
             success = True
             break
 
-        if k + 1 < maxiter:
-            x = q * x + (1 - q) * gx
+        if niter + 1 < maxiter:
+            x = x + (1 - q) * (gx - x)
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)
+    return VectorRootResult(
+        method, success, message, nfeval, None, niter + 1, x, fx, None
+    )
