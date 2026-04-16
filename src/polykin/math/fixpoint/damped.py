@@ -21,6 +21,7 @@ def fixpoint_damped(
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
     maxiter: int = 50,
+    callback: Callable[[int, FloatVector, FloatVector], bool] | None = None,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using direct substitution
     with damping.
@@ -53,6 +54,10 @@ def fixpoint_damped(
         default, scaling is determined automatically from `x0`.
     maxiter : int
         Maximum number of iterations.
+    callback : Callable[[int, FloatVector, FloatVector], bool] | None
+        Optional callback with signature `callback(niter, x, fx)` called at the end of
+        each iteration to carry out custom actions, e.g., logging. Moreover, if the
+        function returns `True`, the iteration will terminate early.
 
     Returns
     -------
@@ -96,7 +101,7 @@ def fixpoint_damped(
     fx = np.full_like(x, np.nan)
     niter = 0
 
-    for niter in range(maxiter):
+    for niter in range(1, maxiter + 1):
         gx = g(x)
         nfeval += 1
         fx = gx - x
@@ -106,12 +111,15 @@ def fixpoint_damped(
             success = True
             break
 
-        if niter + 1 < maxiter:
-            x = x + (1 - q) * (gx - x)
+        if callback is not None and callback(niter, x, fx):
+            message = "Terminated by user callback."
+            success = True
+            break
+
+        if niter < maxiter:
+            x += (1 - q) * fx
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(
-        method, success, message, nfeval, None, niter + 1, x, fx, None
-    )
+    return VectorRootResult(method, success, message, nfeval, None, niter, x, fx, None)
