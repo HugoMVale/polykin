@@ -106,13 +106,13 @@ def fixpoint_damped(
         nfeval += 1
         fx = gx - x
 
-        if np.linalg.norm(sclx * fx, np.inf) <= tolx:
-            message = "||sclx*(g(x) - x)||∞ ≤ tolx"
+        if callback is not None and callback(niter, x, fx):
+            message = "Terminated by user callback."
             success = True
             break
 
-        if callback is not None and callback(niter, x, fx):
-            message = "Terminated by user callback."
+        if np.linalg.norm(sclx * fx, np.inf) <= tolx:
+            message = "||sclx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
 
