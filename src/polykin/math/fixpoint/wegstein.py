@@ -77,8 +77,7 @@ def fixpoint_wegstein(
         Maximum number of iterations.
     callback : Callable[[int, FloatVector, FloatVector], bool] | None
         Optional callback with signature `callback(niter, x, fx)` called at the end of
-        each iteration to carry out custom actions, e.g., logging. Moreover, if the
-        function returns `True`, the iteration will terminate early.
+        each iteration. If the callback returns `True`, the iteration is terminated.
 
     Returns
     -------
