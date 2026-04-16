@@ -65,9 +65,9 @@ def fixpoint_steffensen(
 
     x = x0
     fx = float("nan")
-    k = 0
+    niter = 0
 
-    for k in range(maxiter):
+    for niter in range(maxiter):
         gx = g(x)
         nfeval += 1
         fx = gx - x
@@ -77,7 +77,7 @@ def fixpoint_steffensen(
             success = True
             break
 
-        if k + 1 < maxiter:
+        if niter + 1 < maxiter:
             ggx = g(gx)
             nfeval += 1
 
@@ -91,4 +91,4 @@ def fixpoint_steffensen(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k + 1, x, fx)
+    return RootResult(method, success, message, nfeval, niter + 1, x, fx)
