@@ -74,6 +74,16 @@ def test_fixpoint_wegstein():
     assert "iterations" in sol.message
     assert sol.niter == maxiter
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
+    # with callback
+    sol = fixpoint_wegstein(
+        g_vector,
+        np.array([0.0, 0.0]),
+        qmax=0.5,
+        callback=lambda niter, x, fx: niter >= 2,
+    )
+    assert sol.success
+    assert "callback" in sol.message
+    assert sol.niter == 2
 
 
 def test_fixpoint_damped():
