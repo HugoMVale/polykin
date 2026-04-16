@@ -117,10 +117,9 @@ def fixpoint_anderson(
     x = g0
     gx = g0
     fx = f0
+    niter = 0
 
-    for k in range(1, maxiter):
-        mk = min(m, k)
-
+    for niter in range(1, maxiter):
         ΔG[:-1, :] = ΔG[1:, :]
         ΔF[:, :-1] = ΔF[:, 1:]
 
@@ -139,12 +138,14 @@ def fixpoint_anderson(
             success = True
             break
 
+        mk = min(m, niter)
+
         try:
-            if k == 1:
+            if niter == 1:
                 Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
-            if k > m:
+            if niter > m:
                 Q, R = scipy.linalg.qr_delete(Q, R, 0, which="col")
-            if k > 1:
+            if niter > 1:
                 Q, R = scipy.linalg.qr_insert(Q, R, ΔF[:, -1], mk - 1, which="col")
 
         except scipy.linalg.LinAlgError:
@@ -157,10 +158,12 @@ def fixpoint_anderson(
             message = "Error in least-squares solution."
             break
 
-        if k + 1 < maxiter:
+        if niter + 1 < maxiter:
             x = gx - np.dot(gamma, ΔG[-mk:, :])
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)
+    return VectorRootResult(
+        method, success, message, nfeval, None, niter + 1, x, fx, None
+    )
