@@ -5,7 +5,7 @@
 import numpy as np
 from numpy import isclose
 
-from polykin.math.optimum import fmin_brent
+from polykin.math.optimization import fmin_brent
 
 TEST_FUNCTIONS = {
     "quadratic": {
