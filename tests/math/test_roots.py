@@ -131,6 +131,11 @@ def test_root_brent():
     res = root_brent(f1, 0.0, f1_sol)
     assert res.success
     assert res.niter == 0
+    # with callback
+    res = root_brent(f1, 0.1, 1.0, callback=lambda niter, x, fx: niter >= 2)
+    assert res.success
+    assert "callback" in res.message
+    assert res.niter == 2
     # root not bracketed
     with pytest.raises(ValueError):
         _ = root_brent(f1, 0.1, 0.2)

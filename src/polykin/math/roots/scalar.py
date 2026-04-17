@@ -243,7 +243,7 @@ def root_brent(
     tolx: float = 1e-6,
     tolf: float = 1e-6,
     maxiter: int = 50,
-    verbose: bool = False,
+    callback: Callable[[int, float, float], bool] | None = None,
 ) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
 
@@ -277,8 +277,9 @@ def root_brent(
         when `|f(x)|<=tolf`.
     maxiter : int
         Maximum number of iterations.
-    verbose : bool
-        Print iteration information.
+    callback : Callable[[int, float, float], bool] | None
+        Optional callback with signature `callback(niter, x, fx)` called at the end of
+        each iteration. If the callback returns `True`, the iteration is terminated.
 
     Returns
     -------
@@ -317,8 +318,9 @@ def root_brent(
         raise ValueError("Root is not bracketed.")
 
     xc, fc = xb, fb
+    niter = 0
 
-    for k in range(maxiter):
+    for niter in range(1, maxiter + 1):
         if fb * fc > 0.0:
             xc, fc = xa, fa
             d = xb - xa
@@ -329,19 +331,21 @@ def root_brent(
             xb, fb = xc, fc
             xc, fc = xa, fa
 
-        if verbose:
-            print(f"Iteration {k + 1}: x = {xb}, f(x) = {fb}", flush=True)
-
         tol1 = 2 * eps * abs(xb) + 0.5 * tolx
         m = 0.5 * (xc - xb)
 
-        if abs(m) <= tol1:
-            message = "|Δx| ≤ tolx"
+        if callback is not None and callback(niter, xb, fb):
+            message = "Terminated by user callback."
             success = True
             break
 
         if abs(fb) <= tolf:
             message = "|f(x)| ≤ tolf"
+            success = True
+            break
+
+        if abs(m) <= tol1:
+            message = "|Δx| ≤ tolx"
             success = True
             break
 
@@ -382,4 +386,4 @@ def root_brent(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k + 1, xb, fb)
+    return RootResult(method, success, message, nfeval, niter, xb, fb)
