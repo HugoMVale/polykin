@@ -6,9 +6,8 @@ from collections.abc import Callable
 
 import numpy as np
 
+from polykin.math.optimization.results import OptimumResult
 from polykin.utils.math import eps
-
-from .results import OptimumResult
 
 __all__ = ["fmin_brent"]
 
@@ -52,6 +51,15 @@ def fmin_brent(
     -------
     OptimumResult
         Dataclass with the results of the optimization.
+
+    Examples
+    --------
+    Find the minimum of the function `f(x) = (x - 2)^2 + 1`.
+    >>> from polykin.math import fmin_brent
+    >>> f = lambda x: (x - 2)**2 + 1
+    >>> sol = fmin_brent(f, 0, 4)
+    >>> print(f"x = {sol.x:.6f}, f(x) = {sol.f:.6f}")
+    x = 2.000000, f(x) = 1.000000
     """
     method = "Brent"
     success = False
