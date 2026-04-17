@@ -24,6 +24,7 @@ def fixpoint_anderson(
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
     maxiter: int = 50,
+    callback: Callable[[int, FloatVector, FloatVector], bool] | None = None,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
     Anderson acceleration method.
@@ -64,6 +65,9 @@ def fixpoint_anderson(
         all components. By default, scaling is determined automatically from `x0`.
     maxiter : int
         Maximum number of iterations.
+    callback : Callable[[int, FloatVector, FloatVector], bool] | None
+        Optional callback with signature `callback(niter, x, fx)` called at the end of
+        each iteration. If the callback returns `True`, the iteration is terminated.
 
     Returns
     -------
@@ -100,70 +104,69 @@ def fixpoint_anderson(
 
     sclx = sclx if sclx is not None else scalex(x0)
 
-    # Different ordering of arrays to optimize memory access
-    n = x0.size
+    x = x0.copy()
+    n = x.size
     m = max(m, 1)
+
+    # Historical buffers with different layout to optimize memory access
     ΔG = np.zeros((m, n))
     ΔF = np.zeros((n, m))
 
-    g0 = g(x0)
-    nfeval += 1
-    f0 = g0 - x0
-
-    if np.linalg.norm(sclx * f0, np.inf) <= 1e-2 * tolx:
-        message = "||sclx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
-        return VectorRootResult(method, True, message, nfeval, None, 0, x0, f0, None)
-
-    x = g0
-    gx = g0
-    fx = f0
+    Q = np.array([])
+    R = np.array([])
+    fx = np.full(n, np.nan)
     niter = 0
 
-    for niter in range(1, maxiter):
-        ΔG[:-1, :] = ΔG[1:, :]
-        ΔF[:, :-1] = ΔF[:, 1:]
-
-        ΔG[-1, :] = -gx
-        ΔF[:, -1] = -fx
-
+    for niter in range(1, maxiter + 1):
         gx = g(x)
         nfeval += 1
         fx = gx - x
 
-        ΔG[-1, :] += gx
-        ΔF[:, -1] += fx
+        if callback is not None and callback(niter, x, fx):
+            message = "Terminated by user callback."
+            success = True
+            break
 
         if np.linalg.norm(sclx * fx, np.inf) <= tolx:
             message = "||sclx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
 
-        mk = min(m, niter)
-
-        try:
-            if niter == 1:
-                Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
-            if niter > m:
-                Q, R = scipy.linalg.qr_delete(Q, R, 0, which="col")
-            if niter > 1:
-                Q, R = scipy.linalg.qr_insert(Q, R, ΔF[:, -1], mk - 1, which="col")
-
-        except scipy.linalg.LinAlgError:
-            message = "Error in QR factorization/update."
+        if niter == maxiter:
+            message = f"Maximum number of iterations ({maxiter}) reached."
             break
 
-        try:
-            gamma = np.linalg.lstsq(R, Q.T @ fx)[0]
-        except np.linalg.LinAlgError:
-            message = "Error in least-squares solution."
-            break
+        if niter == 1:
+            x = gx
+        else:
+            ΔG[-1, :] += gx
+            ΔF[:, -1] += fx
 
-        if niter + 1 < maxiter:
+            mk = min(m, niter - 1)
+
+            try:
+                if niter == 2:
+                    Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
+                else:
+                    if niter > m + 1:
+                        Q, R = scipy.linalg.qr_delete(Q, R, 0, which="col")
+                    Q, R = scipy.linalg.qr_insert(Q, R, ΔF[:, -1], mk - 1, which="col")
+            except scipy.linalg.LinAlgError:
+                message = "Error in QR factorization/update."
+                break
+
+            try:
+                gamma = np.linalg.lstsq(R, Q.T @ fx)[0]
+            except np.linalg.LinAlgError:
+                message = "Error in least-squares solution."
+                break
+
             x = gx - np.dot(gamma, ΔG[-mk:, :])
 
-    else:
-        message = f"Maximum number of iterations ({maxiter}) reached."
+        ΔG[:-1, :] = ΔG[1:, :]
+        ΔF[:, :-1] = ΔF[:, 1:]
 
-    return VectorRootResult(
-        method, success, message, nfeval, None, niter + 1, x, fx, None
-    )
+        ΔG[-1, :] = -gx
+        ΔF[:, -1] = -fx
+
+    return VectorRootResult(method, success, message, nfeval, None, niter, x, fx, None)
