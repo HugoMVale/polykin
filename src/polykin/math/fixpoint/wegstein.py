@@ -89,7 +89,9 @@ def fixpoint_wegstein(
     * [`fixpoint_anderson`](fixpoint_anderson.md):
       Alternative method better suited for problems with coupling between components.
     * [`fixpoint_damped`](fixpoint_damped.md):
-      Damped fixed-point iteration method for mildly unstable problems.
+      Alternative method for problems with weak coupling between components.
+    * [`fixpoint_dem`](fixpoint_dem.md):
+      Alternative method for problems with weak coupling between components.
 
     Examples
     --------
@@ -117,9 +119,10 @@ def fixpoint_wegstein(
     x = x0.copy()
     n = x.size
     wait = max(wait, 1)
+
     gx = np.full(n, np.nan)
-    xm = np.full(n, np.nan)
     fx = np.full(n, np.nan)
+    xm = np.full(n, np.nan)
 
     niter = 0
 
