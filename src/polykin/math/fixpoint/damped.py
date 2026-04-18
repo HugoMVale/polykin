@@ -28,10 +28,10 @@ def fixpoint_damped(
 
     Direct substitution with damping is a fixed-point iteration where the next iterate is
     obtained from a convex combination of the current iterate and its direct substitution
-    update according to:
+    update. For N-dimensional problems, each component of the fixed-point vector is
+    treated separately according to:
 
-    $$ \mathbf{x}_{k+1} =
-       \mathbf{x}_k  + (1 - q) \left( \mathbf{g}(\mathbf{x}_k) - \mathbf{x}_k \right) $$
+    $$ x_{k+1} = x_k  + (1 - q) (g(x_k) - x_k ) $$
 
     where $0 \leq q < 1$ is the damping parameter. When $q=0$, the method is equivalent
     to standard direct substitution. For $q>0$, the update is damped, which can improve
@@ -67,8 +67,10 @@ def fixpoint_damped(
     --------
     * [`fixpoint_anderson`](fixpoint_anderson.md):
       Acceleration method suited for problems with coupling between components.
+    * [`fixpoint_dem`](fixpoint_dem.md):
+      Alternative method for problems with weak coupling between components.
     * [`fixpoint_wegstein`](fixpoint_wegstein.md):
-      Extrapolation method for weakly coupled fixed-point problems.
+      Alternative method for problems with weak coupling between components.
 
     Examples
     --------
