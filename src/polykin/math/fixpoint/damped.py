@@ -117,10 +117,10 @@ def fixpoint_damped(
             success = True
             break
 
-        if niter < maxiter:
-            x += (1 - q) * fx
+        if niter == maxiter:
+            message = f"Maximum number of iterations ({maxiter}) reached."
+            break
 
-    else:
-        message = f"Maximum number of iterations ({maxiter}) reached."
+        x += (1 - q) * fx
 
     return VectorRootResult(method, success, message, nfeval, None, niter, x, fx, None)
