@@ -12,7 +12,7 @@
 
 [fixpoint_dem] targets problems whose slow convergence is dominated by a single eigenvalue of the fixed-point iteration. By estimating that dominant mode and periodically applying a promotion step, it can reduce iteration counts for recycle-type problems and other slowly convergent systems. It is more specialized than Wegstein's method and is most useful when there is a clear dominant convergence mode.
 
-[fixpoint_anderson] is generally the most powerful solver in this family for difficult coupled systems. It combines several previous iterates through a least-squares acceleration step, often delivering substantially better convergence than direct substitution-based methods. The additional linear algebra introduces some overhead, but this cost is usually justified when evaluating $\mathbf{g}$ is expensive or when simpler accelerators stall.
+[fixpoint_anderson] is generally the most powerful solver in this family for difficult coupled systems. It combines several previous iterates through a least-squares acceleration step, often delivering substantially better convergence than direct substitution-based methods. The additional linear algebra introduces some overhead, but this cost is usually justified when evaluating $\mathbf{g}(\mathbf{x})$ is expensive or when simpler accelerators stall.
 
 [fixpoint_steffensen]: fixpoint_steffensen.md
 [fixpoint_damped]: fixpoint_damped.md
