@@ -8,6 +8,7 @@ from numpy import allclose, isclose
 from polykin.math.fixpoint import (
     fixpoint_anderson,
     fixpoint_damped,
+    fixpoint_dem,
     fixpoint_steffensen,
     fixpoint_wegstein,
 )
@@ -57,18 +58,17 @@ def test_fixpoint_anderson():
 
 def test_fixpoint_wegstein():
     # stop tolx, normal
-    tolx = 1e-8
-    sol = fixpoint_wegstein(g_vector, np.array([0.0, 0.0]), qmax=0.5, tolx=tolx)
+    TOLX = 1e-8
+    sol = fixpoint_wegstein(g_vector, np.array([0.0, 0.0]), qmax=0.5, tolx=TOLX)
     assert sol.success
     assert "tolx" in sol.message
-    assert allclose(sol.x, G_VECTOR_XS, atol=tolx)
+    assert allclose(sol.x, G_VECTOR_XS, atol=TOLX)
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # stop tolx, no acceleration
-    tolx = 1e-8
-    sol = fixpoint_wegstein(g_vector, np.array([0.0, 0.0]), wait=100, tolx=tolx)
+    sol = fixpoint_wegstein(g_vector, np.array([0.0, 0.0]), wait=100, tolx=TOLX)
     assert sol.success
     assert "tolx" in sol.message
-    assert allclose(sol.x, G_VECTOR_XS, atol=tolx)
+    assert allclose(sol.x, G_VECTOR_XS, atol=TOLX)
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # stop maxiter
     maxiter = 3
@@ -77,6 +77,15 @@ def test_fixpoint_wegstein():
     assert "iterations" in sol.message
     assert sol.niter == maxiter
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
+    # consistency with fixpoint_damped
+    q = 0
+    sol_wegstein = fixpoint_wegstein(
+        g_vector, np.array([0.0, 0.0]), qmin=q, qmax=q, tolx=TOLX
+    )
+    sol_damped = fixpoint_damped(g_vector, np.array([0.0, 0.0]), q=q, tolx=TOLX)
+    assert allclose(sol_wegstein.x, sol_damped.x, atol=TOLX)
+    assert allclose(sol_wegstein.f, sol_damped.f, atol=TOLX)
+    assert sol_wegstein.niter == sol_damped.niter
     # with callback
     sol = fixpoint_wegstein(
         g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, fx: niter >= 2
@@ -103,6 +112,30 @@ def test_fixpoint_damped():
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # with callback
     sol = fixpoint_damped(
+        g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, _: niter >= 2
+    )
+    assert sol.success
+    assert "callback" in sol.message
+    assert sol.niter == 2
+
+
+def test_fixpoint_dem():
+    # stop tolx
+    tolx = 1e-8
+    sol = fixpoint_dem(g_vector, np.array([0.0, 0.0]), q=0.2, tolx=tolx)
+    assert sol.success
+    assert "tolx" in sol.message
+    assert allclose(sol.x, G_VECTOR_XS, atol=tolx)
+    assert allclose(sol.f, g_vector(sol.x) - sol.x)
+    # stop maxiter
+    maxiter = 3
+    sol = fixpoint_dem(g_vector, np.array([0.0, 0.0]), maxiter=maxiter)
+    assert not sol.success
+    assert "iterations" in sol.message
+    assert sol.niter == maxiter
+    assert allclose(sol.f, g_vector(sol.x) - sol.x)
+    # with callback
+    sol = fixpoint_dem(
         g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, _: niter >= 2
     )
     assert sol.success
