@@ -142,22 +142,22 @@ def fixpoint_wegstein(
             success = True
             break
 
-        if niter < maxiter:
-            if niter < wait + 1:
-                xm = x
-                x = gx
-            else:
-                Δx = x - xm
-                Δg = gx - gxm
-                s = np.zeros(n)
-                mask_s = np.abs(Δx) > eps
-                np.divide(Δg, Δx, out=s, where=mask_s)
-                q = s / (s - 1)
-                q = np.clip(q, qmin, qmax)
-                xm = x
-                x = x + (1 - q) * fx
+        if niter == maxiter:
+            message = f"Maximum number of iterations ({maxiter}) reached."
+            break
 
-    else:
-        message = f"Maximum number of iterations ({maxiter}) reached."
+        if niter < wait + 1:
+            xm = x
+            x = gx
+        else:
+            Δx = x - xm
+            Δg = gx - gxm
+            s = np.zeros(n)
+            mask_s = np.abs(Δx) > eps
+            np.divide(Δg, Δx, out=s, where=mask_s)
+            q = s / (s - 1)
+            q = np.clip(q, qmin, qmax)
+            xm = x
+            x = x + (1 - q) * fx
 
     return VectorRootResult(method, success, message, nfeval, None, niter, x, fx, None)
