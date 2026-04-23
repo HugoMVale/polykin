@@ -38,7 +38,7 @@ def fmin_brent(
     Parameters
     ----------
     f : Callable[[float], float]
-        The objective function to be minimized.
+        Objective function to be minimized.
     xa : float
         Lower bound of the bracketing interval.
     xb : float
