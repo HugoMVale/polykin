@@ -96,7 +96,7 @@ def fixpoint_damped(
     if not (0.0 <= q < 1.0):
         raise ValueError("`q` must satisfy 0 <= q < 1.")
 
-    sclx = sclx if sclx is not None else scalex(x0)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
 
     x = x0.copy()
     fx = np.full_like(x, np.nan)

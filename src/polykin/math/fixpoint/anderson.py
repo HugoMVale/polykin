@@ -104,7 +104,7 @@ def fixpoint_anderson(
     message = ""
     nfeval = 0
 
-    sclx = sclx if sclx is not None else scalex(x0)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
 
     x = x0.copy()
     n = x.size
