@@ -174,8 +174,7 @@ def rootvec_qnewton(
     nfeval += 1
 
     # Set x scaling factors
-    if sclx is None:
-        sclx = scalex(x0)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
 
     # Evaluate Jacobian at x0
     if jac0 is not None:
@@ -193,6 +192,8 @@ def rootvec_qnewton(
         sclf = np.max(np.abs(J), axis=1)
         sclf[sclf == 0.0] = 1.0
         sclf = 1 / sclf
+    else:
+        sclf = np.abs(sclf)
 
     # Check initial solution with tight tolerance
     if norm(sclf * fc, np.inf) <= 1e-2 * tolf:
