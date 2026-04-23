@@ -183,7 +183,7 @@ def jacobian_forward(
     array([[-32.00000024,  47.99999928]])
     """
     fx = fx if fx is not None else f(x)
-    sclx = sclx if sclx is not None else scalex(x)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
     η = eps if ndigit is None else 10 ** (-ndigit)
     h0 = np.sqrt(η)
@@ -264,7 +264,7 @@ def hessian_forward(
            [ 47.99984347, -47.99979503]])
     """
     fx = fx if fx is not None else f(x)
-    sclx = sclx if sclx is not None else scalex(x)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
     η = eps if ndigit is None else 10 ** (-ndigit)
     h0 = np.cbrt(η)
