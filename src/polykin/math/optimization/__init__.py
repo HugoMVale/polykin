@@ -4,3 +4,4 @@
 
 from .brent import *
 from .results import *
+from .simplex import *
