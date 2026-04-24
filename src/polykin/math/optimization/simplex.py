@@ -8,7 +8,7 @@ import numpy as np
 
 from polykin.math.derivatives.ndiff import scalex
 from polykin.math.optimization.results import VectorOptimumResult
-from polykin.utils.typing import FloatVector, FloatVectorLike
+from polykin.utils.typing import FloatMatrix, FloatVector, FloatVectorLike
 
 __all__ = ["fmin_nelder_mead"]
 
@@ -23,6 +23,7 @@ def fmin_nelder_mead(
     maxiter: int | None = None,
     maxfeval: int | None = None,
     adaptive: bool = True,
+    callback: Callable[[int, FloatMatrix, FloatVector], bool] | None = None,
 ) -> VectorOptimumResult:
     r"""Find the minimum of a multivariate function using the Nelder-Mead simplex
     algorithm.
@@ -63,6 +64,9 @@ def fmin_nelder_mead(
     adaptive : bool, optional
         Whether to use the adaptive parameter scheme proposed by Gao (2012). If `False`,
         the standard Nelder-Mead parameters are used.
+    callback : Callable[[int, FloatMatrix, FloatVector], bool] | None
+        Optional callback with signature `callback(niter, x, fx)` called at the end of
+        each iteration. If the callback returns `True`, the iteration is terminated.
 
     Returns
     -------
@@ -131,6 +135,10 @@ def fmin_nelder_mead(
         fmin = fx[imin]
         fmax2 = fx[idx[-2]]
         fmax = fx[imax]
+
+        if callback and callback(niter, x, fx):
+            message = "Terminated by user callback."
+            break
 
         if np.max(np.abs(sclx * (x - xmin))) < tolx:
             success = True
