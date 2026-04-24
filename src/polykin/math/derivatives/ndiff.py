@@ -2,10 +2,10 @@
 #
 # Copyright Hugo Vale 2024
 
+import math
 from collections.abc import Callable
 
 import numpy as np
-from numpy import cbrt
 
 from polykin.utils.math import eps
 from polykin.utils.typing import (
@@ -19,6 +19,7 @@ from polykin.utils.typing import (
 __all__ = [
     "derivative_complex",
     "derivative_centered",
+    "gradient_forward",
     "jacobian_forward",
     "hessian_forward",
     "hessian2_centered",
@@ -110,10 +111,10 @@ def derivative_centered(
     >>> from polykin.math import derivative_centered
     >>> def f(x): return x**3
     >>> derivative_centered(f, 1.0)
-    (np.float64(3.0000000003141882), np.float64(1.0000000009152836))
+    (3.0000000003141882, 1.0000000009152836)
     """
     if h == 0:
-        h = cbrt(3 * eps)  # ~ 1e-5
+        h = math.cbrt(3 * eps)  # ~ 1e-5
 
     h *= 1 + abs(x)
 
@@ -123,6 +124,82 @@ def derivative_centered(
     fx = (fp + fm) / 2
 
     return (df, fx)
+
+
+def gradient_forward(
+    f: Callable[[FloatVector], float],
+    x: FloatVector,
+    *,
+    fx: float | None = None,
+    sclx: FloatVector | None = None,
+    ndigit: int | None = None,
+) -> FloatVector:
+    r"""Calculate the numerical gradient of a scalar function $f(\mathbf{x})$ using the
+    forward finite-difference scheme.
+
+    $$ \frac{\partial f}{\partial x_i} =
+       \frac{f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x})}{h_i} $$
+
+    The step size $h_i$ is optimally determined according to the number of reliable digits
+    of $f$ and the magnitude and scale of each $\mathbf{x}$ component.
+
+    Typically, the first `ndigit/2` digits of the gradient are accurate.
+
+    **References**
+
+    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+      Optimization and Nonlinear Equations", SIAM, 1996, p. 323.
+
+    Parameters
+    ----------
+    f : Callable[[FloatVector], float]
+        Function to be diferentiated.
+    x : FloatVector
+        Differentiation point.
+    fx : float | None
+        Function value at `x`, if available.
+    sclx : FloatVector | None
+        Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
+        default, the factors are set internally based on the magnitudes of `x`.
+    ndigit : int | None
+        Number of reliable base-10 digits in the values returned by `f`. This
+        parameter is optional when the function is evaluated analytically,
+        but is essential when the function involves numerical procedures (such
+        as root finding or ODE integration). If `None`, machine precision is
+        assumed.
+
+    Returns
+    -------
+    FloatVector
+        Gradient vector.
+
+    Examples
+    --------
+    Evaluate the numerical gradient of f(x) = x1**2 * x2**3 at (2, -2).
+    >>> from polykin.math import gradient_forward
+    >>> import numpy as np
+    >>> def f(x): return x[0]**2 * x[1]**3
+    >>> gradient_forward(f, np.array([2.0, -2.0]))
+    array([-32.00000024,  47.99999928])
+    """
+    fx = fx if fx is not None else f(x)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x)
+
+    η = eps if ndigit is None else 10 ** (-ndigit)
+    h0 = math.sqrt(η)
+
+    g = np.empty_like(x, dtype=float)
+    xh = x.copy()
+
+    for i in range(x.size):
+        h = h0 * max(abs(x[i]), abs(1 / sclx[i]))
+        xtemp = xh[i]
+        xh[i] += h
+        h = xh[i] - xtemp
+        g[i] = (f(xh) - fx) / h
+        xh[i] = xtemp
+
+    return g
 
 
 def jacobian_forward(
@@ -186,7 +263,7 @@ def jacobian_forward(
     sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
     η = eps if ndigit is None else 10 ** (-ndigit)
-    h0 = np.sqrt(η)
+    h0 = math.sqrt(η)
 
     J = np.empty((fx.size, x.size))
     xh = x.copy()
@@ -260,14 +337,14 @@ def hessian_forward(
     >>> import numpy as np
     >>> def f(x): return x[0]**2 * x[1]**3
     >>> hessian_forward(f, np.array([2.0, -2.0]))
-    array([[-16.0001093 ,  47.99984347],
-           [ 47.99984347, -47.99979503]])
+    array([[-16.00001242,  47.99984347],
+           [ 47.99984347, -47.99972236]])
     """
     fx = fx if fx is not None else f(x)
     sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
     η = eps if ndigit is None else 10 ** (-ndigit)
-    h0 = np.cbrt(η)
+    h0 = math.cbrt(η)
 
     N = x.size
     H = np.empty((N, N))
@@ -359,7 +436,7 @@ def hessian2_centered(
     x0, x1 = x
 
     if h == 0:
-        h = cbrt(3 * eps)  # ~ 1e-5
+        h = math.cbrt(3 * eps)  # ~ 1e-5
 
     h0 = h * (1 + abs(x0))
     h1 = h * (1 + abs(x1))
