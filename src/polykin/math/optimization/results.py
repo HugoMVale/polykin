@@ -5,7 +5,7 @@
 from dataclasses import dataclass
 
 from polykin.utils.tools import colored_bool
-from polykin.utils.typing import FloatVector
+from polykin.utils.typing import FloatMatrix, FloatVector
 
 __all__ = [
     "OptimumResult",
@@ -33,6 +33,8 @@ class OptimumResult:
         Optimum value.
     f: float
         Function value at the optimum.
+    df: float | None
+        Derivative at the optimum (if available).
     """
 
     method: str
@@ -42,6 +44,7 @@ class OptimumResult:
     niter: int
     x: float
     f: float
+    df: float | None = None
 
     def __repr__(self) -> str:
         """Return a string representation of the optimum result."""
@@ -52,7 +55,8 @@ class OptimumResult:
             f" nfeval: {self.nfeval}\n"
             f"  niter: {self.niter}\n"
             f"      x: {self.x}\n"
-            f"      f: {self.f}"
+            f"      f: {self.f}\n"
+            f"     df: {self.df}"
         )
 
 
@@ -76,6 +80,10 @@ class VectorOptimumResult:
         Optimum value.
     f: float
         Function value at the optimum.
+    g: FloatVector | None
+        Gradient at the optimum (if available).
+    H: FloatMatrix | None
+        Hessian at the optimum (if available).
     """
 
     method: str
@@ -85,6 +93,8 @@ class VectorOptimumResult:
     niter: int
     x: FloatVector
     f: float
+    g: FloatVector | None = None
+    H: FloatMatrix | None = None
 
     def __repr__(self) -> str:
         """Return a string representation of the optimum result."""
@@ -95,5 +105,7 @@ class VectorOptimumResult:
             f" nfeval: {self.nfeval}\n"
             f"  niter: {self.niter}\n"
             f"      x: {self.x}\n"
-            f"      f: {self.f}"
+            f"      f: {self.f}\n"
+            f"      g: {self.g}\n"
+            f"      H: {self.H}"
         )
