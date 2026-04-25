@@ -12,8 +12,8 @@ from numpy import dot, isclose, sqrt
 from numpy.linalg import norm
 
 from polykin.math.derivatives import jacobian_forward, scalex
+from polykin.math.machine import eps
 from polykin.math.roots.results import VectorRootResult
-from polykin.utils.math import eps
 from polykin.utils.typing import FloatMatrix, FloatVector
 
 all = ["rootvec_qnewton"]
@@ -236,7 +236,8 @@ def rootvec_qnewton(
 
         # Solve (Q*R)*p = - sclf*fc
         if Rcond < 1 / sqrt(eps):
-            p = -scipy.linalg.solve_triangular(R, Q.T @ (sclf * fc))
+            p = scipy.linalg.solve_triangular(R, Q.T @ (sclf * fc))
+            p *= -1
             if global_method:
                 gc = R.T @ (Q.T @ (sclf * fc))
         else:
@@ -247,7 +248,8 @@ def rootvec_qnewton(
             H[np.diag_indices_from(H)] += sqrt(n * eps) * Hnorm * sclx**2
             gc = R.T @ (Q.T @ (sclf * fc))
             R, _ = scipy.linalg.cho_factor(H, overwrite_a=True)
-            p = -scipy.linalg.cho_solve((R, False), gc)
+            p = scipy.linalg.cho_solve((R, False), gc)
+            p *= -1
 
         # Compute actual x step
         if global_method is None:

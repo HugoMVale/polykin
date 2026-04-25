@@ -7,7 +7,7 @@ from collections.abc import Callable
 
 import numpy as np
 
-from polykin.utils.math import eps
+from polykin.math.machine import eps
 from polykin.utils.typing import (
     Float2x2Matrix,
     FloatArray,

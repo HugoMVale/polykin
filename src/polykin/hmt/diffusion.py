@@ -5,8 +5,8 @@
 from numpy import cos, exp, pi, sin, sqrt
 from scipy.special import erfc
 
+from polykin.math.machine import eps
 from polykin.math.special import ierfc, roots_xcotx, roots_xtanx
-from polykin.utils.math import eps
 
 __all__ = [
     "profile_constc_semiinf",
@@ -299,9 +299,7 @@ def uptake_constc_sheet(Fo: float) -> float:
     else:
         # Solution for normal times
         B = -(Fo * pi**2) / 4
-        S = sum(
-            1 / (2 * n + 1) ** 2 * exp(B * (2 * n + 1) ** 2) for n in range(0, N - 1)
-        )
+        S = sum(1 / (2 * n + 1) ** 2 * exp(B * (2 * n + 1) ** 2) for n in range(0, N - 1))
         result = 1 - (8 / pi**2) * S
 
     return result
@@ -433,9 +431,7 @@ def uptake_convection_sheet(Fo: float, Bi: float) -> float:
         N = 4  # Number of terms in series expansion (optimal value)
         x = roots_xtanx(Bi, N)
         b2 = x**2
-        S = sum(
-            exp(-b2[n] * Fo) / (b2[n] * (b2[n] + Bi * (Bi + 1))) for n in range(0, N)
-        )
+        S = sum(exp(-b2[n] * Fo) / (b2[n] * (b2[n] + Bi * (Bi + 1))) for n in range(0, N))
         return 1 - (2 * Bi**2) * S
     else:
         return 0
@@ -501,9 +497,7 @@ def uptake_convection_sphere(Fo: float, Bi: float) -> float:
         N = 4  # Number of terms in series expansion (optimal value)
         x = roots_xcotx(Bi, N)
         b2 = x**2
-        S = sum(
-            exp(-b2[n] * Fo) / (b2[n] * (b2[n] + Bi * (Bi - 1))) for n in range(0, N)
-        )
+        S = sum(exp(-b2[n] * Fo) / (b2[n] * (b2[n] + Bi * (Bi - 1))) for n in range(0, N))
         return 1 - (6 * Bi**2) * S
     else:
         return 0

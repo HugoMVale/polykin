@@ -6,8 +6,8 @@ from collections.abc import Callable
 
 import numpy as np
 
+from polykin.math.machine import eps
 from polykin.math.optimization.results import OptimumResult
-from polykin.utils.math import eps
 
 __all__ = ["fmin_brent"]
 

@@ -16,9 +16,9 @@ from polykin.math.derivatives import (
     derivative_complex,
     jacobian_forward,
 )
+from polykin.math.machine import eps
 from polykin.math.roots import root_newton
 from polykin.utils.exceptions import RootSolverError
-from polykin.utils.math import eps
 from polykin.utils.typing import FloatVector, Number
 
 __all__ = [

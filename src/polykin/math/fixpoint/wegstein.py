@@ -6,9 +6,9 @@ from collections.abc import Callable
 
 import numpy as np
 
-from polykin.math import scalex
+from polykin.math.derivatives import scalex
+from polykin.math.machine import eps
 from polykin.math.roots import VectorRootResult
-from polykin.utils.math import eps
 from polykin.utils.typing import FloatVector
 
 __all__ = ["fixpoint_wegstein"]

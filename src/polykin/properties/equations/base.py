@@ -12,7 +12,7 @@ from matplotlib.figure import Figure
 from numpy import log
 from scipy.optimize import curve_fit
 
-from polykin.utils.math import eps
+from polykin.math.machine import eps
 from polykin.utils.tools import (
     check_bounds,
     check_in_set,

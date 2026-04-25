@@ -7,7 +7,7 @@ from collections.abc import Callable
 import numpy as np
 
 from polykin.math.derivatives import derivative_complex
-from polykin.utils.math import eps
+from polykin.math.machine import eps
 
 from .results import RootResult
 

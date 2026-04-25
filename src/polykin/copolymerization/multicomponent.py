@@ -8,8 +8,8 @@ import numpy as np
 from numpy import exp
 from scipy.integrate import solve_ivp
 
+from polykin.math.machine import eps
 from polykin.utils.exceptions import ODESolverError, ShapeError
-from polykin.utils.math import eps
 from polykin.utils.typing import (
     FloatArray,
     FloatArrayLike,

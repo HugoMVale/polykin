@@ -11,8 +11,8 @@ import pandas as pd
 from numpy import exp
 from numpy import log as ln
 
+from polykin.math.machine import eps
 from polykin.properties.pvt.io import load_PVT_parameters
-from polykin.utils.math import eps
 from polykin.utils.tools import (
     check_bounds,
     convert_check_pressure,

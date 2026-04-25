@@ -6,6 +6,7 @@
 
 from .derivatives import *
 from .fixpoint import *
+from .machine import *
 from .misc import *
 from .optimization import *
 from .roots import *

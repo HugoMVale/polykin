@@ -4,8 +4,8 @@
 
 from collections.abc import Callable
 
+from polykin.math.machine import eps
 from polykin.math.roots import RootResult
-from polykin.utils.math import eps
 
 __all__ = ["fixpoint_steffensen"]
 

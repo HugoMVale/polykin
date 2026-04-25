@@ -4,9 +4,9 @@ from dataclasses import dataclass
 import numpy as np
 from numpy import dot, exp, log
 
-from polykin.math import root_brent, root_newton
+from polykin.math.machine import eps
+from polykin.math.roots import root_brent, root_newton
 from polykin.properties.vaporization.pvap import PL_Wilson
-from polykin.utils.math import eps
 from polykin.utils.tools import colored_bool
 from polykin.utils.typing import FloatVector
 

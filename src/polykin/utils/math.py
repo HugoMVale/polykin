@@ -28,11 +28,6 @@ from .typing import (
     FloatVector,
 )
 
-_finfo = np.finfo(np.float64)
-eps = float(_finfo.eps)
-huge = float(_finfo.max)
-tiny = float(_finfo.tiny)
-
 
 def add_dicts(
     d1: dict[Any, int | float],
