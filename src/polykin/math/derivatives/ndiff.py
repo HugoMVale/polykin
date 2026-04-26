@@ -45,16 +45,16 @@ def derivative_complex(
 
     **References**
 
-    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge
-    University Press, 2021.
+    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge University
+        Press, 2021.
     *   [boost/math/differentiation/finite_difference.hpp](https://www.boost.org/doc/libs/1_80_0/boost/math/differentiation/finite_difference.hpp).
 
     Parameters
     ----------
     f : Callable[[complex], complex]
-        Function to be diferentiated.
+        Function to be differentiated.
     x : float
-        Diferentiation point.
+        Differentiation point.
 
     Returns
     -------
@@ -86,14 +86,14 @@ def derivative_centered(
 
     **References**
 
-    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge
-    University Press, 2021.
+    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge University
+        Press, 2021.
     *   [boost/math/differentiation/finite_difference.hpp](https://www.boost.org/doc/libs/1_80_0/boost/math/differentiation/finite_difference.hpp).
 
     Parameters
     ----------
     f : Callable[[float], float]
-        Function to be diferentiated.
+        Function to be differentiated.
     x : float
         Differentiation point.
     h : float
@@ -141,19 +141,21 @@ def gradient_forward(
        \frac{f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x})}{h_i} $$
 
     The step size $h_i$ is optimally determined according to the number of reliable digits
-    of $f$ and the magnitude and scale of each $\mathbf{x}$ component.
+    of $f$ and the magnitude and scale of each $\mathbf{x}$ component. Typically, the
+    first `ndigit/2` digits of the gradient are accurate.
 
-    Typically, the first `ndigit/2` digits of the gradient are accurate.
+    If the function value at $\mathbf{x}$ is provided, $N$ function evaluations are
+    required to compute the gradient, where $N$ is the dimension of $\mathbf{x}$.
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996, p. 323.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained Optimization
+        and Nonlinear Equations", SIAM, 1996, p. 323.
 
     Parameters
     ----------
     f : Callable[[FloatVector], float]
-        Function to be diferentiated.
+        Function to be differentiated.
     x : FloatVector
         Differentiation point.
     fx : float | None
@@ -216,21 +218,22 @@ def jacobian_forward(
     $$ J_{ij} = \frac{\partial f_i}{\partial x_j}
               = \frac{f_i(\mathbf{x} + \mathbf{e}_j h_j) - f_i(\mathbf{x})}{h_j} $$
 
-    The step size $h_j$ is optimally determined according to the number of
-    reliable digits of $\mathbf{f}$ and the magnitude and scale of each
-    $\mathbf{x}$ component.
+    The step size $h_j$ is optimally determined according to the number of reliable digits
+    of $\mathbf{f}$ and the magnitude and scale of each $\mathbf{x}$ component. Typically,
+    the first `ndigit/2` digits of the Jacobian are accurate.
 
-    Typically, the first `ndigit/2` digits of the Jacobian are accurate.
+    If the function value at $\mathbf{x}$ is provided, $N$ function evaluations are
+    required to compute the Jacobian, where $N$ is the dimension of $\mathbf{x}$.
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996, p. 314.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained Optimization
+        and Nonlinear Equations", SIAM, 1996, p. 314.
 
     Parameters
     ----------
     f : Callable[[FloatVector], FloatVector]
-        Function to be diferentiated.
+        Function to be differentiated.
     x : FloatVector
         Differentiation point.
     fx : FloatVector | None
@@ -296,21 +299,23 @@ def hessian_forward(
         - f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x} + \mathbf{e}_j h_j)
         + f(\mathbf{x})}{h_i h_j} $$
 
-    The step size $h_j$ is optimally determined according to the number of
-    reliable digits of $f$ and the magnitude and scale of each $\mathbf{x}$
-    component.
+    The step size $h_j$ is optimally determined according to the number of reliable digits
+    of $f$ and the magnitude and scale of each $\mathbf{x}$ component. Typically, the
+    first `ndigit/3` digits of the Hessian are accurate.
 
-    Typically, the first `ndigit/3` digits of the Hessian are accurate.
+    If the function value at $\mathbf{x}$ is provided, $N + N(N+1)/2$ function
+    evaluations are required to compute the Hessian, where $N$ is the dimension of
+    $\mathbf{x}$.
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996, p. 321.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained Optimization
+        and Nonlinear Equations", SIAM, 1996, p. 321.
 
     Parameters
     ----------
     f : Callable[[FloatVector], float]
-        Function to be diferentiated.
+        Function to be differentiated.
     x : FloatVector
         Differentiation point.
     fx : float | None
@@ -401,18 +406,18 @@ def hessian2_centered(
             \frac{f(x+h,y+h)-f(x+h,y-h)-f(x-h,y+h)+f(x-h,y-h)}{4 h^2} + O(h^2)
     \end{aligned}
 
-    Although the matrix only contains 4 elements and is symmetric, a total of
-    9 function evaluations are performed.
+    Although the matrix only contains 4 elements and is symmetric, a total of 9 function
+    evaluations are performed.
 
     **References**
 
-    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge
-    University Press, 2021.
+    *   J. Martins and A. Ning. Engineering Design Optimization. Cambridge University
+        Press, 2021.
 
     Parameters
     ----------
     f : Callable[[tuple[float, float]], float]
-        Function to be diferentiated.
+        Function to be differentiated.
     x : tuple[float, float]
         Differentiation point.
     h : float
