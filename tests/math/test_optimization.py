@@ -96,11 +96,11 @@ def test_fmin_brent():
         xa = data["xa"]
         xb = data["xb"]
         tolx = 1e-6
-        result = fmin_brent(f, xa, xb, tolx=tolx)
+        res = fmin_brent(f, xa, xb, tolx=tolx)
 
-        assert result.success, f"Optimization failed for {name}: {result.message}"
-        assert isclose(result.x, data["xmin"], atol=2 * tolx), (
-            f"Incorrect minimum for {name}: x={result.x}, f(x)={result.f}"
+        assert res.success, f"Optimization failed for {name}: {res.message}"
+        assert isclose(res.x, data["xmin"], atol=2 * tolx), (
+            f"Incorrect minimum for {name}: x={res.x}, f(x)={res.f}"
         )
 
 
@@ -110,9 +110,15 @@ def test_fmin_nelder_mead():
         f = data["function"]
         x0 = data["initial_point"](N)
         tolx = 1e-6
-        result = fmin_nelder_mead(f, x0, tolx=tolx)
+        res = fmin_nelder_mead(f, x0, tolx=tolx)
 
-        assert result.success, f"Optimization failed for {name}: {result.message}"
-        assert isclose(result.f, data["global_minimum"], atol=2 * tolx), (
-            f"Incorrect minimum for {name}: x={result.x}, f(x)={result.f}"
+        assert res.success, f"Optimization failed for {name}: {res.message}"
+        assert isclose(res.f, data["global_minimum"], atol=2 * tolx), (
+            f"Incorrect minimum for {name}: x={res.x}, f(x)={res.f}"
         )
+
+        # with callback
+        res = fmin_nelder_mead(f, x0, tolx=tolx, callback=lambda niter, x, fx: niter >= 3)
+        assert res.success
+        assert "callback" in res.message
+        assert res.niter == 3

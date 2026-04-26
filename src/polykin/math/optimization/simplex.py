@@ -130,13 +130,14 @@ def fmin_nelder_mead(
 
         # Sort the complex points by their function values
         idx = np.argsort(fx)
-        imin, imax = idx[0], idx[-1]
+        imin, imax2, imax = idx[0], idx[-2], idx[-1]
         xmin = x[imin]
         fmin = fx[imin]
-        fmax2 = fx[idx[-2]]
+        fmax2 = fx[imax2]
         fmax = fx[imax]
 
         if callback and callback(niter, x, fx):
+            success = True
             message = "Terminated by user callback."
             break
 
