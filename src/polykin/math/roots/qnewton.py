@@ -320,7 +320,7 @@ def rootvec_qnewton(
 
         # Update Jacobian
         if broyden_update:
-            Q, R = _update_broyden_qr(xc, xp, fc, fp, Q, R, sclx, sclf)
+            Q, R = _update_broyden_factored(xc, xp, fc, fp, Q, R, sclx, sclf)
         else:
             if jac is not None:
                 J = jac(xp)
@@ -342,7 +342,7 @@ def rootvec_qnewton(
     return VectorRootResult(method, success, message, nfeval, njeval, niter, xc, fc, J)
 
 
-def _update_broyden_qr(
+def _update_broyden_factored(
     xc: FloatVector,
     xp: FloatVector,
     fc: FloatVector,
