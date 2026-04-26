@@ -216,8 +216,10 @@ def rootvec_qnewton(
 
     gm_nmaxsteps = 0
     restart = True
+    niter = 0
     Q = np.array([])
     R = np.array([])
+    gc = np.array([])
 
     for niter in range(1, maxiter + 1):
         if verbose:
@@ -293,9 +295,8 @@ def rootvec_qnewton(
         # Check termination and convergence conditions
         if not gm_success:
             message = """Last global step failed to decrease ½||sclx*f(x)||₂ sufficiently.
-            Either `x` is close to a root and no more accuracy is possible,
-            or the secant approximation to the Jacobian is inaccurate,
-            or `tolx` is too large."""
+            Either `x` is close to a root and no more accuracy is possible, or the secant
+            approximation to the Jacobian is inaccurate, or `tolx` is too large."""
             stop = True
         elif norm(sclf * fp, np.inf) <= tolf:
             message = "||sclf*f(x)||∞ ≤ tolf"
@@ -303,13 +304,12 @@ def rootvec_qnewton(
             stop = True
         elif norm((xp - xc) / np.maximum(np.abs(xp), 1 / sclx), np.inf) <= tolx:
             message = """||Δx/max(x, 1/sclx)||∞ ≤ tolx
-            `x` may be an approximate root, but it is also possible that the
-            the algorithm is making slow progress and is not near a root,
-            or that `tolx` is too large."""
+            `x` may be an approximate root, but it is also possible that the algorithm is
+            making slow progress and is not near a root, or that `tolx` is too large."""
             stop = True
         elif global_method and gm_nmaxsteps >= 5:
-            message = """Maximum number (5) of consecutive steps of length `maxlen` reached.
-            Perhaps stuck in a flat region or `maxlen` is too small."""
+            message = """Maximum number (5) of consecutive steps of length `maxlen`
+            reached. Perhaps stuck in a flat region or `maxlen` is too small."""
             stop = True
         else:
             stop = False
@@ -352,17 +352,16 @@ def _update_broyden_qr(
     sclx: FloatVector,
     sclf: FloatVector,
 ) -> tuple[FloatMatrix, FloatMatrix]:
-    r"""Perform a Broyden update of the QR decomposition of a Jacobian
-    approximation.
+    r"""Perform a Broyden update of the QR decomposition of a Jacobian approximation.
 
-    This function updates the QR factors of an approximate Jacobian according
-    to the Broyden rank-1 update formula, using scaling factors for both the
-    variables and function values to improve numerical conditioning.
+    This function updates the QR factors of an approximate Jacobian according to the
+    Broyden rank-1 update formula, using scaling factors for both the variables and
+    function values to improve numerical conditioning.
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+        Optimization and Nonlinear Equations", SIAM, 1996.
 
     Parameters
     ----------
@@ -415,13 +414,13 @@ def line_search(
 ) -> tuple[bool, bool, int, FloatVector, FloatVector, float]:
     r"""Perform a line search.
 
-    This function performs a line search along the quasi-Newton direction to
-    find a step size that satisfies the Armijo condition.
+    This function performs a line search along the quasi-Newton direction to find a step
+    size that satisfies the Armijo condition.
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+        Optimization and Nonlinear Equations", SIAM, 1996.
 
     Parameters
     ----------
@@ -543,8 +542,8 @@ def dogleg(
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+        Optimization and Nonlinear Equations", SIAM, 1996.
 
     Parameters
     ----------
@@ -685,8 +684,8 @@ def _update_trust_region(
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
+        Optimization and Nonlinear Equations", SIAM, 1996.
 
     Parameters
     ----------
@@ -727,7 +726,7 @@ def _update_trust_region(
     -------
     tuple[TrustRegionState, bool, float, FloatVector, FloatVector, float, FloatVector, FloatVector, float]
         `(state, ismaxstep, trustlen, xp, fp, fNp, xp_prev, fp_prev, fNp_prev)`
-    """
+    """  # noqa: E501
     α = 1e-4
     ismaxstep = False
 
