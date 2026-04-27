@@ -2,6 +2,6 @@
 #
 # Copyright Hugo Vale 2026
 
-from .brent import *
 from .results import *
+from .scalar import *
 from .simplex import *
