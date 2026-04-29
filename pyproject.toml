@@ -34,6 +34,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.14.9",
+    "ty>=0.0.33",
 ]
 docs = [
     "black>=26.1.0",
@@ -71,6 +72,15 @@ pydocstyle = { convention = 'numpy' }
 
 [tool.ruff.format]
 line-ending = "auto"
+
+[tool.ty.environment]
+root = ["./src"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.ty.terminal]
+output-format = "concise"
 
 [build-system]
 requires = ["hatchling"]
