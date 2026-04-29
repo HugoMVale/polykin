@@ -12,7 +12,7 @@ from numpy.linalg import norm
 
 from polykin.math.derivatives import jacobian_forward, scalex
 from polykin.math.machine import eps, sqrt_eps
-from polykin.math.optimization.globalm import dogleg, line_search
+from polykin.math.optimization._globalm import dogleg, line_search
 from polykin.math.roots.results import VectorRootResult
 from polykin.utils.typing import FloatMatrix, FloatVector
 
@@ -196,7 +196,7 @@ def rootvec_qnewton(
     if sclf is None:
         sclf = np.max(np.abs(J), axis=1)
         sclf[sclf == 0.0] = 1.0
-        sclf = 1 / sclf
+        sclf = 1.0 / sclf
     else:
         sclf = np.abs(sclf)
 
@@ -214,10 +214,12 @@ def rootvec_qnewton(
     else:
         trustlen = min(trustlen, maxlen)
 
-    # Norm function for global methods
-    def fN(fx: FloatVector) -> float:
+    # Objective function for global methods
+    def fN(x: FloatVector) -> tuple[float, FloatVector]:
         """1/2*||sclf*f(x)||²."""
-        return 0.5 * np.sum((sclf * fx) ** 2)
+        fx = f(x)
+        fNx = 0.5 * np.sum((sclf * fx) ** 2)
+        return (fNx, fx)
 
     gm_nmaxsteps = 0
     restart = True
@@ -225,6 +227,7 @@ def rootvec_qnewton(
     Q = np.array([])
     R = np.array([])
     gc = np.array([])
+    fNc = float("nan")
 
     for niter in range(1, maxiter + 1):
         if verbose:
@@ -233,8 +236,8 @@ def rootvec_qnewton(
         # QR decomposition of scaled Jacobian
         if not broyden_update or restart:
             try:
-                Q, R = scipy.linalg.qr(sclf[:, None] * J)
-            except Exception as e:
+                Q, R = np.linalg.qr(sclf[:, None] * J)
+            except np.linalg.LinAlgError as e:
                 message = f"QR decomposition of Jacobian failed: {e}."
                 break
 
@@ -247,6 +250,7 @@ def rootvec_qnewton(
             p *= -1
             if global_method:
                 gc = R.T @ (Q.T @ (sclf * fc))
+                fNc = 0.5 * np.sum((sclf * fc) ** 2)
         else:
             if verbose:
                 print("R is ill-conditioned (cond={Rcond:.2e}).", flush=True)
@@ -266,12 +270,12 @@ def rootvec_qnewton(
             gm_success = True
             gm_nfeval = 1
         elif global_method == "line-search":
-            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _ = line_search(
-                f, fN, xc, fc, gc, p, tolx, sclx, maxlen, verbose
+            gm_success, gm_ismaxstep, gm_nfeval, xp, _, fp = line_search(
+                fN, p, xc, fNc, gc, tolx, sclx, maxlen, verbose
             )
         elif global_method == "dogleg":
-            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _, trustlen = dogleg(
-                f, fN, xc, fc, gc, p, R, tolx, sclx, maxlen, trustlen, verbose
+            (gm_success, gm_ismaxstep, gm_nfeval, trustlen, xp, _, fp) = dogleg(
+                fN, p, xc, fNc, gc, R, tolx, sclx, maxlen, trustlen, verbose
             )
         else:
             raise ValueError(f"Unknown `global_method`: {global_method}.")
