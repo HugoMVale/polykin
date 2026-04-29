@@ -69,7 +69,7 @@ f_case10.xs = np.array([5.0, 4.0])
 
 
 def f_example65(x):
-    """Example 6.5. Dennis & Schnabel (1996)."""
+    """Example 6.5 of Dennis & Schnabel (1996)."""
     x1, x2 = x
     f1 = x1**2 + x2**2 - 2
     f2 = np.exp(x1 - 1) + x2**3 - 2
