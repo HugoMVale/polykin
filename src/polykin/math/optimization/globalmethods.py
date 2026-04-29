@@ -94,7 +94,7 @@ def line_search(
         fp, Fp = res if isinstance(res, tuple) else (res, Fp)
 
         if verbose:
-            print(f"  λ = {λ:.2e}, f={fp:.2e}", flush=True)
+            print(f"  λ={λ:.2e}, f={fp:.2e}", flush=True)
 
         if fp <= fc + α * λ * slope:
             success = True
@@ -260,7 +260,7 @@ def dogleg(
 
         # Display iteration progress
         if verbose:
-            print(f"  δ = {trustlen:.2e}, ½||sclx*f(x)||² = {fp:.2e}", flush=True)
+            print(f"  δ={trustlen:.2e}, f={fp:.2e}", flush=True)
 
     return (state == TrustState.accepted, ismaxstep, nfeval, trustlen, xp, fp, Fp)
 
