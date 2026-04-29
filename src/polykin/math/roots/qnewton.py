@@ -12,7 +12,7 @@ from numpy.linalg import norm
 
 from polykin.math.derivatives import jacobian_forward, scalex
 from polykin.math.machine import eps, sqrt_eps
-from polykin.math.optimization._globalm import dogleg, line_search
+from polykin.math.optimization.globalmethods import dogleg, line_search
 from polykin.math.roots.results import VectorRootResult
 from polykin.utils.typing import FloatMatrix, FloatVector
 
