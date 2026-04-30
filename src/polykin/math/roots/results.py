@@ -78,7 +78,7 @@ class VectorRootResult:
         Root value.
     f: FloatVector
         Function (residual) value at root.
-    jac: FloatMatrix
+    J: FloatMatrix | None
         Last Jacobian value evaluated or estimated.
     """
 
@@ -90,7 +90,7 @@ class VectorRootResult:
     niter: int
     x: FloatVector
     f: FloatVector
-    jac: FloatMatrix | None
+    J: FloatMatrix | None
 
     def __repr__(self) -> str:
         """Return a string representation of the vector root result."""
@@ -103,5 +103,5 @@ class VectorRootResult:
             f"  niter: {self.niter}\n"
             f"      x: {self.x}\n"
             f"      f: {self.f}\n"
-            f"    jac: {self.jac}"
+            f"      J: {self.J}"
         )
