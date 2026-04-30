@@ -35,6 +35,7 @@ def rootvec_qnewton(
     broyden_update: bool = False,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
     jac0: FloatMatrix | None = None,
+    jac_check: bool = False,
     verbose: bool = False,
 ) -> VectorRootResult:
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
@@ -132,6 +133,10 @@ def rootvec_qnewton(
         case of a restart, or when a simple initial approximation is sufficient
         (e.g., the identity matrix) and one wants to reduce the number of function
         calls.
+    jac_check : bool
+        If `True`, the Jacobian provided by `jac` is checked against a forward
+        finite-difference approximation at `x0`. This can help identify errors
+        in the user-provided Jacobian.
     verbose : bool
         Print iteration information.
 
@@ -191,6 +196,16 @@ def rootvec_qnewton(
         else:
             J = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
             nfeval += n
+
+    # Check user-provided Jacobian against finite-difference approximation
+    if jac_check and jac is not None:
+        J_fd = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
+        nfeval += n
+        ndigit_ = ndigit if ndigit is not None else 15
+        tol = 10 ** (-ndigit_ / 2 + 2)
+        if not np.allclose(J, J_fd, rtol=tol, atol=tol):
+            message = "User-provided Jacobian `jac` does not match finite-difference approximation."  # noqa: E501
+            return VectorRootResult(method, False, message, nfeval, njeval, 0, x0, fc, J)
 
     # Set f scaling factors
     if sclf is None:

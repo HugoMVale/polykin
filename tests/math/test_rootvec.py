@@ -121,7 +121,9 @@ def test_rootvec_qnewton():
     f = f_example65
     jac = jac_example65
     for broyden_update in [False, True]:
-        sol = rootvec_qnewton(f, f.x0, jac=jac, broyden_update=broyden_update)
+        sol = rootvec_qnewton(
+            f, f.x0, jac=jac, jac_check=True, broyden_update=broyden_update
+        )
         assert sol.success
         assert allclose(sol.x, f.xs)
 
