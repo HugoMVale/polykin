@@ -57,11 +57,11 @@ def fmin_nelder_mead(
         Positive scaling factors for the components of `x`. Ideally, these should be
         chosen so that `sclx*x` is of order 1 near the solution for all components. By
         default, scaling is determined from `x0`.
-    maxiter : int | None, optional
+    maxiter : int | None
         Maximum number of iterations. By default, a value of `200*N` is used.
-    maxfeval : int | None, optional
+    maxfeval : int | None
         Maximum number of function evaluations. By default, a value of `200*N` is used.
-    adaptive : bool, optional
+    adaptive : bool
         Whether to use the adaptive parameter scheme proposed by Gao (2012). If `False`,
         the standard Nelder-Mead parameters are used.
     callback : Callable[[int, FloatMatrix, FloatVector], bool] | None
