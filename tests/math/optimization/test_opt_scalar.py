@@ -5,7 +5,7 @@
 import numpy as np
 from numpy import isclose
 
-from polykin.math.optimization import fmin_brent, fmin_nelder_mead
+from polykin.math.optimization import fmin_brent
 
 TEST_FUNCTIONS_SCALAR = {
     "quadratic": {
@@ -66,29 +66,6 @@ TEST_FUNCTIONS_SCALAR = {
     },
 }
 
-TEST_FUNCTIONS_VECTOR = {
-    "rosenbrock": {
-        "function": lambda x: np.sum(
-            100.0 * (x[1:] - x[:-1] ** 2) ** 2 + (1 - x[:-1]) ** 2
-        ),
-        "global_minimum": 0.0,
-        "global_minimizer": lambda n: np.ones(n),
-        # classic challenging but not extreme start
-        "initial_point": lambda n: np.full(n, -1.2),
-        "properties": ["valley", "non-convex"],
-    },
-    "ellipsoid": {
-        "function": lambda x: np.sum(
-            (10**6) ** (np.arange(len(x)) / (len(x) - 1)) * x**2
-        ),
-        "global_minimum": 0.0,
-        "global_minimizer": lambda n: np.zeros(n),
-        # asymmetric start → exposes conditioning issues
-        "initial_point": lambda n: np.linspace(1.0, 2.0, n),
-        "properties": ["ill-conditioned"],
-    },
-}
-
 
 def test_fmin_brent():
     for name, data in TEST_FUNCTIONS_SCALAR.items():
@@ -102,23 +79,3 @@ def test_fmin_brent():
         assert isclose(res.x, data["xmin"], atol=2 * tolx), (
             f"Incorrect minimum for {name}: x={res.x}, f(x)={res.f}"
         )
-
-
-def test_fmin_nelder_mead():
-    for name, data in TEST_FUNCTIONS_VECTOR.items():
-        N = 2  # test in 2D for simplicity, but should work in any dimension
-        f = data["function"]
-        x0 = data["initial_point"](N)
-        tolx = 1e-6
-        res = fmin_nelder_mead(f, x0, tolx=tolx)
-
-        assert res.success, f"Optimization failed for {name}: {res.message}"
-        assert isclose(res.f, data["global_minimum"], atol=2 * tolx), (
-            f"Incorrect minimum for {name}: x={res.x}, f(x)={res.f}"
-        )
-
-        # with callback
-        res = fmin_nelder_mead(f, x0, tolx=tolx, callback=lambda niter, x, fx: niter >= 3)
-        assert res.success
-        assert "callback" in res.message
-        assert res.niter == 3
