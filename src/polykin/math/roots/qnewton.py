@@ -318,7 +318,7 @@ def rootvec_qnewton(
 
         # Check termination and convergence conditions
         if not gm_success:
-            message = """Last global step failed to decrease ½||sclx*f(x)||₂ sufficiently.
+            message = """Last global step failed to decrease ||sclx*f(x)||₂ sufficiently.
             Either `x` is close to a root and no more accuracy is possible, or the secant
             approximation to the Jacobian is inaccurate, or `tolx` is too large."""
             stop = True
