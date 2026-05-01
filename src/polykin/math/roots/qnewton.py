@@ -14,19 +14,19 @@ from polykin.math.derivatives import jacobian_forward, scalex
 from polykin.math.machine import eps, sqrt_eps
 from polykin.math.optimization.globalmethods import dogleg, line_search
 from polykin.math.roots.results import VectorRootResult
-from polykin.utils.typing import FloatMatrix, FloatVector
+from polykin.utils.typing import FloatMatrix, FloatVector, FloatVectorLike
 
 all = ["rootvec_qnewton"]
 
 
 def rootvec_qnewton(
     f: Callable[[FloatVector], FloatVector],
-    x0: FloatVector,
+    x0: FloatVectorLike,
     *,
     tolx: float = 1e-10,
     tolf: float = 1e-5,
-    sclx: FloatVector | None = None,
-    sclf: FloatVector | None = None,
+    sclx: FloatVectorLike | None = None,
+    sclf: FloatVectorLike | None = None,
     maxiter: int = 100,
     maxlenfac: float = 1e3,
     trustlen: float | None = None,
@@ -63,14 +63,14 @@ def rootvec_qnewton(
 
     **References**
 
-    * J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained
-      Optimization and Nonlinear Equations", SIAM, 1996.
+    *   J.E. Dennis Jr., R.B. Schnabel, "Numerical Methods for Unconstrained Optimization
+        and Nonlinear Equations", SIAM, 1996.
 
     Parameters
     ----------
     f : Callable[[FloatVector], FloatVector]
         Function whose root is to be found.
-    x0 : FloatVector
+    x0 : FloatVectorLike (N)
         Initial guess for the root. Moreover, if no user-defined scale `sclx`
         is provided, the scaling factors will be determined from this value.
     tolx : float
@@ -84,11 +84,11 @@ def rootvec_qnewton(
         criterion. The algorithm terminates when the infinity norm of the scaled
         function values `||sclf*f(x)||∞` is below this threshold. A value on
         the order of $\epsilon^{1/3}$ is typically recommended.
-    sclx : FloatVector | None
+    sclx : FloatVectorLike (N) | None
         Positive scaling factors for the components of `x`. Ideally, these
         should be chosen so that `sclx*x` is of order 1 near the solution for
         all components. By default, scaling is determined from `x0`.
-    sclf : FloatVector | None
+    sclf : FloatVectorLike (N) | None
         Positive scaling factors for the components of `f`. Ideally, these
         should be chosen so that `sclf*f` is of order 1 near the root for all
         components. By default, scaling is determined from the initial Jacobian.
@@ -178,13 +178,14 @@ def rootvec_qnewton(
     njeval = 0
 
     # Evaluate function at x0
+    x0 = np.asarray(x0, dtype=float)
     n = x0.size
     xc = x0.copy()
     fc = f(xc)
     nfeval += 1
 
     # Set x scaling factors
-    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
+    sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
 
     # Evaluate Jacobian at x0
     if jac0 is not None:
@@ -202,7 +203,7 @@ def rootvec_qnewton(
         J_fd = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
         nfeval += n
         ndigit_ = ndigit if ndigit is not None else 15
-        tol = 10 ** (-ndigit_ / 2 + 2)
+        tol = 10 ** (-ndigit_ // 2 + 2)
         if not np.allclose(J, J_fd, rtol=tol, atol=tol):
             message = "User-provided Jacobian `jac` does not match finite-difference approximation."  # noqa: E501
             return VectorRootResult(method, False, message, nfeval, njeval, 0, x0, fc, J)
@@ -213,7 +214,7 @@ def rootvec_qnewton(
         sclf[sclf == 0.0] = 1.0
         sclf = 1.0 / sclf
     else:
-        sclf = np.abs(sclf)
+        sclf = np.abs(np.asarray(sclf, dtype=float))
 
     # Check initial solution with tight tolerance
     if norm(sclf * fc, np.inf) <= 1e-2 * tolf:
@@ -239,8 +240,7 @@ def rootvec_qnewton(
     gm_nmaxsteps = 0
     restart = True
     niter = 0
-    Q = np.array([])
-    R = np.array([])
+    Q = R = np.array([])
     gc = np.array([])
     fNc = float("nan")
 
@@ -261,7 +261,12 @@ def rootvec_qnewton(
 
         # Solve (Q*R)*p = - sclf*fc
         if Rcond < 1 / sqrt_eps:
-            p = scipy.linalg.solve_triangular(R, Q.T @ (sclf * fc))
+            p = scipy.linalg.solve_triangular(
+                R,
+                Q.T @ (sclf * fc),
+                overwrite_b=True,
+                check_finite=False,
+            )
             p *= -1
             if global_method:
                 gc = R.T @ (Q.T @ (sclf * fc))
@@ -273,8 +278,8 @@ def rootvec_qnewton(
             Hnorm = norm(H / (sclx[:, None] * sclx[None, :]), 1)
             H[np.diag_indices_from(H)] += math.sqrt(n * eps) * Hnorm * sclx**2
             gc = R.T @ (Q.T @ (sclf * fc))
-            R, _ = scipy.linalg.cho_factor(H, overwrite_a=True)
-            p = scipy.linalg.cho_solve((R, False), gc)
+            R, _ = scipy.linalg.cho_factor(H, overwrite_a=True, check_finite=False)
+            p = scipy.linalg.cho_solve((R, False), gc, check_finite=False)
             p *= -1
 
         # Compute actual x step
