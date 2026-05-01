@@ -209,4 +209,16 @@ def fmin_nelder_mead(
                 fx[k] = f(xs)
                 nfeval += 1
 
-    return VectorOptimumResult(method, success, message, nfeval, niter, xmin, fmin)
+    return VectorOptimumResult(
+        method=method,
+        success=success,
+        message=message,
+        nfeval=nfeval,
+        ngeval=None,
+        nheval=None,
+        niter=niter,
+        x=xmin,
+        f=fmin,
+        g=None,
+        H=None,
+    )
