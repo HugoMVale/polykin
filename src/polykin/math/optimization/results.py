@@ -74,6 +74,10 @@ class VectorOptimumResult:
         Description of the exit status.
     nfeval: int
         Number of function evaluations.
+    ngeval: int | None
+        Number of gradient evaluations.
+    nheval: int | None
+        Number of Hessian evaluations.
     niter: int
         Number of iterations.
     x: FloatVector
@@ -90,6 +94,8 @@ class VectorOptimumResult:
     success: bool
     message: str
     nfeval: int
+    ngeval: int | None
+    nheval: int | None
     niter: int
     x: FloatVector
     f: float
@@ -103,6 +109,8 @@ class VectorOptimumResult:
             f"success: {colored_bool(self.success)}\n"
             f"message: {self.message}\n"
             f" nfeval: {self.nfeval}\n"
+            f" ngeval: {self.ngeval}\n"
+            f" nheval: {self.nheval}\n"
             f"  niter: {self.niter}\n"
             f"      x: {self.x}\n"
             f"      f: {self.f}\n"
