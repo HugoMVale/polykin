@@ -19,7 +19,7 @@ def fmin_nelder_mead(
     *,
     tolx: float = 1e-8,
     tolf: float = 1e-8,
-    sclx: FloatVector | None = None,
+    sclx: FloatVectorLike | None = None,
     maxiter: int | None = None,
     maxfeval: int | None = None,
     adaptive: bool = True,
@@ -53,7 +53,7 @@ def fmin_nelder_mead(
     tolf : float
         Absolute tolerance for `f`. The algorithm terminates when the maximum difference
         between the function values at the simplex vertices is less than `tolf`.
-    sclx : FloatVector (N) | None
+    sclx : FloatVectorLike (N) | None
         Positive scaling factors for the components of `x`. Ideally, these should be
         chosen so that `sclx*x` is of order 1 near the solution for all components. By
         default, scaling is determined from `x0`.
@@ -90,7 +90,7 @@ def fmin_nelder_mead(
     x0 = np.asarray(x0, dtype=float)
     n = x0.size
 
-    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
+    sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
 
     maxiter = maxiter if maxiter is not None else 200 * n
     maxfeval = maxfeval if maxfeval is not None else 200 * n
