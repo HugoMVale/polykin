@@ -79,7 +79,7 @@ class VectorRootResult:
     f: FloatVector
         Function (residual) value at root.
     J: FloatMatrix | None
-        Last Jacobian value evaluated or estimated.
+        Last evaluated or estimated Jacobian matrix.
     """
 
     method: str
