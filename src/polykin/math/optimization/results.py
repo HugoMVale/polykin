@@ -75,9 +75,9 @@ class VectorOptimumResult:
     nfeval: int
         Number of function evaluations.
     ngeval: int | None
-        Number of gradient evaluations.
+        Number of user-supplied gradient evaluations.
     nheval: int | None
-        Number of Hessian evaluations.
+        Number of user-supplied Hessian evaluations.
     niter: int
         Number of iterations.
     x: FloatVector
@@ -85,9 +85,11 @@ class VectorOptimumResult:
     f: float
         Function value at the optimum.
     g: FloatVector | None
-        Gradient at the optimum (if available).
+        Gradient at the optimum.
     H: FloatMatrix | None
-        Hessian at the optimum (if available).
+        Last evaluated or estimated Hessian matrix. For BFGS-based updates, this may
+        represent the dense Hessian, the inverse Hessian ($H^{-1}$), or the Cholesky
+        factor $L$ (where $H = LL^T$), depending on the `method` used.
     """
 
     method: str
