@@ -167,7 +167,7 @@ def rootvec_qnewton(
     method = "Quasi-Newton"
     method_options = []
     _global_method = global_method if global_method else "none"
-    method_options.append(_global_method.title())
+    method_options.append(f"Global: {_global_method.title()}")
     if broyden_update:
         method_options.append("Broyden update")
     if method_options:
