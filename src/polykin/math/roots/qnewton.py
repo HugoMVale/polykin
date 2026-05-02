@@ -163,15 +163,17 @@ def rootvec_qnewton(
     >>> sol.x
     array([0.41421356, 1.41421356, 0.34314575])
     """
+    # Construct method name for result
     method = "Quasi-Newton"
     method_options = []
+    _global_method = global_method if global_method else "none"
+    method_options.append(_global_method.title())
     if broyden_update:
         method_options.append("Broyden update")
-    if global_method:
-        method_options.append(global_method)
     if method_options:
         method += " (" + ", ".join(method_options) + ")"
 
+    # Initialize results variables
     success = False
     message = ""
     nfeval = 0
