@@ -71,7 +71,7 @@ class VectorRootResult:
     nfeval: int
         Number of function evaluations.
     njeval: int | None
-        Number of Jacobian evaluations.
+        Number of user-supplied Jacobian evaluations.
     niter: int
         Number of iterations.
     x: FloatVector
