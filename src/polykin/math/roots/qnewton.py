@@ -111,7 +111,7 @@ def rootvec_qnewton(
         Global strategy to improve convergence from remote starting points. With
         `line-search`, the search direction is computed using the quasi-Newton
         step and the length of the step is determined by backtracking until
-        the Armijo condition is fullfiled. With `dogleg`, a trust-region dogleg
+        the Armijo condition is fulfiled. With `dogleg`, a trust-region dogleg
         method is used to compute both the step direction and length. If `None`,
         no global strategy is used and the full quasi-Newton step is taken at
         each iteration.
