@@ -195,10 +195,8 @@ def dogleg(
     state = TrustState.start
     ismaxstep = False
 
-    cauchylen = float("nan")
-    η = float("nan")
-    v = np.full(p.size, np.nan)
-    sSD = np.full(p.size, np.nan)
+    cauchylen = η = float("nan")
+    v = sSD = np.array([])
 
     xp = xp_prev = xc
     fp = fp_prev = float("nan")
