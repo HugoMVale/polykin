@@ -24,6 +24,14 @@ def f2(x):
 
 f2_sol = 1.0
 
+SUCCESS_ON_CALLBACK = False
+NITER_ON_CALLBACK = 2
+
+
+def callback(niter, x, fx):
+    print(f"Iteration {niter}: x={x}, f(x)={fx}")
+    return (niter >= NITER_ON_CALLBACK, SUCCESS_ON_CALLBACK)
+
 
 def test_root_newton():
     # stop tolx
@@ -57,10 +65,10 @@ def test_root_newton():
     assert not res.success
     assert "derivative" in res.message
     # with callback
-    res = root_newton(f1, 1.5, callback=lambda niter, x, fx: niter >= 2)
-    assert res.success
+    res = root_newton(f1, 1.5, callback=callback)
+    assert res.success == SUCCESS_ON_CALLBACK
     assert "callback" in res.message
-    assert res.niter == 2
+    assert res.niter == NITER_ON_CALLBACK
 
 
 def test_root_secant():
@@ -95,10 +103,10 @@ def test_root_secant():
     assert not res.success
     assert "zero slope" in res.message
     # with callback
-    res = root_secant(f1, 1.5, 1.4, callback=lambda niter, x, fx: niter >= 2)
-    assert res.success
+    res = root_secant(f1, 1.5, 1.4, callback=callback)
+    assert res.success == SUCCESS_ON_CALLBACK
     assert "callback" in res.message
-    assert res.niter == 2
+    assert res.niter == NITER_ON_CALLBACK
 
 
 def test_root_brent():
@@ -132,10 +140,10 @@ def test_root_brent():
     assert res.success
     assert res.niter == 0
     # with callback
-    res = root_brent(f1, 0.1, 1.0, callback=lambda niter, x, fx: niter >= 2)
-    assert res.success
+    res = root_brent(f1, 0.1, 1.0, callback=callback)
+    assert res.success == SUCCESS_ON_CALLBACK
     assert "callback" in res.message
-    assert res.niter == 2
+    assert res.niter == NITER_ON_CALLBACK
     # root not bracketed
     with pytest.raises(ValueError):
         _ = root_brent(f1, 0.1, 0.2)
