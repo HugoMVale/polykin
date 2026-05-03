@@ -77,7 +77,7 @@ def fixpoint_steffensen(
         nfeval += 1
         fx = gx - x
 
-        if callback:
+        if callback is not None:
             stop, _success = callback(niter, x, fx)
             if stop:
                 message = "Terminated by user callback."

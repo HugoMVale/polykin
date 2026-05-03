@@ -94,7 +94,7 @@ def fmin_brent(
         tol1 = eps * abs(x) + tolx / 3.0
         tol2 = 2.0 * tol1
 
-        if callback:
+        if callback is not None:
             stop, _success = callback(niter, x, fx)
             if stop:
                 message = "Terminated by user callback."

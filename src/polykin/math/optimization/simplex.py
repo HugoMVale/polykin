@@ -137,7 +137,7 @@ def fmin_nelder_mead(
         fmax2 = fx[imax2]
         fmax = fx[imax]
 
-        if callback:
+        if callback is not None:
             stop, _success = callback(niter, x, fx)
             if stop:
                 success = _success

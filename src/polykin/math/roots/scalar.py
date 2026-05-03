@@ -94,7 +94,7 @@ def root_newton(
         dfdx, fx = derivative_complex(f, x)
         nfeval += 1
 
-        if callback:
+        if callback is not None:
             stop, _success = callback(niter, x, fx)
             if stop:
                 message = "Terminated by user callback."
@@ -215,7 +215,7 @@ def root_secant(
         f2 = f(x2)
         nfeval += 1
 
-        if callback:
+        if callback is not None:
             stop, _success = callback(niter, x2, f2)
             if stop:
                 message = "Terminated by user callback."
@@ -341,7 +341,7 @@ def root_brent(
         tol1 = 2 * eps * abs(xb) + 0.5 * tolx
         m = 0.5 * (xc - xb)
 
-        if callback:
+        if callback is not None:
             stop, _success = callback(niter, xb, fb)
             if stop:
                 message = "Terminated by user callback."
