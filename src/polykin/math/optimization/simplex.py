@@ -23,7 +23,7 @@ def fmin_nelder_mead(
     maxiter: int | None = None,
     maxfeval: int | None = None,
     adaptive: bool = True,
-    callback: Callable[[int, FloatMatrix, FloatVector], bool] | None = None,
+    callback: Callable[[int, FloatMatrix, FloatVector], tuple[bool, bool]] | None = None,
 ) -> VectorOptimumResult:
     r"""Find the minimum of a multivariate function using the Nelder-Mead simplex
     algorithm.
@@ -64,9 +64,10 @@ def fmin_nelder_mead(
     adaptive : bool
         Whether to use the adaptive parameter scheme proposed by Gao (2012). If `False`,
         the standard Nelder-Mead parameters are used.
-    callback : Callable[[int, FloatMatrix, FloatVector], bool] | None
-        Optional callback with signature `callback(niter, x, fx)` called at the end of
-        each iteration. If the callback returns `True`, the iteration is terminated.
+    callback : Callable[[int, FloatMatrix, FloatVector], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -136,10 +137,12 @@ def fmin_nelder_mead(
         fmax2 = fx[imax2]
         fmax = fx[imax]
 
-        if callback and callback(niter, x, fx):
-            success = True
-            message = "Terminated by user callback."
-            break
+        if callback:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                success = _success
+                message = "Terminated by user callback."
+                break
 
         if np.max(np.abs(sclx * (x - xmin))) < tolx:
             success = True
