@@ -20,8 +20,8 @@ def fmin_secant(
     x0: float,
     x1: float,
     *,
-    tolx: float = 1e-6,
-    tolg: float = 1e-6,
+    tolx: float = 1e-10,
+    tolg: float = 1e-5,
     maxiter: int = 50,
     ndigit: int | None = None,
     diff_scheme: Literal["centered", "complex"] = "centered",
@@ -53,10 +53,12 @@ def fmin_secant(
     tolx : float
         Absolute tolerance for `x`. The algorithm will terminate when the change in
         `x` between two iterations is less or equal than `tolx`. If the value is too
-        large, the algorithm may terminate prematurely.
+        large, the algorithm may terminate prematurely. A value on the order of
+        $\epsilon^{2/3}$ is typically recommended.
     tolg : float
         Absolute tolerance for the function gradient. This is the primary convergence
-        criterion. The algorithm will terminate when `|f'(x)| <= tolg`.
+        criterion. The algorithm will terminate when `|f'(x)| <= tolg`. A value on the
+        order of $\epsilon^{1/3}$ is typically recommended.
     maxiter : int
         Maximum number of iterations.
     ndigit : int | None

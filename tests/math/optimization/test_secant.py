@@ -47,9 +47,20 @@ TEST_FUNCTIONS = {
 }
 
 
+def noisy_quadratic(x, ndigit=4):
+    """Add noise specifically to the n-th decimal digit."""
+    random_digit = np.random.randint(0, 10)
+    noise = random_digit * (10**-ndigit)
+    return (x - 1.0) ** 2 + noise
+
+
+SUCCESS_ON_CALLBACK = False
+NITER_ON_CALLBACK = 1
+
+
 def callback(niter, x, fx, dfx):
     print(f"Current point: x={x}, f(x)={fx}, df(x)={dfx}, iteration {niter}")
-    return (niter >= 1, True)
+    return (niter >= NITER_ON_CALLBACK, SUCCESS_ON_CALLBACK)
 
 
 def test_fmin_secant():
@@ -58,9 +69,8 @@ def test_fmin_secant():
             f = data["f"]
             x0 = data["x0"]
             xb = x0 + 0.01
-            tolx = 1e-6
-            tolg = 1e-7
-            res = fmin_secant(f, x0, xb, tolx=tolx, tolg=tolg, diff_scheme=diff_scheme)
+            tolx = 1e-8
+            res = fmin_secant(f, x0, xb, tolx=tolx, diff_scheme=diff_scheme)
 
             assert res.success, f"Optimization failed for {name}: {res.message}"
             assert isclose(res.x, data["xmin"], atol=2 * tolx), (
@@ -69,5 +79,22 @@ def test_fmin_secant():
             # with callback
             res = fmin_secant(f, x0, xb, tolx=tolx, callback=callback)
             assert "callback" in res.message.lower()
-            assert res.success
-            assert res.niter == 1
+            assert res.success == SUCCESS_ON_CALLBACK
+            assert res.niter == NITER_ON_CALLBACK
+
+
+def test_fmin_secant_with_noise():
+    ndigit = 6
+    eta = 10 ** (-ndigit)
+    tolx = 0.1 * eta ** (2 / 3)
+    tolg = eta ** (1 / 3)
+    sol = fmin_secant(
+        lambda x: noisy_quadratic(x, ndigit),
+        0.0,
+        0.01,
+        tolx=tolx,
+        tolg=tolg,
+        ndigit=ndigit,
+    )
+    assert sol.success
+    assert isclose(sol.x, 1.0, atol=2 * tolx)
