@@ -2,9 +2,8 @@
 #
 # Copyright Hugo Vale 2026
 
+import math
 from collections.abc import Callable
-
-import numpy as np
 
 from polykin.math.machine import eps
 from polykin.math.optimization.results import OptimumResult
@@ -19,7 +18,7 @@ def fmin_brent(
     *,
     tolx: float = 1e-6,
     maxiter: int = 50,
-    callback: Callable[[int, float, float], bool] | None = None,
+    callback: Callable[[int, float, float], tuple[bool, bool]] | None = None,
 ) -> OptimumResult:
     r"""Find the minimum of a scalar function using Brent's method.
 
@@ -48,14 +47,20 @@ def fmin_brent(
         interval becomes smaller than approximately `tolx`.
     maxiter : int
         Maximum number of iterations.
-    callback : Callable[[int, float, float], bool] | None
-        Optional callback with signature `callback(niter, x, fx)` called at the end of
-        each iteration. If the callback returns `True`, the iteration is terminated.
+    callback : Callable[[int, float, float], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
     OptimumResult
         Dataclass with the results of the optimization.
+
+    See Also
+    --------
+    * [`fmin_secant`](fmin_secant.md):
+      Derivative-based minimization method using the secant approach.
 
     Examples
     --------
@@ -89,9 +94,12 @@ def fmin_brent(
         tol1 = eps * abs(x) + tolx / 3.0
         tol2 = 2.0 * tol1
 
-        if callback and callback(niter, x, fx):
-            message = "Terminated by user callback."
-            break
+        if callback:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if abs(x - xm) <= (tol2 - 0.5 * (b - a)):
             message = "|Δx| ≤ tolx"
@@ -117,7 +125,7 @@ def fmin_brent(
                 u = x + d
                 # Convergence check for u
                 if (u - a) < tol2 or (b - u) < tol2:
-                    d = np.copysign(tol1, xm - x)
+                    d = math.copysign(tol1, xm - x)
             else:
                 # Golden section step
                 e = b - x if x < xm else a - x
@@ -128,7 +136,7 @@ def fmin_brent(
             d = c * e
 
         # Numerical safety: ensure step is at least tol1
-        u = x + d if abs(d) >= tol1 else x + np.copysign(tol1, d)
+        u = x + d if abs(d) >= tol1 else x + math.copysign(tol1, d)
         fu = f(u)
         nfeval += 1
 
