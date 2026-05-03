@@ -116,7 +116,12 @@ def test_fmin_nelder_mead():
         )
 
         # with callback
-        res = fmin_nelder_mead(f, x0, tolx=tolx, callback=lambda niter, x, fx: niter >= 3)
+        res = fmin_nelder_mead(
+            f,
+            x0,
+            tolx=tolx,
+            callback=lambda niter, x, fx: (niter >= 3, True),
+        )
         assert res.success
         assert "callback" in res.message
         assert res.niter == 3
