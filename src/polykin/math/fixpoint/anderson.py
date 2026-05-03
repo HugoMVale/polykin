@@ -24,7 +24,7 @@ def fixpoint_anderson(
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
     maxiter: int = 50,
-    callback: Callable[[int, FloatVector, FloatVector], bool] | None = None,
+    callback: Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None = None,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
     Anderson acceleration method.
@@ -65,9 +65,10 @@ def fixpoint_anderson(
         all components. By default, scaling is determined automatically from `x0`.
     maxiter : int
         Maximum number of iterations.
-    callback : Callable[[int, FloatVector, FloatVector], bool] | None
-        Optional callback with signature `callback(niter, x, fx)` called at the end of
-        each iteration. If the callback returns `True`, the iteration is terminated.
+    callback : Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -124,10 +125,12 @@ def fixpoint_anderson(
         nfeval += 1
         fx = gx - x
 
-        if callback is not None and callback(niter, x, fx):
-            message = "Terminated by user callback."
-            success = True
-            break
+        if callback:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if np.linalg.norm(sclx * fx, np.inf) <= tolx:
             message = "||sclx*(g(x) - x)||∞ ≤ tolx"

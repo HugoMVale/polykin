@@ -30,6 +30,14 @@ def g_scalar(x):
 
 G_SCALAR_XS = 0.7390851332151607
 
+SUCCESS_ON_CALLBACK = False
+NITER_ON_CALLBACK = 2
+
+
+def callback(niter, x, fx):
+    print(f"Iteration {niter}: x={x}, f(x)={fx}")
+    return (niter >= NITER_ON_CALLBACK, SUCCESS_ON_CALLBACK)
+
 
 def test_fixpoint_anderson():
     # stop tolx
@@ -48,12 +56,10 @@ def test_fixpoint_anderson():
     assert sol.niter == maxiter
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # with callback
-    sol = fixpoint_anderson(
-        g_vector, np.array([0.0, 0.0]), m=2, callback=lambda niter, x, fx: niter >= 2
-    )
-    assert sol.success
+    sol = fixpoint_anderson(g_vector, np.array([0.0, 0.0]), m=2, callback=callback)
     assert "callback" in sol.message
-    assert sol.niter == 2
+    assert sol.success == SUCCESS_ON_CALLBACK
+    assert sol.niter == NITER_ON_CALLBACK
 
 
 def test_fixpoint_wegstein():
@@ -87,12 +93,10 @@ def test_fixpoint_wegstein():
     assert allclose(sol_wegstein.f, sol_damped.f, atol=TOLX)
     assert sol_wegstein.niter == sol_damped.niter
     # with callback
-    sol = fixpoint_wegstein(
-        g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, fx: niter >= 2
-    )
-    assert sol.success
+    sol = fixpoint_wegstein(g_vector, np.array([0.0, 0.0]), callback=callback)
     assert "callback" in sol.message
-    assert sol.niter == 2
+    assert sol.success == SUCCESS_ON_CALLBACK
+    assert sol.niter == NITER_ON_CALLBACK
 
 
 def test_fixpoint_damped():
@@ -111,12 +115,10 @@ def test_fixpoint_damped():
     assert sol.niter == maxiter
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # with callback
-    sol = fixpoint_damped(
-        g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, _: niter >= 2
-    )
-    assert sol.success
+    sol = fixpoint_damped(g_vector, np.array([0.0, 0.0]), callback=callback)
     assert "callback" in sol.message
-    assert sol.niter == 2
+    assert sol.success == SUCCESS_ON_CALLBACK
+    assert sol.niter == NITER_ON_CALLBACK
 
 
 def test_fixpoint_dem():
@@ -135,12 +137,10 @@ def test_fixpoint_dem():
     assert sol.niter == maxiter
     assert allclose(sol.f, g_vector(sol.x) - sol.x)
     # with callback
-    sol = fixpoint_dem(
-        g_vector, np.array([0.0, 0.0]), callback=lambda niter, x, _: niter >= 2
-    )
-    assert sol.success
+    sol = fixpoint_dem(g_vector, np.array([0.0, 0.0]), callback=callback)
     assert "callback" in sol.message
-    assert sol.niter == 2
+    assert sol.success == SUCCESS_ON_CALLBACK
+    assert sol.niter == NITER_ON_CALLBACK
 
 
 def test_fixpoint_steffensen():
@@ -164,9 +164,7 @@ def test_fixpoint_steffensen():
     assert sol.niter == 1
     assert allclose(sol.f, 1.0)
     # with callback
-    sol = fixpoint_steffensen(
-        g_scalar, 0.5, tolx=tolx, callback=lambda niter, x, _: niter >= 2
-    )
-    assert sol.success
+    sol = fixpoint_steffensen(g_scalar, 0.5, tolx=tolx, callback=callback)
     assert "callback" in sol.message
-    assert sol.niter == 2
+    assert sol.success == SUCCESS_ON_CALLBACK
+    assert sol.niter == NITER_ON_CALLBACK

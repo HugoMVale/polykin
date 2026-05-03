@@ -16,7 +16,7 @@ def fixpoint_steffensen(
     *,
     tolx: float = 1e-6,
     maxiter: int = 50,
-    callback: Callable[[int, float, float], bool] | None = None,
+    callback: Callable[[int, float, float], tuple[bool, bool]] | None = None,
 ) -> RootResult:
     r"""Find the solution of a scalar fixed-point problem using Steffensen's
     method.
@@ -42,9 +42,10 @@ def fixpoint_steffensen(
         terminate when `|g(x) - x| <= tolx`.
     maxiter : int
         Maximum number of iterations.
-    callback : Callable[[int, float, float], bool] | None
-        Optional callback with signature `callback(niter, x, fx)` called at the end of
-        each iteration. If the callback returns `True`, the iteration is terminated.
+    callback : Callable[[int, float, float], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -76,10 +77,12 @@ def fixpoint_steffensen(
         nfeval += 1
         fx = gx - x
 
-        if callback is not None and callback(niter, x, fx):
-            message = "Terminated by user callback."
-            success = True
-            break
+        if callback:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if abs(fx) <= tolx:
             message = "|g(x) - x| ≤ tolx"
