@@ -67,6 +67,11 @@ TEST_FUNCTIONS_SCALAR = {
 }
 
 
+def callback(niter, x, fx):
+    print(f"Current point: x={x}, f(x)={fx}, iteration {niter}")
+    return (niter >= 5, True)
+
+
 def test_fmin_brent():
     for name, data in TEST_FUNCTIONS_SCALAR.items():
         f = data["f"]
@@ -79,3 +84,8 @@ def test_fmin_brent():
         assert isclose(res.x, data["xmin"], atol=2 * tolx), (
             f"Incorrect minimum for {name}: x={res.x}, f(x)={res.f}"
         )
+        # with callback
+        res = fmin_brent(f, xa, xb, tolx=tolx, callback=callback)
+        assert "callback" in res.message.lower()
+        assert res.success
+        assert res.niter == 5
