@@ -1,5 +1,6 @@
 * [](index.md)
 * [fmin_brent](fmin_brent.md)
+* [fmin_secant](fmin_secant.md)
 * [fmin_nelder_mead](fmin_nelder_mead.md)
 * [OptimumResult](OptimumResult.md)
 * [VectorOptimumResult](VectorOptimumResult.md)

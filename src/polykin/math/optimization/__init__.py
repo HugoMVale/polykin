@@ -2,6 +2,8 @@
 #
 # Copyright Hugo Vale 2026
 
+from .brent import *
+from .qnewton import *
 from .results import *
-from .scalar import *
+from .secant import *
 from .simplex import *
