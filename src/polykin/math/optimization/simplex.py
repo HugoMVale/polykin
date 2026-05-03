@@ -147,8 +147,8 @@ def fmin_nelder_mead(
             break
 
         if (fmax - fmin) < tolf:
-            message = "Function value spread is less than `tolf`."
             success = True
+            message = "Function value spread is less than `tolf`."
             break
 
         if niter == maxiter:
