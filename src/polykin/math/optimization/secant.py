@@ -55,11 +55,11 @@ def fmin_secant(
         Absolute tolerance for `x`. The algorithm will terminate when the change in
         `x` between two iterations is less or equal than `tolx`. If the value is too
         large, the algorithm may terminate prematurely. A value on the order of
-        $\epsilon^{2/3}$ is typically recommended.
+        $\epsilon_f^{2/3}$ is typically recommended.
     tolg : float
         Absolute tolerance for the function gradient. This is the primary convergence
         criterion. The algorithm will terminate when `|f'(x)| <= tolg`. A value on the
-        order of $\epsilon^{1/3}$ is typically recommended.
+        order of $\epsilon_f^{1/3}$ is typically recommended.
     maxiter : int
         Maximum number of iterations.
     epsf : float | None
