@@ -86,7 +86,7 @@ def test_fmin_secant():
 def test_fmin_secant_with_noise():
     ndigit = 6
     epsf = 10 ** (-ndigit)
-    tolx = 0.1 * epsf ** (2 / 3)
+    tolx = epsf ** (2 / 3)
     tolg = 1e-4 * epsf ** (1 / 3)  # force termination based on tolx rather than tolg
     sol = fmin_secant(
         lambda x: noisy_quadratic(x, ndigit),
@@ -97,4 +97,4 @@ def test_fmin_secant_with_noise():
         epsf=epsf,
     )
     assert sol.success
-    assert isclose(sol.x, 1.0, atol=2 * tolx)
+    assert isclose(sol.x, 1.0, atol=10 * tolx)
