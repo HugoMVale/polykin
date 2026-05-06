@@ -148,9 +148,9 @@ def gradient_forward(
     $$ \frac{\partial f}{\partial x_i} =
        \frac{f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x})}{h_i} $$
 
-    The step size $h_i$ is optimally determined according to the number of reliable digits
-    of $f$ and the magnitude and scale of each $\mathbf{x}$ component. Typically, the
-    first `ndigit/2` digits of the gradient are accurate.
+    The step size $h_i$ is optimally determined according to the machine precision of the
+    function values. Typically, the gradient is accurate to about half the number of
+    reliable digits returned by the function.
 
     If the function value at $\mathbf{x}$ is provided, $N$ function evaluations are
     required to compute the gradient, where $N$ is the dimension of $\mathbf{x}$.
@@ -224,9 +224,9 @@ def jacobian_forward(
     $$ J_{ij} = \frac{\partial f_i}{\partial x_j}
               = \frac{f_i(\mathbf{x} + \mathbf{e}_j h_j) - f_i(\mathbf{x})}{h_j} $$
 
-    The step size $h_j$ is optimally determined according to the number of reliable digits
-    of $\mathbf{f}$ and the magnitude and scale of each $\mathbf{x}$ component. Typically,
-    the first `ndigit/2` digits of the Jacobian are accurate.
+    The step size $h_j$ is optimally determined according to the machine precision of the
+    function values. Typically, the Jacobian is accurate to about half the number of
+    reliable digits returned by the function.
 
     If the function value at $\mathbf{x}$ is provided, $N$ function evaluations are
     required to compute the Jacobian, where $N$ is the dimension of $\mathbf{x}$.
@@ -303,13 +303,9 @@ def hessian_forward(
         - f(\mathbf{x} + \mathbf{e}_i h_i) - f(\mathbf{x} + \mathbf{e}_j h_j)
         + f(\mathbf{x})}{h_i h_j} $$
 
-    The step size $h_j$ is optimally determined according to the number of reliable digits
-    of $f$ and the magnitude and scale of each $\mathbf{x}$ component. Typically, the
-    first `ndigit/3` digits of the Hessian are accurate.
-
-    If the function value at $\mathbf{x}$ is provided, $N + N(N+1)/2$ function
-    evaluations are required to compute the Hessian, where $N$ is the dimension of
-    $\mathbf{x}$.
+    The step size $h_j$ is optimally determined according to the machine precision of the
+    function values. Typically, the Hessian is accurate to about a third of the number of
+    reliable digits returned by the function.
 
     **References**
 
