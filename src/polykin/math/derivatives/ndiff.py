@@ -77,6 +77,7 @@ def derivative_centered(
     f: Callable[[float], float],
     x: float,
     *,
+    epsf: float | None = None,
     h: float = 0.0,
 ) -> tuple[float, float]:
     r"""Calculate the numerical derivative of a scalar function using the
@@ -96,9 +97,13 @@ def derivative_centered(
         Function to be differentiated.
     x : float
         Differentiation point.
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
     h : float
-        Finite-difference step. If `0`, it will be set to the theoretical
-        optimum value $h=\sqrt[3]{3\epsilon}$.
+        Finite-difference step. If `0`, it will be set to the theoretical optimum
+        value $h=\sqrt[3]{3\epsilon_f}$.
 
     Returns
     -------
@@ -113,15 +118,18 @@ def derivative_centered(
     >>> derivative_centered(f, 1.0)
     (3.0000000003141882, 1.0000000009152836)
     """
-    if h == 0:
-        h = math.cbrt(3 * eps)  # ~ 1e-5
+    epsf = max(epsf, eps) if epsf is not None else eps
+    _h = math.cbrt(3 * epsf)
 
-    h *= 1 + abs(x)
+    h = max(h, _h) if h != 0 else _h
+    h *= max(1.0, abs(x))
 
-    fp = f(x + h)
-    fm = f(x - h)
-    df = (fp - fm) / (2 * h)
-    fx = (fp + fm) / 2
+    xp = x + h
+    xm = x - h
+    fp = f(xp)
+    fm = f(xm)
+    df = (fp - fm) / (xp - xm)
+    fx = (fp + fm) / 2.0
 
     return (df, fx)
 
@@ -132,7 +140,7 @@ def gradient_forward(
     *,
     fx: float | None = None,
     sclx: FloatVector | None = None,
-    ndigit: int | None = None,
+    epsf: float | None = None,
 ) -> FloatVector:
     r"""Calculate the numerical gradient of a scalar function $f(\mathbf{x})$ using the
     forward finite-difference scheme.
@@ -163,12 +171,10 @@ def gradient_forward(
     sclx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
         default, the factors are set internally based on the magnitudes of `x`.
-    ndigit : int | None
-        Number of reliable base-10 digits in the values returned by `f`. This
-        parameter is optional when the function is evaluated analytically,
-        but is essential when the function involves numerical procedures (such
-        as root finding or ODE integration). If `None`, machine precision is
-        assumed.
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
 
     Returns
     -------
@@ -187,8 +193,8 @@ def gradient_forward(
     fx = fx if fx is not None else f(x)
     sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
-    η = eps if ndigit is None else 10 ** (-ndigit)
-    h0 = math.sqrt(η)
+    epsf = max(epsf, eps) if epsf is not None else eps
+    h0 = math.sqrt(epsf)
 
     g = np.empty_like(x, dtype=float)
     xh = x.copy()
@@ -210,7 +216,7 @@ def jacobian_forward(
     *,
     fx: FloatVector | None = None,
     sclx: FloatVector | None = None,
-    ndigit: int | None = None,
+    epsf: float | None = None,
 ) -> FloatMatrix:
     r"""Calculate the numerical Jacobian of a vector function
     $\mathbf{f}(\mathbf{x})$ using the forward finite-difference scheme.
@@ -241,12 +247,10 @@ def jacobian_forward(
     sclx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
         default, the factors are set internally based on the magnitudes of `x`.
-    ndigit : int | None
-        Number of reliable base-10 digits in the values returned by `f`. This
-        parameter is optional when the function is evaluated analytically,
-        but is essential when the function involves numerical procedures (such
-        as root finding or ODE integration). If `None`, machine precision is
-        assumed.
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
 
     Returns
     -------
@@ -265,8 +269,8 @@ def jacobian_forward(
     fx = fx if fx is not None else f(x)
     sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
-    η = eps if ndigit is None else 10 ** (-ndigit)
-    h0 = math.sqrt(η)
+    epsf = max(epsf, eps) if epsf is not None else eps
+    h0 = math.sqrt(epsf)
 
     J = np.empty((fx.size, x.size))
     xh = x.copy()
@@ -288,7 +292,7 @@ def hessian_forward(
     *,
     fx: float | None = None,
     sclx: FloatVector | None = None,
-    ndigit: int | None = None,
+    epsf: float | None = None,
 ) -> FloatSquareMatrix:
     r"""Calculate the numerical Hessian of a scalar function $f(\mathbf{x})$
     using the forward finite-difference scheme.
@@ -323,12 +327,10 @@ def hessian_forward(
     sclx : FloatVector | None
         Scaling factors for `x`. Ideally, `x[i]*sclx[i]` is close to 1. By
         default, the factors are set internally based on the magnitudes of `x`.
-    ndigit : int | None
-        Number of reliable base-10 digits in the values returned by `f`. This
-        parameter is optional when the function is evaluated analytically,
-        but is essential when the function involves numerical procedures (such
-        as root finding or ODE integration). If `None`, machine precision is
-        assumed.
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
 
     Returns
     -------
@@ -348,8 +350,8 @@ def hessian_forward(
     fx = fx if fx is not None else f(x)
     sclx = np.abs(sclx) if sclx is not None else scalex(x)
 
-    η = eps if ndigit is None else 10 ** (-ndigit)
-    h0 = math.cbrt(η)
+    epsf = max(epsf, eps) if epsf is not None else eps
+    h0 = math.cbrt(epsf)
 
     N = x.size
     H = np.empty((N, N))
@@ -384,7 +386,7 @@ def hessian_forward(
 def hessian2_centered(
     f: Callable[[tuple[float, float]], float],
     x: tuple[float, float],
-    h: float = 0.0,
+    epsf: float | None = None,
 ) -> Float2x2Matrix:
     r"""Calculate the numerical Hessian of a scalar function $f(x,y)$ using the
     centered finite-difference scheme.
@@ -420,9 +422,10 @@ def hessian2_centered(
         Function to be differentiated.
     x : tuple[float, float]
         Differentiation point.
-    h : float
-        Finite-difference step. If `0`, it will be set to the theoretical
-        optimum value $h = \sqrt[3]{3\epsilon}$.
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
 
     Returns
     -------
@@ -440,16 +443,15 @@ def hessian2_centered(
     """
     x0, x1 = x
 
-    if h == 0:
-        h = math.cbrt(3 * eps)  # ~ 1e-5
-
-    h0 = h * (1 + abs(x0))
-    h1 = h * (1 + abs(x1))
+    epsf = max(epsf, eps) if epsf is not None else eps
+    h = math.cbrt(3 * epsf)
+    h0 = h * max(1.0, abs(x0))
+    h1 = h * max(1.0, abs(x1))
 
     H = np.empty((2, 2))
-    f0 = f(x)
-    H[0, 0] = (f((x0 + 2 * h0, x1)) - 2 * f0 + f((x0 - 2 * h0, x1))) / (4 * h0**2)
-    H[1, 1] = (f((x0, x1 + 2 * h1)) - 2 * f0 + f((x0, x1 - 2 * h1))) / (4 * h1**2)
+    fx = f(x)
+    H[0, 0] = (f((x0 + 2 * h0, x1)) - 2 * fx + f((x0 - 2 * h0, x1))) / (4 * h0**2)
+    H[1, 1] = (f((x0, x1 + 2 * h1)) - 2 * fx + f((x0, x1 - 2 * h1))) / (4 * h1**2)
     H[0, 1] = (
         f((x0 + h0, x1 + h1))
         - f((x0 + h0, x1 - h1))

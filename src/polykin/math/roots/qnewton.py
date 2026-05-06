@@ -30,7 +30,7 @@ def rootvec_qnewton(
     maxiter: int = 100,
     maxlenfac: float = 1e3,
     trustlen: float | None = None,
-    ndigit: int | None = None,
+    epsf: float | None = None,
     global_method: Literal["line-search", "dogleg"] | None = "line-search",
     broyden_update: bool = False,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
@@ -103,10 +103,10 @@ def rootvec_qnewton(
     trustlen : float | None
         Initial trust region radius for the `dogleg` global method. By default,
         the length of the initial scaled gradient is used.
-    ndigit : int | None
-        Number of reliable digits returned by `f`. Used to set the step size
-        for finite-difference Jacobian approximations. By default, 64-bit float
-        precision is assumed (i.e., ~15 digits).
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
     global_method : Literal['line-search','dogleg'] | None
         Global strategy to improve convergence from remote starting points. With
         `line-search`, the search direction is computed using the quasi-Newton
@@ -197,15 +197,15 @@ def rootvec_qnewton(
             J = jac(xc)
             njeval += 1
         else:
-            J = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
+            J = jacobian_forward(f, xc, fx=fc, sclx=sclx, epsf=epsf)
             nfeval += n
 
     # Check user-provided Jacobian against finite-difference approximation
     if jac_check and jac is not None:
-        J_fd = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
+        J_fd = jacobian_forward(f, xc, fx=fc, sclx=sclx, epsf=epsf)
         nfeval += n
-        ndigit_ = ndigit if ndigit is not None else 15
-        tol = 10 ** (-ndigit_ // 2 + 2)
+        _epsf = max(epsf, eps) if epsf is not None else eps
+        tol = 1e2 * math.sqrt(_epsf)
         if not np.allclose(J, J_fd, rtol=tol, atol=tol):
             message = "User-provided Jacobian `jac` does not match finite-difference approximation."  # noqa: E501
             return VectorRootResult(method, False, message, nfeval, njeval, 0, x0, fc, J)
@@ -318,7 +318,7 @@ def rootvec_qnewton(
                 J = jac(xc)
                 njeval += 1
             else:
-                J = jacobian_forward(f, xc, fx=fc, sclx=sclx, ndigit=ndigit)
+                J = jacobian_forward(f, xc, fx=fc, sclx=sclx, epsf=epsf)
                 nfeval += n
             restart = True
             continue
@@ -357,7 +357,7 @@ def rootvec_qnewton(
                 J = jac(xp)
                 njeval += 1
             else:
-                J = jacobian_forward(f, xp, fx=fp, sclx=sclx, ndigit=ndigit)
+                J = jacobian_forward(f, xp, fx=fp, sclx=sclx, epsf=epsf)
                 nfeval += n
 
         # Next iteration

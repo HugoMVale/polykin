@@ -57,7 +57,7 @@ def test_hessian2_centered():
         np.array([[2 * x1**3, 6 * x0 * x1**2], [6 * x0 * x1**2, 6 * x1 * x0**2]]),
         rtol=1e-6,
     )
-    H = hessian2_centered(fnc2, (x0, x1), h=1e-2)
+    H = hessian2_centered(fnc2, (x0, x1), epsf=1e-6)
     assert allclose(
         H,
         np.array([[2 * x1**3, 6 * x0 * x1**2], [6 * x0 * x1**2, 6 * x1 * x0**2]]),

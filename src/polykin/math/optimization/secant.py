@@ -2,6 +2,7 @@
 #
 # Copyright Hugo Vale 2026
 
+import math
 from collections.abc import Callable
 from typing import Literal
 
@@ -9,7 +10,7 @@ from polykin.math.derivatives import (
     derivative_centered,
     derivative_complex,
 )
-from polykin.math.machine import eps, sqrt_eps
+from polykin.math.machine import eps
 from polykin.math.optimization.results import OptimumResult
 
 __all__ = ["fmin_secant"]
@@ -23,7 +24,7 @@ def fmin_secant(
     tolx: float = 1e-10,
     tolg: float = 1e-5,
     maxiter: int = 50,
-    ndigit: int | None = None,
+    epsf: float | None = None,
     diff_scheme: Literal["centered", "complex"] = "centered",
     callback: Callable[[int, float, float, float], tuple[bool, bool]] | None = None,
 ) -> OptimumResult:
@@ -61,10 +62,10 @@ def fmin_secant(
         order of $\epsilon^{1/3}$ is typically recommended.
     maxiter : int
         Maximum number of iterations.
-    ndigit : int | None
-        Number of reliable digits returned by `f`. Used to set the step size for centered
-        finite-difference derivative approximations. By default, 64-bit float precision is
-        assumed (i.e., ~15 digits).
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
     diff_scheme : Literal['centered', 'complex']
         Numerical differentiation scheme used to approximate `f'(x)`. The 'centered'
         scheme uses a centered finite difference, while the 'complex' scheme uses
@@ -100,14 +101,15 @@ def fmin_secant(
     message = ""
     nfeval = 0
 
-    # Set base step for centered finite difference
-    h0 = 10 ** (-max(1, min(ndigit, 15)) // 3) if ndigit is not None else 0.0
+    # Set machine precision for function values
+    epsf = max(epsf, eps) if epsf is not None else eps
+    sqrt_epsf = math.sqrt(epsf)
 
     # Helper function to evaluate the derivative
     def eval_derivative(x: float) -> tuple[float, float]:
         nonlocal nfeval
         if diff_scheme == "centered":
-            dfx, fx = derivative_centered(f, x, h=h0 * max(1.0, abs(x)))
+            dfx, fx = derivative_centered(f, x, epsf=epsf)
             nfeval += 2
         elif diff_scheme == "complex":
             dfx, fx = derivative_complex(f, x)
@@ -136,7 +138,7 @@ def fmin_secant(
 
     for niter in range(1, maxiter + 1):
         Δdf = df1 - df0
-        if abs(Δdf) <= eps * max(abs(df0), abs(df1), 1.0):
+        if abs(Δdf) <= epsf * max(abs(df0), abs(df1), 1.0):
             message = f"Nearly zero slope between x[k-1]={x0} and x[k]={x1} (Δf'={Δdf})."
             break
 
@@ -151,7 +153,7 @@ def fmin_secant(
                 success = _success
                 break
 
-        if (f2 - f1) > sqrt_eps * max(abs(f1), abs(f2), 1.0):
+        if (f2 - f1) > sqrt_epsf * max(abs(f1), abs(f2), 1.0):
             message = (
                 f"Function value increased from {f1} at x[k-1]={x1} to {f2} at x[k]={x2}."
             )
