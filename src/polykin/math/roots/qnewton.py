@@ -35,7 +35,7 @@ def rootvec_qnewton(
     broyden_update: bool = False,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
     jac0: FloatMatrix | None = None,
-    jac_check: bool = False,
+    jac_check: bool = True,
     verbose: bool = False,
 ) -> VectorRootResult:
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
@@ -71,72 +71,68 @@ def rootvec_qnewton(
     f : Callable[[FloatVector], FloatVector]
         Function whose root is to be found.
     x0 : FloatVectorLike (N)
-        Initial guess for the root. Moreover, if no user-defined scale `sclx`
-        is provided, the scaling factors will be determined from this value.
+        Initial guess for the root. Moreover, if no user-defined scale `sclx` is provided,
+        the scaling factors will be determined from this value.
     tolx : float
-        Tolerance for the scaled step size. The algorithm terminates when the
-        scaled distance between two successive iterates `||Δx/max(x, 1/sclx)||∞`
-        is below this threshold. If the value is too large, the algorithm may
-        terminate prematurely. A value on the order of $\epsilon^{2/3}$ is
-        typically recommended.
+        Tolerance for the scaled step size. The algorithm terminates when the scaled
+        distance between two successive iterates `||Δx/max(x, 1/sclx)||∞` is below this
+        threshold. If the value is too large, the algorithm may terminate prematurely. A
+        value on the order of $\epsilon_f^{2/3}$ is typically recommended.
     tolf : float
-        Tolerance for the scaled residual norm. This is the main convergence
-        criterion. The algorithm terminates when the infinity norm of the scaled
-        function values `||sclf*f(x)||∞` is below this threshold. A value on
-        the order of $\epsilon^{1/3}$ is typically recommended.
+        Tolerance for the scaled residual norm. This is the main convergence criterion.
+        The algorithm terminates when the infinity norm of the scaled function values
+        `||sclf*f(x)||∞` is below this threshold. A value on the order of
+        $\epsilon_f^{1/3}$ is typically recommended.
     sclx : FloatVectorLike (N) | None
-        Positive scaling factors for the components of `x`. Ideally, these
-        should be chosen so that `sclx*x` is of order 1 near the solution for
-        all components. By default, scaling is determined from `x0`.
+        Positive scaling factors for the components of `x`. Ideally, these should be
+        chosen so that `sclx*x` is of order 1 near the solution for all components. By
+        default, scaling is determined from `x0`.
     sclf : FloatVectorLike (N) | None
-        Positive scaling factors for the components of `f`. Ideally, these
-        should be chosen so that `sclf*f` is of order 1 near the root for all
-        components. By default, scaling is determined from the initial Jacobian.
+        Positive scaling factors for the components of `f`. Ideally, these should be
+        chosen so that `sclf*f` is of order 1 near the root for all components. By
+        default, scaling is determined from the initial Jacobian.
     maxiter : int
         Maximum number of outer quasi-Newton iterations.
     maxlenfac : float
-        Factor determining the maximum allowable scaled step length `||sclx*Δx||₂`
-        for global methods. Used to prevent steps that would cause the algorithm
-        to overflow, leave the domain of interest, or diverge. It should be
-        chosen small enough to prevent such issues, but large enough to allow
-        any anticipated reasonable step length.
+        Factor determining the maximum allowable scaled step length `||sclx*Δx||₂` for
+        global methods. Used to prevent steps that would cause the algorithm to overflow,
+        leave the domain of interest, or diverge. It should be chosen small enough to
+        prevent such issues, but large enough to allow any anticipated reasonable step
+        length.
     trustlen : float | None
-        Initial trust region radius for the `dogleg` global method. By default,
-        the length of the initial scaled gradient is used.
+        Initial trust region radius for the `dogleg` global method. By default, the length
+        of the initial scaled gradient is used.
     epsf : float | None
         Machine precision of the function values. If `None`, machine precision of 64-bit
         floating-point type is assumed. If the number of reliable base-10 digits in the
         results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
     global_method : Literal['line-search','dogleg'] | None
         Global strategy to improve convergence from remote starting points. With
-        `line-search`, the search direction is computed using the quasi-Newton
-        step and the length of the step is determined by backtracking until
-        the Armijo condition is fulfiled. With `dogleg`, a trust-region dogleg
-        method is used to compute both the step direction and length. If `None`,
-        no global strategy is used and the full quasi-Newton step is taken at
-        each iteration.
+        `line-search`, the search direction is computed using the quasi-Newton step and
+        the length of the step is determined by backtracking until the Armijo condition is
+        fulfiled. With `dogleg`, a trust-region dogleg method is used to compute both the
+        step direction and length. If `None`, no global strategy is used and the full
+        quasi-Newton step is taken at each iteration.
     broyden_update : bool
-        If `True`, the Jacobian is updated at each iteration using Broyden's
-        rank-1 update formula. If `False`, the Jacobian is computed at each
-        iteration using either the provided `jac` function or finite differences.
-        Broyden's update significantly reduces the number of function/Jacobian
-        evaluations required, but may lead to inaccurate Jacobian approximations
-        and poor convergence if the initial guess is far from the root or if the
-        function is highly nonlinear.
+        If `True`, the Jacobian is updated at each iteration using Broyden's rank-1 update
+        formula. If `False`, the Jacobian is computed at each iteration using either the
+        provided `jac` function or finite differences. Broyden's update significantly
+        reduces the number of function/Jacobian evaluations required, but may lead to
+        inaccurate Jacobian approximations and poor convergence if the initial guess is
+        far from the root or if the function is highly nonlinear.
     jac : Callable[[FloatVector], FloatMatrix] | None
-        Function to compute the Jacobian  of `f`. By default, the Jacobian is
-        approximated using forward finite differences. In this case, setting
-        `ndigit` appropriately is essential.
+        Function to compute the Jacobian  of `f`. By default, the Jacobian is approximated
+        using forward finite differences. In this case, setting `epsf` appropriately is
+        essential.
     jac0 : FloatMatrix | None
-        Initial Jacobian approximation at `x0`. If provided, it is used instead
-        of computing the Jacobian at the first iteration. This can be useful in
-        case of a restart, or when a simple initial approximation is sufficient
-        (e.g., the identity matrix) and one wants to reduce the number of function
-        calls.
+        Initial Jacobian approximation at `x0`. If provided, it is used instead of
+        computing the Jacobian at the first iteration. This can be useful in case of a
+        restart, or when a simple initial approximation is sufficient (e.g., the identity
+        matrix) and one wants to reduce the number of function calls.
     jac_check : bool
         If `True`, the Jacobian provided by `jac` is checked against a forward
-        finite-difference approximation at `x0`. This can help identify errors
-        in the user-provided Jacobian.
+        finite-difference approximation at `x0`. This can help identify errors in the
+        user-provided Jacobian.
     verbose : bool
         Print iteration information.
 
