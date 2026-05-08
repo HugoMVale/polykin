@@ -1,6 +1,6 @@
 # Optimization Solvers (polykin.math.optimization)
 
-## Scalar Optimization
+## Univariate Optimization
 
 These solvers cover the typical trade-off between local speed and global robustness for minimization of scalar objective functions $f(x)$. They differ in the use of derivatives and whether a bounded interval is required.
 
@@ -8,7 +8,7 @@ These solvers cover the typical trade-off between local speed and global robustn
 
 [fmin_brent] is a robust bounded method for cases where an interval containing a minimum is known. It combines golden-section search with inverse parabolic interpolation, achieving reliable convergence while exploiting smoothness when present. It does not require derivatives and is the preferred choice for safe one-dimensional minimization within a bracketed interval.
 
-## Multidimensional Optimization
+## Multivariate Optimization
 
 At present, `polykin.math.optimization` does not include solvers for multidimensional optimization.
 
