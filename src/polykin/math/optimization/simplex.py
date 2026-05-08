@@ -42,7 +42,7 @@ def fmin_nelder_mead(
 
     Parameters
     ----------
-    f : Callable[[FloatVector], float]
+    f : Callable[[FloatVector (N)], float]
         Objective function to minimize.
     x0 : FloatVectorLike (N)
         Initial guess for the optimum. Moreover, if no user-defined scale `sclx` is
@@ -64,7 +64,7 @@ def fmin_nelder_mead(
     adaptive : bool
         Whether to use the adaptive parameter scheme proposed by Gao (2012). If `False`,
         the standard Nelder-Mead parameters are used.
-    callback : Callable[[int, FloatMatrix, FloatVector], tuple[bool, bool]] | None
+    callback : Callable[[int, FloatMatrix (N+1, N), FloatVector (N+1)], tuple[bool, bool]] | None
         Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
         at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
         is `True`, the optimization is considered successful.
@@ -82,7 +82,7 @@ def fmin_nelder_mead(
     >>> sol = fmin_nelder_mead(lambda x: (x[0] - 1e2)**2 + (x[1] - 1e10)**2, [1, 1e8])
     >>> print(f"x = {sol.x}, f(x) = {sol.f}")
     x = [9.99999864e+01 1.00000000e+10], f(x) = 1.9451564775785983e-09
-    """
+    """  # noqa: E501
     method = "Nelder-Mead"
     message = ""
     success = False
@@ -166,7 +166,7 @@ def fmin_nelder_mead(
         xc = (np.sum(x, axis=0) - x[imax]) / n
 
         # Reflection
-        xr = (1 + a) * xc - a * x[imax]
+        xr = (1.0 + a) * xc - a * x[imax]
         fr = f(xr)
         nfeval += 1
 
@@ -175,7 +175,7 @@ def fmin_nelder_mead(
             x[imax, :] = xr
             fx[imax] = fr
         elif fr < fmin:
-            xe = (1 + a * b) * xc - a * b * x[imax]
+            xe = (1.0 + a * b) * xc - a * b * x[imax]
             fe = f(xe)
             nfeval += 1
             if fe < fr:
@@ -185,7 +185,7 @@ def fmin_nelder_mead(
                 x[imax, :] = xr
                 fx[imax] = fr
         elif fmax2 <= fr < fmax:
-            xoc = (1 + a * c) * xc - a * c * x[imax]
+            xoc = (1.0 + a * c) * xc - a * c * x[imax]
             foc = f(xoc)
             nfeval += 1
             if foc <= fr:
@@ -194,7 +194,7 @@ def fmin_nelder_mead(
             else:
                 shrink = True
         else:
-            xic = (1 - a * c) * xc + a * c * x[imax]
+            xic = (1.0 - a * c) * xc + a * c * x[imax]
             fic = f(xic)
             nfeval += 1
             if fic < fmax:
@@ -207,7 +207,7 @@ def fmin_nelder_mead(
             for k in range(n + 1):
                 if k == imin:
                     continue
-                xs = d * x[k, :] + (1 - d) * xmin
+                xs = d * x[k, :] + (1.0 - d) * xmin
                 x[k, :] = xs
                 fx[k] = f(xs)
                 nfeval += 1
