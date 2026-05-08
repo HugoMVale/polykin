@@ -208,9 +208,10 @@ def rootvec_qnewton(
 
     # Set f scaling factors
     if sclf is None:
-        sclf = np.max(np.abs(J), axis=1)
+        sclf = np.empty(n, dtype=float)
+        sclf[:] = np.max(np.abs(J), axis=1)
         sclf[sclf == 0.0] = 1.0
-        sclf = 1.0 / sclf
+        sclf[:] = 1.0 / sclf
     else:
         sclf = np.abs(np.asarray(sclf, dtype=float))
 
@@ -220,7 +221,7 @@ def rootvec_qnewton(
         return VectorRootResult(method, True, message, nfeval, njeval, 0, x0, fc, J)
 
     # Set maximum step length for global methods
-    maxlen = max(0.0, maxlenfac) * float(max(norm(sclx * x0), norm(sclx)))
+    maxlen = max(0.0, maxlenfac) * max(norm(sclx * x0).item(), norm(sclx).item())
 
     # Set initial trust region radius for dogleg method
     if trustlen is None:
