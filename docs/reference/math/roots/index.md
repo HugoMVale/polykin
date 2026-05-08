@@ -1,6 +1,6 @@
 # Root Solvers (polykin.math.roots)
 
-## Scalar Problems
+## Single Equation
 
 These three solvers span the usual tradeoff between local speed and global robustness for real-valued equations $f(x)=0$. They differ mainly in how much information they require and how sensitive they are to the initial guess.
 
@@ -10,7 +10,7 @@ These three solvers span the usual tradeoff between local speed and global robus
 
 [root_brent] is the safest choice when a bracketing interval is available. By combining bisection, secant steps, and inverse quadratic interpolation, it maintains the reliability of bracketed methods while recovering much of the speed of open methods. The only requirement is an interval where the function changes sign; when this is available, Brent’s method is typically the best choice for robust production use.
 
-## Multivariable Problems
+## System of Equations
 
 [rootvec_qnewton] targets systems of nonlinear equations $\boldsymbol{F}(\boldsymbol{x})=\boldsymbol{0}$, which are inherently more challenging than scalar problems. There is no multidimensional analogue of bracketing, and thus no method combining global guarantees with high efficiency comparable to Brent’s method.
 
