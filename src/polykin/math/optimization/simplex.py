@@ -222,6 +222,4 @@ def fmin_nelder_mead(
         niter=niter,
         x=xmin,
         f=fmin,
-        g=None,
-        H=None,
     )
