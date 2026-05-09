@@ -87,9 +87,12 @@ class VectorOptimumResult:
     g: FloatVector | None
         Gradient at the optimum.
     H: FloatMatrix | None
-        Last evaluated or estimated Hessian matrix. For BFGS-based updates, this may
-        represent the dense Hessian, the inverse Hessian ($H^{-1}$), or the Cholesky
-        factor $L$ (where $H = LL^T$), depending on the `method` used.
+        Last evaluated or estimated Hessian matrix.
+    Hinv: FloatMatrix | None
+        Last evaluated or estimated inverse Hessian ($H^{-1}$) matrix.
+    L: FloatMatrix | None
+        Last evaluated or estimated Cholesky factor $L$ (where $H = LL^T$) of the
+        Hessian matrix.
     """
 
     method: str
@@ -103,6 +106,8 @@ class VectorOptimumResult:
     f: float
     g: FloatVector | None = None
     H: FloatMatrix | None = None
+    Hinv: FloatMatrix | None = None
+    L: FloatMatrix | None = None
 
     def __repr__(self) -> str:
         """Return a string representation of the optimum result."""
@@ -117,5 +122,7 @@ class VectorOptimumResult:
             f"      x: {self.x}\n"
             f"      f: {self.f}\n"
             f"      g: {self.g}\n"
-            f"      H: {self.H}"
+            f"      H: {self.H}\n"
+            f"   Hinv: {self.Hinv}\n"
+            f"      L: {self.L}"
         )
