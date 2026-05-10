@@ -88,12 +88,18 @@ def fmin_secant(
 
     Examples
     --------
-    Find the minimum of the function `f(x) = (x - 2)^2 + 1`.
+    Find the minimum of the function `f(x) = x^4 - x + 1`.
     >>> from polykin.math import fmin_secant
-    >>> f = lambda x: (x - 2)**2 + 1
-    >>> sol = fmin_secant(f, 3.0, 3.1)
-    >>> print(f"x = {sol.x:.6f}, f(x) = {sol.f:.6f}")
-    x = 2.000000, f(x) = 1.000000
+    >>> f = lambda x: x**4 - x + 1
+    >>> fmin_secant(f, 2.0, 1.0)
+     method: Secant
+    success: True
+    message: |f'(x)| ≤ tolg
+     nfeval: 16
+      niter: 6
+          x: 0.629961353822603
+          f: 0.5275296064726742
+         df: 3.947470934076736e-06
     """
     # Initialize results
     method = "Secant"

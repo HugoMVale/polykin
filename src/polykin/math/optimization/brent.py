@@ -64,12 +64,18 @@ def fmin_brent(
 
     Examples
     --------
-    Find the minimum of the function `f(x) = (x - 2)^2 + 1`.
+    Find the minimum of the function `f(x) = x^4 - x + 1`.
     >>> from polykin.math import fmin_brent
-    >>> f = lambda x: (x - 2)**2 + 1
-    >>> sol = fmin_brent(f, 0.0, 4.0)
-    >>> print(f"x = {sol.x:.6f}, f(x) = {sol.f:.6f}")
-    x = 2.000000, f(x) = 1.000000
+    >>> f = lambda x: x**4 - x + 1
+    >>> fmin_brent(f, -3.0, 3.0)
+     method: Brent
+    success: True
+    message: |Δx| ≤ tolx
+     nfeval: 14
+      niter: 14
+          x: 0.6299605262795589
+          f: 0.5275296062894226
+         df: None
     """
     method = "Brent"
     success = False
