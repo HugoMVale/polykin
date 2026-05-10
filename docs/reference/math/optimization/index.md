@@ -10,7 +10,13 @@ These solvers cover the typical trade-off between local speed and global robustn
 
 ## Multivariate Optimization
 
-At present, `polykin.math.optimization` does not include solvers for multidimensional optimization.
+These solvers provide different trade-offs between robustness, efficiency, and derivative requirements for unconstrained minimization of multivariate objective functions, $f(\mathbf{x})$.
+
+[fmin_nelder_mead] is a derivative-free method for unconstrained minimization of multivariate functions. It evolves a simplex of trial points through reflection, expansion, contraction, and shrink operations, making it useful when derivatives are unavailable, unreliable, or too expensive to compute. In exchange for this flexibility, convergence is usually slower than with gradient-based methods, and performance may degrade for poorly scaled or high-dimensional problems.
+
+[fmin_qnewton] is a fast local method for smooth unconstrained problems when gradient information is available analytically or can be estimated accurately. It combines Newton-type curvature information with optional BFGS Hessian updates and supports either a line-search or dogleg globalization strategy to improve robustness from remote initial guesses. This is generally the preferred solver when the objective is differentiable and a reasonably good starting point is available. As with other quasi-Newton methods, however, convergence remains fundamentally local.
 
 [fmin_secant]: fmin_secant.md
 [fmin_brent]: fmin_brent.md
+[fmin_nelder_mead]: fmin_nelder_mead.md
+[fmin_qnewton]: fmin_qnewton.md
