@@ -200,7 +200,7 @@ def gradient_forward(
     xh = x.copy()
 
     for i in range(x.size):
-        h = h0 * max(abs(x[i]), abs(1 / sclx[i]))
+        h = h0 * max(abs(x[i]), 1 / sclx[i])
         xtemp = xh[i]
         xh[i] += h
         h = xh[i] - xtemp
@@ -276,7 +276,7 @@ def jacobian_forward(
     xh = x.copy()
 
     for i in range(x.size):
-        h = h0 * max(abs(x[i]), abs(1 / sclx[i]))
+        h = h0 * max(abs(x[i]), 1 / sclx[i])
         xtemp = xh[i]
         xh[i] += h
         h = xh[i] - xtemp
@@ -356,7 +356,7 @@ def hessian_forward(
     xh = x.copy()
 
     for i in range(N):
-        h[i] = h0 * max(abs(x[i]), abs(1 / sclx[i]))
+        h[i] = h0 * max(abs(x[i]), 1 / sclx[i])
         xtemp1 = xh[i]
         xh[i] += h[i]
         h[i] = xh[i] - xtemp1
