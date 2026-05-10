@@ -114,18 +114,22 @@ class VectorOptimumResult:
 
     def __repr__(self) -> str:
         """Return a string representation of the optimum result."""
-        return (
-            f" method: {self.method}\n"
-            f"success: {colored_bool(self.success)}\n"
-            f"message: {self.message}\n"
-            f" nfeval: {self.nfeval}\n"
-            f" ngeval: {self.ngeval}\n"
-            f" nheval: {self.nheval}\n"
-            f"  niter: {self.niter}\n"
-            f"      x: {self.x}\n"
-            f"      f: {self.f}\n"
-            f"      g: {self.g}\n"
-            f"      H: {self.H}\n"
-            f"   Hinv: {self.Hinv}\n"
-            f"      L: {self.L}"
+        rows = [
+            ("method", self.method),
+            ("success", colored_bool(self.success)),
+            ("message", self.message),
+            ("nfeval", self.nfeval),
+            ("ngeval", self.ngeval),
+            ("nheval", self.nheval),
+            ("niter", self.niter),
+            ("x", self.x),
+            ("f", self.f),
+            ("g", self.g),
+            ("H", self.H),
+            ("Hinv", self.Hinv),
+            ("L", self.L),
+        ]
+
+        return "\n".join(
+            f"{name:>7}: {value}" for name, value in rows if value is not None
         )
