@@ -77,12 +77,12 @@ def rootvec_qnewton(
         Tolerance for the scaled step size. The algorithm terminates when the scaled
         distance between two successive iterates `||Δx/max(x, 1/sclx)||∞` is below this
         threshold. If the value is too large, the algorithm may terminate prematurely. A
-        value on the order of $\epsilon_f^{2/3}$ is typically recommended.
+        value on the order of $\epsilon^{2/3}$ is typically recommended.
     tolf : float
         Tolerance for the scaled residual norm. This is the main convergence criterion.
         The algorithm terminates when the infinity norm of the scaled function values
         `||sclf*f(x)||∞` is below this threshold. A value on the order of
-        $\epsilon_f^{1/3}$ is typically recommended.
+        $\epsilon^{1/3}$ is typically recommended.
     sclx : FloatVectorLike (N) | None
         Positive scaling factors for the components of `x`. Ideally, these should be
         chosen so that `sclx*x` is of order 1 near the solution for all components. By
