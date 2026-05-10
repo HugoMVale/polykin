@@ -29,8 +29,8 @@ def fmin_nelder_mead(
     algorithm.
 
     The Nelder-Mead simplex algorithm is a derivative-free optimization method for
-    unconstrained minimization of multivariate functions. It maintains a simplex of `n+1`
-    vertices in `n`-dimensional space and iteratively updates this simplex based on the
+    unconstrained minimization of multivariate functions. It maintains a simplex of `N+1`
+    vertices in `N`-dimensional space and iteratively updates this simplex based on the
     function values at the vertices.
 
     **References**
@@ -79,9 +79,14 @@ def fmin_nelder_mead(
     Find the minimum of the function `f(x) = (x[0] - 1e2)^2 + (x[1] - 1e10)^2`.
     >>> import numpy as np
     >>> from polykin.math import fmin_nelder_mead
-    >>> sol = fmin_nelder_mead(lambda x: (x[0] - 1e2)**2 + (x[1] - 1e10)**2, [1, 1e8])
-    >>> print(f"x = {sol.x}, f(x) = {sol.f}")
-    x = [9.99999864e+01 1.00000000e+10], f(x) = 1.9451564775785983e-09
+    >>> fmin_nelder_mead(lambda x: (x[0] - 1e2)**2 + (x[1] - 1e10)**2, [1, 1e8])
+     method: Nelder-Mead
+    success: True
+    message: Function value spread is less than `tolf`.
+     nfeval: 226
+      niter: 122
+          x: [9.99999864e+01 1.00000000e+10]
+          f: 1.9451564775785983e-09
     """  # noqa: E501
     method = "Nelder-Mead"
     message = ""
