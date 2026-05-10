@@ -48,16 +48,19 @@ class OptimumResult:
 
     def __repr__(self) -> str:
         """Return a string representation of the optimum result."""
-        return (
+        result = (
             f" method: {self.method}\n"
             f"success: {colored_bool(self.success)}\n"
             f"message: {self.message}\n"
             f" nfeval: {self.nfeval}\n"
             f"  niter: {self.niter}\n"
-            f"      x: {self.x}\n"
-            f"      f: {self.f}\n"
-            f"     df: {self.df}"
+            f"      x: {self.x:.8e}\n"
+            f"      f: {self.f:.8e}"
         )
+        if self.df is not None:
+            result += f"\n     df: {self.df:.8e}"
+
+        return result
 
 
 @dataclass(frozen=True, slots=True)

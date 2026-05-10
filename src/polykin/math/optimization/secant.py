@@ -97,9 +97,9 @@ def fmin_secant(
     message: |f'(x)| ≤ tolg
      nfeval: 16
       niter: 6
-          x: 0.629961353822603
-          f: 0.5275296064726742
-         df: 3.947470934076736e-06
+          x: 6.29961354e-01
+          f: 5.27529606e-01
+         df: 3.94747093e-06
     """
     # Initialize results
     method = "Secant"

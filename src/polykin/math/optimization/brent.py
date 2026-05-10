@@ -73,9 +73,8 @@ def fmin_brent(
     message: |Δx| ≤ tolx
      nfeval: 14
       niter: 14
-          x: 0.6299605262795589
-          f: 0.5275296062894226
-         df: None
+          x: 6.29960526e-01
+          f: 5.27529606e-01
     """
     method = "Brent"
     success = False
