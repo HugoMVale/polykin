@@ -119,8 +119,7 @@ def fmin_nelder_mead(
     x[0] = x0
     for k in range(n):
         x[k + 1, :] = x0
-        step = 0.05 if x0[k] != 0 else 0.00025  # step used in Gao (2012)
-        step *= max(abs(x0[k]), 1.0)
+        step = 0.05 * max(abs(x0[k]), 1.0 / sclx[k])
         x[k + 1, k] += step
 
     # Evaluate the function at the simplex vertices
