@@ -26,8 +26,8 @@ def to_html(plt_obj, fmt="png", dpi=100, transparent=True, **kwargs):
     dpi : int, optional
         The resolution in dots per inch. The default is 100.
     transparent : bool, optional
-        If True, the axes patches will be transparent. Useful for
-        documentation with dark/light mode toggles. The default is True.
+        If `True`, the axes patches will be transparent. Useful for
+        documentation with dark/light mode toggles. The default is `True`.
     **kwargs : dict
         Additional keyword arguments passed to `savefig`.
 
