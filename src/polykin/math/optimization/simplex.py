@@ -29,9 +29,19 @@ def fmin_nelder_mead(
     algorithm.
 
     The Nelder-Mead simplex algorithm is a derivative-free optimization method for
-    unconstrained minimization of multivariate functions. It maintains a simplex of `N+1`
-    vertices in `N`-dimensional space and iteratively updates this simplex based on the
+    unconstrained minimization of multivariate functions. It maintains a simplex of $N+1$
+    vertices in $N$-dimensional space and iteratively updates this simplex based on the
     function values at the vertices.
+
+    The initial simplex is aligned with the coordinate axes. For each coordinate, the
+    corresponding simplex vertex offset is:
+
+    $$ \Delta x_i = 0.05 \max(|x_{0,i}|, 1/\mathrm{sclx}_i) $$
+
+    where $x_0$ is the initial guess and $\mathrm{sclx}_i$ is the scaling factor
+    associated with variable $x_i$. Therefore, it is important that `x0` and/or
+    `sclx` reflect the expected scale of the variables. If `sclx` is not provided, the
+    variable scaling is inferred from `x0`.
 
     **References**
 
@@ -56,7 +66,7 @@ def fmin_nelder_mead(
     sclx : FloatVectorLike (N) | None
         Positive scaling factors for the components of `x`. Ideally, these should be
         chosen so that `sclx*x` is of order 1 near the solution for all components. By
-        default, scaling is determined from `x0`.
+        default, scaling is inferred from `x0`.
     maxiter : int | None
         Maximum number of iterations. By default, a value of `200*N` is used.
     maxfeval : int | None
