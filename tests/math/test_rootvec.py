@@ -114,7 +114,7 @@ def test_rootvec_qnewton():
 
     # Easy ones also work with approximate jac0 and Broyden update
     f = f_example65
-    sol = rootvec_qnewton(f, f.x0, broyden_update=True, jac0=np.eye(f.x0.size))
+    sol = rootvec_qnewton(f, f.x0, broyden_update=True, J0=np.eye(f.x0.size))
     assert sol.success
 
     # With analytic jacobian

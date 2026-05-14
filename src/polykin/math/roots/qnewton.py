@@ -35,7 +35,7 @@ def rootvec_qnewton(
     broyden_update: bool = False,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
     jac_check: bool = True,
-    jac0: FloatMatrix | None = None,
+    J0: FloatMatrix | None = None,
     verbose: bool = False,
 ) -> VectorRootResult:
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
@@ -128,7 +128,7 @@ def rootvec_qnewton(
         If `True`, the Jacobian provided by `jac` is checked against a forward
         finite-difference approximation at `x0`. This can help identify errors in the
         user-provided Jacobian.
-    jac0 : FloatMatrix | None
+    J0 : FloatMatrix | None
         Initial Jacobian approximation at `x0`. If provided, it is used instead of
         computing the Jacobian at the first iteration. This can be useful in case of a
         restart, or when a simple initial approximation is sufficient (e.g., the identity
@@ -186,8 +186,8 @@ def rootvec_qnewton(
     sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
 
     # Evaluate Jacobian at x0
-    if jac0 is not None:
-        J = jac0.copy()
+    if J0 is not None:
+        J = J0.copy()
     else:
         if jac is not None:
             J = jac(xc)
