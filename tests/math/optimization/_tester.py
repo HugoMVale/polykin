@@ -50,17 +50,15 @@ def zakharov_hess(x):
 
 
 TEST_FUNCTIONS_MULTIVAR = {
-    "rosenbrock": {
-        "function": lambda x: np.sum(
-            100.0 * (x[1:] - x[:-1] ** 2) ** 2 + (1 - x[:-1]) ** 2
-        ),
-        "gradient": rosenbrock_grad,
-        "hessian": rosenbrock_hess,
+    "sphere": {
+        "function": lambda x: np.sum(x**2),
+        "gradient": lambda x: 2.0 * x,
+        "hessian": lambda x: 2.0 * np.eye(len(x)),
         "global_minimum": 0.0,
-        "global_minimizer": lambda n: np.ones(n),
-        # classic challenging but not extreme start
-        "initial_point": lambda n: np.full(n, -1.2),
-        "properties": ["valley", "non-convex"],
+        "global_minimizer": lambda n: np.zeros(n),
+        # Simple start to verify basic algorithm correctness
+        "initial_point": lambda n: np.full(n, 5.0),
+        "properties": ["convex", "well-conditioned", "separable"],
     },
     "ellipsoid": {
         "function": lambda x: np.sum(ellipsoid_coeffs(x) * x**2),
@@ -72,15 +70,17 @@ TEST_FUNCTIONS_MULTIVAR = {
         "initial_point": lambda n: np.linspace(1.0, 2.0, n),
         "properties": ["ill-conditioned", "convex"],
     },
-    "sphere": {
-        "function": lambda x: np.sum(x**2),
-        "gradient": lambda x: 2.0 * x,
-        "hessian": lambda x: 2.0 * np.eye(len(x)),
+    "rosenbrock": {
+        "function": lambda x: np.sum(
+            100.0 * (x[1:] - x[:-1] ** 2) ** 2 + (1 - x[:-1]) ** 2
+        ),
+        "gradient": rosenbrock_grad,
+        "hessian": rosenbrock_hess,
         "global_minimum": 0.0,
-        "global_minimizer": lambda n: np.zeros(n),
-        # Simple start to verify basic algorithm correctness
-        "initial_point": lambda n: np.full(n, 5.0),
-        "properties": ["convex", "well-conditioned", "separable"],
+        "global_minimizer": lambda n: np.ones(n),
+        # classic challenging but not extreme start
+        "initial_point": lambda n: np.full(n, -1.2),
+        "properties": ["valley", "non-convex"],
     },
     "zakharov": {
         "function": lambda x: np.sum(x**2) + zakharov_u(x) ** 2 + zakharov_u(x) ** 4,
