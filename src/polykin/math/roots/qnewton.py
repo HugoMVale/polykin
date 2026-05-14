@@ -34,8 +34,8 @@ def rootvec_qnewton(
     global_method: Literal["line-search", "dogleg"] | None = "line-search",
     broyden_update: bool = False,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
-    jac0: FloatMatrix | None = None,
     jac_check: bool = True,
+    jac0: FloatMatrix | None = None,
     verbose: bool = False,
 ) -> VectorRootResult:
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
@@ -124,15 +124,15 @@ def rootvec_qnewton(
         Function to compute the Jacobian  of `f`. By default, the Jacobian is approximated
         using forward finite differences. In this case, setting `epsf` appropriately is
         essential.
+    jac_check : bool
+        If `True`, the Jacobian provided by `jac` is checked against a forward
+        finite-difference approximation at `x0`. This can help identify errors in the
+        user-provided Jacobian.
     jac0 : FloatMatrix | None
         Initial Jacobian approximation at `x0`. If provided, it is used instead of
         computing the Jacobian at the first iteration. This can be useful in case of a
         restart, or when a simple initial approximation is sufficient (e.g., the identity
         matrix) and one wants to reduce the number of function calls.
-    jac_check : bool
-        If `True`, the Jacobian provided by `jac` is checked against a forward
-        finite-difference approximation at `x0`. This can help identify errors in the
-        user-provided Jacobian.
     verbose : bool
         Print iteration information.
 
