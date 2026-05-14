@@ -37,7 +37,7 @@ def fmin_qnewton(
     maxlenfac: float = 1e3,
     trustlen: float | None = None,
     epsf: float | None = None,
-    global_method: Literal["line-search", "dogleg"] | None = "line-search",
+    global_method: Literal["line-search", "dogleg"] | None = "dogleg",
     bfgs_update: bool | None = None,
     bfgs_method: Literal["factored", "unfactored", "inverse"] | None = None,
     grad: Callable[[FloatVector], FloatVector] | None = None,
@@ -145,19 +145,19 @@ def fmin_qnewton(
     >>> import numpy as np
     >>> from polykin.math import fmin_qnewton
     >>> f = lambda x: (1 - x[0])**2 + 100 * (x[1] - x[0]**2)**2
-    >>> fmin_qnewton(f, [-1.0, -1.0])
-     method: Quasi-Newton (Global: Line-Search, BFGS: Inverse)
+    >>> fmin_qnewton(f, [-1.0, -1.0], global_method="dogleg")
+     method: Quasi-Newton (Global: Dogleg, BFGS: Factored)
     success: True
     message: ||∇f(x)*sclf/sclx||∞ ≤ tolg
-     nfeval: 70
+     nfeval: 98
      ngeval: 0
      nheval: 0
-      niter: 22
-          x: [0.99999552 0.99999104]
-          f: 2.0056618764058734e-11
-          g: [ 3.87078494e-09 -2.00994776e-09]
-       Hinv: [[0.49984994 0.99968942]
-     [0.99968942 2.00435645]]
+      niter: 28
+          x: [0.9999964  0.99999277]
+          f: 1.3039626656861953e-11
+          g: [ 7.80959496e-06 -3.03099592e-06]
+          L: [[-28.34545479   0.        ]
+              [ 14.14251074  -0.70808768]]
     """  # noqa: E501
     # Check/set method options
     if bfgs_update is None:
