@@ -131,5 +131,7 @@ class VectorOptimumResult:
         ]
 
         return "\n".join(
-            f"{name:>7}: {value}" for name, value in rows if value is not None
+            f"{name:>7}: {value}"
+            for name, value in rows
+            if value is not None and not (hasattr(value, "size") and value.size == 0)
         )
