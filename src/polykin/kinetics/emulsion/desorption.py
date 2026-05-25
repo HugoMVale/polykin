@@ -10,7 +10,7 @@ __all__ = [
 
 def kdesorption_Asua(
     kfmp: float,
-    kpp: float,
+    kpp1: float,
     Mp: float,
     K0: float,
     beta: float,
@@ -19,18 +19,19 @@ def kdesorption_Asua(
 
     The desorption coefficient is given by:
 
-    $$ k_{des} = k^p_{fm}[M^p] \left( \frac{K_0}{\beta K_0 + k^p_p [M^p]} \right) $$
+    $$ k_{des} = k^p_{fm}[M^p] \left( \frac{K_0}{\beta K_0 + k^p_{p,1} [M^p]} \right) $$
 
     where $k^p_{fm}$ is the transfer-to-monomer rate coefficient in the particle phase,
-    $k^p_p$ is the propagation rate coefficient in the particle phase, $[M^p]$ is the
-    monomer concentration in the particle phase, $K_0$ is the monomeric radical desorption
-    rate coefficient, and $\beta$ is the probability that the desorbed monomeric radical
-    reacts in the aqueous phase by propagation or termination .
+    $k^p_{p,1}$ is the propagation rate coefficient of a monomeric radical in the particle
+    phase, $[M^p]$ is the monomer concentration in the particle phase, $K_0$ is the
+    monomeric radical desorption rate coefficient, and $\beta$ is the probability that the
+    desorbed monomeric radical reacts in the aqueous phase by propagation or termination.
 
     !!! note
 
-        Nomura and Harada's model can be seen as a particular case of Asua's model where
-        $\beta=\bar{n}$.
+        * Nomura and Harada's model can be seen as a particular case of Asua's model where
+          $\beta=\bar{n}$.
+        * For sparingly soluble monomers, $\beta$ is often much smaller than 1.
 
 
     **References**
@@ -44,8 +45,9 @@ def kdesorption_Asua(
     ----------
     kfmp : float
         Transfer-to-monomer rate coefficient in the particle [L/(mol·s)].
-    kpp : float
-        Propagation rate coefficient in the particle phase [L/(mol·s)].
+    kpp1 : float
+        Propagation rate coefficient of a monomeric radical in the particle phase
+        [L/(mol·s)].
     Mp : float
         Monomer concentration in the particle phase [mol/L].
     K0 : float
@@ -76,7 +78,7 @@ def kdesorption_Asua(
     >>> print(f"kdes = {kdes:.2e} s⁻¹")
     kdes = 8.33e-03 s⁻¹
     """
-    return (kfmp * Mp * K0) / (beta * K0 + kpp * Mp)
+    return (kfmp * Mp * K0) / (beta * K0 + kpp1 * Mp)
 
 
 def K0_Nomura(
