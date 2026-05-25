@@ -58,16 +58,17 @@ def kentry_collision(
 def kentry_diffusion(
     r: float,
     Dw: float,
-    f: float = 1.0,
+    fe: float = 1.0,
 ) -> float:
     r"""Radical entry coefficient assuming irreversible diffusion-controlled entry.
 
     The entry coefficient is given by:
 
-    $$ k_e = 4 \pi r D_w N_A f $$
+    $$ k_e = 4 \pi r D_w N_A f_e $$
 
     where $r$ is the particle radius, $D_w$ is the diffusion coefficient of the radical in
-    the aqueous phase, $N_A$ is Avogadro's number, and $f$ is an efficiency factor.
+    the aqueous phase, $N_A$ is Avogadro's number, and $f_e$ is an entry efficiency
+    factor.
 
     Parameters
     ----------
@@ -75,8 +76,8 @@ def kentry_diffusion(
         Particle radius [m].
     Dw : float
         Diffusion coefficient of the radical in the aqueous phase [m²/s].
-    f : float
-        Efficiency factor.
+    fe : float
+        Entry efficiency factor.
 
     Returns
     -------
@@ -97,7 +98,7 @@ def kentry_diffusion(
     >>> print(f"ke = {ke:.2e} m³/(mol·s)")
     ke = 7.57e+08 m³/(mol·s)
     """
-    return f * 4 * pi * r * Dw * NA
+    return 4 * pi * r * Dw * NA * fe
 
 
 def kentry_diffusion_reversible(
@@ -172,5 +173,5 @@ def kentry_diffusion_reversible(
     """
     X = r * sqrt(k / Dp)
     Y = X / tanh(X) - 1.0
-    f = (q * Dp * Y) / (Dw + q * Dp * Y)
-    return kentry_diffusion(r, Dw, f)
+    fe = (q * Dp * Y) / (Dw + q * Dp * Y)
+    return kentry_diffusion(r, Dw, fe)
