@@ -30,11 +30,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pre-commit>=3.7.0",
+    "pyrefly>=1.0.0",
     "pytest>=8.3.3",
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.14.9",
-    "ty>=0.0.33",
 ]
 docs = [
     "black>=26.1.0",
@@ -73,14 +73,8 @@ pydocstyle = { convention = 'numpy' }
 [tool.ruff.format]
 line-ending = "auto"
 
-[tool.ty.environment]
-root = ["./src"]
-
-[tool.ty.src]
-include = ["src", "tests"]
-
-[tool.ty.terminal]
-output-format = "concise"
+[tool.pyrefly]
+project-includes = ["**/*.py*", "**/*.ipynb"]
 
 [build-system]
 requires = ["hatchling"]

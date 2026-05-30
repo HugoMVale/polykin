@@ -7,9 +7,7 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
-    "python.languageServer": "Pylance",
     "python.analysis.diagnosticMode": "openFilesOnly",
-    "ty.disableLanguageServices": true,
     "[python]": {
         "editor.rulers": [
             90

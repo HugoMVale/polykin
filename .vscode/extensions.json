@@ -2,6 +2,6 @@
     "recommendations": [
         "ms-python.python",
         "charliermarsh.ruff",
-        "astral-sh.ty"
+        "meta.pyrefly"
     ]
 }
