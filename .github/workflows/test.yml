@@ -10,14 +10,16 @@ jobs:
       fail-fast: false
       matrix:
         resolution: ["lowest-direct", "highest"]
-        python-version: ["3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
         exclude:
           - python-version: "3.12"
             resolution: "lowest-direct"
           - python-version: "3.13"
-            resolution: "lowest-direct" #numba 0.60 requires python < 3.13
+            resolution: "lowest-direct" # numba 0.60 requires python < 3.13
           - python-version: "3.14"
-            resolution: "lowest-direct" #numba 0.60 requires python < 3.13
+            resolution: "lowest-direct"
+          - python-version: "3.15"
+            resolution: "lowest-direct"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
