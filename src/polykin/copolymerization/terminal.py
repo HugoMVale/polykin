@@ -15,8 +15,9 @@ from matplotlib.figure import Figure
 from scipy.integrate import solve_ivp
 
 from polykin.kinetics import Arrhenius
-from polykin.math import root_brent
-from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
+from polykin.math.machine import eps
+from polykin.math.roots import root_brent
+from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector
 from polykin.utils.tools import check_bounds, check_in_set, custom_repr
 from polykin.utils.typing import (
     FloatArray,

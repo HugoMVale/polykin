@@ -6,9 +6,9 @@ from collections.abc import Callable
 
 import numpy as np
 
-from polykin.math import scalex
+from polykin.math.derivatives import scalex
+from polykin.math.machine import eps
 from polykin.math.roots import VectorRootResult
-from polykin.utils.math import eps
 from polykin.utils.typing import FloatVector
 
 __all__ = ["fixpoint_wegstein"]
@@ -18,12 +18,13 @@ def fixpoint_wegstein(
     g: Callable[[FloatVector], FloatVector],
     x0: FloatVector,
     *,
-    tolx: float = 1e-6,
-    sclx: FloatVector | None = None,
     wait: int = 1,
     qmin: float = -5.0,
     qmax: float = 0.0,
+    tolx: float = 1e-6,
+    sclx: FloatVector | None = None,
     maxiter: int = 50,
+    callback: Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None = None,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
     bounded Wegstein acceleration method.
@@ -33,7 +34,7 @@ def fixpoint_wegstein(
     problems, each component of the fixed-point vector is treated separately
     according to:
 
-    $$ x_{k+1} = q_k x_k + (1 - q_k) g(x_k) $$
+    $$ x_{k+1} = x_k + (1 - q_k) \left( g(x_k) - x_k \right) $$
 
     where $q_{min} \leq q_k \leq q_{max}$ is the acceleration parameter
     determined by:
@@ -55,9 +56,16 @@ def fixpoint_wegstein(
     Parameters
     ----------
     g : Callable[[FloatVector], FloatVector]
-        Identity function for the fixed-point problem, i.e. `g(x) = x`.
+        Fixed-point mapping defining the problem `g(x) = x`.
     x0 : FloatVector
         Initial guess.
+    wait : int
+        Number of direct substitution iterations before the first acceleration
+        iteration.
+    qmin : float
+        Minimum value for the acceleration parameter.
+    qmax : float
+        Maximum value for the acceleration parameter.
     tolx : float
         Absolute tolerance for `x` value. The algorithm will terminate when
         `||sclx*(g(x) - x)||∞ <= tolx`.
@@ -65,15 +73,12 @@ def fixpoint_wegstein(
         Positive scaling factors for the components of `x`. Ideally, these
         should be chosen so that `sclx*x` is of order 1 near the solution for
         all components. By default, scaling is determined automatically from `x0`.
-    wait : int
-        Number of direct substitution iterations before the first acceleration
-        iteration.
-    qmin : float
-        Minimum value for the acceleration parameter.
-    qmax : float, optional
-        Maximum value for the acceleration parameter.
     maxiter : int
         Maximum number of iterations.
+    callback : Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -82,8 +87,12 @@ def fixpoint_wegstein(
 
     See Also
     --------
-    * [`fixpoint_anderson`](fixpoint_anderson.md): alternative method better
-      suited for problems with coupling between components.
+    * [`fixpoint_anderson`](fixpoint_anderson.md):
+      Alternative method better suited for problems with coupling between components.
+    * [`fixpoint_damped`](fixpoint_damped.md):
+      Alternative method for problems with weak coupling between components.
+    * [`fixpoint_dem`](fixpoint_dem.md):
+      Alternative method for problems with weak coupling between components.
 
     Examples
     --------
@@ -106,42 +115,52 @@ def fixpoint_wegstein(
     message = ""
     nfeval = 0
 
-    sclx = sclx if sclx is not None else scalex(x0)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
 
     x = x0.copy()
     n = x.size
-    gx = np.full(n, np.nan)
-    xm = np.full(n, np.nan)
-
     wait = max(wait, 1)
 
-    for k in range(maxiter):
+    gx = np.full(n, np.nan)
+    fx = np.full(n, np.nan)
+    xm = np.full(n, np.nan)
+
+    niter = 0
+
+    for niter in range(1, maxiter + 1):
         gxm = gx
         gx = g(x)
         nfeval += 1
         fx = gx - x
+
+        if callback is not None:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if np.linalg.norm(sclx * fx, np.inf) <= tolx:
             message = "||sclx*(g(x) - x)||∞ ≤ tolx"
             success = True
             break
 
-        if k + 1 < maxiter:
-            if k < wait:
-                xm = x
-                x = gx
-            else:
-                Δx = x - xm
-                Δg = gx - gxm
-                s = np.zeros(n)
-                mask_s = np.abs(Δx) > eps
-                np.divide(Δg, Δx, out=s, where=mask_s)
-                q = s / (s - 1)
-                q = np.clip(q, qmin, qmax)
-                xm = x
-                x = q * x + (1 - q) * gx
+        if niter == maxiter:
+            message = f"Maximum number of iterations ({maxiter}) reached."
+            break
 
-    else:
-        message = f"Maximum number of iterations ({maxiter}) reached."
+        if niter < wait + 1:
+            xm = x
+            x = gx
+        else:
+            Δx = x - xm
+            Δg = gx - gxm
+            s = np.zeros(n)
+            mask_s = np.abs(Δx) > eps
+            np.divide(Δg, Δx, out=s, where=mask_s)
+            q = s / (s - 1)
+            q = np.clip(q, qmin, qmax)
+            xm = x
+            x = x + (1 - q) * fx
 
-    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)
+    return VectorRootResult(method, success, message, nfeval, None, niter, x, fx, None)

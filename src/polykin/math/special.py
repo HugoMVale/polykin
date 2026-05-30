@@ -3,9 +3,10 @@
 # Copyright Hugo Vale 2024
 
 import functools
+import math
 
 import numpy as np
-from numpy import arctan, exp, inf, pi, sqrt, tan
+from numpy import inf, pi
 from scipy.special import erfc
 
 from polykin.math import root_newton
@@ -42,7 +43,7 @@ def ierfc(x: float) -> float:
     if x > 30.0:
         return 0.0
     else:
-        return exp(-(x**2)) / sqrt(pi) - x * erfc(x)
+        return math.exp(-(x**2)) / math.sqrt(pi) - x * erfc(x)
 
 
 def i2erfc(x: float) -> float:
@@ -108,7 +109,7 @@ def roots_xtanx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
     elif a < 1e2:
         for i in range(N):
             sol = root_newton(
-                f=lambda x: x * tan(x) - a,
+                f=lambda x: x * np.tan(x) - a,
                 x0=pi * (i + 0.5 * a / (a + 1)),
                 tolx=tolx,
                 tolf=1e-10,
@@ -119,7 +120,7 @@ def roots_xtanx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
             x0 = i * pi
             e = 1.0
             for _ in range(0, 10):
-                e_new = arctan(a / (x0 + e))
+                e_new = np.arctan(a / (x0 + e))
                 if abs(e_new - e) < tolx:
                     break
                 e = e_new
@@ -165,7 +166,7 @@ def roots_xcotx(a: float, N: int, tolx: float = 1e-6) -> FloatVector:
     elif a < 2:
         for i in range(N):
             sol = root_newton(
-                f=lambda x: x / tan(x) + a - 1,
+                f=lambda x: x / np.tan(x) + a - 1,
                 x0=(i + 1 / 2) * pi,
                 tolx=tolx,
                 tolf=1e-10,

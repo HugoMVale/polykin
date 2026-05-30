@@ -2,12 +2,12 @@
 #
 # Copyright Hugo Vale 2024
 
-"""
-This module implements auxiliary mathematical methods.
-"""
+"""Implement auxiliary mathematical methods."""
 
 from .derivatives import *
 from .fixpoint import *
+from .machine import *
 from .misc import *
+from .optimization import *
 from .roots import *
 from .special import *

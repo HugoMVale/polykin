@@ -69,7 +69,7 @@ f_case10.xs = np.array([5.0, 4.0])
 
 
 def f_example65(x):
-    """Example 6.5. Dennis & Schnabel (1996)."""
+    """Example 6.5 of Dennis & Schnabel (1996)."""
     x1, x2 = x
     f1 = x1**2 + x2**2 - 2
     f2 = np.exp(x1 - 1) + x2**3 - 2
@@ -114,14 +114,16 @@ def test_rootvec_qnewton():
 
     # Easy ones also work with approximate jac0 and Broyden update
     f = f_example65
-    sol = rootvec_qnewton(f, f.x0, broyden_update=True, jac0=np.eye(f.x0.size))
+    sol = rootvec_qnewton(f, f.x0, broyden_update=True, J0=np.eye(f.x0.size))
     assert sol.success
 
     # With analytic jacobian
     f = f_example65
     jac = jac_example65
     for broyden_update in [False, True]:
-        sol = rootvec_qnewton(f, f.x0, jac=jac, broyden_update=broyden_update)
+        sol = rootvec_qnewton(
+            f, f.x0, jac=jac, jac_check=True, broyden_update=broyden_update
+        )
         assert sol.success
         assert allclose(sol.x, f.xs)
 

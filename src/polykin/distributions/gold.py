@@ -7,7 +7,7 @@ from numpy import log as ln
 
 from polykin.distributions.analyticaldistributions import poisson
 from polykin.math import root_brent
-from polykin.utils.math import eps
+from polykin.math.machine import eps
 from polykin.utils.typing import FloatArray, IntArrayLike
 
 

@@ -1,0 +1,184 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2026
+
+import math
+from collections.abc import Callable
+from typing import Literal
+
+from polykin.math.derivatives import (
+    derivative_centered,
+    derivative_complex,
+)
+from polykin.math.machine import eps
+from polykin.math.optimization.results import OptimumResult
+
+__all__ = ["fmin_secant"]
+
+
+def fmin_secant(
+    f: Callable[[float], float] | Callable[[complex], complex],
+    x0: float,
+    x1: float,
+    *,
+    tolx: float = 1e-10,
+    tolg: float = 1e-5,
+    maxiter: int = 50,
+    epsf: float | None = None,
+    diff_scheme: Literal["centered", "complex"] = "centered",
+    callback: Callable[[int, float, float, float], tuple[bool, bool]] | None = None,
+) -> OptimumResult:
+    r"""Find the minimum of a scalar function using the secant method.
+
+    The secant method starts from two initial guesses and applies the secant update
+    to the first derivative $f'(x)$ to generate the next iterate:
+
+    $$ x_{k+1} = x_k - f'(x_k) \frac{x_k - x_{k-1}}{f'(x_k) - f'(x_{k-1})} $$
+
+    The derivative $f'(x)$ is approximated numerically using either centered finite
+    differences or complex-step differentiation. The complex-step scheme is usually
+    more accurate, but requires that `f` accepts complex-valued inputs.
+
+    This is an efficient local method for smooth functions, but it is less robust
+    than bracketed methods such as Brent's algorithm and may fail if the initial
+    guesses are poor.
+
+    Parameters
+    ----------
+    f : Callable[[float], float] | Callable[[complex], complex]
+        Objective function to be minimized.
+    x0 : float
+        First initial guess.
+    x1 : float
+        Second initial guess.
+    tolx : float
+        Absolute tolerance for `x`. The algorithm will terminate when the change in
+        `x` between two iterations is less or equal than `tolx`. If the value is too
+        large, the algorithm may terminate prematurely. A value on the order of
+        $\epsilon^{2/3}$ is typically recommended.
+    tolg : float
+        Absolute tolerance for the function gradient. This is the primary convergence
+        criterion. The algorithm will terminate when `|f'(x)| <= tolg`. A value on the
+        order of $\epsilon^{1/3}$ is typically recommended.
+    maxiter : int
+        Maximum number of iterations.
+    epsf : float | None
+        Machine precision of the function values. If `None`, machine precision of 64-bit
+        floating-point type is assumed. If the number of reliable base-10 digits in the
+        results returned by the function is $n$, then `epsf` is approximately $10^{-n}$.
+    diff_scheme : Literal['centered', 'complex']
+        Numerical differentiation scheme used to approximate `f'(x)`. The 'centered'
+        scheme uses a centered finite difference, while the 'complex' scheme uses
+        complex step differentiation. The 'complex' scheme is more accurate, but requires
+        that `f` can accept complex inputs.
+    callback : Callable[[int, float, float, float], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx, dfx)->(stop, success)`
+        called at each iteration. If `stop` is `True`, the iteration is terminated. If
+        `success` is `True`, the optimization is considered successful.
+
+    Returns
+    -------
+    OptimumResult
+        Dataclass with the results of the optimization.
+
+    See Also
+    --------
+    * [`fmin_brent`](fmin_brent.md):
+      More robust derivative-free minimization method for bounded intervals.
+
+    Examples
+    --------
+    Find the minimum of the function `f(x) = x^4 - x + 1`.
+    >>> from polykin.math import fmin_secant
+    >>> f = lambda x: x**4 - x + 1
+    >>> fmin_secant(f, 2.0, 1.0)
+     method: Secant
+    success: True
+    message: |f'(x)| ≤ tolg
+     nfeval: 16
+      niter: 6
+          x: 6.29961354e-01
+          f: 5.27529606e-01
+         df: 3.94747093e-06
+    """
+    # Initialize results
+    method = "Secant"
+    success = False
+    message = ""
+    nfeval = 0
+
+    # Set machine precision for function values
+    epsf = max(epsf, eps) if epsf is not None else eps
+    sqrt_epsf = math.sqrt(epsf)
+
+    # Helper function to evaluate the derivative
+    def eval_derivative(x: float) -> tuple[float, float]:
+        nonlocal nfeval
+        if diff_scheme == "centered":
+            dfx, fx = derivative_centered(f, x, epsf=epsf)
+            nfeval += 2
+        elif diff_scheme == "complex":
+            dfx, fx = derivative_complex(f, x)
+            nfeval += 1
+        else:
+            raise ValueError(f"Invalid differentiation scheme: {diff_scheme!r}")
+
+        return (dfx, fx)
+
+    # Evaluate derivatives at initial guesses
+    df0, f0 = eval_derivative(x0)
+    if abs(df0) <= tolg:
+        message = "|f'(x0)| ≤ tolg."
+        success = True
+        return OptimumResult(method, success, message, nfeval, 0, x0, f0, df0)
+
+    df1, f1 = eval_derivative(x1)
+    if abs(df1) <= tolg:
+        message = "|f'(x1)| ≤ tolg."
+        success = True
+        return OptimumResult(method, success, message, nfeval, 0, x1, f1, df1)
+
+    # Main optimization loop
+    x2 = f2 = df2 = float("nan")
+    niter = 0
+
+    for niter in range(1, maxiter + 1):
+        Δdf = df1 - df0
+        if abs(Δdf) <= epsf * max(abs(df0), abs(df1), 1.0):
+            message = f"Nearly zero slope between x[k-1]={x0} and x[k]={x1} (Δf'={Δdf})."
+            break
+
+        x2 = x1 - df1 * (x1 - x0) / Δdf
+
+        df2, f2 = eval_derivative(x2)
+
+        if callback is not None:
+            stop, _success = callback(niter, x2, f2, df2)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
+
+        if (f2 - f1) > sqrt_epsf * max(abs(f1), abs(f2), 1.0):
+            message = (
+                f"Function value increased from {f1} at x[k-1]={x1} to {f2} at x[k]={x2}."
+            )
+            break
+
+        if abs(df2) <= tolg:
+            message = "|f'(x)| ≤ tolg"
+            success = True
+            break
+
+        if abs(x2 - x1) <= tolx:
+            message = "|Δx| ≤ tolx"
+            success = True
+            break
+
+        x0, f0, df0 = x1, f1, df1
+        x1, f1, df1 = x2, f2, df2
+
+    else:
+        message = f"Maximum number of iterations ({maxiter}) reached."
+
+    return OptimumResult(method, success, message, nfeval, niter, x2, f2, df2)

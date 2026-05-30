@@ -1,6 +1,6 @@
 # Installation
 
-`PolyKin` requires Python >= 3.10, because it makes use of recent type hint syntax. It further relies on a number of mature and well-maintained mathematical/scientific libraries:
+`PolyKin` requires Python >= 3.11. It further relies on a number of mature and well-maintained mathematical/scientific libraries:
 `matplotlib`, `mpmath`, `numba`, `numpy`, `pydantic`, `scipy`, etc.
 
 ## Install from PyPI

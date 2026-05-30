@@ -8,6 +8,7 @@ from numpy import allclose, isclose
 from polykin.math import (
     derivative_centered,
     derivative_complex,
+    gradient_forward,
     hessian2_centered,
     hessian_forward,
     jacobian_forward,
@@ -56,12 +57,18 @@ def test_hessian2_centered():
         np.array([[2 * x1**3, 6 * x0 * x1**2], [6 * x0 * x1**2, 6 * x1 * x0**2]]),
         rtol=1e-6,
     )
-    H = hessian2_centered(fnc2, (x0, x1), h=1e-2)
+    H = hessian2_centered(fnc2, (x0, x1), epsf=1e-6)
     assert allclose(
         H,
         np.array([[2 * x1**3, 6 * x0 * x1**2], [6 * x0 * x1**2, 6 * x1 * x0**2]]),
         rtol=1e-4,
     )
+
+
+def test_gradient_forward():
+    x = np.array([3.0, -2.0])
+    grad = gradient_forward(fnc2, x)
+    assert allclose(grad, [2 * x[0] * x[1] ** 3, 3 * (x[0] ** 2) * x[1] ** 2], rtol=1e-6)
 
 
 def test_jacobian_forward():

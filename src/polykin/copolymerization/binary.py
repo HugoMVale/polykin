@@ -8,8 +8,8 @@ import numpy as np
 from numba import jit
 from scipy.integrate import solve_ivp
 
+from polykin.math.machine import eps
 from polykin.utils.exceptions import ODESolverError
-from polykin.utils.math import eps
 from polykin.utils.typing import FloatArray, FloatArrayLike, FloatMatrix, FloatVectorLike
 
 __all__ = [

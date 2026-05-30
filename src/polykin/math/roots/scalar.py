@@ -7,7 +7,7 @@ from collections.abc import Callable
 import numpy as np
 
 from polykin.math.derivatives import derivative_complex
-from polykin.utils.math import eps
+from polykin.math.machine import eps
 
 from .results import RootResult
 
@@ -25,7 +25,7 @@ def root_newton(
     tolx: float = 1e-6,
     tolf: float = 1e-6,
     maxiter: int = 50,
-    verbose: bool = False,
+    callback: Callable[[int, float, float], tuple[bool, bool]] | None = None,
 ) -> RootResult:
     r"""Find the root of a scalar function using the Newton-Raphson method.
 
@@ -60,8 +60,10 @@ def root_newton(
         when `|f(x)| <= tolf`.
     maxiter : int
         Maximum number of iterations.
-    verbose : bool
-        Print iteration information.
+    callback : Callable[[int, float, float], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -85,14 +87,19 @@ def root_newton(
     nfeval = 0
 
     x = x0
+    fx = float("nan")
+    niter = 0
 
-    for k in range(maxiter):
-
+    for niter in range(1, maxiter + 1):
         dfdx, fx = derivative_complex(f, x)
         nfeval += 1
 
-        if verbose:
-            print(f"Iteration {k+1}: x = {x}, f(x) = {fx}, df/dx = {dfdx}", flush=True)
+        if callback is not None:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if abs(fx) <= tolf:
             message = "|f(x)| ≤ tolf"
@@ -110,13 +117,13 @@ def root_newton(
             success = True
             break
 
-        if k + 1 < maxiter:
+        if niter < maxiter:
             x += Δx
 
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k + 1, x, fx)
+    return RootResult(method, success, message, nfeval, niter, x, fx)
 
 
 def root_secant(
@@ -127,7 +134,7 @@ def root_secant(
     tolx: float = 1e-6,
     tolf: float = 1e-6,
     maxiter: int = 50,
-    verbose: bool = False,
+    callback: Callable[[int, float, float], tuple[bool, bool]] | None = None,
 ) -> RootResult:
     r"""Find the root of a scalar function using the secant method.
 
@@ -156,8 +163,10 @@ def root_secant(
         when `|f(x)| <= tolf`.
     maxiter : int
         Maximum number of iterations.
-    verbose : bool
-        Print iteration information.
+    callback : Callable[[int, float, float], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -192,10 +201,10 @@ def root_secant(
         message = "|f(x1)| ≤ tolf"
         return RootResult(method, True, message, nfeval, 0, x1, f1)
 
-    x2, f2 = np.nan, np.nan
+    x2, f2 = float("nan"), float("nan")
+    niter = 0
 
-    for k in range(maxiter):
-
+    for niter in range(1, maxiter + 1):
         Δf = f1 - f0
         if abs(Δf) <= eps * max(abs(f0), abs(f1), 1.0):
             message = f"Nearly zero slope between x[k-1]={x0} and x[k]={x1} (Δf={Δf})."
@@ -206,16 +215,20 @@ def root_secant(
         f2 = f(x2)
         nfeval += 1
 
-        if verbose:
-            print(f"Iteration {k+1}: x = {x2}, f(x) = {f2}", flush=True)
-
-        if abs(x2 - x1) <= tolx:
-            message = "|Δx| ≤ tolx"
-            success = True
-            break
+        if callback is not None:
+            stop, _success = callback(niter, x2, f2)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if abs(f2) <= tolf:
             message = "|f(x)| ≤ tolf"
+            success = True
+            break
+
+        if abs(x2 - x1) <= tolx:
+            message = "|Δx| ≤ tolx"
             success = True
             break
 
@@ -225,7 +238,7 @@ def root_secant(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k + 1, x2, f2)
+    return RootResult(method, success, message, nfeval, niter, x2, f2)
 
 
 def root_brent(
@@ -236,7 +249,7 @@ def root_brent(
     tolx: float = 1e-6,
     tolf: float = 1e-6,
     maxiter: int = 50,
-    verbose: bool = False,
+    callback: Callable[[int, float, float], tuple[bool, bool]] | None = None,
 ) -> RootResult:
     r"""Find the root of a scalar function using Brent's method.
 
@@ -270,8 +283,10 @@ def root_brent(
         when `|f(x)|<=tolf`.
     maxiter : int
         Maximum number of iterations.
-    verbose : bool
-        Print iteration information.
+    callback : Callable[[int, float, float], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -310,9 +325,9 @@ def root_brent(
         raise ValueError("Root is not bracketed.")
 
     xc, fc = xb, fb
+    niter = 0
 
-    for k in range(maxiter):
-
+    for niter in range(1, maxiter + 1):
         if fb * fc > 0.0:
             xc, fc = xa, fa
             d = xb - xa
@@ -323,19 +338,23 @@ def root_brent(
             xb, fb = xc, fc
             xc, fc = xa, fa
 
-        if verbose:
-            print(f"Iteration {k+1}: x = {xb}, f(x) = {fb}", flush=True)
-
         tol1 = 2 * eps * abs(xb) + 0.5 * tolx
         m = 0.5 * (xc - xb)
 
-        if abs(m) <= tol1:
-            message = "|Δx| ≤ tolx"
-            success = True
-            break
+        if callback is not None:
+            stop, _success = callback(niter, xb, fb)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
         if abs(fb) <= tolf:
             message = "|f(x)| ≤ tolf"
+            success = True
+            break
+
+        if abs(m) <= tol1:
+            message = "|Δx| ≤ tolx"
             success = True
             break
 
@@ -376,4 +395,4 @@ def root_brent(
     else:
         message = f"Maximum number of iterations ({maxiter}) reached."
 
-    return RootResult(method, success, message, nfeval, k + 1, xb, fb)
+    return RootResult(method, success, message, nfeval, niter, xb, fb)

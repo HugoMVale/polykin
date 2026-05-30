@@ -16,10 +16,11 @@ from numpy import dot, exp, log, sqrt
 
 from polykin.constants import R
 from polykin.math import fixpoint_wegstein
+from polykin.math.machine import eps
 from polykin.properties.pvt.mixing_rules import geometric_interaction_mixing
 from polykin.properties.vaporization import PL_Wilson
 from polykin.utils.exceptions import ConvergenceError
-from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector, eps
+from polykin.utils.math import convert_FloatOrVectorLike_to_FloatVector
 from polykin.utils.typing import FloatSquareMatrix, FloatVector, FloatVectorLike
 
 from .base import GasLiquidEoS

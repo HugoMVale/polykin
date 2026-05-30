@@ -471,7 +471,7 @@ def _fit_copo_NLLS(
     npar = 2
     if ndata > npar:
         s_sq = sse_opt / (ndata - npar)
-        H = hessian2_centered(sse, r_opt, h=1e-4)
+        H = hessian2_centered(sse, r_opt, epsf=1e-6)
         Hinv = np.linalg.inv(H)
         cov = 2 * Hinv * s_sq
     else:

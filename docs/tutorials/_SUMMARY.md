@@ -6,6 +6,7 @@
 * [Distributions](distributions.ipynb)
 * [Equations of State](equations_of_state.ipynb)
 * [Kinetic Coefficients](kinetic_coefficients.ipynb)
+* [Optimization](optimization.ipynb)
 * [Physical Property Equations](physprop_equations.ipynb)
 * [Thermal Conductivity](thermal_conductivity.ipynb)
 * [Viscosity](viscosity.ipynb)

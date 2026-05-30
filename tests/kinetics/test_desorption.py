@@ -4,7 +4,7 @@ from polykin.kinetics.emulsion.desorption import K0_Nomura, kdesorption_Asua
 
 
 def test_kdesorption_Asua():
-    kdes = kdesorption_Asua(kfmp=1e-3, kpp=1e2, Mp=10, K0=1e3, beta=0.20)
+    kdes = kdesorption_Asua(kfmp=1e-3, kpp1=1e2, Mp=10, K0=1e3, beta=0.20)
     assert isclose(kdes, 8.33e-3, rtol=1e-2)
 
 

@@ -13,7 +13,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
 
-requires-python = ">=3.10.0"
+requires-python = ">=3.11.0"
 
 dependencies = [
     "matplotlib>=3.8",
@@ -34,6 +34,7 @@ dev = [
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
     "ruff>=0.14.9",
+    "ty>=0.0.33",
 ]
 docs = [
     "black>=26.1.0",
@@ -58,7 +59,7 @@ addopts = ["-v", "-s", "-n=2"]
 
 [tool.ruff]
 line-length = 90
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "D", "NPY201"]
@@ -71,6 +72,15 @@ pydocstyle = { convention = 'numpy' }
 
 [tool.ruff.format]
 line-ending = "auto"
+
+[tool.ty.environment]
+root = ["./src"]
+
+[tool.ty.src]
+include = ["src", "tests"]
+
+[tool.ty.terminal]
+output-format = "concise"
 
 [build-system]
 requires = ["hatchling"]

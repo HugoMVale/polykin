@@ -4,4 +4,7 @@
 
 
 from .anderson import *
+from .damped import *
+from .dem import *
+from .steffensen import *
 from .wegstein import *

@@ -1,0 +1,137 @@
+# PolyKin: A polymerization kinetics library for Python.
+#
+# Copyright Hugo Vale 2026
+
+from dataclasses import dataclass
+
+from polykin.utils.tools import colored_bool
+from polykin.utils.typing import FloatMatrix, FloatVector
+
+__all__ = [
+    "OptimumResult",
+    "VectorOptimumResult",
+]
+
+
+@dataclass(frozen=True, slots=True)
+class OptimumResult:
+    """Dataclass with the results of the optimization.
+
+    Attributes
+    ----------
+    method: str
+        Method used to find the optimum.
+    success: bool
+        If `True`, the optimum was found.
+    message: str
+        Description of the exit status.
+    nfeval: int
+        Number of function evaluations.
+    niter: int
+        Number of iterations.
+    x: float
+        Optimum value.
+    f: float
+        Function value at the optimum.
+    df: float | None
+        Derivative at the optimum (if available).
+    """
+
+    method: str
+    success: bool
+    message: str
+    nfeval: int
+    niter: int
+    x: float
+    f: float
+    df: float | None = None
+
+    def __repr__(self) -> str:
+        """Return a string representation of the optimum result."""
+        result = (
+            f" method: {self.method}\n"
+            f"success: {colored_bool(self.success)}\n"
+            f"message: {self.message}\n"
+            f" nfeval: {self.nfeval}\n"
+            f"  niter: {self.niter}\n"
+            f"      x: {self.x:.8e}\n"
+            f"      f: {self.f:.8e}"
+        )
+        if self.df is not None:
+            result += f"\n     df: {self.df:.8e}"
+
+        return result
+
+
+@dataclass(frozen=True, slots=True)
+class VectorOptimumResult:
+    """Dataclass with the results of the optimization.
+
+    Attributes
+    ----------
+    method: str
+        Method used to find the optimum.
+    success: bool
+        If `True`, the optimum was found.
+    message: str
+        Description of the exit status.
+    nfeval: int
+        Number of function evaluations.
+    ngeval: int | None
+        Number of user-supplied gradient evaluations.
+    nheval: int | None
+        Number of user-supplied Hessian evaluations.
+    niter: int
+        Number of iterations.
+    x: FloatVector
+        Optimum value.
+    f: float
+        Function value at the optimum.
+    g: FloatVector | None
+        Gradient at the optimum.
+    H: FloatMatrix | None
+        Last evaluated or estimated Hessian matrix.
+    Hinv: FloatMatrix | None
+        Last evaluated or estimated inverse Hessian ($H^{-1}$) matrix.
+    L: FloatMatrix | None
+        Last evaluated or estimated Cholesky factor $L$ (where $H = LL^T$) of the
+        Hessian matrix.
+    """
+
+    method: str
+    success: bool
+    message: str
+    nfeval: int
+    ngeval: int | None
+    nheval: int | None
+    niter: int
+    x: FloatVector
+    f: float
+    g: FloatVector | None = None
+    H: FloatMatrix | None = None
+    Hinv: FloatMatrix | None = None
+    L: FloatMatrix | None = None
+
+    def __repr__(self) -> str:
+        """Return a string representation of the optimum result."""
+        rows = [
+            ("method", self.method),
+            ("success", colored_bool(self.success)),
+            ("message", self.message),
+            ("nfeval", self.nfeval),
+            ("ngeval", self.ngeval),
+            ("nheval", self.nheval),
+            ("niter", self.niter),
+            ("x", self.x),
+            ("f", self.f),
+            ("g", self.g),
+            ("H", self.H),
+            ("Hinv", self.Hinv),
+            ("L", self.L),
+        ]
+
+        return "\n".join(
+            f"{name:>7}: {value}"
+            for name, value in rows
+            if value is not None and not (hasattr(value, "size") and value.size == 0)
+        )

@@ -57,6 +57,11 @@ Number = TypeVar("Number", float, complex)
 Floaty = TypeVar("Floaty", float, NDArray[np.float64])
 """A TypeVar representing either a float scalar or a float64 NumPy array."""
 
+# --- Boolean Arrays and Sequences ---
+
+BoolVector: TypeAlias = np.ndarray[tuple[int], dtype[np.bool_]]
+"""A 1-dimensional NumPy array of booleans."""
+
 # --- Integer Arrays and Sequences ---
 
 IntArray = NDArray[np.int_]

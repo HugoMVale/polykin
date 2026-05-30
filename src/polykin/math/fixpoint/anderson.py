@@ -24,6 +24,7 @@ def fixpoint_anderson(
     tolx: float = 1e-6,
     sclx: FloatVector | None = None,
     maxiter: int = 50,
+    callback: Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None = None,
 ) -> VectorRootResult:
     r"""Find the solution of a N-dimensional fixed-point problem using the
     Anderson acceleration method.
@@ -50,7 +51,7 @@ def fixpoint_anderson(
     Parameters
     ----------
     g : Callable[[FloatVector], FloatVector]
-        Identity function for the fixed-point problem, i.e. `g(x) = x`.
+        Fixed-point mapping defining the problem `g(x) = x`.
     x0 : FloatVector
         Initial guess.
     m : int
@@ -64,6 +65,10 @@ def fixpoint_anderson(
         all components. By default, scaling is determined automatically from `x0`.
     maxiter : int
         Maximum number of iterations.
+    callback : Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)` called
+        at each iteration. If `stop` is `True`, the iteration is terminated. If `success`
+        is `True`, the optimization is considered successful.
 
     Returns
     -------
@@ -72,8 +77,12 @@ def fixpoint_anderson(
 
     See Also
     --------
-    * [`fixpoint_wegstein`](fixpoint_wegstein.md): alternative (simpler) method
-      for problems with weak coupling between components.
+    * [`fixpoint_damped`](fixpoint_damped.md):
+      Alternative method for problems with weak coupling between components.
+    * [`fixpoint_dem`](fixpoint_dem.md):
+      Alternative method for problems with weak coupling between components.
+    * [`fixpoint_wegstein`](fixpoint_wegstein.md):
+      Alternative method for problems with weak coupling between components.
 
     Examples
     --------
@@ -96,28 +105,68 @@ def fixpoint_anderson(
     message = ""
     nfeval = 0
 
-    sclx = sclx if sclx is not None else scalex(x0)
+    sclx = np.abs(sclx) if sclx is not None else scalex(x0)
 
-    # Different ordering of arrays to optimize memory access
-    n = x0.size
+    x = x0.copy()
+    n = x.size
     m = max(m, 1)
+
+    # Historical buffers with different layout to optimize memory access
     ΔG = np.zeros((m, n))
     ΔF = np.zeros((n, m))
 
-    g0 = g(x0)
-    nfeval += 1
-    f0 = g0 - x0
+    Q = np.array([])
+    R = np.array([])
+    fx = np.full(n, np.nan)
+    niter = 0
 
-    if np.linalg.norm(sclx * f0, np.inf) <= 1e-2 * tolx:
-        message = "||sclx*(g(x0) - x0)||∞ ≤ 1e-2*tolx"
-        return VectorRootResult(method, True, message, nfeval, None, 0, x0, f0, None)
+    for niter in range(1, maxiter + 1):
+        gx = g(x)
+        nfeval += 1
+        fx = gx - x
 
-    x = g0
-    gx = g0
-    fx = f0
+        if callback is not None:
+            stop, _success = callback(niter, x, fx)
+            if stop:
+                message = "Terminated by user callback."
+                success = _success
+                break
 
-    for k in range(1, maxiter):
-        mk = min(m, k)
+        if np.linalg.norm(sclx * fx, np.inf) <= tolx:
+            message = "||sclx*(g(x) - x)||∞ ≤ tolx"
+            success = True
+            break
+
+        if niter == maxiter:
+            message = f"Maximum number of iterations ({maxiter}) reached."
+            break
+
+        if niter == 1:
+            x = gx
+        else:
+            ΔG[-1, :] += gx
+            ΔF[:, -1] += fx
+
+            mk = min(m, niter - 1)
+
+            try:
+                if niter == 2:
+                    Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
+                else:
+                    if niter > m + 1:
+                        Q, R = scipy.linalg.qr_delete(Q, R, 0, which="col")
+                    Q, R = scipy.linalg.qr_insert(Q, R, ΔF[:, -1], mk - 1, which="col")
+            except scipy.linalg.LinAlgError:
+                message = "Error in QR factorization/update."
+                break
+
+            try:
+                gamma = np.linalg.lstsq(R, Q.T @ fx)[0]
+            except np.linalg.LinAlgError:
+                message = "Error in least-squares solution."
+                break
+
+            x = gx - np.dot(gamma, ΔG[-mk:, :])
 
         ΔG[:-1, :] = ΔG[1:, :]
         ΔF[:, :-1] = ΔF[:, 1:]
@@ -125,40 +174,4 @@ def fixpoint_anderson(
         ΔG[-1, :] = -gx
         ΔF[:, -1] = -fx
 
-        gx = g(x)
-        nfeval += 1
-        fx = gx - x
-
-        ΔG[-1, :] += gx
-        ΔF[:, -1] += fx
-
-        if np.linalg.norm(sclx * fx, np.inf) <= tolx:
-            message = "||sclx*(g(x) - x)||∞ ≤ tolx"
-            success = True
-            break
-
-        try:
-            if k == 1:
-                Q, R = scipy.linalg.qr(ΔF[:, -mk:], mode="economic")
-            if k > m:
-                Q, R = scipy.linalg.qr_delete(Q, R, 0, which="col")
-            if k > 1:
-                Q, R = scipy.linalg.qr_insert(Q, R, ΔF[:, -1], mk - 1, which="col")
-
-        except scipy.linalg.LinAlgError:
-            message = "Error in QR factorization/update."
-            break
-
-        try:
-            gamma = np.linalg.lstsq(R, Q.T @ fx)[0]
-        except np.linalg.LinAlgError:
-            message = "Error in least-squares solution."
-            break
-
-        if k + 1 < maxiter:
-            x = gx - np.dot(gamma, ΔG[-mk:, :])
-
-    else:
-        message = f"Maximum number of iterations ({maxiter}) reached."
-
-    return VectorRootResult(method, success, message, nfeval, None, k + 1, x, fx, None)
+    return VectorRootResult(method, success, message, nfeval, None, niter, x, fx, None)

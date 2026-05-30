@@ -28,11 +28,6 @@ from .typing import (
     FloatVector,
 )
 
-_finfo = np.finfo(np.float64)
-eps = float(_finfo.eps)
-huge = float(_finfo.max)
-tiny = float(_finfo.tiny)
-
 
 def add_dicts(
     d1: dict[Any, int | float],
@@ -49,7 +44,7 @@ def add_dicts(
     d2 : dict[Any, int | float]
         second dictionary
     new : bool
-        if True, a new dictionary will be created (`d = d1 + d2`), otherwise,
+        if `True`, a new dictionary will be created (`d = d1 + d2`), otherwise,
         d1 will be modified in place (`d1 <- d1 + d2`).
 
     Returns

@@ -3,6 +3,6 @@
 # Copyright Hugo Vale 2025
 
 
+from .qnewton import *
 from .results import *
 from .scalar import *
-from .vector import *

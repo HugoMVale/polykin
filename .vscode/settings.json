@@ -7,10 +7,14 @@
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
+    "python.languageServer": "Pylance",
+    "python.analysis.diagnosticMode": "openFilesOnly",
+    "ty.disableLanguageServices": true,
     "[python]": {
         "editor.rulers": [
             90
         ],
+        "editor.inlayHints.enabled": "off",
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.codeActionsOnSave": {
