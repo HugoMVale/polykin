@@ -1,6 +1,6 @@
 [project]
 name = "polykin"
-version = "0.7.0"
+version = "0.8.0"
 license = { file = "LICENSE" }
 description = "A Python library for polymerization kinetics and related chemical engineering calculations."
 readme = "README.md"
