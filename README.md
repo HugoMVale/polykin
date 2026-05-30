@@ -53,8 +53,9 @@ development stage, but the following modules can already be used:
   - [x] Termination composite model
 - Math
   - [x] Joint confidence regions
-  - [x] Fixed-point solvers (scalar and vector)
-  - [x] Root solvers (scalar end vector)
+  - [x] Fixed-point solvers
+  - [x] Root solvers
+  - [x] Optimization solvers
 - Physical property correlations
   - [x] Antoine
   - [x] DIPPR
