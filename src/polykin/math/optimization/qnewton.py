@@ -194,10 +194,9 @@ def fmin_qnewton(
     nheval = 0
     niter = 0
 
+    # Set scaling factors
     x0 = np.asarray(x0, dtype=float)
     n = x0.size
-
-    # Set scaling factors
     sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
     sclf = max(abs(sclf), 1.0)
 
