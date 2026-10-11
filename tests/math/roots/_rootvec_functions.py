@@ -25,12 +25,10 @@ def f_rosenbrock(x):
 
 def f_trignometric(x):
     n = x.size
+    tsum = np.sum(np.cos(x))
     f = np.zeros(n)
     for k in range(n):
-        tsum = 0
-        for j in range(n):
-            tsum += np.cos(x[j]) + k * (1 - np.cos(x[k])) - np.sin(x[k])
-        f[k] = n - tsum
+        f[k] = n - tsum + (k + 1) * (1 - np.cos(x[k])) - np.sin(x[k])
     return f
 
 
@@ -68,8 +66,8 @@ TEST_FUNCTIONS = {
     },
     "trignometric": {
         "f": f_trignometric,
-        "description": "Trigonometric function. Dennis & Schnabel (1996).",
-        "x0": np.ones(10) / 10,
+        "description": "Trigonometric function. Dennis & Schnabel (1996); Moré, Garbow & Hillstrom (1981), problem 26.",  # noqa: E501
+        "x0": np.full(10, 0.01),
         "xs": np.zeros(10),
     },
     "case10": {
