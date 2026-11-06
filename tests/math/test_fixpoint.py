@@ -149,20 +149,20 @@ def test_fixpoint_steffensen():
     assert sol.success
     assert "tolx" in sol.message
     assert isclose(sol.x, G_SCALAR_XS, atol=tolx)
-    assert isclose(sol.f, g_scalar(sol.x) - sol.x, atol=tolx)
+    assert isclose(sol.fx, g_scalar(sol.x) - sol.x, atol=tolx)
     # stop maxiter
     maxiter = 1
     sol = fixpoint_steffensen(g_scalar, 0.5, maxiter=maxiter)
     assert not sol.success
     assert "iterations" in sol.message
     assert sol.niter == maxiter
-    assert isclose(sol.f, g_scalar(sol.x) - sol.x, atol=tolx)
+    assert isclose(sol.fx, g_scalar(sol.x) - sol.x, atol=tolx)
     # test denominator zero
     sol = fixpoint_steffensen(lambda x: x + 1.0, 0.0)
     assert not sol.success
     assert "denominator" in sol.message
     assert sol.niter == 1
-    assert allclose(sol.f, 1.0)
+    assert allclose(sol.fx, 1.0)
     # with callback
     sol = fixpoint_steffensen(g_scalar, 0.5, tolx=tolx, callback=callback)
     assert "callback" in sol.message

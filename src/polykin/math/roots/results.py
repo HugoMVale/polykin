@@ -31,7 +31,7 @@ class RootResult:
         Number of iterations.
     x: float
         Root value.
-    f: float
+    fx: float
         Function (residual) value at root.
     """
 
@@ -41,7 +41,7 @@ class RootResult:
     nfeval: int
     niter: int
     x: float
-    f: float
+    fx: float
 
     def __repr__(self) -> str:
         """Return a string representation of the root result."""
@@ -52,7 +52,7 @@ class RootResult:
             f" nfeval: {self.nfeval}\n"
             f"  niter: {self.niter}\n"
             f"      x: {self.x}\n"
-            f"      f: {self.f}"
+            f"     fx: {self.fx}"
         )
 
 

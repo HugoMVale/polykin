@@ -40,22 +40,22 @@ def test_root_newton():
     assert res.success
     assert "tolx" in res.message
     assert isclose(res.x, f1_sol, atol=tolx)
-    assert isclose(res.f, f1(res.x))
+    assert isclose(res.fx, f1(res.x))
     assert res.nfeval == res.niter
     # stop tolf
     tolf = 1e-10
     res = root_newton(f1, 1.5, tolx=0.0, tolf=tolf)
     assert res.success
     assert "tolf" in res.message
-    assert abs(res.f) <= tolf
-    assert isclose(res.f, f1(res.x))
+    assert abs(res.fx) <= tolf
+    assert isclose(res.fx, f1(res.x))
     # stop maxiter
     maxiter = 3
     res = root_newton(f1, 1.5, maxiter=maxiter)
     assert not res.success
     assert "iterations" in res.message
     assert res.niter == maxiter
-    assert isclose(res.f, f1(res.x))
+    assert isclose(res.fx, f1(res.x))
     # nasty test
     res = root_newton(f2, 0.5, tolx=1e-10, tolf=1e-10)
     assert res.success
@@ -78,22 +78,22 @@ def test_root_secant():
     assert res.success
     assert "tolx" in res.message
     assert isclose(res.x, f1_sol, atol=tolx)
-    assert isclose(res.f, f1(res.x))
+    assert isclose(res.fx, f1(res.x))
     assert res.nfeval == res.niter + 2
     # stop tolf
     tolf = 1e-10
     res = root_secant(f1, 1.5, 1.4, tolx=0.0, tolf=tolf)
     assert res.success
     assert "tolf" in res.message
-    assert abs(res.f) <= tolf
-    assert isclose(res.f, f1(res.x))
+    assert abs(res.fx) <= tolf
+    assert isclose(res.fx, f1(res.x))
     # stop maxiter
     maxiter = 3
     res = root_secant(f1, 1.5, 1.4, maxiter=maxiter)
     assert not res.success
     assert "iterations" in res.message
     assert res.niter == maxiter
-    assert isclose(res.f, f1(res.x))
+    assert isclose(res.fx, f1(res.x))
     # nasty test
     res = root_secant(f2, 0.5, 0.6, tolx=1e-10, tolf=1e-10)
     assert res.success
@@ -116,21 +116,21 @@ def test_root_brent():
     assert res.success
     assert "tolx" in res.message
     assert isclose(res.x, f1_sol, atol=tolx)
-    assert isclose(res.f, f1(res.x))
+    assert isclose(res.fx, f1(res.x))
     # stop tolf
     tolf = 1e-10
     res = root_brent(f1, 0.1, 1.0, tolx=0.0, tolf=tolf)
     assert res.success
     assert "tolf" in res.message
-    assert abs(res.f) < tolf
-    assert isclose(res.f, f1(res.x))
+    assert abs(res.fx) < tolf
+    assert isclose(res.fx, f1(res.x))
     # stop maxiter
     maxiter = 3
     res = root_brent(f1, 0.1, 1.0, maxiter=maxiter)
     assert not res.success
     assert "iterations" in res.message
     assert res.niter == maxiter
-    assert isclose(res.f, f1(res.x))
+    assert isclose(res.fx, f1(res.x))
     # a is solution
     res = root_brent(f1, f1_sol, 1.0)
     assert res.success
