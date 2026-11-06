@@ -76,9 +76,9 @@ class VectorRootResult:
         Number of iterations.
     x: FloatVector
         Root value.
-    f: FloatVector
+    fx: FloatVector
         Function (residual) value at root.
-    J: FloatMatrix | None
+    Jx: FloatMatrix | None
         Last evaluated or estimated Jacobian matrix.
     """
 
@@ -89,8 +89,8 @@ class VectorRootResult:
     njeval: int | None
     niter: int
     x: FloatVector
-    f: FloatVector
-    J: FloatMatrix | None
+    fx: FloatVector
+    Jx: FloatMatrix | None
 
     def __repr__(self) -> str:
         """Return a string representation of the vector root result."""
@@ -102,6 +102,6 @@ class VectorRootResult:
             f" njeval: {self.njeval}\n"
             f"  niter: {self.niter}\n"
             f"      x: {self.x}\n"
-            f"      f: {self.f}\n"
-            f"      J: {self.J}"
+            f"     fx: {self.fx}\n"
+            f"     Jx: {self.Jx}"
         )
