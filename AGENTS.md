@@ -1,134 +1,106 @@
 # Agent guide (PolyKin)
 
-This repository is a Python package (src-layout) built and tested via `uv`.
-This document is written for automated coding agents and human maintainers who want
-consistent, low-friction changes.
+PolyKin is an `src`-layout Python package. Use `uv`, keep changes scoped, and
+match the existing patterns in nearby source and tests.
 
-## Ground rules
+## Boundaries
 
-- Keep changes minimal and scoped to the user request.
-- Prefer repo-standard tooling and commands (see below) so CI matches local runs.
-- Do not change `README.md` unless explicitly requested.
-- Avoid editing generated content under `docs/generated/`.
-- When making behavioral changes, add or update tests under `tests/`.
+- Source: `src/polykin/`; tests: `tests/`; docs: `docs/`; CI:
+  `.github/workflows/`.
+- Tests mirror package subdomains. Put tests for
+  `src/polykin/<subdomain>/` under `tests/<subdomain>/`.
+- Do not change `README.md` unless requested.
+- Do not edit generated content under `docs/generated/`. If it is stale, report
+  that; no generator is currently documented.
+- Behavioral changes require focused tests.
+- Do not add or update dependencies unless the task requires it. Preserve
+  `uv.lock` for ordinary code changes.
 
-## Repo layout
+## Environment
 
-- Source: `src/polykin/`
-- Tests: `tests/` (mirrors package subdomains like `thermo/`, `kinetics/`, etc.)
-- Docs (MkDocs Material): `docs/` (includes tutorial notebooks under `docs/tutorials/`)
-- CI workflows: `.github/workflows/`
-
-## Supported Python
-
-- Python >= 3.10 (see `pyproject.toml`).
-
-## Setup (recommended: uv)
-
-CI uses `uv sync` with `uv.lock`.
-
-### Windows (PowerShell)
+- Python requirement: `>=3.11` (see `pyproject.toml`).
+- Set up the locked development environment from the repository root:
 
 ```powershell
-# From repo root
-pip install uv
-uv sync
+uv sync --frozen
 ```
 
-### macOS/Linux (bash)
+Install `uv` first only when it is unavailable.
 
-```bash
-pip install uv
-uv sync
-```
+## Development commands
 
-## Run tests
-
-### Full test suite
-
-```powershell
-uv run --frozen pytest
-```
-
-### Run a subset
+Run the smallest relevant test set while iterating:
 
 ```powershell
 uv run --frozen pytest tests/thermo
+uv run --frozen pytest tests/thermo/test_flash.py -q
 uv run --frozen pytest -k "flash" -q
 ```
 
-### Disable Numba JIT (useful for determinism / faster CI-style coverage)
-
-CI runs a second pass with JIT disabled.
+Run the full suite for cross-package, shared-utility, public-signature, or
+otherwise broad changes:
 
 ```powershell
-$env:NUMBA_DISABLE_JIT = "1"
 uv run --frozen pytest
 ```
 
-To re-enable in the same shell:
+For code affected by Numba, also validate with JIT disabled:
 
 ```powershell
+$env:NUMBA_DISABLE_JIT = "1"
+uv run --frozen pytest <relevant-tests>
 Remove-Item Env:NUMBA_DISABLE_JIT -ErrorAction SilentlyContinue
 ```
 
-## Linting and formatting
-
-Project config lives in `pyproject.toml`.
-
-- Ruff (lint):
+For Python changes, lint and check formatting only the changed files:
 
 ```powershell
-uv run ruff check .
+uv run --frozen ruff check <changed-python-files>
+uv run --frozen ruff format --check <changed-python-files>
 ```
 
-- Ruff (format):
+Use the formatter without `--check` when changes are needed. Do not format the
+entire repository for a scoped change.
+
+Build documentation only when docs, docstrings, or public API documentation are
+affected:
 
 ```powershell
-uv run ruff format .
+uv sync --frozen --group docs
+uv run --frozen mkdocs build -d _site
 ```
 
-If you change imports or add new modules, ensure Ruff import rules pass.
+## Change workflow
 
-### (Optional) pre-commit hooks
-
-This repo includes a `.pre-commit-config.yaml` that runs Ruff lint and format via `uv`.
-
-```powershell
-uv run --frozen pre-commit install
-uv run --frozen pre-commit run --all-files
-```
-
-## Documentation build
-
-Docs build in CI using the `docs` dependency group:
-
-```powershell
-uv sync --group docs
-uv run mkdocs build -d _site
-```
-
-## Change workflow (agent-friendly)
-
-1. Identify the smallest set of files needed.
-2. Implement the change.
-3. Run targeted tests first, then the full suite if the change is broad.
-4. Run `ruff check .` and `ruff format .` if you changed Python files.
-5. If docs are affected, run `mkdocs build`.
+1. Inspect nearby implementation and tests before editing.
+2. Make the smallest complete change; avoid unrelated cleanup.
+3. Add or update tests for new or changed behavior.
+4. Run targeted tests and checks, then broaden validation only when the change's
+   impact warrants it.
+5. If a baseline test fails before your change is relevant, report it rather
+   than repairing unrelated code without request.
 
 ## Conventions
 
-- Keep functions/classes type-annotated where practical.
-- Docstrings follow NumPy-style conventions (Ruff pydocstyle is enabled).
-- Respect the repo line length (90) when formatting.
-- Avoid adding new heavy dependencies without a clear need.
+- Use NumPy-style docstrings and keep lines at 90 characters or fewer.
+- Annotate public functions and classes, including parameters and return types.
+- Follow Ruff configuration in `pyproject.toml`; resolve new diagnostics without
+  adding broad ignores.
+- Prefer existing helpers and package-local patterns over duplicate logic.
 
-## CI parity notes
+## CI parity
 
-CI runs:
+CI tests Python 3.11-3.14 with highest dependency resolution and Python 3.11
+with lowest-direct resolution. It runs tests with Numba both enabled and
+disabled.
 
-- `uv sync` (both highest and lowest-direct resolution)
-- `pytest` with and without Numba JIT
-- docs build via `mkdocs build`
+Reproduce dependency resolution with:
 
-When you need to replicate a CI failure locally, prefer running the exact `uv run --frozen ...` command.
+```powershell
+uv sync --resolution lowest-direct
+uv run --frozen pytest
+```
+
+This command can update `uv.lock`; restore the locked environment with
+`uv sync --frozen` afterward and do not commit lock changes unless requested.
+Use the CI workflow as the source of truth if these commands drift.
