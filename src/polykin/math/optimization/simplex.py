@@ -70,7 +70,9 @@ def fmin_nelder_mead(
     maxiter : int | None
         Maximum number of iterations. By default, a value of `200*N` is used.
     maxfeval : int | None
-        Maximum number of function evaluations. By default, a value of `200*N` is used.
+        Soft limit on the number of function evaluations. The limit is checked between
+        iterations, so simplex initialization or an iteration already in progress may
+        exceed it. By default, a value of `200*N` is used.
     adaptive : bool
         Whether to use the adaptive parameter scheme proposed by Gao (2012). If `False`,
         the standard Nelder-Mead parameters are used.
