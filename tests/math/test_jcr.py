@@ -97,5 +97,5 @@ def test_confidence_region():
     sol = minimize(sse, (-1.0, 1.0))
     beta_est = sol.x
 
-    jcr = confidence_region(beta_est, sse=sse, ndata=ndata)
+    jcr = confidence_region(beta_est, sse, ndata, width=0.1)
     assert len(jcr[0]) > 1

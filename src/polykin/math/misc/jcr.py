@@ -155,9 +155,9 @@ def confidence_region(
     center: tuple[float, float],
     sse: Callable[[tuple[float, float]], float],
     ndata: int,
+    width: float,
     *,
     alpha: float = 0.05,
-    width: float = 0.0,
     npoints: int = 200,
     rtol: float = 1e-2,
 ) -> tuple[FloatVector, FloatVector]:
@@ -206,7 +206,7 @@ def confidence_region(
         Significance level, $\alpha$.
     width : float
         Initial guess of the width of the joint confidence region at its
-        center. If `0`, it is assumed that `width=0.5*center[0]`.
+        center.
     npoints : int
         Number of points where the JCR is evaluated. The computational effort
         increases linearly with `npoints`.
@@ -242,8 +242,9 @@ def confidence_region(
         raise ShapeError(f"`center` must be a vector of length {npar}.")
 
     # Check inputs
-    check_bounds(alpha, 0.001, 0.99, "alpha")
     check_bounds(ndata, npar + 1, np.inf, "ndata")
+    check_bounds(alpha, 0.001, 0.99, "alpha")
+    check_bounds(width, eps, np.inf, "width")
     check_bounds(npoints, 1, 500, "npoints")
     check_bounds(rtol, 1e-4, 1e-1, "rtol")
 
@@ -281,7 +282,7 @@ def confidence_region(
     # Find radius at each angle using previous solution as initial guess
     angles = np.linspace(0.0, 2 * np.pi, npoints)
     r = np.zeros_like(angles)
-    r_guess_0 = abs(width / 2) if width > 0 else 0.25 * center[0]
+    r_guess_0 = abs(width / 2)
     r_guess = r_guess_0
     for i, θ in enumerate(angles):
         sol = find_radius(θ, r_guess)
