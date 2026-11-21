@@ -209,19 +209,24 @@ def fmin_qnewton(
     else:
         trustlen = min(trustlen, maxlen)
 
-    # Helper functions to evaluate gradient and Hessian
+    # Helper functions to evaluate the function, gradient and Hessian
+    def eval_f(x: FloatVector) -> float:
+        nonlocal nfeval
+        fx = f(x)
+        nfeval += 1
+        return fx
+
     def eval_grad(x: FloatVector, fx: float) -> FloatVector:
-        nonlocal ngeval, nfeval
+        nonlocal ngeval
         if grad is not None:
             g = grad(x)
             ngeval += 1
         else:
-            g = gradient_forward(f, x, fx=fx, sclx=sclx, epsf=epsf)
-            nfeval += n
+            g = gradient_forward(eval_f, x, fx=fx, sclx=sclx, epsf=epsf)
         return g
 
     def eval_hess(x: FloatVector, fx: float, gx: FloatVector) -> FloatMatrix:
-        nonlocal nheval, ngeval, nfeval
+        nonlocal nheval, ngeval
         if hess is not None:
             H = hess(x)
             nheval += 1
@@ -229,14 +234,12 @@ def fmin_qnewton(
             H = jacobian_forward(grad, x, fx=gx, sclx=sclx, epsf=epsf)
             ngeval += n
         else:
-            H = hessian_forward(f, x, fx=fx, sclx=sclx, epsf=epsf)
-            nfeval += n * (n + 3) // 2
+            H = hessian_forward(eval_f, x, fx=fx, sclx=sclx, epsf=epsf)
         return H
 
     # Evaluate function at x0
     xc = x0.copy()
-    fc = f(xc)
-    nfeval += 1
+    fc = eval_f(xc)
 
     # Evaluate gradient at x0
     grad_analytic = grad is not None
@@ -375,23 +378,21 @@ def fmin_qnewton(
         # Compute actual x step
         if global_method is None:
             xp = xc + p
-            fp = f(xp)
-            gm_ismaxstep = True
+            fp = eval_f(xp)
+            gm_wasmaxstep = True
             gm_success = True
-            gm_nfeval = 1
         elif global_method == "line-search":
-            gm_success, gm_ismaxstep, gm_nfeval, xp, fp, _ = line_search(
-                f, p, xc, fc, gc, tolx, sclx, maxlen, verbose
+            gm_success, gm_wasmaxstep, xp, fp, _ = line_search(
+                eval_f, p, xc, fc, gc, tolx, sclx, maxlen, verbose
             )
         elif global_method == "dogleg":
-            gm_success, gm_ismaxstep, gm_nfeval, trustlen, xp, fp, _ = dogleg(
-                f, p, xc, fc, gc, L.T, tolx, sclx, maxlen, trustlen, verbose
+            gm_success, gm_wasmaxstep, trustlen, xp, fp, _ = dogleg(
+                eval_f, p, xc, fc, gc, L.T, tolx, sclx, maxlen, trustlen, verbose
             )
         else:
             raise ValueError(f"Unknown `global_method`: {global_method}.")
 
-        nfeval += gm_nfeval
-        gm_nmaxsteps = gm_nmaxsteps + 1 if gm_ismaxstep else 0
+        gm_nmaxsteps = gm_nmaxsteps + 1 if gm_wasmaxstep else 0
 
         # Display iteration progress
         if verbose:
@@ -469,7 +470,7 @@ def fmin_qnewton(
         g=gc,
         H=H if not bfgs_update or bfgs_method == "factored" else None,
         Hinv=Hinv if bfgs_method == "inverse" else None,
-        L=L if bfgs_method == "factored" else None,
+        L=L if bfgs_method == "factored" else None,  # type: ignore
     )
 
 
@@ -619,7 +620,7 @@ def _update_bfgs_factored(
 
     # QR rank-1 update
     n = Lc.shape[0]
-    _, Rp = scipy.linalg.qr_update(np.eye(n), Lc.T, LTs, Hs, overwrite_qruv=True)
+    _, Rp = scipy.linalg.qr_update(np.eye(n), Lc.T, LTs, Hs, overwrite_qruv=True)  # type: ignore
     Lp = Rp.T
 
     return Lp
@@ -754,7 +755,7 @@ def make_hessian_spd(
 
         try:
             Lp = np.linalg.cholesky(Hp)
-            return Hp, Lp, perturb + mu
+            return Hp, Lp, perturb + mu  # type: ignore
         except np.linalg.LinAlgError:
             perturb = max(perturb0, 10 * perturb)
 

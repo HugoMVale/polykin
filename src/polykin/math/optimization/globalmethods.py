@@ -25,7 +25,7 @@ def line_search(
     sclx: FloatVector,
     maxlen: float,
     verbose: bool = False,
-) -> tuple[bool, bool, int, FloatVector, float, FloatVector]:
+) -> tuple[bool, bool, FloatVector, float, FloatVector]:
     r"""Perform a line search.
 
     This function performs a line search along the quasi-Newton direction to find a step
@@ -62,11 +62,11 @@ def line_search(
     Returns
     -------
     tuple[bool, bool, int, FloatVector, float, FloatVector]
-        `(success, ismaxstep, nfeval, xp, fp, Fp)`
+        `(success, wasmaxstep, xp, fp, Fp)`
     """
-    nfeval = 0
     success = False
-    ismaxstep = False
+    wasmaxstep = False
+    Fp = np.array([])
 
     newtlen = norm(sclx * p)
     if newtlen > maxlen:
@@ -74,23 +74,25 @@ def line_search(
         newtlen = maxlen
 
     slope = np.dot(gc, p)
+    if slope >= 0:
+        return (False, wasmaxstep, xc, fc, Fp)
 
     α = 1e-4
     λ = 1.0
     λ_min = tolx / np.max(np.abs(p) / np.maximum(np.abs(xc), 1 / sclx))
 
+    first = True
+    xp = xc
+    fp = fc
     A = np.empty((2, 2))
     B = np.empty(2)
     λ_prev = float("nan")
     fp_prev = float("nan")
-    Fp = np.array([])
 
-    first = True
     while True:
         xp = xc + λ * p
 
         res = f(xp)
-        nfeval += 1
         fp, Fp = res if isinstance(res, tuple) else (res, Fp)
 
         if verbose:
@@ -99,11 +101,12 @@ def line_search(
         if fp <= fc + α * λ * slope:
             success = True
             if first and (newtlen > 0.99 * maxlen):
-                ismaxstep = True
+                wasmaxstep = True
             break
         elif λ < λ_min:
             success = False
             xp = xc
+            fp = fc
             break
         else:
             if first:
@@ -126,7 +129,7 @@ def line_search(
             fp_prev = fp
             λ = max(0.1 * λ, λ_temp)
 
-    return (success, ismaxstep, nfeval, xp, fp, Fp)
+    return (success, wasmaxstep, xp, fp, Fp)
 
 
 class TrustState(IntEnum):
@@ -151,7 +154,7 @@ def dogleg(
     maxlen: float,
     trustlen: float,
     verbose: bool = False,
-) -> tuple[bool, bool, int, float, FloatVector, float, FloatVector]:
+) -> tuple[bool, bool, float, FloatVector, float, FloatVector]:
     r"""Perform a dogleg step.
 
     **References**
@@ -189,11 +192,10 @@ def dogleg(
     Returns
     -------
     tuple[bool, bool, int, float, FloatVector, float, FloatVector]
-        `(success, ismaxstep, nfeval, trustlen, xp, fp, Fp)`
+        `(success, wasmaxstep, trustlen, xp, fp, Fp)`
     """
-    nfeval = 0
     state = TrustState.start
-    ismaxstep = False
+    wasmaxstep = False
 
     cauchylen = η = float("nan")
     v = sSD = np.array([])
@@ -235,7 +237,7 @@ def dogleg(
                 s = (sSD + λ * v) / sclx
 
         # Update trust region
-        state, ismaxstep, trustlen, xp, fp, Fp, xp_prev, fp_prev, Fp_prev = (
+        state, wasmaxstep, trustlen, xp, fp, Fp, xp_prev, fp_prev, Fp_prev = (
             _update_trust_region(
                 f,
                 xc,
@@ -254,13 +256,12 @@ def dogleg(
                 Fp_prev,
             )
         )
-        nfeval += 1
 
         # Display iteration progress
         if verbose:
             print(f"  δ={trustlen:.2e}, f={fp:.2e}", flush=True)
 
-    return (state == TrustState.accepted, ismaxstep, nfeval, trustlen, xp, fp, Fp)
+    return (state == TrustState.accepted, wasmaxstep, trustlen, xp, fp, Fp)
 
 
 def _update_trust_region(
@@ -335,10 +336,10 @@ def _update_trust_region(
     Returns
     -------
     tuple[TrustState, bool, float, FloatVector, float, FloatVector, FloatVector, float, FloatVector]
-        `(state, ismaxstep, trustlen, xp, fp, Fp, xp_prev, fp_prev, Fp_prev)`
+        `(state, wasmaxstep, trustlen, xp, fp, Fp, xp_prev, fp_prev, Fp_prev)`
     """  # noqa: E501
     α = 1e-4
-    ismaxstep = False
+    wasmaxstep = False
 
     steplen = norm(sclx * s)
     slope = np.dot(gc, s)
@@ -380,7 +381,7 @@ def _update_trust_region(
         else:
             state = TrustState.accepted
             if steplen >= 0.99 * maxlen:
-                ismaxstep = True
+                wasmaxstep = True
             if Δf >= 0.1 * Δf_pred:
                 trustlen *= 0.5
             elif Δf <= 0.75 * Δf_pred:
@@ -388,4 +389,4 @@ def _update_trust_region(
             else:
                 trustlen = trustlen  # no change
 
-    return (state, ismaxstep, trustlen, xp, fp, Fp, xp_prev, fp_prev, Fp_prev)
+    return (state, wasmaxstep, trustlen, xp, fp, Fp, xp_prev, fp_prev, Fp_prev)
