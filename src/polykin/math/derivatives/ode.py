@@ -43,7 +43,7 @@ def ode_rk(
     y0 : float
         Initial value of `y`, i.e., `y(t0)`.
     h : float
-        Step size.
+        Step-size magnitude. Its sign is adjusted to match the integration direction.
     order : Literal[1, 2, 4]
         Order of the method. Defaults to 1 (i.e., Euler).
 
@@ -89,6 +89,12 @@ def ode_rk(
 
     def integrate(step, f, t0, tf, y0, h):
         """Integrate using the given step function."""
+        if t0 == tf:
+            return y0
+        if h == 0.0:
+            raise ValueError("Step size must be nonzero.")
+
+        h = math.copysign(h, tf - t0)
         nsteps = math.floor((tf - t0) / h)
         hf = (tf - t0) - nsteps * h
         t = t0
@@ -96,8 +102,8 @@ def ode_rk(
         for _ in range(nsteps):
             y = step(f, t, y, h)
             t += h
-        y = step(f, t, y, hf)
-        t += hf
+        if hf != 0.0:
+            y = step(f, t, y, hf)
         return y
 
     # Needs to be done in this explict/verbose form, because function pointers

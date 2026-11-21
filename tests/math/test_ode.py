@@ -28,5 +28,17 @@ def test_ode_rk():
         yf = ode_rk(ydot, t0, tf, y0, h, order=order)  # type: ignore
         assert isclose(yf, ysol(tf), rtol=1e-4)
 
+    for h in [1e-2, -1e-2]:
+        yf = ode_rk(ydot, tf, t0, ysol(tf), h, order=4)  # type: ignore
+        assert isclose(yf, y0, rtol=1e-4)
+
+    yf = ode_rk(ydot, t0, tf, y0, -1e-2, order=4)  # type: ignore
+    assert isclose(yf, ysol(tf), rtol=1e-4)
+
+    assert ode_rk(ydot, t0, t0, y0, 0.0, order=4) == y0  # type: ignore
+
+    with pytest.raises(ValueError, match="nonzero"):
+        _ = ode_rk(ydot, t0, tf, y0, 0.0, order=1)  # type: ignore
+
     with pytest.raises(ValueError):
         _ = ode_rk(ydot, 0.0, 1.0, 1.0, 1e-5, order=5)  # type: ignore
