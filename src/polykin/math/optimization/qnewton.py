@@ -20,6 +20,7 @@ from polykin.math.derivatives.ndiff import (
 from polykin.math.machine import eps, sqrt_eps
 from polykin.math.optimization.globalmethods import dogleg, line_search
 from polykin.math.optimization.results import VectorOptimumResult
+from polykin.utils.exceptions import ShapeError
 from polykin.utils.typing import FloatMatrix, FloatVector, FloatVectorLike
 
 __all__ = ["fmin_qnewton"]
@@ -197,8 +198,15 @@ def fmin_qnewton(
     # Set scaling factors
     x0 = np.asarray(x0, dtype=float)
     n = x0.size
-    sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
     sclf = max(abs(sclf), 1.0)
+    if sclx is not None:
+        sclx = np.abs(np.asarray(sclx, dtype=float))
+        if sclx.size != n:
+            raise ShapeError("Shape mismatch between `sclx` and `x0`.")
+        if np.any(sclx == 0.0):
+            raise ValueError("Scaling factors in `sclx` must be non-zero.")
+    else:
+        sclx = scalex(x0)
 
     # Set maximum step length for global methods
     maxlen = max(0.0, maxlenfac) * max(norm(sclx * x0).item(), norm(sclx).item())
@@ -217,16 +225,17 @@ def fmin_qnewton(
         return fx
 
     def eval_grad(x: FloatVector, fx: float) -> FloatVector:
-        nonlocal ngeval
+        nonlocal nfeval, ngeval
         if grad is not None:
             g = grad(x)
             ngeval += 1
         else:
-            g = gradient_forward(eval_f, x, fx=fx, sclx=sclx, epsf=epsf)
+            g = gradient_forward(f, x, fx=fx, sclx=sclx, epsf=epsf)
+            nfeval += n
         return g
 
     def eval_hess(x: FloatVector, fx: float, gx: FloatVector) -> FloatMatrix:
-        nonlocal nheval, ngeval
+        nonlocal nfeval, ngeval, nheval
         if hess is not None:
             H = hess(x)
             nheval += 1
@@ -235,6 +244,7 @@ def fmin_qnewton(
             ngeval += n
         else:
             H = hessian_forward(eval_f, x, fx=fx, sclx=sclx, epsf=epsf)
+            nfeval += n * (n + 3) // 2
         return H
 
     # Evaluate function at x0
@@ -255,6 +265,8 @@ def fmin_qnewton(
     # Evaluate Hessian at x0
     H = L = Hinv = np.array([])
     if H0 is not None:
+        if H0.shape != (n, n):
+            raise ShapeError("Shape mismatch between `H0` and `x0`.")
         H = H0.copy()
     elif bfgs_update and hess is None:
         # D = max(abs(fc), 1 / sclf) * sclx**2
