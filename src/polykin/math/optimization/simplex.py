@@ -8,6 +8,7 @@ import numpy as np
 
 from polykin.math.derivatives.ndiff import scalex
 from polykin.math.optimization.results import VectorOptimumResult
+from polykin.utils.exceptions import ShapeError
 from polykin.utils.typing import FloatMatrix, FloatVector, FloatVectorLike
 
 __all__ = ["fmin_nelder_mead"]
@@ -108,7 +109,14 @@ def fmin_nelder_mead(
     x0 = np.asarray(x0, dtype=float)
     n = x0.size
 
-    sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
+    if sclx is not None:
+        sclx = np.abs(np.asarray(sclx, dtype=float))
+        if sclx.size != n:
+            raise ShapeError("Shape mismatch between `sclx` and `x0`.")
+        if np.any(sclx == 0.0):
+            raise ValueError("Scaling factors in `sclx` must be non-zero.")
+    else:
+        sclx = scalex(x0)
 
     maxiter = maxiter if maxiter is not None else 200 * n
     maxfeval = maxfeval if maxfeval is not None else 200 * n
