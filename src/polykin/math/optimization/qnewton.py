@@ -195,10 +195,11 @@ def fmin_qnewton(
     nheval = 0
     niter = 0
 
-    # Set scaling factors
+    # Get problem dimension
     x0 = np.asarray(x0, dtype=float)
     n = x0.size
-    sclf = max(abs(sclf), 1.0)
+
+    # Set scaling factors for x
     if sclx is not None:
         sclx = np.abs(np.asarray(sclx, dtype=float))
         if sclx.size != n:
@@ -207,6 +208,9 @@ def fmin_qnewton(
             raise ValueError("Scaling factors in `sclx` must be non-zero.")
     else:
         sclx = scalex(x0)
+
+    # Set scaling factors for f
+    sclf = max(abs(sclf), 1.0)
 
     # Set maximum step length for global methods
     maxlen = max(0.0, maxlenfac) * max(norm(sclx * x0).item(), norm(sclx).item())
@@ -217,7 +221,7 @@ def fmin_qnewton(
     else:
         trustlen = min(trustlen, maxlen)
 
-    # Helper functions to evaluate the function, gradient and Hessian
+    # Helpers to evaluate/count the function, gradient and Hessian
     def eval_f(x: FloatVector) -> float:
         nonlocal nfeval
         fx = f(x)
