@@ -76,14 +76,18 @@ def Case_1(
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}")
     Mn=6367; Mw=12645
     """
-    b = pB
-    a = b * r_BB_AA
+    if pB > 0:
+        b = pB
+        a = b * r_BB_AA
 
-    Mn = (b * MAA + a * MBB) / (a + b - 2 * a * b)
+        Mn = (b * MAA + a * MBB) / (a + b - 2 * a * b)
+        Mw = (1 + a * b) / (1 - a * b) * (b * MAA**2 + a * MBB**2) / (
+            b * MAA + a * MBB
+        ) + (4 * a * b * MAA * MBB) / ((1 - a * b) * (b * MAA + a * MBB))
 
-    Mw = (1 + a * b) / (1 - a * b) * (b * MAA**2 + a * MBB**2) / (b * MAA + a * MBB) + (
-        4 * a * b * MAA * MBB
-    ) / ((1 - a * b) * (b * MAA + a * MBB))
+    else:
+        Mn = (MAA + r_BB_AA * MBB) / (1 + r_BB_AA)
+        Mw = (MAA**2 + r_BB_AA * MBB**2) / (MAA + r_BB_AA * MBB)
 
     return (Mn, Mw)
 
@@ -156,17 +160,21 @@ def Case_3(
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}")
     Mn=2729; Mw=5332
     """
-    b = pB
-    c = pC
-    a = r_BC_AA * (b + c) / 2
+    if pB > 0.0 or pC > 0.0:
+        b = pB
+        c = pC
+        a = r_BC_AA * (b + c) / 2
 
-    Mn = ((b + c) * MAA + 2 * a * MBC) / (2 * a + b + c - 2 * a * (b + c))
+        Mn = ((b + c) * MAA + 2 * a * MBC) / (2 * a + b + c - 2 * a * (b + c))
 
-    Mw = (
-        (1 + 2 * a * b * c / (b + c)) * MAA**2
-        + 4 * a * MAA * MBC
-        + (2 * a * (b + c + a * b**2 + a * c**2) / (b + c) ** 2) * MBC**2
-    ) / ((1 - 2 * a * b * c / (b + c)) * (MAA + 2 * a / (b + c) * MBC))
+        Mw = (
+            (1 + 2 * a * b * c / (b + c)) * MAA**2
+            + 4 * a * MAA * MBC
+            + (2 * a * (b + c + a * b**2 + a * c**2) / (b + c) ** 2) * MBC**2
+        ) / ((1 - 2 * a * b * c / (b + c)) * (MAA + 2 * a / (b + c) * MBC))
+    else:
+        Mn = (MAA + r_BC_AA * MBC) / (1 + r_BC_AA)
+        Mw = (MAA**2 + r_BC_AA * MBC**2) / (MAA + r_BC_AA * MBC)
 
     return (Mn, Mw)
 
@@ -238,14 +246,17 @@ def Case_5(
     >>> print(f"Mn={Mn:.0f}")
     Mn=6860
     """
-    b = pB
-    c = pC
-    v = r_C_B
-    a = r_BC_A * (b + v * c) / (1 + v)
+    if pB > 0.0 or pC > 0.0:
+        b = pB
+        c = pC
+        v = r_C_B
+        a = r_BC_A * (b + v * c) / (1 + v)
 
-    Mn = (MAA + 2 * a / (2 * b + v * c) * MBB + 2 * a * v / (2 * b + v * c) * MC) / (
-        1 - 2 * a + 2 * a * (1 + v) / (2 * b + v * c)
-    )
+        Mn = (MAA + 2 * a / (2 * b + v * c) * MBB + 2 * a * v / (2 * b + v * c) * MC) / (
+            1 - 2 * a + 2 * a * (1 + v) / (2 * b + v * c)
+        )
+    else:
+        Mn = np.nan
 
     return Mn
 
@@ -829,11 +840,21 @@ def Stockmayer(
 
     pA = pB * sgB / sfA
 
-    pB_gel = sqrt(sfA / (sgB * (fe - 1) * (ge - 1)))
-    if pB >= pB_gel:
+    denom_gel = (fe - 1) * (ge - 1)
+    pB_gel = sqrt(sfA / (sgB * denom_gel)) if denom_gel > 0 else np.inf
+
+    if pB > pB_gel:
         return (np.nan, np.nan)
 
     Mn = (sMA + sMB) / (nA.sum() + nB.sum() - pA * sfA)
+
+    if pB == pB_gel:
+        return (Mn, np.inf)
+
+    if pB == 0.0:
+        r = sgB / sfA
+        Mw = ((sM2A / sfA) + r * (sM2B / sgB)) / ((sMA / sfA) + r * (sMB / sgB))
+        return (Mn, Mw)
 
     Mw = (
         pB * (sM2A / sfA)
@@ -879,7 +900,7 @@ def Flory_Af(
     MAf : float
         Molar mass of reacted Af monomer.
     p : float
-        Conversion of A groups. 
+        Conversion of A groups.
 
     Returns
     -------
@@ -894,13 +915,25 @@ def Flory_Af(
     >>> print(f"Mn={Mn:.0f}; Mw={Mw:.0f}; Mz={Mz:.0f}")
     Mn=250; Mw=1300; Mz=7762
     """
-    p_gel = 1 / (f - 1)
-    if p >= p_gel:
+    p_gel = 1.0 / (f - 1.0) if f > 1.0 else np.inf
+
+    if p > p_gel:
         return (np.nan, np.nan, np.nan)
 
-    Mn = MAf / (1 - (f / 2) * p)
-    Mw = MAf * (1 + p) / (1 - p * (f - 1))
-    Mz = MAf * ((1 + p) ** 3 - (3 + p) * f * p**2) / ((1 + p) * (1 - p * (f - 1)) ** 2)
+    if p == p_gel:
+        if f == 2.0:
+            return (np.inf, np.inf, np.inf)
+        # For f > 2, Mn stays finite while Mw and Mz diverge at p_gel
+        Mn_gel = MAf / (1.0 - 0.5 * f * p)
+        return (Mn_gel, np.inf, np.inf)
+
+    Mn = MAf / (1.0 - 0.5 * f * p)
+    Mw = MAf * (1.0 + p) / (1.0 - p * (f - 1.0))
+    Mz = (
+        MAf
+        * ((1.0 + p) ** 3 - (3.0 + p) * f * (p**2))
+        / ((1.0 + p) * ((1.0 - p * (f - 1.0)) ** 2))
+    )
 
     return (Mn, Mw, Mz)
 
@@ -976,9 +1009,17 @@ def Miller_1(
     pA = 0.5 * (pB1 + pB2) / r
     af = f * nAf / (f * nAf + 2 * nA2)
 
-    EAout = (pA * MB2 + pB1 * pB2 / r * ((1 - af) * MA2 + af * MAf)) / (
-        1 - pB1 * pB2 / r * (1 + (f - 2) * af)
-    )
+    gel_factor = (pB1 * pB2 / r) * (1 + (f - 2) * af)
+
+    if gel_factor > 1.0:
+        return (np.nan, np.nan)
+
+    Mn = (MAf * nAf + MA2 * nA2 + MB2 * nB2) / (nAf + nA2 + nB2 - nB2 * (pB1 + pB2))
+
+    if gel_factor == 1.0:
+        return (Mn, np.inf)
+
+    EAout = (pA * MB2 + pB1 * pB2 / r * ((1 - af) * MA2 + af * MAf)) / (1 - gel_factor)
     EBout = (1 - af) * MA2 + af * MAf + (1 + (f - 2) * af) * EAout
     EB1out = pB1 * EBout
     EB2out = pB2 * EBout
@@ -987,7 +1028,6 @@ def Miller_1(
     EA2 = MA2 + 2 * EAout
     EBB = MB2 + EB1out + EB2out
 
-    Mn = (MAf * nAf + MA2 * nA2 + MB2 * nB2) / (nAf + nA2 + nB2 - nB2 * (pB1 + pB2))
     Mw = (MAf * nAf * EAf + MA2 * nA2 * EA2 + MB2 * nB2 * EBB) / (
         MAf * nAf + MA2 * nA2 + MB2 * nB2
     )
@@ -1070,17 +1110,20 @@ def Miller_2(
 
     pA = sip / f
     r = (f * nAf) / (2 * nB2)
+    gel_factor = r * pA * (m - 1)
 
-    if r * pA * (m - 1) < 1.0:
-        Mn = (MAf * nAf + MB2 * nB2) / (nAf + nB2 - f * nAf * pA)
+    if gel_factor > 1.0:
+        return (np.nan, np.nan)
 
-        Mw = (
-            (2 * r / f) * (1 + r * pA * (f * pA - m + 1)) * MAf**2
-            + (1 + r * pA * (m - 1)) * MB2**2
-            + 4 * r * pA * MAf * MB2
-        ) / (((2 * r / f) * MAf + MB2) * (1 - r * pA * (m - 1)))
-    else:
-        Mn = np.nan
-        Mw = np.nan
+    Mn = (MAf * nAf + MB2 * nB2) / (nAf + nB2 - f * nAf * pA)
+
+    if gel_factor == 1.0:
+        return (Mn, np.inf)
+
+    Mw = (
+        (2 * r / f) * (1 + r * pA * (f * pA - m + 1)) * MAf**2
+        + (1 + r * pA * (m - 1)) * MB2**2
+        + 4 * r * pA * MAf * MB2
+    ) / (((2 * r / f) * MAf + MB2) * (1 - gel_factor))
 
     return (Mn, Mw)
