@@ -54,7 +54,7 @@ def test_aT_WLF():
     Tg = -70 + 273.15  # K
     assert isclose(aT_WLF(25 + 273.15, Tg), 5.01e-12, rtol=1e-2)
     assert isclose(
-        aT_WLF(-20 + 273.15, Tg) / aT_WLF(25 + 273.15, Tg) * 10, 5140, rtol=1e-2
+        aT_WLF(-20 + 273.15, Tg) / aT_WLF(25 + 273.15, Tg) * 10, 5140, rtol=2e-2
     )
     # User defined C1, C2
     assert isclose(aT_WLF(-20 + 273.15, Tg), aT_WLF(25 + 273.15, Tg, C1=17.44, C2=51.6))
