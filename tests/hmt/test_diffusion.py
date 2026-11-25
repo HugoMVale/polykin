@@ -54,6 +54,7 @@ def test_profile_constc_sphere():
     assert isclose(profile_constc_sphere(0.04, 0), 0.01, atol=0.003)
     # Special case Fo=0
     assert isclose(profile_constc_sphere(0, 0.5), 0)
+    assert isclose(profile_constc_sphere(0, 0), 0)
 
 
 def test_uptake_constc_sheet():
