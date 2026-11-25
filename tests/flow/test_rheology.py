@@ -52,10 +52,12 @@ def test_mu_Cross_modified():
 def test_aT_WLF():
     # Example 9, Stephen L. Rosen
     Tg = -70 + 273.15  # K
-    isclose(aT_WLF(25 + 273.15, Tg), 5.01e-12, rtol=1e-2)
-    isclose(aT_WLF(-20 + 273.15, Tg) / aT_WLF(25 + 273.15, Tg) * 10, 5140, rtol=1e-2)
+    assert isclose(aT_WLF(25 + 273.15, Tg), 5.01e-12, rtol=1e-2)
+    assert isclose(
+        aT_WLF(-20 + 273.15, Tg) / aT_WLF(25 + 273.15, Tg) * 10, 5140, rtol=1e-2
+    )
     # User defined C1, C2
-    isclose(aT_WLF(-20 + 273.15, Tg), aT_WLF(25 + 273.15, Tg, C1=17.44, C2=51.6))
+    assert isclose(aT_WLF(-20 + 273.15, Tg), aT_WLF(25 + 273.15, Tg, C1=17.44, C2=51.6))
     # Missing C1 or C2
     with pytest.raises(ValueError):
         _ = aT_WLF(320.0, 300.0, C1=15.0)
