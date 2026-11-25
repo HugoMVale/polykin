@@ -36,7 +36,7 @@ class PRVResult:
 
     def __repr__(self):
         """Return a string representation of the PRVResult."""
-        return f"PRVResult(Pcf={self.Pcf:.2e} bara, critical_flow={self.critical_flow}, A={self.A:.2e} mm²)"
+        return f"PRVResult(Pcf={self.Pcf:.2e} bara, critical_flow={self.critical_flow}, A={self.A:.2e} mm²)"  # noqa: E501
 
 
 def area_relief_gas(
@@ -390,9 +390,9 @@ def area_relief_2phase_subcooled(
     Ps : float
         Saturation (bubble) pressure at upstream relieving temperature [bara].
     rho1 : float
-        Liquid density at upstream relieving conditions [m³/kg].
+        Liquid density at upstream relieving conditions [kg/m³].
     rho9 : float
-        Overall density evaluated at 90% of the saturation pressure `Ps` [m³/kg].
+        Overall density evaluated at 90% of the saturation pressure `Ps` [kg/m³].
         The flash calculation should be carried out isentropically, but an
         isenthalpic (adiabatic) flash is sufficient for low-vapor-content mixtures
         far from the thermodynamic critical point.
