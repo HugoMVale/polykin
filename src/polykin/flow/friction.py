@@ -208,6 +208,9 @@ def DP_tube(
     >>> print(f"DP = {DP:.1e} Pa")
     DP = 6.2e+05 Pa
     """
+    if Q == 0:
+        return 0.0
+
     v = 4 * Q / (pi * D**2)
     Re = rho * v * D / mu
     if Re < 2.3e3:
