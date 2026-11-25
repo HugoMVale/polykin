@@ -206,30 +206,29 @@ def profile_constc_sphere(Fo: float, rstar: float) -> float:
     """
     N = 4  # Number of terms in series expansion (sufficient for convergence)
 
-    if abs(rstar) < eps:
+    if Fo == 0:
+        result = 0
+    elif abs(rstar) < eps:
         # Solution for particular case r->0
         B = -(pi**2) * Fo
         S = sum((-1 if n % 2 else 1) * exp(B * n**2) for n in range(1, N))
         result = 1 + 2 * S
+    elif Fo < 1 / 4:
+        # Solution for small times
+        A = 2 * sqrt(Fo)
+        S = sum(
+            erfc(((2 * n + 1) - rstar) / A) - erfc(((2 * n + 1) + rstar) / A)
+            for n in range(0, N)
+        )
+        result = S / rstar
     else:
-        if Fo == 0:
-            result = 0
-        elif Fo < 1 / 4:
-            # Solution for small times
-            A = 2 * sqrt(Fo)
-            S = sum(
-                erfc(((2 * n + 1) - rstar) / A) - erfc(((2 * n + 1) + rstar) / A)
-                for n in range(0, N)
-            )
-            result = S / rstar
-        else:
-            # Solution for normal times
-            B = -(pi**2) * Fo
-            S = sum(
-                (-1 if n % 2 else 1) / n * exp(B * n**2) * sin(rstar * pi * n)
-                for n in range(1, N)
-            )
-            result = 1 + (2 / (pi * rstar)) * S
+        # Solution for normal times
+        B = -(pi**2) * Fo
+        S = sum(
+            (-1 if n % 2 else 1) / n * exp(B * n**2) * sin(rstar * pi * n)
+            for n in range(1, N)
+        )
+        result = 1 + (2 / (pi * rstar)) * S
 
     return result
 
