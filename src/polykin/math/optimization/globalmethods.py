@@ -12,7 +12,10 @@ from numpy.linalg import norm
 from polykin.math.machine import sqrt_eps
 from polykin.utils.typing import FloatMatrix, FloatVector
 
-__all__ = ["line_search", "dogleg"]
+__all__ = [
+    "line_search",
+    "dogleg",
+]
 
 
 def line_search(

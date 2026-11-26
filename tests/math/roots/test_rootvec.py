@@ -6,10 +6,9 @@ import numpy as np
 from numpy import allclose
 
 from polykin.math.roots import rootvec_qnewton
+from polykin.math.roots.qnewton import trcond_est
 
 from ._rootvec_functions import TEST_FUNCTIONS, jac_example65
-
-# %% Tests
 
 
 def test_rootvec_qnewton():
@@ -71,3 +70,23 @@ def test_rootvec_qnewton():
     sol = rootvec_qnewton(f, data["xs"])
     assert sol.success
     assert sol.niter == 0
+
+
+def test_trcond_est_upper_and_lower():
+    U = np.array([[2.0, 3.0, 7.0], [8.0, 4.0, 5.0], [9.0, 6.0, 3.0]])
+    L = U.T
+
+    for A, lower in zip((U, L), [False, True]):
+        for norm in (1, np.inf):
+            estimated = trcond_est(A, lower=lower, norm=norm)
+            if lower:
+                expected = np.linalg.cond(np.tril(L), norm)
+            else:
+                expected = np.linalg.cond(np.triu(U), norm)
+
+            assert np.isclose(estimated, expected, rtol=0.1)
+
+
+def test_trcond_est_unit_diagonal_and_singular():
+    assert trcond_est([[0, 3], [0, 4]], unit_diagonal=True) == 16.0
+    assert np.isinf(trcond_est([[1.0, 2.0], [0.0, 0.0]]))

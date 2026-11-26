@@ -9,11 +9,14 @@ from typing import Literal
 import numpy as np
 import scipy
 from numpy.linalg import norm
+from numpy.typing import ArrayLike
+from scipy.linalg import get_lapack_funcs
 
 from polykin.math.derivatives import jacobian_forward, scalex
 from polykin.math.machine import eps, sqrt_eps
 from polykin.math.optimization.globalmethods import dogleg, line_search
 from polykin.math.roots.results import VectorRootResult
+from polykin.utils.exceptions import ShapeError
 from polykin.utils.typing import FloatMatrix, FloatVector, FloatVectorLike
 
 all = ["rootvec_qnewton"]
@@ -32,11 +35,11 @@ def rootvec_qnewton(
     trustlen: float | None = None,
     epsf: float | None = None,
     global_method: Literal["line-search", "dogleg"] | None = "line-search",
-    broyden_update: bool = False,
+    broyden_update: bool = True,
     jac: Callable[[FloatVector], FloatMatrix] | None = None,
     jac_check: bool = True,
     J0: FloatMatrix | None = None,
-    verbose: bool = False,
+    callback: Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None = None,
 ) -> VectorRootResult:
     r"""Find the root of a system of nonlinear equations using a quasi-Newton
     method with optional global strategies.
@@ -46,10 +49,10 @@ def rootvec_qnewton(
     approach to calculate and update the Jacobian approximation, as well as the
     global strategy to improve convergence from remote starting points.
 
-    The default settings are meant to favor the likelihood of convergence at the
-    expense of computational efficiency. For situations where maximum efficiency
-    is desired and the initial guess is known to be close to the root, consider
-    disabling the global method and using Broyden's update for the Jacobian.
+    The default settings balance convergence reliability and computational
+    efficiency. If the initial guess is close to the root and speed is a
+    priority, consider disabling the global strategy. For more challenging
+    problems, consider disabling Broyden's Jacobian update.
 
     !!! note
 
@@ -133,8 +136,10 @@ def rootvec_qnewton(
         computing the Jacobian at the first iteration. This can be useful in case of a
         restart, or when a simple initial approximation is sufficient (e.g., the identity
         matrix) and one wants to reduce the number of function calls.
-    verbose : bool
-        Print iteration information.
+    callback : Callable[[int, FloatVector, FloatVector], tuple[bool, bool]] | None
+        Optional callback with signature `callback(niter, x, fx)->(stop, success)`
+        called at each iteration. If `stop` is `True`, the iteration is terminated. If
+        `success` is `True`, the root-finding is considered successful.
 
     Returns
     -------
@@ -175,53 +180,78 @@ def rootvec_qnewton(
     nfeval = 0
     njeval = 0
 
-    # Evaluate function at x0
+    # Get problem dimension
     x0 = np.asarray(x0, dtype=float)
     n = x0.size
-    xc = x0.copy()
-    fc = f(xc)
-    nfeval += 1
 
-    # Set x scaling factors
-    sclx = np.abs(np.asarray(sclx, dtype=float)) if sclx is not None else scalex(x0)
+    # Set scaling factors for x
+    if sclx is not None:
+        sclx = np.abs(np.asarray(sclx, dtype=float))
+        if sclx.size != n:
+            raise ShapeError("Shape mismatch between `sclx` and `x0`.")
+        if np.any(sclx == 0.0):
+            raise ValueError("Scaling factors in `sclx` must be non-zero.")
+    else:
+        sclx = scalex(x0)
+
+    # Helpers to evaluate/count the function and Jacobian
+    def eval_f(x: FloatVector) -> FloatVector:
+        nonlocal nfeval
+        fx = f(x)
+        nfeval += 1
+        return fx
+
+    def eval_jac(x: FloatVector, fx: FloatVector) -> FloatMatrix:
+        nonlocal njeval, nfeval
+        if jac is not None:
+            J = jac(x)
+            njeval += 1
+        else:
+            J = jacobian_forward(f, x, fx=fx, sclx=sclx, epsf=epsf)
+            nfeval += n
+        return J
+
+    # Evaluate function at x0
+    xc = x0.copy()
+    fc = eval_f(xc)
 
     # Evaluate Jacobian at x0
     if J0 is not None:
+        if J0.shape != (n, n):
+            raise ShapeError("Shape mismatch between `J0` and `x0`.")
         J = J0.copy()
     else:
-        if jac is not None:
-            J = jac(xc)
-            njeval += 1
-        else:
-            J = jacobian_forward(f, xc, fx=fc, sclx=sclx, epsf=epsf)
-            nfeval += n
+        J = eval_jac(xc, fc)
 
     # Check user-provided Jacobian against finite-difference approximation
     if jac_check and jac is not None:
-        J_fd = jacobian_forward(f, xc, fx=fc, sclx=sclx, epsf=epsf)
-        nfeval += n
+        J_fd = jacobian_forward(eval_f, xc, fx=fc, sclx=sclx, epsf=epsf)
         _epsf = max(epsf, eps) if epsf is not None else eps
         tol = 1e2 * math.sqrt(_epsf)
         if not np.allclose(J, J_fd, rtol=tol, atol=tol):
             message = "User-provided Jacobian `jac` does not match finite-difference approximation."  # noqa: E501
-            return VectorRootResult(method, False, message, nfeval, njeval, 0, x0, fc, J)
+            return VectorRootResult(method, False, message, nfeval, njeval, 0, xc, fc, J)
 
-    # Set f scaling factors
-    if sclf is None:
+    # Set scaling factors for f
+    if sclf is not None:
+        sclf = np.abs(np.asarray(sclf, dtype=float))
+        if sclf.size != n:
+            raise ShapeError("Shape mismatch between `sclf` and `x0`.")
+        if np.any(sclf == 0.0):
+            raise ValueError("Scaling factors in `sclf` must be non-zero.")
+    else:
         sclf = np.empty(n, dtype=float)
         sclf[:] = np.max(np.abs(J), axis=1)
         sclf[sclf == 0.0] = 1.0
         sclf[:] = 1.0 / sclf
-    else:
-        sclf = np.abs(np.asarray(sclf, dtype=float))
 
-    # Check initial solution with tight tolerance
+    # Check initial solution f(x0) with tight tolerance
     if norm(sclf * fc, np.inf) <= 1e-2 * tolf:
         message = "||sclf*f(x0)||∞ ≤ 1e-2*tolf"
-        return VectorRootResult(method, True, message, nfeval, njeval, 0, x0, fc, J)
+        return VectorRootResult(method, True, message, nfeval, njeval, 0, xc, fc, J)
 
     # Set maximum step length for global methods
-    maxlen = max(0.0, maxlenfac) * max(norm(sclx * x0).item(), norm(sclx).item())
+    maxlen = max(0.0, maxlenfac) * max(norm(sclx * xc).item(), norm(sclx).item())
 
     # Set initial trust region radius for dogleg method
     if trustlen is None:
@@ -232,7 +262,7 @@ def rootvec_qnewton(
     # Objective function for global methods
     def fN(x: FloatVector) -> tuple[float, FloatVector]:
         """1/2*||sclf*f(x)||²."""
-        fx = f(x)
+        fx = eval_f(x)
         fNx = 0.5 * np.sum((sclf * fx) ** 2)
         return (fNx, fx)
 
@@ -244,9 +274,6 @@ def rootvec_qnewton(
     fNc = float("nan")
 
     for niter in range(1, maxiter + 1):
-        if verbose:
-            print(f"Iteration {niter:3d}:", flush=True)
-
         # QR decomposition of scaled Jacobian
         if not broyden_update or restart:
             try:
@@ -256,73 +283,65 @@ def rootvec_qnewton(
                 break
 
         # Condition number of R
-        Rcond = np.linalg.cond(R / sclx, 1)
+        Rcond = trcond_est(R / sclx, lower=False, norm=1)
 
         # Solve (Q*R)*p = - sclf*fc
+        Rgm = R
+        sclf_fc = sclf * fc
         if Rcond < 1 / sqrt_eps:
-            p = scipy.linalg.solve_triangular(
-                R,
-                Q.T @ (sclf * fc),
-                overwrite_b=True,
-                check_finite=False,
-            )
+            rhs = Q.T @ (sclf_fc)
+            p = scipy.linalg.solve_triangular(R, rhs, check_finite=False)
             p *= -1
             if global_method:
-                gc = R.T @ (Q.T @ (sclf * fc))
-                fNc = 0.5 * np.sum((sclf * fc) ** 2)
+                gc = R.T @ rhs
         else:
-            if verbose:
-                print("R is ill-conditioned (cond={Rcond:.2e}).", flush=True)
             H = R.T @ R
             Hnorm = norm(H / (sclx[:, None] * sclx[None, :]), 1)
             H[np.diag_indices_from(H)] += math.sqrt(n * eps) * Hnorm * sclx**2
-            gc = R.T @ (Q.T @ (sclf * fc))
-            R, _ = scipy.linalg.cho_factor(H, overwrite_a=True, check_finite=False)
-            p = scipy.linalg.cho_solve((R, False), gc, check_finite=False)
+            gc = R.T @ (Q.T @ (sclf_fc))
+            Rgm, _ = scipy.linalg.cho_factor(H, overwrite_a=True, check_finite=False)
+            p = scipy.linalg.cho_solve((Rgm, False), gc, check_finite=False)
             p *= -1
+
+        # Current value of the global-method objective
+        fNc = 0.5 * np.sum((sclf_fc) ** 2)
 
         # Compute actual x step
         if global_method is None:
             xp = xc + p
-            fp = f(xp)
-            gm_ismaxstep = True
+            fp = eval_f(xp)
+            gm_wasmaxstep = True
             gm_success = True
-            gm_nfeval = 1
         elif global_method == "line-search":
-            gm_success, gm_ismaxstep, gm_nfeval, xp, _, fp = line_search(
-                fN, p, xc, fNc, gc, tolx, sclx, maxlen, verbose
+            gm_success, gm_wasmaxstep, xp, _, fp = line_search(
+                fN, p, xc, fNc, gc, tolx, sclx, maxlen
             )
         elif global_method == "dogleg":
-            (gm_success, gm_ismaxstep, gm_nfeval, trustlen, xp, _, fp) = dogleg(
-                fN, p, xc, fNc, gc, R, tolx, sclx, maxlen, trustlen, verbose
+            (gm_success, gm_wasmaxstep, trustlen, xp, _, fp) = dogleg(
+                fN, p, xc, fNc, gc, Rgm, tolx, sclx, maxlen, trustlen
             )
         else:
             raise ValueError(f"Unknown `global_method`: {global_method}.")
 
-        nfeval += gm_nfeval
-        gm_nmaxsteps = gm_nmaxsteps + 1 if gm_ismaxstep else 0
+        gm_nmaxsteps = gm_nmaxsteps + 1 if gm_wasmaxstep else 0
 
-        # Display iteration progress
-        if verbose:
-            print(
-                f"  x = {xp}\n  ||sclx*f(x)||∞ = {norm(sclf * fp, np.inf):.2e}",
-                flush=True,
-            )
-
-        # If global method step failed, restart once
-        if not gm_success and not restart:
-            if jac is not None:
-                J = jac(xc)
-                njeval += 1
-            else:
-                J = jacobian_forward(f, xc, fx=fc, sclx=sclx, epsf=epsf)
-                nfeval += n
+        # If global method step failed, restart once with a fresh Jacobian
+        if broyden_update and not gm_success and not restart:
+            J = eval_jac(xc, fc)
             restart = True
             continue
 
+        # Call user callback
+        if callback is not None:
+            stop, _success = callback(niter, xp, fp)
+            if stop:
+                success = _success
+                message = "Terminated by user callback."
+                break
+
         # Check termination and convergence conditions
         if not gm_success:
-            message = """Last global step failed to decrease ||sclx*f(x)||₂ sufficiently.
+            message = """Last global step failed to decrease ||sclf*f(x)||₂ sufficiently.
             Either `x` is close to a root and no more accuracy is possible, or the secant
             approximation to the Jacobian is inaccurate, or `tolx` is too large."""
             stop = True
@@ -337,7 +356,7 @@ def rootvec_qnewton(
             stop = True
         elif global_method and gm_nmaxsteps >= 5:
             message = """Maximum number (5) of consecutive steps of length `maxlen`
-            reached. Perhaps stuck in a flat region or `maxlen` is too small."""
+            reached. Perhaps stuck in a flat region or `maxlenfac` is too small."""
             stop = True
         else:
             stop = False
@@ -350,12 +369,7 @@ def rootvec_qnewton(
         if broyden_update:
             Q, R = _update_broyden(xc, xp, fc, fp, Q, R, sclx, sclf)
         else:
-            if jac is not None:
-                J = jac(xp)
-                njeval += 1
-            else:
-                J = jacobian_forward(f, xp, fx=fp, sclx=sclx, epsf=epsf)
-                nfeval += n
+            J = eval_jac(xp, fp)
 
         # Next iteration
         xc, fc = xp, fp
@@ -402,9 +416,11 @@ def _update_broyden(
     fp : FloatVector
         Next function value, `f(xp)`.
     Qc : FloatMatrix
-        Orthogonal factor of the current Jacobian QR decomposition.
+        Orthogonal factor of the current Jacobian QR decomposition. This will be
+        overwritten.
     Rc : FloatMatrix
-        Upper-triangular factor of the current Jacobian QR decomposition.
+        Upper-triangular factor of the current Jacobian QR decomposition. This will be
+        overwritten.
     sclx : FloatVector
         Scaling factors for the components of `x`.
     sclf : FloatVector
@@ -426,3 +442,59 @@ def _update_broyden(
     Qp, Rp = scipy.linalg.qr_update(Qc, Rc, w, s, overwrite_qruv=True)
 
     return (Qp, Rp)
+
+
+def trcond_est(
+    R: ArrayLike,
+    lower: bool = False,
+    norm=1,
+    unit_diagonal: bool = False,
+) -> float:
+    """
+    Estimate the condition number of a triangular matrix in O(N²).
+
+    Wraps LAPACK ?trcon (Higham's refinement of Hager's 1-norm estimator).
+    The result is a lower bound on the true condition number, usually
+    within a small factor of it.
+
+    Parameters
+    ----------
+    R : ArrayLike (N, N)
+        Triangular matrix. Only the relevant triangle is referenced.
+    lower : bool
+        True if R is lower triangular, False for upper.
+    norm : {1, np.inf}
+        Norm in which the condition number is estimated.
+    unit_diagonal : bool
+        If True, the diagonal is assumed to be all ones and is not read.
+
+    Returns
+    -------
+    float
+        Estimated condition number; np.inf if R is singular.
+    """
+    R = np.asarray(R)
+    if R.ndim != 2 or R.shape[0] != R.shape[1]:
+        raise ShapeError("R must be a square 2-D array")
+    if R.shape[0] == 0:
+        return 1.0
+
+    if norm == 1:
+        norm_code = "1"
+    elif norm == np.inf:
+        norm_code = "I"
+    else:
+        raise ValueError("norm must be 1 or np.inf")
+
+    # Picks s/d/c/z variant from the dtype; integer input is upcast to float64.
+    (trcon,) = get_lapack_funcs(("trcon",), (R,))
+    rcond, info = trcon(
+        R,
+        norm=norm_code,
+        uplo="L" if lower else "U",
+        diag="U" if unit_diagonal else "N",
+    )
+    if info < 0:
+        raise ValueError(f"illegal argument {-info} passed to ?trcon")
+
+    return np.inf if rcond == 0.0 else 1.0 / rcond

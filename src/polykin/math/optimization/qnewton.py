@@ -46,7 +46,6 @@ def fmin_qnewton(
     H0: FloatMatrix | None = None,
     callback: Callable[[int, FloatVector, float, FloatVector], tuple[bool, bool]]
     | None = None,
-    verbose: bool = False,
 ) -> VectorOptimumResult:
     r"""Find the minimum of a multivariate function using a quasi-Newton method with
     optional global strategies.
@@ -132,8 +131,6 @@ def fmin_qnewton(
         Optional callback with signature `callback(niter, x, fx, ∇fx)->(stop, success)`
         called at each iteration. If `stop` is `True`, the iteration is terminated. If
         `success` is `True`, the optimization is considered successful.
-    verbose : bool
-        Print iteration information.
 
     Returns
     -------
@@ -321,12 +318,6 @@ def fmin_qnewton(
     # Main optimization loop
     gm_nmaxsteps = 0
     for niter in range(1, maxiter + 1):
-        if verbose:
-            print(f"Iteration {niter:3d}:", flush=True)
-            print("    Current point:", xc)
-            print("    Function value:", fc)
-            print("    Gradient value:", gc)
-
         # Ensure Hessian is SPD
         if not bfgs_update:
             try:
@@ -388,9 +379,6 @@ def fmin_qnewton(
         else:
             raise ValueError(f"Unknown `bfgs_method`: {bfgs_method}.")
 
-        if verbose:
-            print("    Search direction:", p)
-
         # Compute actual x step
         if global_method is None:
             xp = xc + p
@@ -399,20 +387,16 @@ def fmin_qnewton(
             gm_success = True
         elif global_method == "line-search":
             gm_success, gm_wasmaxstep, xp, fp, _ = line_search(
-                eval_f, p, xc, fc, gc, tolx, sclx, maxlen, verbose
+                eval_f, p, xc, fc, gc, tolx, sclx, maxlen
             )
         elif global_method == "dogleg":
             gm_success, gm_wasmaxstep, trustlen, xp, fp, _ = dogleg(
-                eval_f, p, xc, fc, gc, L.T, tolx, sclx, maxlen, trustlen, verbose
+                eval_f, p, xc, fc, gc, L.T, tolx, sclx, maxlen, trustlen
             )
         else:
             raise ValueError(f"Unknown `global_method`: {global_method}.")
 
         gm_nmaxsteps = gm_nmaxsteps + 1 if gm_wasmaxstep else 0
-
-        # Display iteration progress
-        if verbose:
-            print(f"  x = {xp}\n  f(x) = {fp:.2e}", flush=True)
 
         # Evaluate gradient at new point
         gp = eval_grad(xp, fp)
