@@ -23,7 +23,7 @@ dependencies = [
     "odrpack>=0.3.5",
     "pandas>=2.2.2",
     "pydantic>=2.10.2",
-    "scipy>=1.14.1",
+    "scipy>=1.15.1",
     "typing_extensions>=4.7; python_version < '3.12'",
 ]
 
