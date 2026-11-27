@@ -300,8 +300,8 @@ def check_shape(
 
 
 def check_shapes(
-    a: list[float | np.ndarray],
-    b: list[float | np.ndarray] | None = None,
+    a: Sequence[float | np.ndarray],
+    b: Sequence[float | np.ndarray] | None = None,
 ) -> tuple[int, ...] | None:
     """Check shape homogeneity between objects in lists `a` and `b`.
 

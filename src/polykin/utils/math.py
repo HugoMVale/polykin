@@ -20,6 +20,7 @@ import numpy as np
 
 from .tools import check_shapes
 from .typing import (
+    FloatArray,
     FloatOrArray,
     FloatOrArrayLike,
     FloatOrVector,
@@ -76,15 +77,21 @@ class vectorize(np.vectorize):
         return functools.partial(self.__call__, obj)
 
 
+def _to_float_array(value: Any) -> FloatArray:
+    """Convert an array-like value to a float64 NumPy array."""
+    return np.asarray(value, dtype=np.float64)
+
+
 def convert_FloatOrArrayLike_to_FloatOrArray(
     a: list[FloatOrArrayLike],
 ) -> list[FloatOrArray]:
     """Convert list of `FloatOrArrayLike` to list of `FloatOrArray`."""
-    result = []
+    result: list[FloatOrArray] = []
     for item in a:
-        if isinstance(item, (list, tuple)):
-            item = np.array(item, dtype=np.float64)
-        result.append(item)
+        if isinstance(item, (list, tuple, np.ndarray)):
+            result.append(_to_float_array(item))
+        else:
+            result.append(item)
     return result
 
 
@@ -92,11 +99,12 @@ def convert_FloatOrVectorLike_to_FloatOrVector(
     a: list[FloatOrVectorLike],
 ) -> list[FloatOrVector]:
     """Convert list of `FloatOrVectorLike` to list of `FloatOrVector`."""
-    result = []
+    result: list[FloatOrVector] = []
     for item in a:
-        if isinstance(item, (list, tuple)):
-            item = np.array(item, dtype=np.float64)
-        result.append(item)
+        if isinstance(item, (list, tuple, np.ndarray)):
+            result.append(_to_float_array(item))
+        else:
+            result.append(item)
     return result
 
 
@@ -105,13 +113,12 @@ def convert_FloatOrVectorLike_to_FloatVector(
     equal_shapes: bool = True,
 ) -> list[FloatVector]:
     """Convert list of `FloatOrVectorLike` to list of `FloatVector`."""
-    result = []
+    result: list[FloatVector] = []
     for item in a:
-        if np.isscalar(item):
-            item = (item,)
-        if isinstance(item, (list, tuple)):
-            item = np.array(item, dtype=np.float64)
-        result.append(item)
+        if isinstance(item, (list, tuple, np.ndarray)):
+            result.append(_to_float_array(item))
+        else:
+            result.append(_to_float_array([item]))
     if equal_shapes:
         check_shapes(result)
     return result
