@@ -41,6 +41,7 @@ def test_E_tanks_series():
         assert isclose(E_tanks_series(1e8, 1, N), 0)
         assert isclose(E_tanks_series(inf, 1, N), 0)
     assert isclose(E_tanks_series(1, 1, 20), 1.8, atol=0.1)
+    assert isclose(E_tanks_series(1, 1, 150), 4.883311418525069, rtol=1e-12)
 
 
 def test_F_tanks_series():
@@ -53,6 +54,8 @@ def test_F_tanks_series():
     assert isclose(F_tanks_series(1, 1, N=20), 0.52, atol=0.01)
     assert isclose(F_tanks_series(0.5, 1, N=20), 0.0, atol=0.01)
     assert isclose(F_tanks_series(1.6, 1, N=20), 1.0, atol=0.01)
+    assert isclose(F_tanks_series(1, 1, N=150), 0.5108582297493597, rtol=1e-12)
+    assert isclose(F_tanks_series(100, 1, N=100), 1.0, rtol=1e-12)
 
 
 def test_E_laminar_flow():

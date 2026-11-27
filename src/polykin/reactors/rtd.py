@@ -2,11 +2,12 @@
 #
 # Copyright Hugo Vale 2024
 
-from math import erf, gamma
+from math import erf, log
 
 import numpy as np
 from numpy import exp, inf, pi, sqrt
 from scipy import integrate
+from scipy import special as sp
 
 __all__ = [
     "E_cstr",
@@ -112,10 +113,13 @@ def E_tanks_series(t: float, tavg: float, N: int) -> float:
       cumulative distribution.
     """
     q = t / tavg
-    if np.isinf(q):
+    if q == 0:
+        return 1 / tavg if N == 1 else 0
+    elif np.isinf(q):
         return 0
     else:
-        return q ** (N - 1) * (N**N / gamma(N)) * exp(-N * q) / tavg
+        log_E = (N - 1) * log(q) + N * log(N) - sp.gammaln(N) - N * q - log(tavg)
+        return exp(log_E)
 
 
 def F_tanks_series(t: float, tavg: float, N: int) -> float:
@@ -154,8 +158,7 @@ def F_tanks_series(t: float, tavg: float, N: int) -> float:
     elif np.isinf(q):
         return 1
     else:
-        S = sum((N * q) ** i / gamma(i + 1) for i in range(0, N))
-        return 1 - exp(-N * q) * S
+        return sp.gammainc(N, N * q)
 
 
 def E_laminar_flow(t: float, tavg: float) -> float:
