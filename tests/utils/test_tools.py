@@ -4,6 +4,7 @@
 
 
 from numbers import Number
+from typing import Any, Literal
 
 import numpy as np
 import pytest
@@ -11,6 +12,7 @@ from numpy import isclose
 
 from polykin.utils.exceptions import RangeError
 from polykin.utils.tools import (
+    check_bounds,
     check_subclass,
     check_type,
     convert_check_pressure,
@@ -59,6 +61,45 @@ def test_check_subclass():
         check_subclass([int, str, float], Number, "a", check_inside=True)
 
 
+@pytest.mark.parametrize(
+    "value",
+    [
+        1.0,
+        np.float64(1.0),
+        [0.0, 1.0],
+        (0.0, 1.0),
+        np.array([0.0, 1.0]),
+        np.array([[0.0], [1.0]]),
+    ],
+)
+def test_check_bounds_valid_numeric_inputs(value):
+    assert check_bounds(value, 0.0, 1.0, "value") is value
+
+
+@pytest.mark.parametrize("value", [np.nan, [np.nan], np.array([np.nan])])
+def test_check_bounds_rejects_nan(value):
+    with pytest.raises(RangeError):
+        check_bounds(value, 0.0, 1.0, "value")
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["1.0", ["1.0"], np.array(["1.0"]), np.array([1.0 + 0j])],
+)
+def test_check_bounds_rejects_non_real_numeric_inputs(value):
+    with pytest.raises(TypeError):
+        check_bounds(value, 0.0, 1.0, "value")
+
+
+def test_check_bounds_rejects_iterator_without_consuming_it():
+    values: Any = iter([0.0, 1.0])
+
+    with pytest.raises(TypeError):
+        check_bounds(values, 0.0, 1.0, "value")
+
+    assert next(values) == 0.0
+
+
 def test_pprint_matrix():
     matrix = np.array([[10.2552, 2], [3.456789, 4.567890]])
     expected_output = "[[1.03e+01 2.00e+00]\n [3.46e+00 4.57e+00]]\n"
@@ -66,7 +107,8 @@ def test_pprint_matrix():
 
 
 def test_convert_check_pressure():
-    for Psol, unit in zip([1, 1e5, 1e6], ["Pa", "bar", "MPa"]):
+    units: tuple[Literal["Pa", "bar", "MPa"], ...] = ("Pa", "bar", "MPa")
+    for Psol, unit in zip([1, 1e5, 1e6], units):
         P = convert_check_pressure(1.0, unit)
         assert isclose(P, Psol)
     with pytest.raises(RangeError):

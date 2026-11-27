@@ -13,9 +13,9 @@ support both scalar and NumPy array inputs and to raise clear,
 domain-specific exceptions when invalid data is encountered.
 """
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from numbers import Real
-from typing import Any, Literal
+from typing import Any, Literal, NoReturn
 from warnings import warn
 
 import numpy as np
@@ -29,7 +29,7 @@ def custom_error(
     var_value: Any,
     kind: type,
     message: str = "",
-) -> None:
+) -> NoReturn:
     """
     Raise a custom error message.
 
@@ -159,16 +159,16 @@ def check_subclass(
 
 
 def check_bounds(
-    x: float | np.ndarray | Iterable,
+    x: float | np.ndarray | Sequence[float],
     xmin: float,
     xmax: float,
     xname: str,
-) -> float | np.ndarray | Iterable | None:
+) -> float | np.ndarray | Sequence[float]:
     """Check if a numerical value is between given bounds.
 
     Parameters
     ----------
-    x : float | ndarray | Iterable
+    x : float | ndarray | Sequence[float]
         Variable whose bounds are to be checked.
     xmin : float
         Lower bound.
@@ -179,7 +179,7 @@ def check_bounds(
 
     Returns
     -------
-    x : float | ndarray | Iterable
+    x : float | ndarray | Sequence[float]
         Variable.
 
     Examples
@@ -188,17 +188,30 @@ def check_bounds(
     1.0
     >>> check_bounds(-1.0, 0.1, 2.0, 'x') # RangeError
     """
-    if isinstance(x, (int, float, Real)) and ((x >= xmin) and (x <= xmax)):
-        return x
-    elif isinstance(x, np.ndarray) and np.all(
-        np.logical_and.reduce((x >= xmin, x <= xmax))
-    ):
-        return x
-    elif isinstance(x, Iterable) and all(xi >= xmin and xi <= xmax for xi in x):
-        return x
+    if isinstance(x, Real):
+        values = np.asarray(x)
+    elif isinstance(x, np.ndarray):
+        values = x
+    elif isinstance(x, Sequence) and not isinstance(x, (str, bytes)):
+        try:
+            values = np.asarray(x)
+        except (TypeError, ValueError, OverflowError):
+            custom_error(xname, x, TypeError, "Expected numeric input.")
     else:
-        check_type(x, (int, float, Real, np.ndarray, Iterable), xname)
+        custom_error(
+            xname,
+            x,
+            TypeError,
+            "Expected a real scalar, NumPy array, or reusable numeric sequence.",
+        )
+
+    if not np.issubdtype(values.dtype, np.number) or not np.isrealobj(values):
+        custom_error(xname, x, TypeError, "Expected numeric real-valued input.")
+
+    if not np.all((values >= xmin) & (values <= xmax)):
         custom_error(xname, x, RangeError, f"Valid `{xname}` range is [{xmin}, {xmax}].")
+
+    return x
 
 
 def check_in_set(
