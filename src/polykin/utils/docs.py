@@ -4,11 +4,18 @@
 
 import base64
 import io
+from typing import Any
 
 import matplotlib.pyplot as plt
 
 
-def to_html(plt_obj, fmt="png", dpi=100, transparent=True, **kwargs):
+def to_html(
+    plt_obj: Any,
+    fmt: str = "png",
+    dpi: int = 100,
+    transparent: bool = True,
+    **kwargs: Any,
+) -> str:
     r"""
     Generate an HTML img tag containing a Base64-encoded Matplotlib figure.
 
@@ -46,8 +53,9 @@ def to_html(plt_obj, fmt="png", dpi=100, transparent=True, **kwargs):
     buf.seek(0)
 
     encoded = base64.b64encode(buf.read()).decode("ascii")
+    mime_format = "svg+xml" if fmt.lower() == "svg" else fmt.lower()
 
     return (
-        f'<img src="data:image/{fmt};base64,{encoded}" '
+        f'<img src="data:image/{mime_format};base64,{encoded}" '
         f'style="max-width:100%; height:auto; display:block; margin: 1em 0;" />'
     )
