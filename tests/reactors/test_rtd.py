@@ -26,6 +26,8 @@ def test_F_cstr():
     assert isclose(F_cstr(1e8, 1), 1)
     assert isclose(F_cstr(inf, 1), 1)
     assert isclose(F_cstr(1, 1), 0.631, rtol=0.01)
+    assert isclose(F_cstr(1e-17, 1), 1e-17, rtol=1e-12)
+    assert isclose(F_cstr(1e-16, 1), 1e-16, rtol=1e-12)
 
 
 def test_E_tanks_series():

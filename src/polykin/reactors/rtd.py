@@ -5,7 +5,7 @@
 from math import erf, log
 
 import numpy as np
-from numpy import exp, inf, pi, sqrt
+from numpy import exp, expm1, inf, pi, sqrt
 from scipy import integrate
 from scipy import special as sp
 
@@ -79,7 +79,7 @@ def F_cstr(t: float, tavg: float) -> float:
     * [`E_cstr`](E_cstr.md): related method to determine the differential
       distribution.
     """
-    return 1 - exp(-t / tavg)
+    return -expm1(-t / tavg)
 
 
 def E_tanks_series(t: float, tavg: float, N: int) -> float:
