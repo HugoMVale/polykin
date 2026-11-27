@@ -14,6 +14,7 @@ def to_html(
     fmt: str = "png",
     dpi: int = 100,
     transparent: bool = True,
+    close: bool = True,
     **kwargs: Any,
 ) -> str:
     r"""
@@ -35,6 +36,8 @@ def to_html(
     transparent : bool, optional
         If `True`, the axes patches will be transparent. Useful for
         documentation with dark/light mode toggles. The default is `True`.
+    close : bool, optional
+        If `True`, close the figure after rendering. The default is `True`.
     **kwargs : dict
         Additional keyword arguments passed to `savefig`.
 
@@ -49,7 +52,8 @@ def to_html(
     fig.savefig(
         buf, format=fmt, dpi=dpi, transparent=transparent, bbox_inches="tight", **kwargs
     )
-    plt.close(fig)
+    if close:
+        plt.close(fig)
     buf.seek(0)
 
     encoded = base64.b64encode(buf.read()).decode("ascii")
