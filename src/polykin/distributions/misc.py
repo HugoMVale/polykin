@@ -103,7 +103,7 @@ def convolve_moments_self(
     q : FloatVectorLike (N)
         Moments of $Q$, denoted $(q_0, q_1, \ldots)$.
     order : int
-        Order of the convolution.
+        Order (≥ 0) of the convolution.
 
     Returns
     -------
@@ -117,6 +117,9 @@ def convolve_moments_self(
     array([1.0e+00, 3.0e+02, 1.2e+05])
     """
     q = np.asarray(q, dtype=np.float64)
+
+    if order < 0:
+        raise ValueError("`order` must be non-negative.")
 
     if order == 0:
         return q.copy()
