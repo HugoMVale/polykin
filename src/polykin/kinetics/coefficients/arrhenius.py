@@ -129,7 +129,7 @@ class Arrhenius(KineticCoefficientT):
     @property
     def A(self) -> float | FloatArray:
         r"""Pre-exponential factor, $A=k_0 e^{E_a/(R T_0)}$."""
-        return self.__call__(np.inf)
+        return self.p["k0"] * exp(self.p["EaR"] / self.p["T0"])
 
     def __mul__(self, other: int | float | Arrhenius) -> Arrhenius:
         """Multipy Arrhenius coefficient(s).
