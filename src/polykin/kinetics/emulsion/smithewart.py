@@ -313,7 +313,7 @@ def n2bar(
     r"""Second moment of the normalized radical number distribution according to the
     Stockmayer-O'Toole quasi-steady-state solution.
 
-    $$ \overline{n^2} = \bar{n} \left(1 + \frac{m}{2} \right) + \frac{\alpha}{2} $$
+    $$ \overline{n^2} = \bar{n} \left(1 - \frac{m}{2} \right) + \frac{\alpha}{2} $$
 
     where $\bar{n}(\alpha, m)$ is the average number of radicals per particle.
 
