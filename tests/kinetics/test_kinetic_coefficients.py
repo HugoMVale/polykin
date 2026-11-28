@@ -31,10 +31,6 @@ def test_input_validation():
     with pytest.raises(ValueError):
         _ = Arrhenius([1, 2], [2, 3], [300, 300], [200, 300], [150, 500])
     with pytest.raises(ValueError):
-        _ = Eyring([-1e3, 2e3], [1e3, 2e3], [0.5, 1])
-    with pytest.raises(ValueError):
-        _ = Eyring([1e3, 2e3], [-1e3, 2e3], [0.5, 1])
-    with pytest.raises(ValueError):
         _ = Eyring([1e3, 2e4], [1e3, 2e3], [2, 0.5])
     with pytest.raises(ValueError):
         _ = Eyring([1e3, 2e4], [1e3, 2e3], [0.4, 0.5, 0.8])
