@@ -29,6 +29,15 @@ def test_nbar_Li_Brooks():
         nbar = nbar_Li_Brooks(alpha, m)
         assert isclose(nbar_ref, nbar, rtol=5e-2)
 
+    alpha = np.array([0.0, 1e-3, 1.0])
+    m = np.array([1e-3, 0.0, 1.0])
+    result = nbar_Li_Brooks(alpha, m)
+    reference = np.array([nbar_Li_Brooks(alpha_i, m_i) for alpha_i, m_i in zip(alpha, m)])
+    assert np.allclose(result, reference)
+
+    reference = np.array([nbar_Li_Brooks(alpha_i, 0.0) for alpha_i in alpha])
+    assert np.allclose(nbar_Li_Brooks(alpha, 0.0), reference)
+
 
 def test_nbar_Ugelstad():
     for alpha, m in ALPHA_M_PAIRS:

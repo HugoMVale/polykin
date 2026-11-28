@@ -185,14 +185,32 @@ def nbar_Li_Brooks(
     >>> print(f"nbar = {nbar:.2e}")
     nbar = 5.02e-01
     """
-    if alpha == 0.0:
-        return 0.0
-    else:
-        return (
+    alpha, m = np.broadcast_arrays(np.asarray(alpha), np.asarray(m))
+    result = np.zeros_like(alpha, dtype=np.float64)
+
+    mask_positive = alpha > 0.0
+    if np.any(mask_positive):
+        alpha_positive = alpha[mask_positive]
+        m_positive = m[mask_positive]
+        result[mask_positive] = (
             2
-            * alpha
-            / (m + sqrt(m**2 + 8 * alpha * (2 * alpha + m) / (2 * alpha + m + 1)))
+            * alpha_positive
+            / (
+                m_positive
+                + sqrt(
+                    m_positive**2
+                    + 8
+                    * alpha_positive
+                    * (2 * alpha_positive + m_positive)
+                    / (2 * alpha_positive + m_positive + 1)
+                )
+            )
         )
+
+    if result.ndim == 0:
+        return float(result)
+    else:
+        return result
 
 
 def nbar_Ugelstad(
