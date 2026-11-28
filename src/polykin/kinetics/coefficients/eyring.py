@@ -90,8 +90,6 @@ class Eyring(KineticCoefficientT):
         self._shape = check_shapes([DSa, DHa], [kappa, Tmin, Tmax])
 
         # Check bounds
-        check_bounds(DSa, 0.0, np.inf, "DSa")
-        check_bounds(DHa, 0.0, np.inf, "DHa")
         check_bounds(kappa, 0.0, 1.0, "kappa")
 
         self.p = {"DSa": DSa, "DHa": DHa, "kappa": kappa}
