@@ -74,7 +74,7 @@ def kdesorption_Asua(
     monomeric radical reacts in the aqueous phase.
 
     >>> from polykin.kinetics import kdesorption_Asua
-    >>> kdes = kdesorption_Asua(kfmp=1e-3, kpp=1e2, Mp=10, K0=1e3, beta=0.20)
+    >>> kdes = kdesorption_Asua(kfmp=1e-3, kpp1=1e2, Mp=10, K0=1e3, beta=0.20)
     >>> print(f"kdes = {kdes:.2e} s⁻¹")
     kdes = 8.33e-03 s⁻¹
     """
