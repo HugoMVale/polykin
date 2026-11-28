@@ -60,8 +60,8 @@ class DataDistribution(IndividualDistribution):
         # Check and clean input
         self.M0 = M0
         self.name = name
-        size_data = np.array(size_data)
-        pdf_data = np.array(pdf_data)
+        size_data = np.array(size_data, dtype=np.float64)
+        pdf_data = np.array(pdf_data, dtype=np.float64)
         if self._verify_sizeasmass(sizeasmass):
             size_data /= self.M0
         idx_valid = np.logical_and(pdf_data > 0.0, size_data >= 1.0)
