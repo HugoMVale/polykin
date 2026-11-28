@@ -230,9 +230,10 @@ def confidence_region(
     Let's generate a confidence region for a non-quadratic sse function.
     >>> from polykin.math import confidence_region
     >>> import matplotlib.pyplot as plt
+    >>> import numpy as np
     >>> def sse(x):
     ...     return 1 + ((x[0]-10)**2 + (x[1]-20)**2 + (x[0]-10)*np.sin((x[1]-20)**2))
-    >>> x, y = confidence_region(center=(10, 20), sse=sse, ndata=10, alpha=0.10)
+    >>> x, y = confidence_region(center=(10, 20), sse=sse, ndata=10, width=1.0)
     >>> fig, ax = plt.subplots()
     >>> ax.plot(x,y)
     """
