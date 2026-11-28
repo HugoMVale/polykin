@@ -93,13 +93,13 @@ def WeibullNycanderGold_pdf(
     >>> WeibullNycanderGold_pdf([0, 1, 2], 1.0, 5.0)
     array([0.58958989, 0.1295864 , 0.11493254])
     """
-    r = float(r)
     scalar_input = np.isscalar(k)
     k = np.atleast_1d(k).astype(int)
 
     # Special case where it reduces to Poisson(kmin=0)
     if abs(r - 1.0) < 1e-3:
-        return poisson(k, v, True)
+        result = poisson(k, v, True)
+        return result[0] if scalar_input else result
 
     # Find p0
     def find_p0(p0):
