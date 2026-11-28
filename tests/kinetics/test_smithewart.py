@@ -67,6 +67,12 @@ def test_compartmentalization_factor():
 
 
 def test_SmithEwart_qssa_pdf():
+    # limit alpha=0
+    assert np.array_equal(
+        SmithEwart_qssa_pdf(np.array([0, 1, 2]), alpha=0.0, m=0.1),
+        np.array([1.0, 0.0, 0.0]),
+    )
+    # general case
     alpha = 1e-1
     m = 1e-1
     N = 10

@@ -99,11 +99,14 @@ def nbar_Stockmayer_OToole(
     result = np.zeros_like(alpha, dtype=np.float64)
 
     mask_positive = alpha > 0.0
-
     if np.any(mask_positive):
-        a = sqrt(8 * alpha[mask_positive])
+        a_positive = sqrt(8 * alpha[mask_positive])
+        m_positive = m[mask_positive]
         result[mask_positive] = (
-            a / 4 * ive(m[mask_positive], a) / ive(m[mask_positive] - 1.0, a)
+            a_positive
+            / 4
+            * ive(m_positive, a_positive)
+            / ive(m_positive - 1.0, a_positive)
         )
 
     if result.ndim == 0:
@@ -492,15 +495,21 @@ def SmithEwart_qssa_pdf(
     scalar_input = np.isscalar(n)
     n = np.atleast_1d(n).astype(np.int_)
 
-    arg_num = 2 * sqrt(alpha)
-    arg_den = sqrt(8 * alpha)
+    if alpha > 0.0:
+        arg_num = 2 * sqrt(alpha)
+        arg_den = sqrt(8 * alpha)
 
-    ln_prefactor = ((m - 1) / 2) * ln(2) - (ln(ive(m - 1, arg_den)) + arg_den)
-    ln_factor = (
-        (n / 2) * ln(alpha) - loggamma(n + 1) + (ln(ive(m - 1 + n, arg_num)) + arg_num)
-    )
+        ln_prefactor = ((m - 1) / 2) * ln(2) - (ln(ive(m - 1, arg_den)) + arg_den)
+        ln_factor = (
+            (n / 2) * ln(alpha)
+            - loggamma(n + 1)
+            + (ln(ive(m - 1 + n, arg_num)) + arg_num)
+        )
 
-    pn = exp(ln_prefactor + ln_factor)
+        pn = exp(ln_prefactor + ln_factor)
+    else:
+        pn = np.zeros_like(n, dtype=float)
+        pn[n == 0] = 1.0
 
     if scalar_input:
         return pn[0]
