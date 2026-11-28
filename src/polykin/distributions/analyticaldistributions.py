@@ -203,6 +203,8 @@ class Poisson(AnalyticalDistributionP1):
 
     def _cdf_length(self, k, order):
         a = self._a
+        if a == 0.0 and order in (0, 1):
+            return np.greater(k, 0.0).astype(np.float64)
         if order == 0:
             result = sp.gammaincc(k, a)
         elif order == 1:

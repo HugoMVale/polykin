@@ -152,6 +152,13 @@ def test_pfd_cdf(dist1, dist2):
             assert isclose(cdf_analytical, cdf_generic, rtol=1e-6)
 
 
+@pytest.mark.parametrize("kind", ["number", "mass"])
+def test_poisson_cdf_degenerate(kind):
+    d = Poisson(1)
+    assert d.cdf(0, kind=kind) == 0.0
+    assert np.array_equal(d.cdf([0, 0.5, 1, np.inf], kind=kind), [0, 1, 1, 1])
+
+
 def test_random(dist1, dist2):
     """The moments of the random samples should match the analytical moments of
     the corresponding distributions.
