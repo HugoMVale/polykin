@@ -3,6 +3,7 @@
 # Copyright Hugo Vale 2023
 
 import itertools
+from typing import Literal
 
 import numpy as np
 from numpy import exp
@@ -173,7 +174,8 @@ def inst_copolymer_multi(
     Parameters
     ----------
     f : FloatVectorLike (N) | None
-        Vector of instantaneous monomer compositions, $f_i$.
+        Vector of instantaneous monomer compositions, $f_i$. Must sum to 1; no internal
+        normalization is performed.
     r : FloatSquareMatrix (N, N) | None
         Matrix of reactivity ratios, $r_{ij}=k_{ii}/k_{ij}$.
     P : FloatSquareMatrix (N, N) | None
@@ -344,7 +346,8 @@ def radical_fractions_multi(
     Parameters
     ----------
     f : FloatVectorLike (N)
-        Vector of instantaneous monomer compositions, $f_i$.
+        Vector of instantaneous monomer compositions, $f_i$. Must sum to 1; no internal
+        normalization is performed.
     k : FloatSquareMatrix (N, N)
         Matrix of cross-propagation rate coefficients. The diagonal elements
         $k_{ii}$ are not used.
@@ -398,6 +401,7 @@ def monomer_drift_multi(
     r: FloatSquareMatrix,
     atol: float = 1e-4,
     rtol: float = 1e-4,
+    method: Literal["RK45", "LSODA"] = "LSODA",
 ) -> FloatMatrix:
     r"""Compute the monomer composition drift for a multicomponent system.
 
@@ -413,7 +417,9 @@ def monomer_drift_multi(
     Parameters
     ----------
     f0 : FloatVectorLike (N)
-        Vector of initial instantaneous comonomer compositions.
+        Vector of initial instantaneous comonomer compositions. Only the first N-1
+        components are used; the last component is computed as 1 minus the sum of the
+        others.
     x : FloatVectorLike (M)
         Vector of total monomer conversion values where the drift is to be
         evaluated.
@@ -423,6 +429,8 @@ def monomer_drift_multi(
         Absolute tolerance of the ODE solver.
     rtol : float
         Relative tolerance of the ODE solver.
+    method : Literal["RK45", "LSODA"]
+        Integration method to use for the ODE solver.
 
     Returns
     -------
@@ -462,9 +470,16 @@ def monomer_drift_multi(
            [4.98294381e-01, 1.22646553e-07, 5.01705497e-01]])
 
     """
-    N = len(f0)
+    f0 = np.asarray(f0, dtype=np.float64)
+    x = np.asarray(x, dtype=np.float64)
+
+    N = f0.size
     if r.shape != (N, N):
         raise ShapeError("Shape mismatch between `f0` and `r`.")
+
+    xmax = np.max(x)
+    if xmax == 0.0:
+        return np.tile(f0, (len(x), 1))
 
     def dfdx(x: float, f: FloatVector) -> FloatVector:
         F = inst_copolymer_multi(f=np.append(f, 1.0 - f.sum()), r=r)
@@ -472,12 +487,12 @@ def monomer_drift_multi(
 
     sol = solve_ivp(
         dfdx,
-        t_span=(0.0, max(x)),
+        t_span=(0.0, xmax),
         y0=f0[:-1],
         t_eval=x,
         atol=atol,
         rtol=rtol,
-        method="LSODA",
+        method=method,
     )
 
     if sol.success:
