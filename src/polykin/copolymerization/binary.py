@@ -180,7 +180,7 @@ def monomer_drift_binary(
     rtol : float
         Relative tolerance of ODE solver.
     method : Literal['LSODA', 'RK45']
-        ODE solver.
+        Integration method to use for the ODE solver.
 
     Returns
     -------
