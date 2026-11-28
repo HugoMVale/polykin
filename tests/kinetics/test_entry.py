@@ -35,3 +35,7 @@ def test_ke_diffusion_reversible():
     ke_irreversible = kentry_diffusion(r, Dw)
     ke_reversible = kentry_diffusion_reversible(r, Dw, Dp, q, k)
     assert isclose(ke_reversible, ke_irreversible, rtol=1e-2)
+    # no reaction limit
+    k = 0.0  # s-1
+    ke_reversible = kentry_diffusion_reversible(r, Dw, Dp, q, k)
+    assert isclose(kentry_diffusion_reversible(r, Dw, Dp, q, k), 0.0, rtol=1e-2)

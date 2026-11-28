@@ -172,6 +172,6 @@ def kentry_diffusion_reversible(
     ke = 7.35e+08 m³/(mol·s)
     """
     X = r * sqrt(k / Dp)
-    Y = X / tanh(X) - 1.0
+    Y = 0.0 if X == 0.0 else X / tanh(X) - 1.0
     fe = (q * Dp * Y) / (Dw + q * Dp * Y)
     return kentry_diffusion(r, Dw, fe)
