@@ -124,6 +124,8 @@ class Distribution(ABC):
         # Convert list to ndarray
         if isinstance(size, (list, tuple)):
             size = np.array(size)
+        # Check that size values are valid
+        check_bounds(size, 0, np.inf, "size")
         # Math is done by the corresponding subclass method
         return self._pdf(size, order, sizeasmass)
 
@@ -172,6 +174,8 @@ class Distribution(ABC):
         # Convert list to ndarray
         if isinstance(size, (list, tuple)):
             size = np.array(size)
+        # Check that size values are valid
+        check_bounds(size, 0, np.inf, "size")
         # Math is done by the corresponding subclass method
         return self._cdf(size, order, sizeasmass)
 
