@@ -98,13 +98,12 @@ def nbar_Stockmayer_OToole(
     alpha, m = np.broadcast_arrays(np.asarray(alpha), np.asarray(m))
     result = np.zeros_like(alpha, dtype=np.float64)
 
-    mask_zero = (alpha == 0) & (m > 0)
-    mask_general = ~mask_zero
+    mask_positive = alpha > 0.0
 
-    if np.any(mask_general):
-        a = sqrt(8 * alpha[mask_general])
-        result[mask_general] = (
-            a / 4 * ive(m[mask_general], a) / ive(m[mask_general] - 1.0, a)
+    if np.any(mask_positive):
+        a = sqrt(8 * alpha[mask_positive])
+        result[mask_positive] = (
+            a / 4 * ive(m[mask_positive], a) / ive(m[mask_positive] - 1.0, a)
         )
 
     if result.ndim == 0:
@@ -186,9 +185,14 @@ def nbar_Li_Brooks(
     >>> print(f"nbar = {nbar:.2e}")
     nbar = 5.02e-01
     """
-    return (
-        2 * alpha / (m + sqrt(m**2 + 8 * alpha * (2 * alpha + m) / (2 * alpha + m + 1)))
-    )
+    if alpha == 0.0:
+        return 0.0
+    else:
+        return (
+            2
+            * alpha
+            / (m + sqrt(m**2 + 8 * alpha * (2 * alpha + m) / (2 * alpha + m + 1)))
+        )
 
 
 def nbar_Ugelstad(
