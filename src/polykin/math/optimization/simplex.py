@@ -106,11 +106,11 @@ def fmin_nelder_mead(
     success = False
     nfeval = 0
 
-    x0 = np.asarray(x0, dtype=float)
+    x0 = np.asarray(x0, dtype=np.float64)
     n = x0.size
 
     if sclx is not None:
-        sclx = np.abs(np.asarray(sclx, dtype=float))
+        sclx = np.abs(np.asarray(sclx, dtype=np.float64))
         if sclx.size != n:
             raise ShapeError("Shape mismatch between `sclx` and `x0`.")
         if np.any(sclx == 0.0):

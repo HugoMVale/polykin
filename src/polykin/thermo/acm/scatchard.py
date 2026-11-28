@@ -69,8 +69,8 @@ class ScatchardHildebrand(MolecularACM):
         name: str = "",
     ) -> None:
 
-        delta = np.asarray(delta, dtype=float)
-        v = np.asarray(v, dtype=float)
+        delta = np.asarray(delta, dtype=np.float64)
+        v = np.asarray(v, dtype=np.float64)
 
         check_shape(delta, (N,), "delta")
         check_shape(v, (N,), "v")

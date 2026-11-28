@@ -114,8 +114,8 @@ class UNIQUAC(MolecularACM):
             d = np.zeros((N, N))
 
         # Check shapes
-        q = np.asarray(q, dtype=float)
-        r = np.asarray(r, dtype=float)
+        q = np.asarray(q, dtype=np.float64)
+        r = np.asarray(r, dtype=np.float64)
         check_shape(q, (N,), "q")
         check_shape(r, (N,), "r")
         check_shape(a, (N, N), "a")

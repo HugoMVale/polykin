@@ -506,10 +506,10 @@ def _fit_copo_ODR(
         if np.isscalar(_wF1):
             _wF1 = [_wF1] * N
         wF1.extend(_wF1)
-    f1 = np.asarray(f1, dtype=float)
-    F1 = np.asarray(F1, dtype=float)
-    wf1 = np.asarray(wf1, dtype=float)
-    wF1 = np.asarray(wF1, dtype=float)
+    f1 = np.asarray(f1, dtype=np.float64)
+    F1 = np.asarray(F1, dtype=np.float64)
+    wf1 = np.asarray(wf1, dtype=np.float64)
+    wF1 = np.asarray(wF1, dtype=np.float64)
 
     # Parameter estimation
     sol = odr_fit(
@@ -518,7 +518,7 @@ def _fit_copo_ODR(
         ydata=F1,
         weight_x=wf1,
         weight_y=wF1,
-        beta0=np.asarray(r_guess, dtype=float),
+        beta0=np.asarray(r_guess, dtype=np.float64),
     )
 
     if not sol.success:

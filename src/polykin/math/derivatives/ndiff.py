@@ -196,7 +196,7 @@ def gradient_forward(
     epsf = max(epsf, eps) if epsf is not None else eps
     h0 = math.sqrt(epsf)
 
-    g = np.empty_like(x, dtype=float)
+    g = np.empty_like(x, dtype=np.float64)
     xh = x.copy()
 
     for i in range(x.size):

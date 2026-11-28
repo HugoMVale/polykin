@@ -193,12 +193,12 @@ def fmin_qnewton(
     niter = 0
 
     # Get problem dimension
-    x0 = np.asarray(x0, dtype=float)
+    x0 = np.asarray(x0, dtype=np.float64)
     n = x0.size
 
     # Set scaling factors for x
     if sclx is not None:
-        sclx = np.abs(np.asarray(sclx, dtype=float))
+        sclx = np.abs(np.asarray(sclx, dtype=np.float64))
         if sclx.size != n:
             raise ShapeError("Shape mismatch between `sclx` and `x0`.")
         if np.any(sclx == 0.0):

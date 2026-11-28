@@ -181,12 +181,12 @@ def rootvec_qnewton(
     njeval = 0
 
     # Get problem dimension
-    x0 = np.asarray(x0, dtype=float)
+    x0 = np.asarray(x0, dtype=np.float64)
     n = x0.size
 
     # Set scaling factors for x
     if sclx is not None:
-        sclx = np.abs(np.asarray(sclx, dtype=float))
+        sclx = np.abs(np.asarray(sclx, dtype=np.float64))
         if sclx.size != n:
             raise ShapeError("Shape mismatch between `sclx` and `x0`.")
         if np.any(sclx == 0.0):
@@ -234,13 +234,13 @@ def rootvec_qnewton(
 
     # Set scaling factors for f
     if sclf is not None:
-        sclf = np.abs(np.asarray(sclf, dtype=float))
+        sclf = np.abs(np.asarray(sclf, dtype=np.float64))
         if sclf.size != n:
             raise ShapeError("Shape mismatch between `sclf` and `x0`.")
         if np.any(sclf == 0.0):
             raise ValueError("Scaling factors in `sclf` must be non-zero.")
     else:
-        sclf = np.empty(n, dtype=float)
+        sclf = np.empty(n, dtype=np.float64)
         sclf[:] = np.max(np.abs(J), axis=1)
         sclf[sclf == 0.0] = 1.0
         sclf[:] = 1.0 / sclf

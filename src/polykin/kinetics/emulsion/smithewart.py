@@ -508,7 +508,7 @@ def SmithEwart_qssa_pdf(
 
         pn = exp(ln_prefactor + ln_factor)
     else:
-        pn = np.zeros_like(n, dtype=float)
+        pn = np.zeros_like(n, dtype=np.float64)
         pn[n == 0] = 1.0
 
     if scalar_input:
