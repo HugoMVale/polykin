@@ -407,6 +407,7 @@ def fmin_qnewton(
             if stop:
                 success = _success
                 message = "Terminated by user callback."
+                xc, fc, gc = xp, fp, gp
                 break
 
         # Check termination and convergence conditions
