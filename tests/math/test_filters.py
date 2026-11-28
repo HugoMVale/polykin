@@ -7,6 +7,7 @@ import pytest
 from numpy import all, isclose
 
 from polykin.math import simplify_polyline
+from polykin.math.misc.filters import _point_segment_distance
 
 
 def test_polyline():
@@ -35,3 +36,20 @@ def test_polyline():
 
     with pytest.raises(ValueError):
         _ = simplify_polyline(p[0, :], tol=1.0)
+
+
+def test_polyline_closed():
+    p = np.array([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
+    assert all(simplify_polyline(p, tol=0.1) == p)
+
+
+def test_point_segment_distance():
+    start = np.array([0.0, 0.0])
+    end = np.array([1.0, 0.0])
+
+    assert isclose(_point_segment_distance(np.array([2.0, 0.0]), start, end), 1.0)
+    assert isclose(_point_segment_distance(np.array([-1.0, 0.0]), start, end), 1.0)
+    assert isclose(
+        _point_segment_distance(np.array([0.5, 2.0]), start, start),
+        np.sqrt(4.25),
+    )

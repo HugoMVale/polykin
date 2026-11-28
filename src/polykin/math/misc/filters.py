@@ -141,7 +141,7 @@ def _farthest_point(
     imax = 0
     dmax = 0.0
     for i in range(istart + 1, iend):
-        d = _perpendicular_distance(points[i, :], points[istart, :], points[iend, :])
+        d = _point_segment_distance(points[i, :], points[istart, :], points[iend, :])
         if d > dmax:
             imax = i
             dmax = d
@@ -150,30 +150,34 @@ def _farthest_point(
 
 
 @njit
-def _perpendicular_distance(
+def _point_segment_distance(
     point: FloatVector,
-    line_start: FloatVector,
-    line_end: FloatVector,
+    segment_start: FloatVector,
+    segment_end: FloatVector,
 ) -> float:
-    """Perpendicular distance between a point and a line in hyperspace.
+    """Distance between a point and a finite line segment in hyperspace.
 
     Parameters
     ----------
     point : FloatVector
         Point coordinates.
-    line_start : FloatVector
-        Line start coordinates.
-    line_end : FloatVector
-        Line end coordinates.
+    segment_start : FloatVector
+        Segment start coordinates.
+    segment_end : FloatVector
+        Segment end coordinates.
 
     Returns
     -------
     float
-        Perpendicular distance.
+        Distance to the closest point on the segment.
     """
-    d = line_end - line_start
-    d /= np.linalg.norm(d)
-    pv = point - line_start
-    pvdot = np.dot(d, pv)
-    ds = pvdot * d
-    return np.linalg.norm(pv - ds)  # type: ignore
+    direction = segment_end - segment_start
+    length_squared = np.dot(direction, direction)
+    offset = point - segment_start
+
+    if length_squared == 0.0:
+        return np.linalg.norm(offset)
+
+    projection = np.dot(offset, direction) / length_squared
+    projection = min(1.0, max(0.0, projection))
+    return np.linalg.norm(offset - projection * direction)
