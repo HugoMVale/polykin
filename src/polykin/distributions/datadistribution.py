@@ -3,12 +3,14 @@
 # Copyright Hugo Vale 2024
 
 import functools
+import warnings
 from typing import Literal
 
 import numpy as np
 from numpy import log10
 from scipy import integrate, interpolate, optimize
 
+from polykin.utils.exceptions import ShapeError
 from polykin.utils.math import vectorize
 from polykin.utils.tools import check_bounds, check_subclass
 from polykin.utils.typing import FloatVectorLike
@@ -59,16 +61,36 @@ class DataDistribution(IndividualDistribution):
 
         # Check and clean input
         self.M0 = M0
+        if not np.isfinite(self.M0) or self.M0 <= 0:
+            raise ValueError("`M0` must be finite and greater than zero.")
         self.name = name
-        size_data = np.array(size_data, dtype=np.float64)
-        pdf_data = np.array(pdf_data, dtype=np.float64)
+        size_data = np.asarray(size_data, dtype=np.float64)
+        pdf_data = np.asarray(pdf_data, dtype=np.float64)
+        if size_data.ndim != 1 or pdf_data.ndim != 1:
+            raise ShapeError("`size_data` and `pdf_data` must be one-dimensional.")
+        if size_data.shape != pdf_data.shape:
+            raise ShapeError("`size_data` and `pdf_data` must have the same shape.")
+        if size_data.size == 0:
+            raise ValueError("`size_data` and `pdf_data` must not be empty.")
+        if not np.all(np.isfinite(size_data)) or not np.all(np.isfinite(pdf_data)):
+            raise ValueError(
+                "`size_data` and `pdf_data` must contain only finite values."
+            )
         if self._verify_sizeasmass(sizeasmass):
             size_data /= self.M0
         idx_valid = np.logical_and(pdf_data > 0.0, size_data >= 1.0)
         if not idx_valid.all():
-            print("Warning: Found and removed inconsistent values.")
+            warnings.warn(
+                "Found and removed inconsistent values.", UserWarning, stacklevel=2
+            )
         self._pdf_data = pdf_data[idx_valid]
         self._length_data = size_data[idx_valid]
+        if self._length_data.size < 4:
+            raise ValueError(
+                "At least 4 valid data points are required for the cubic spline."
+            )
+        if not np.all(np.diff(self._length_data) > 0):
+            raise ValueError("`size_data` must be strictly increasing.")
         self._pdf_order = self.kind_order[self._verify_kind(kind)]
 
         # Base-line correction

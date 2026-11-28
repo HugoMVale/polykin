@@ -15,6 +15,7 @@ from polykin.distributions import (
     SchulzZimm,
     plotdists,
 )
+from polykin.utils.exceptions import ShapeError
 
 
 @pytest.fixture
@@ -96,9 +97,7 @@ def test_pdf_continuous_integral(dist2):
     distributions = dist2
     for d in distributions:
         for kind in ["number", "mass", "gpc"]:
-            pdf_integral, atol = integrate.quad(
-                lambda x: d.pdf(x, kind=kind), 0, np.inf
-            )
+            pdf_integral, atol = integrate.quad(lambda x: d.pdf(x, kind=kind), 0, np.inf)
             # print(d.name, kind, pdf_integral, atol)
             assert isclose(pdf_integral, 1.0, atol=atol)
 
@@ -259,6 +258,46 @@ def test_data_distribution():
         assert isclose(y2, y1, rtol=rtol)
     assert isclose(d2.pdf(d2.DPw), d1.pdf(d1.DPw), rtol=rtol)
     assert isclose(d2.cdf(d2.DPw), d1.cdf(d1.DPw), rtol=rtol)
+
+
+@pytest.mark.parametrize(
+    "size_data,pdf_data",
+    [
+        ([], []),
+        ([1, 2, np.nan, 4], [1, 2, 3, 4]),
+        ([1, 2, 3, 4], [1, 2, np.inf, 4]),
+        ([1, 2, 2, 4], [1, 2, 3, 4]),
+        ([2, 3, 4, 1], [1, 2, 3, 4]),
+        ([1, 2, 3], [1, 2, 3]),
+    ],
+)
+def test_data_distribution_invalid_data(size_data, pdf_data):
+    with pytest.raises(ValueError):
+        DataDistribution(size_data, pdf_data)
+
+
+@pytest.mark.parametrize(
+    "size_data,pdf_data",
+    [
+        ([1, 2, 3], [1, 2]),
+        ([[1], [2], [3], [4]], [1, 2, 3, 4]),
+    ],
+)
+def test_data_distribution_shape_error(size_data, pdf_data):
+    with pytest.raises(ShapeError):
+        DataDistribution(size_data, pdf_data)
+
+
+def test_data_distribution_filters_inconsistent_values():
+    with pytest.warns(UserWarning, match="removed inconsistent values"):
+        d = DataDistribution([0.5, 1, 2, 3, 4, 5], [1, 2, 3, 0, 4, 5])
+    assert np.array_equal(d._length_data, [1, 2, 4, 5])
+
+
+@pytest.mark.parametrize("M0", [0, np.inf, np.nan])
+def test_data_distribution_invalid_m0(M0):
+    with pytest.raises(ValueError):
+        DataDistribution([1, 2, 3, 4], [1, 2, 3, 4], M0=M0)
 
 
 def test_fit_itself(dist1, dist2):
