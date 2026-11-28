@@ -12,7 +12,7 @@ from matplotlib.axes._axes import Axes
 from matplotlib.figure import Figure
 from numpy import dot
 from odrpack import odr_fit
-from scipy.optimize import minimize
+from scipy.optimize import least_squares
 from scipy.stats import linregress
 from scipy.stats.distributions import t as tdist
 
@@ -22,7 +22,7 @@ from polykin.copolymerization.copodataset import (
     CopoDataset_Fx,
     CopoDataset_fx,
 )
-from polykin.math import confidence_ellipse, confidence_region, hessian2_centered
+from polykin.math import confidence_ellipse, confidence_region
 from polykin.utils.exceptions import FitError
 from polykin.utils.tools import pprint_matrix
 from polykin.utils.typing import Float2x2Matrix, FloatVectorLike
@@ -264,12 +264,12 @@ def fit_copo_data(
     # Calculate and check 'ndata'
     npar = 2
     ndata = 0
-    for dataset in data_Ff:
-        ndata += len(dataset.f1)
-    for dataset in data_fx:
-        ndata += len(dataset.x)
-    for dataset in data_Fx:
-        ndata += len(dataset.x)
+    for ds in data_Ff:
+        ndata += len(ds.f1)
+    for ds in data_fx:
+        ndata += len(ds.x)
+    for ds in data_Fx:
+        ndata += len(ds.x)
     if ndata < npar:
         raise FitError("Not enough data to estimate reactivity ratios.")
 
@@ -322,9 +322,9 @@ def fit_copo_data(
             ax.set_xlim(0.0, 1.0)
             ax.set_ylim(0.0, 1.0)
             x = np.linspace(0.0, xmax, npoints)
-            for dataset in data_fx:
-                ax.scatter(dataset.x, dataset.f1, label=dataset.name)
-                f1_est = monomer_drift_binary(dataset.f10, x, *r_opt)
+            for ds in data_fx:
+                ax.scatter(ds.x, ds.f1, label=ds.name)
+                f1_est = monomer_drift_binary(ds.f10, x, *r_opt)
                 ax.plot(x, f1_est)
             ax.legend(loc="best")
 
@@ -337,9 +337,9 @@ def fit_copo_data(
             ax.set_xlim(0.0, 1.0)
             ax.set_ylim(0.0, 1.0)
             x = np.linspace(0.0, xmax, npoints)
-            for dataset in data_Fx:
-                f10 = dataset.f10
-                ax.scatter(dataset.x, dataset.F1, label=dataset.name)
+            for ds in data_Fx:
+                f10 = ds.f10
+                ax.scatter(ds.x, ds.F1, label=ds.name)
                 f1_est = monomer_drift_binary(f10, x, *r_opt)
                 F1_est = f1_est + (f10 - f1_est) / (x + 1e-10)
                 F1_est[0] = inst_copolymer_binary(f10, *r_opt)
@@ -354,16 +354,16 @@ def fit_copo_data(
         ax.set_xlim(0.0, 1.0)
         ax.set_ylim(0.0, 1.0)
         ax.plot([0.0, 1.0], [0.0, 1.0], color="black", linewidth=0.5)
-        for dataset in data_Ff:
-            F1_est = inst_copolymer_binary(dataset.f1, *r_opt)
-            ax.scatter(dataset.F1, F1_est, label=dataset.name)
-        for dataset in data_fx:
-            f1_est = monomer_drift_binary(dataset.f10, dataset.x, *r_opt)
-            ax.scatter(dataset.f1, f1_est, label=dataset.name)
-        for dataset in data_Fx:
-            f1_est = monomer_drift_binary(dataset.f10, dataset.x, *r_opt)
-            F1_est = f1_est + (dataset.f10 - f1_est) / (dataset.x + 1e-10)
-            ax.scatter(dataset.F1, F1_est, label=dataset.name)
+        for ds in data_Ff:
+            F1_est = inst_copolymer_binary(ds.f1, *r_opt)
+            ax.scatter(ds.F1, F1_est, label=ds.name)
+        for ds in data_fx:
+            f1_est = monomer_drift_binary(ds.f10, ds.x, *r_opt)
+            ax.scatter(ds.f1, f1_est, label=ds.name)
+        for ds in data_Fx:
+            f1_est = monomer_drift_binary(ds.f10, ds.x, *r_opt)
+            F1_est = f1_est + (ds.f10 - f1_est) / (ds.x + 1e-10)
+            ax.scatter(ds.F1, F1_est, label=ds.name)
         ax.legend(loc="best")
 
     # Joint confidence region
@@ -428,58 +428,59 @@ def _fit_copo_NLLS(
 ) -> tuple[tuple, np.ndarray | None, Callable]:
     """Fit copolymerization data using NLLS."""
 
-    def sse(r: tuple[float, float], atol=1e-4, rtol=1e-4) -> float:
-        """Total sum of squared errors, for optimizer and exact JCR."""
-        result = 0.0
+    def residuals(
+        r: tuple[float, float] | np.ndarray,
+        atol: float = 1e-4,
+        rtol: float = 1e-4,
+    ) -> np.ndarray:
+        """Weighted residuals for all copolymerization datasets."""
+        residual_blocks = []
         # F1(f1) datasets
-        for dataset in data_Ff:
-            F1_est = inst_copolymer_binary(dataset.f1, *r)
-            rx = (dataset.F1 - F1_est) / dataset.scale_F1
-            result += dataset.weight * dot(rx, rx)
+        for ds in data_Ff:
+            F1_est = inst_copolymer_binary(ds.f1, *r)
+            rx = np.sqrt(ds.weight) * (ds.F1 - F1_est) / ds.scale_F1
+            residual_blocks.append(rx)
 
         # f1(x, f10) datasets
-        for dataset in data_fx:
-            f1_est = monomer_drift_binary(
-                dataset.f10, dataset.x, *r, atol=atol, rtol=rtol
-            )
-            rx = (dataset.f1 - f1_est) / dataset.scale_f1
-            result += dataset.weight * dot(rx, rx)
+        for ds in data_fx:
+            f1_est = monomer_drift_binary(ds.f10, ds.x, *r, atol=atol, rtol=rtol)
+            rx = np.sqrt(ds.weight) * (ds.f1 - f1_est) / ds.scale_f1
+            residual_blocks.append(rx)
 
         # F1(x, f10) datasets
-        for dataset in data_Fx:
-            f10 = dataset.f10
-            x = dataset.x
+        for ds in data_Fx:
+            f10 = ds.f10
+            x = ds.x
             f1_est = monomer_drift_binary(f10, x, *r, atol=atol, rtol=rtol)
             F1_est = f1_est + (f10 - f1_est) / (x + 1e-10)
-            rx = (dataset.F1 - F1_est) / dataset.scale_F1
-            result += dataset.weight * dot(rx, rx)
-        return result
+            rx = np.sqrt(ds.weight) * (ds.F1 - F1_est) / ds.scale_F1
+            residual_blocks.append(rx)
+        return np.concatenate(residual_blocks)
 
     # Parameter estimation
-    sol = minimize(
-        sse,
+    sol = least_squares(
+        residuals,
         x0=r_guess,
-        bounds=((1e-3, 1e2), (1e-3, 1e2)),
-        method="L-BFGS-B",  # most efficient
-        options={"maxiter": 200},
+        bounds=([1e-3, 1e-3], [1e2, 1e2]),
+        max_nfev=200,
     )
     if not sol.success:
         raise FitError(sol.message)
     r_opt = tuple(sol.x)
-    sse_opt = sol.fun
+    sse_opt = dot(sol.fun, sol.fun)
 
-    # Covarance matrix
+    # Covariance matrix
     npar = 2
     if ndata > npar:
         s_sq = sse_opt / (ndata - npar)
-        H = hessian2_centered(sse, r_opt, epsf=1e-6)
-        Hinv = np.linalg.inv(H)
-        cov = 2 * Hinv * s_sq
+        cov = np.linalg.inv(sol.jac.T @ sol.jac) * s_sq
     else:
         cov = None
 
-    def sse_NLLS(r):
-        return sse(r, rtol=1e-4, atol=1e-5)
+    def sse_NLLS(r) -> float:
+        """Total sum of squared errors for exact JCR."""
+        rx = residuals(r, atol=1e-5, rtol=1e-4)
+        return dot(rx, rx)
 
     return (r_opt, cov, sse_NLLS)
 

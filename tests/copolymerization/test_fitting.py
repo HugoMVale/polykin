@@ -5,7 +5,15 @@
 import numpy as np
 from numpy import allclose
 
-from polykin.copolymerization import CopoDataset_Ff, fit_copo_data, fit_Finemann_Ross
+from polykin.copolymerization import (
+    CopoDataset_Ff,
+    CopoDataset_Fx,
+    CopoDataset_fx,
+    fit_copo_data,
+    fit_Finemann_Ross,
+    inst_copolymer_binary,
+    monomer_drift_binary,
+)
 
 
 def test_fit_Finemann_Ross():
@@ -53,3 +61,28 @@ def test_fit_reactivity_ratios_2():
         r1 = result.r1
         r2 = result.r2
         assert allclose([r1, r2], [1.19, 1.87], rtol=0.01)
+
+
+def test_fit_mixed_reactivity_data():
+    """Fit weighted instantaneous and composition drift residuals together."""
+    r_true = (1.5, 0.6)
+    f1_Ff = np.array([0.1, 0.3, 0.5, 0.7, 0.9])
+    F1_Ff = inst_copolymer_binary(f1_Ff, *r_true)
+
+    f10 = 0.4
+    x = np.array([0.1, 0.3, 0.5, 0.7, 0.9])
+    f1_x = monomer_drift_binary(f10, x, *r_true)
+    F1_x = f1_x + (f10 - f1_x) / (x + 1e-10)
+
+    result = fit_copo_data(
+        [CopoDataset_Ff("Ff", f1_Ff, F1_Ff, 1.0, 0.02, 0.5)],
+        [CopoDataset_fx("fx", f10, x, f1_x, 0.03, 2.0)],
+        [CopoDataset_Fx("Fx", f10, x, F1_x, 0.04, 1.5)],
+        r_guess=(1.0, 1.0),
+        plot_data=False,
+        JCR_linear=False,
+    )
+
+    assert allclose([result.r1, result.r2], r_true, rtol=1e-3)
+    assert result.cov is not None
+    assert np.all(np.isfinite(result.cov))
