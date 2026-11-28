@@ -169,7 +169,8 @@ def monomer_drift_binary(
     f10 : float | FloatVectorLike (N)
         Initial molar fraction of M1, $f_{1,0}=f_1(0)$.
     x : FloatVectorLike (M)
-        Total monomer conversion values where the drift is to be evaluated.
+        Total monomer conversion values where the drift is to be evaluated. Must be sorted
+        in ascending order.
     r1 : float | FloatArray
         Reactivity ratio of M1.
     r2 : float | FloatArray
@@ -207,12 +208,19 @@ def monomer_drift_binary(
     array([[0.19841009, 0.18898084, 0.15854395],
            [0.82315475, 0.94379024, 0.99996457]])
     """
-    if isinstance(f10, (int, float)):
-        f10 = [f10]
+    f10 = np.atleast_1d(f10).astype(np.float64)
+    x = np.asarray(x, dtype=np.float64)
+
+    xmax = np.max(x)
+    if xmax == 0:
+        result = np.repeat(f10[:, np.newaxis], x.size, axis=1)
+        if result.shape[0] == 1:
+            result = result[0]
+        return result
 
     sol = solve_ivp(
         df1dx,
-        (0.0, max(x)),
+        (0.0, xmax),
         f10,
         args=(r1, r2),
         t_eval=x,
