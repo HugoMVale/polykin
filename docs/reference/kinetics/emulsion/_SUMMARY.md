@@ -9,3 +9,4 @@
 * [nbar_Stockmayer_OToole](nbar_Stockmayer_OToole.md)
 * [nbar_Ugelstad](nbar_Ugelstad.md)
 * [n2bar](n2bar.md)
+* [SmithEwart_qssa_pdf](SmithEwart_qssa_pdf.md)
