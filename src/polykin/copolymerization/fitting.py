@@ -2,6 +2,7 @@
 #
 # Copyright Hugo Vale 2024
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Literal
 
@@ -424,7 +425,7 @@ def _fit_copo_NLLS(
     data_Fx: list[CopoDataset_Fx],
     r_guess: tuple[float, float],
     ndata: int,
-):
+) -> tuple[tuple, np.ndarray | None, Callable]:
     """Fit copolymerization data using NLLS."""
 
     def sse(r: tuple[float, float], atol=1e-4, rtol=1e-4) -> float:
@@ -464,7 +465,7 @@ def _fit_copo_NLLS(
     )
     if not sol.success:
         raise FitError(sol.message)
-    r_opt = sol.x
+    r_opt = tuple(sol.x)
     sse_opt = sol.fun
 
     # Covarance matrix
@@ -486,40 +487,44 @@ def _fit_copo_NLLS(
 def _fit_copo_ODR(
     data_Ff: list[CopoDataset_Ff],
     r_guess: tuple[float, float],
-):
+) -> tuple[tuple, np.ndarray | None, Callable]:
     """Fit copolymerization data using ODR."""
     # Concatenate all F(f) datasets
-    f1, F1, sf1, sF1 = [], [], [], []
+    f1 = []
+    F1 = []
+    wf1 = []
+    wF1 = []
     for dataset in data_Ff:
         f1.extend(dataset.f1)
         F1.extend(dataset.F1)
-        _sf1 = dataset.scale_f1 / (dataset.weight + 1e-10)
-        if isinstance(_sf1, (int, float)):
-            _sf1 = [_sf1] * len(dataset.f1)
-        sf1.extend(_sf1)
-        _sF1 = dataset.scale_F1 / (dataset.weight + 1e-10)
-        if isinstance(_sF1, (int, float)):
-            _sF1 = [_sF1] * len(dataset.f1)
-        sF1.extend(_sF1)
-    f1 = np.asarray(f1)
-    F1 = np.asarray(F1)
-    sf1 = np.asarray(sf1)
-    sF1 = np.asarray(sF1)
+        N = len(dataset.f1)
+        _wf1 = dataset.weight / dataset.scale_f1**2
+        if np.isscalar(dataset.scale_f1):
+            _wf1 = [_wf1] * N
+        wf1.extend(_wf1)
+        _wF1 = dataset.weight / dataset.scale_F1**2
+        if np.isscalar(_wF1):
+            _wF1 = [_wF1] * N
+        wF1.extend(_wF1)
+    f1 = np.asarray(f1, dtype=float)
+    F1 = np.asarray(F1, dtype=float)
+    wf1 = np.asarray(wf1, dtype=float)
+    wF1 = np.asarray(wF1, dtype=float)
 
     # Parameter estimation
     sol = odr_fit(
         f=lambda x, beta: inst_copolymer_binary(x, *beta),
         xdata=f1,
         ydata=F1,
-        weight_x=1 / sf1**2,
-        weight_y=1 / sF1**2,
-        beta0=np.array(r_guess),
+        weight_x=wf1,
+        weight_y=wF1,
+        beta0=np.asarray(r_guess, dtype=float),
     )
 
     if not sol.success:
         raise FitError(sol.stopreason)
 
-    r_opt = sol.beta
+    r_opt = tuple(sol.beta)
     f1plus = sol.xplusd
     if f1.size > 2:
         # cov_beta is absolute, so rescaling is required
@@ -529,8 +534,8 @@ def _fit_copo_ODR(
 
     def sse_ODR(r):
         """Total sum of squared errors, for exact JCR."""
-        ry = (F1 - inst_copolymer_binary(f1plus, *r)) / sF1
-        rx = (f1 - f1plus) / sf1
-        return dot(ry, ry) + dot(rx, rx)
+        ry = F1 - inst_copolymer_binary(f1plus, *r)
+        rx = f1 - f1plus
+        return dot(ry * ry, wF1) + dot(rx * rx, wf1)
 
     return (r_opt, cov, sse_ODR)
