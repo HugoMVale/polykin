@@ -19,7 +19,7 @@ from polykin.math.roots.results import VectorRootResult
 from polykin.utils.exceptions import ShapeError
 from polykin.utils.typing import FloatMatrix, FloatVector, FloatVectorLike
 
-all = ["rootvec_qnewton"]
+__all__ = ["rootvec_qnewton"]
 
 
 def rootvec_qnewton(
