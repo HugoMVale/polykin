@@ -428,7 +428,8 @@ class SchulzZimm(AnalyticalDistributionP2):
 
 def poisson(k, a: float, k0: bool):
     """Poisson probability density function."""
-    shift = 0
-    if not k0:
-        shift = -1
+    if a == 0.0:
+        return np.equal(k, 0 if k0 else 1).astype(np.float64)
+
+    shift = 0 if k0 else -1
     return exp((k + shift) * log(a) - a - sp.gammaln(k + 1 + shift))
